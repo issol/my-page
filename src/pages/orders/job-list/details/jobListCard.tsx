@@ -79,7 +79,11 @@ interface JobListCardProps extends ModeProps {
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
   onClickAddJob: (itemId: number, index: number, serviceType: string[]) => void
-  onAutoCreateJob: () => void
+  onAutoCreateJob: (itemId: number[]) => void
+  createWithJobTemplateMutation: UseMutationResult<void, unknown, {
+    itemId: number;
+    templateId: number;
+  }, unknown>
   deleteJobsMutation: UseMutationResult<void[], unknown, number[], unknown>
   changeStatusMutation: UseMutationResult<void[], unknown, {
     jobIds: number[];
@@ -99,6 +103,7 @@ const JobListCard = ({
   statusList,
   onClickAddJob,
   onAutoCreateJob,
+  createWithJobTemplateMutation,
   onChangeViewMode,
   deleteJobsMutation,
   changeStatusMutation,
@@ -369,7 +374,7 @@ const JobListCard = ({
             <Box display='flex' alignItems='center'>
               <JobButton
                 label='Auto-create'
-                onClick={onAutoCreateJob}
+                onClick={() => onAutoCreateJob([info.id])}
                 disabled={mode !== 'view'}
               >
                 <AutoMode sx={{ fontSize: 20 }} />
@@ -647,7 +652,12 @@ const JobListCard = ({
             </TableBody>
           </Table>
         </TableContainer>
-        <AddJobTemplate isOpen={isOpen} onClose={onClose} />
+        <AddJobTemplate 
+          isOpen={isOpen} 
+          onClose={onClose}
+          itemId={info.id}
+          createWithJobTemplateMutation={createWithJobTemplateMutation}
+        />
       </Collapse>
       {viewState && (
         <Card

@@ -29,6 +29,8 @@ import {
 import { DataGrid, GridSelectionModel } from '@mui/x-data-grid'
 import { getAddJobTemplateColumns } from '@src/shared/const/columns/job-template'
 import NoList from '@src/pages/components/no-list'
+import { UseMutationResult } from 'react-query'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 interface AddJobTemplateSearchForm {
   search: string
@@ -38,9 +40,14 @@ interface AddJobTemplateSearchForm {
 interface AddJobTemplateProps {
   isOpen: boolean
   onClose: () => void
+  itemId: number
+  createWithJobTemplateMutation: UseMutationResult<void, unknown, {
+    itemId: number;
+    templateId: number;
+  }, unknown>
 }
 
-const AddJobTemplate = ({ isOpen, onClose }: AddJobTemplateProps) => {
+const AddJobTemplate = ({ isOpen, onClose, itemId, createWithJobTemplateMutation }: AddJobTemplateProps) => {
   const searchForm = useForm<AddJobTemplateSearchForm>({
     defaultValues: {
       search: '',
@@ -67,7 +74,16 @@ const AddJobTemplate = ({ isOpen, onClose }: AddJobTemplateProps) => {
   }
 
   const onClickAddTemlate = () => {
-    console.log('selectionModel', selectionModel)
+    // 여기서 뮤테이션을 받고 닫아야 함
+    createWithJobTemplateMutation.mutateAsync({
+      itemId,
+      templateId: selectionModel[0] as number,
+    }).then(() => {
+      onClose()
+    }).catch(() => {
+      displayCustomToast('Failed to delete.', 'error')
+      // onClose()
+    })
   }
 
   return (

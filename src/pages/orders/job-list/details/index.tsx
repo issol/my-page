@@ -24,8 +24,8 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
-import { createJob } from '@src/apis/jobs/jobs.api'
+import { CreateJobParamsType, CreateWithJobTemplateParamsType, autoCreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { autoCreateJob, createJob, createWithJobTemplate } from '@src/apis/jobs/jobs.api'
 import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -42,6 +42,7 @@ import styled from '@emotion/styled'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 import { JobListMode } from '@src/views/jobDetails/viewModes'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -79,6 +80,42 @@ const JobDetails = () => {
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
+    {
+      onSuccess: (data, variables) => {
+        // if (variables.index) {
+        //   const newServiceType = [...serviceType]
+        //   newServiceType.splice(variables.index, 1)
+        //   setServiceType(newServiceType)
+        // } else {
+        //   setServiceType([])
+        // }
+        refetch()
+      },
+    },
+  )
+  
+  const createWithJobTemplateMutation = useMutation(
+    (params: { itemId: number; templateId: number }) => 
+      createWithJobTemplate(params.itemId, params.templateId),
+    {
+      onSuccess: (data, variables) => {
+        // if (variables.index) {
+        //   const newServiceType = [...serviceType]
+        //   newServiceType.splice(variables.index, 1)
+        //   setServiceType(newServiceType)
+        // } else {
+        //   setServiceType([])
+        // }
+        refetch()
+      },
+      onError: () => {
+
+      }
+    },
+  )
+
+  const autoCreateJobMutation = useMutation(
+    (itemId: number[]) => autoCreateJob(itemId),
     {
       onSuccess: (data, variables) => {
         // if (variables.index) {
@@ -246,13 +283,22 @@ const JobDetails = () => {
     setMode('view')
   }
 
-  const onAutoCreateJob = () => {
-    // NOTE : 생성될 잡의 갯수추가
+  const onAutoCreateJob = (itemId: number[]) => {
+    if (!itemId || itemId.length === 0) return
     openModal({
       type: 'AutoCreateJobProceedConfirm',
       children: (
         <CustomModalV2
-          onClick={() => closeModal('AutoCreateJobProceedConfirm')}
+          onClick={() => {
+            autoCreateJobMutation.mutateAsync(itemId)
+            .then(() => {
+              closeModal('AutoCreateJobProceedConfirm')
+            })
+            .catch(() => {
+              displayCustomToast('Failed to delete.', 'error')
+              closeModal('AutoCreateJobProceedConfirm')
+            })
+          }}
           onClose={() => closeModal('AutoCreateJobProceedConfirm')}
           title='Auto-create jobs'
           vary='successful'
@@ -267,6 +313,13 @@ const JobDetails = () => {
           rightButtonText='Proceed'
         />
       ),
+    })
+  }
+
+  const onCreateWithJobTemplate = (itemId: number, templateId: number) => {
+    createWithJobTemplateMutation.mutateAsync({ itemId, templateId })
+    .then(() => {
+      closeModal('AddJobTemplate')
     })
   }
 
@@ -291,6 +344,8 @@ const JobDetails = () => {
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
+      autoCreateJobMutation.isLoading ||
+      changeStatusMutation.isLoading ||
       deleteJobsMutation.isLoading ||
       isLoadingDeleteState ? (
         <OverlaySpinner />
@@ -333,7 +388,7 @@ const JobDetails = () => {
             <Box display='flex' alignItems='center'>
               <JobButton
                 label='Auto-create jobs'
-                onClick={onAutoCreateJob}
+                onClick={() => onAutoCreateJob(jobDetails?.items.map(item => item.id)!)}
                 disabled={mode !== 'view'}
               >
                 <AutoMode sx={{ fontSize: 20 }} />
@@ -384,6 +439,7 @@ const JobDetails = () => {
                 onClickAddJob={onClickAddJob}
                 onAutoCreateJob={onAutoCreateJob}
                 onChangeViewMode={onChangeViewMode}
+                createWithJobTemplateMutation={createWithJobTemplateMutation}
                 deleteJobsMutation={deleteJobsMutation}
                 changeStatusMutation={changeStatusMutation}
                 setSelectedAllItemJobs={setSelectedAllItemJobs}
