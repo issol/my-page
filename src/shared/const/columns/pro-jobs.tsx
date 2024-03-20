@@ -226,16 +226,18 @@ export const getProJobColumns = (
         const statusLabel =
           statusList?.find(i => i.value === row.status)?.label || ''
 
-        const viewInfoIcon = ['Redelivery requested', 'Awaiting prior job']
-        const infoProps = viewInfoIcon.includes('Redelivery requested')
-          ? RedeliveryProps
-          : AwaitingPriorJobProps
+        const viewInfoIcon = [60250, 60110]
+        let infoProps
+
+        if (viewInfoIcon.includes(row.status)) {
+          infoProps =
+            row.status === 60250 ? RedeliveryProps : AwaitingPriorJobProps
+        }
 
         return (
           <Box display='flex' alignItems='center'>
             {ProJobStatusChip(statusLabel, row.status)}
-            {/*// NOTE : 상태값 넣어주기*/}
-            {viewInfoIcon.includes('Redelivery requested') && (
+            {infoProps && viewInfoIcon.includes(row.status) && (
               <InfoDialogButton {...infoProps} />
             )}
           </Box>

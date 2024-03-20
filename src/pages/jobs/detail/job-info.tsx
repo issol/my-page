@@ -352,7 +352,6 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
-    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -543,7 +542,7 @@ const ProJobInfo = ({
     <Grid container width='100%' xs={12} spacing={4} padding={0}>
       <Grid item xs={9.25}>
         <Card sx={{ padding: '20px', marginBottom: '24px' }}>
-          <Box width='100%' display='flex' gap='10px'>
+          <Box display='flex' flexWrap='wrap' gap='10px '>
             <NextPrevItemCard
               title='Previous job'
               userInfo={{
@@ -967,7 +966,7 @@ const NextPrevItemCard = ({
   date,
 }: NextPrevItemCardProps) => {
   return (
-    <Box width='100%'>
+    <Box minWidth={320} flex={1}>
       <Typography variant='body2' fontWeight={500} color='#8D8E9A'>
         {title}
       </Typography>
