@@ -91,6 +91,15 @@ export const getJobInfo = async (
       contactPerson: null,
       pro: null,
       historyAt: null,
+      clientId: 0,
+      feedback: '',
+      files: [],
+      autoNextJob: false,
+      nextJobId: null,
+      statusCodeForAutoNextJob: null,
+      autoSharingFile: false,
+      sortingOrder: 0,
+      isJobRequestPresent: false,
     }
   }
 }
@@ -109,6 +118,11 @@ export const saveJobInfo = async (
       id: id,
     }
   }
+}
+
+// TODO: api url 수정 필요
+export const setJobStatus = async (id: number, status: number) => {
+  await axios.patch(`/api/enough/u/job/${id}/status`, { status: status })
 }
 
 export const deleteJob = async (id: number) => {

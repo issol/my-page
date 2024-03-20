@@ -22,15 +22,19 @@ import { JobsStatusChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
+import { UseMutationResult } from 'react-query'
 
 export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 
 export interface ModeProps {
   mode?: JobListMode
   onChangeViewMode: () => void
+  resetSelected?: () => void
 }
 
 interface DeleteModeProps extends ModeProps {
+  deleteJobsMutation: UseMutationResult<void[], unknown, number[], unknown>
+  isTriggerJob: (jobId: number) => void
   selected: readonly number[]
 }
 
@@ -38,23 +42,33 @@ export const DeleteMode = ({
   mode,
   selected,
   onChangeViewMode,
+  deleteJobsMutation,
+  isTriggerJob,
+  resetSelected,
 }: DeleteModeProps) => {
   if (mode !== 'delete') return null
 
   const { openModal, closeModal } = useModal()
 
-  const NONE_FLOW_TEXT = 'Selected Jobs will be deleted.'
-  const FLOW_TEXT =
+  const NONE_TRIGGER_TEXT = 'Selected Jobs will be deleted.'
+  const TRIGGER_TEXT =
     'Triggers between the jobs will be deleted with the jobs. Proceed?'
 
   const onClickAlertDelete = () => {
-    // NOTE : 삭제하는 로직 필요
-    displayCustomToast('Deleted successfully.', 'error')
-    closeModal('DeleteJobsConfirm')
-    onChangeViewMode()
+    deleteJobsMutation.mutateAsync([...selected]).then(() => {
+      displayCustomToast('Deleted successfully.', 'success')
+      closeModal('DeleteJobsConfirm')
+      resetSelected && resetSelected()
+      onChangeViewMode()
+    }).catch((e) => {
+      displayCustomToast('Failed to delete.', 'error')
+      closeModal('DeleteJobsConfirm')
+    })
   }
 
   const onClickDelete = () => {
+    const hasTriggerJob = selected.some(jobId => isTriggerJob(jobId))
+
     openModal({
       type: 'DeleteJobsConfirm',
       children: (
@@ -63,7 +77,7 @@ export const DeleteMode = ({
           onClose={() => closeModal('DeleteJobsConfirm')}
           title='Delete jobs?'
           vary='error-alert'
-          subtitle={NONE_FLOW_TEXT}
+          subtitle={hasTriggerJob ? TRIGGER_TEXT : NONE_TRIGGER_TEXT}
           rightButtonText='Delete'
         />
       ),
@@ -80,14 +94,21 @@ export const DeleteMode = ({
       padding='32px 20px'
       gap='16px'
     >
-      <Button size='large' variant='outlined' onClick={onChangeViewMode}>
+      <Button
+        size='large'
+        variant='outlined'
+        onClick={() => {
+          resetSelected && resetSelected()
+          onChangeViewMode()
+        }}
+      >
         Cancel
       </Button>
       <Button
         size='large'
         variant='contained'
         disableElevation
-        onClick={onClickDelete}
+        onClick={() => onClickDelete()}
         disabled={selected.length === 0}
       >
         {selected.length === 0 && 'Delete'}
@@ -101,35 +122,56 @@ interface ManageStatusModeProps extends ModeProps {
   changeJobStatus: JobStatusType | null
   statusList?: Array<{ value: number; label: string }>
   setChangeJobStatus: Dispatch<JobStatusType | null>
+  selected: readonly number[]
+  isStatusUpdatable: (changeStatus: number) => {
+    isUpdatable: boolean;
+    immutableCorporationId: string[];
+  }
+  changeStatusMutation: UseMutationResult<void[], unknown, {
+    jobIds: number[];
+    status: number;
+  }, unknown>
 }
 
 export const ManageStatusMode = ({
   mode,
+  selected,
   statusList,
   changeJobStatus,
   onChangeViewMode,
   setChangeJobStatus,
+  resetSelected,
+  isStatusUpdatable,
+  changeStatusMutation,
 }: ManageStatusModeProps) => {
   if (mode !== 'manageStatus') return null
 
   const { openModal, closeModal } = useModal()
 
-  const onClickAlertDelete = () => {
-    // NOTE : 삭제하는 로직 필요
-    displayCustomToast('Saved successfully.', 'success')
-    closeModal('StatusChangeAlert')
-    onChangeViewMode()
+  const onClickChangeStatus = () => {
+    changeStatusMutation.mutateAsync({
+      jobIds: [...selected],
+      status: changeJobStatus!,
+    }).then(() => {
+      displayCustomToast('Saved successfully.', 'success')
+      closeModal('StatusChangeAlert')
+      resetSelected && resetSelected()
+      onChangeViewMode()
+    }).catch((e) => {
+      displayCustomToast('Failed to save.', 'error')
+      closeModal('StatusChangeAlert')
+    })
   }
 
-  const onClickSave = () => {
-    const isStatusChanged = true
-
-    if (!isStatusChanged) {
+  const onClickSave = (changeStatus: number) => {
+    const isUpdatable = isStatusUpdatable(changeStatus)
+    console.log("isUpdatable", isUpdatable)
+    if (isUpdatable.isUpdatable) {
       openModal({
         type: 'StatusChangeAlert',
         children: (
           <CustomModalV2
-            onClick={onClickAlertDelete}
+            onClick={onClickChangeStatus}
             onClose={() => closeModal('StatusChangeAlert')}
             title='Save changes?'
             vary='successful'
@@ -167,8 +209,9 @@ export const ManageStatusMode = ({
                 not being fulfilled.
               </p>
               <ul style={{ display: 'flex', flexDirection: 'column' }}>
-                <li>TRA-001</li>
-                <li>TRA-002</li>
+                {isUpdatable.immutableCorporationId.map((corporationId, index) => (
+                  <li key={index}>{corporationId}</li>
+                ))}
               </ul>
             </div>
           }
@@ -196,7 +239,7 @@ export const ManageStatusMode = ({
     >
       <Box display='flex' alignItems='center' gap='16px'>
         <Typography variant='body1' fontWeight={600}>
-          Change status of 2 Job(s) to:
+          {`Change status of ${selected.length} Job(s) to:`}
         </Typography>
         <FormControl>
           <Select
@@ -221,14 +264,22 @@ export const ManageStatusMode = ({
         </FormControl>
       </Box>
       <Box display='flex' gap='16px'>
-        <Button size='large' variant='outlined' onClick={onChangeViewMode}>
+        <Button
+          size='large'
+          variant='outlined'
+          onClick={() => {
+            resetSelected && resetSelected()
+            onChangeViewMode()
+          }}
+        >
           Cancel
         </Button>
         <Button
           size='large'
           variant='contained'
           disableElevation
-          onClick={onClickSave}
+          disabled={selected.length === 0 || !changeJobStatus}
+          onClick={() => changeJobStatus && onClickSave(changeJobStatus)}
         >
           Save
         </Button>

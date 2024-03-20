@@ -26,7 +26,7 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs/jobs.api'
-import { deleteJob } from '@src/apis/jobs/job-detail.api'
+import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
@@ -62,19 +62,20 @@ const JobDetails = () => {
 
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
   const [isLoadingDeleteState, setIsLoadingDeleteState] = useState(false)
+  const [isMasterManagerUser, setIsMasterManagerUser] = useState(false)
 
   const [mode, setMode] = useState<JobListMode>('view')
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
   >([])
-
+  const [selectedAllItemJobs, setSelectedAllItemJobs] = useState<number[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
   }
-
+  console.log("info",jobDetails)
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -95,8 +96,16 @@ const JobDetails = () => {
     },
   )
 
-  // NOTE : 현재 단일값만 처리할 수 있도록 API 구성되어 있어서 변경 필요함
-  const deleteJobMutation = useMutation((jobId: number) => deleteJob(jobId), {
+  const changeStatusMutation = useMutation(
+    (value: { jobIds: number[]; status: number }) => 
+    Promise.all(value.jobIds.map(jobId => setJobStatus(jobId, value.status))), {
+    onSuccess: () => {
+      refetch()
+    },
+  })
+
+  const deleteJobsMutation = useMutation((jobIds: number[]) => 
+    Promise.all(jobIds.map(jobId => deleteJob(jobId))), {
     onSuccess: () => {
       refetch()
     },
@@ -149,7 +158,49 @@ const JobDetails = () => {
     }
   }, [projectTeam])
 
+  useEffect(() => {
+    if (auth.state === 'hasValue') {
+      const roles = auth.getValue().user?.roles ?? [{ name: '', type: '' }]
+      setIsMasterManagerUser(
+        roles.some(
+          role => role.name === 'LPM' && 
+          (role.type === 'Master' || role.type === 'Manager')
+        ),
+      )
+    }
+  }, [auth])
+
   const onClickBack = () => {
+    // TODO edit 모드일때는 이탈 모달 띄워줘야 함
+    if (mode !== 'view') {
+      openModal({
+        type: 'LeavePageConfirm',
+        children: (
+          <CustomModalV2
+            onClick={() => {
+              onChangeViewMode()
+              handleBack()
+              closeModal('LeavePageConfirm')
+            }}
+            onClose={() => closeModal('LeavePageConfirm')}
+            title='Leave this page?'
+            vary='error-alert'
+            subtitle={
+              <p>
+                Are you sure you want to leave this page? Changes you made will not be saved.
+              </p>
+            }
+            rightButtonText='Leave'
+          />
+        ),
+      })
+      return
+    } else {
+      handleBack()
+    }
+  }
+
+  const handleBack = () => {
     //TODO 이전 페이지의 주소기반으로 라우팅 해야함, 무조건 back 할경우 사이드이펙이 나올수 있음
     const filter = {
       status: [],
@@ -245,11 +296,19 @@ const JobDetails = () => {
   const onManageJobStatus = () => {
     setMode('manageStatus')
   }
+  
+  const hasJobs = () => {
+    let count = 0;
+    if (jobDetails?.items) {
+      count = jobDetails.items.reduce((total, item) => total + item.jobs.length, 0);
+    }
+    return count > 0;
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
-      deleteJobMutation.isLoading ||
+      deleteJobsMutation.isLoading ||
       isLoadingDeleteState ? (
         <OverlaySpinner />
       ) : null}
@@ -278,47 +337,53 @@ const JobDetails = () => {
               />
               <Typography variant='h5'>Job details</Typography>
             </Box>
-            <Box>
-              <IconButton onClick={handleClick}>
-                <MoreVert />
-              </IconButton>
-              {jobDetailMenu()}
+            {mode === 'view' && (
+              <Box>
+                <IconButton onClick={handleClick}>
+                  <MoreVert />
+                </IconButton>
+                {jobDetailMenu()}
+              </Box>
+            )}
+          </Box>
+          {(isUserInTeamMember || isMasterManagerUser) && (
+            <Box display='flex' alignItems='center'>
+              <JobButton
+                label='Auto-create jobs'
+                onClick={onAutoCreateJob}
+                disabled={mode !== 'view'}
+              >
+                <AutoMode sx={{ fontSize: 20 }} />
+              </JobButton>
+              <JobButton
+                label='Delete jobs'
+                onClick={onDeleteJobs}
+                disabled={mode !== 'view' || !hasJobs()}
+              >
+                <DeleteOutline
+                  color='inherit'
+                  sx={{ fontSize: 20 }}
+                  fontWeight={500}
+                />
+              </JobButton>
+              <JobButton
+                label='Edit trigger'
+                onClick={onEditTrigger}
+                // disabled={mode !== 'view'}
+                disabled={true} // 에딧 모드는 추후 개발
+              >
+                {/* <TriggerIcon disabled={mode !== 'view'} /> */}
+                <TriggerIcon disabled={true} />
+              </JobButton>
+              <JobButton
+                label='Manage job status'
+                onClick={onManageJobStatus}
+                disabled={mode !== 'view' || !hasJobs()}
+              >
+                <JobStatusIcon disabled={mode !== 'view' || !hasJobs()} />
+              </JobButton>
             </Box>
-          </Box>
-          <Box display='flex' alignItems='center'>
-            <JobButton
-              label='Auto-create jobs'
-              onClick={onAutoCreateJob}
-              disabled={mode !== 'view'}
-            >
-              <AutoMode sx={{ fontSize: 20 }} />
-            </JobButton>
-            <JobButton
-              label='Delete jobs'
-              onClick={onDeleteJobs}
-              disabled={mode !== 'view'}
-            >
-              <DeleteOutline
-                color='inherit'
-                sx={{ fontSize: 20 }}
-                fontWeight={500}
-              />
-            </JobButton>
-            <JobButton
-              label='Edit trigger'
-              onClick={onEditTrigger}
-              disabled={mode !== 'view'}
-            >
-              <TriggerIcon disabled={mode !== 'view'} />
-            </JobButton>
-            <JobButton
-              label='Manage job status'
-              onClick={onManageJobStatus}
-              disabled={mode !== 'view'}
-            >
-              <JobStatusIcon disabled={mode !== 'view'} />
-            </JobButton>
-          </Box>
+          )}
         </JobTitleSection>
 
         <CardListSection display='flex' flexDirection='column' gap='24px'>
@@ -332,10 +397,15 @@ const JobDetails = () => {
                 info={value}
                 statusList={statusList}
                 isUserInTeamMember={isUserInTeamMember}
+                isMasterManagerUser={isMasterManagerUser}
                 handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
                 onAutoCreateJob={onAutoCreateJob}
                 onChangeViewMode={onChangeViewMode}
+                deleteJobsMutation={deleteJobsMutation}
+                changeStatusMutation={changeStatusMutation}
+                setSelectedAllItemJobs={setSelectedAllItemJobs}
+                selectedAllItemJobs={selectedAllItemJobs}
               />
             )
           })}
