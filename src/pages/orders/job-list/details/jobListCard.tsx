@@ -1,6 +1,7 @@
 import React, {
   RefObject,
   SyntheticEvent,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -20,6 +21,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -52,6 +54,9 @@ import {
 import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
 import useDialog from '@src/hooks/useDialog'
 import { Icon } from '@iconify/react'
+import { is } from 'immutable'
+import { UseMutationResult } from 'react-query'
+import { on } from 'events'
 
 const HeadRowItemNames = [
   '',
@@ -67,33 +72,43 @@ const CheckMode: Array<JobListMode> = ['edit', 'delete', 'manageStatus']
 
 interface JobListCardProps extends ModeProps {
   index: number
+  mode: JobListMode,
   info: JobItemType
   isUserInTeamMember: boolean
+  isMasterManagerUser: boolean
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
-  handleChangeServiceType: (
-    event: SyntheticEvent<Element, Event>,
-    value: {
-      label: string
-      value: string
-    }[],
-    index: number,
-  ) => void
-  onClickAddJob: (itemId: number, index: number) => void
-  onAutoCreateJob: () => void
+  onClickAddJob: (itemId: number, index: number, serviceType: string[]) => void
+  onAutoCreateJob: (itemId: number[]) => void
+  createWithJobTemplateMutation: UseMutationResult<void, unknown, {
+    itemId: number;
+    templateId: number;
+  }, unknown>
+  deleteJobsMutation: UseMutationResult<void[], unknown, number[], unknown>
+  changeStatusMutation: UseMutationResult<void[], unknown, {
+    jobIds: number[];
+    status: number;
+  }, unknown>
+  setSelectedAllItemJobs: (selected: number[]) => void
+  selectedAllItemJobs: number[]
 }
 
 const JobListCard = ({
   index,
   tableRowRef,
-  mode = 'view',
+  mode,
   info,
   isUserInTeamMember,
+  isMasterManagerUser,
   statusList,
-  handleChangeServiceType,
   onClickAddJob,
   onAutoCreateJob,
+  createWithJobTemplateMutation,
   onChangeViewMode,
+  deleteJobsMutation,
+  changeStatusMutation,
+  setSelectedAllItemJobs,
+  selectedAllItemJobs,
 }: JobListCardProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
@@ -111,33 +126,122 @@ const JobListCard = ({
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
     null,
   )
+  const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
+  const [hoveredGroup, setHoveredGroup] = useState<number[]>([])
 
   const onClickRow = (row: JobType, info: JobItemType) => {
+    // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
     router.push({
       pathname: '/orders/job-list/detail/',
-      query: {
-        orderId: orderId,
-        jobId: row.id,
-        source: info.sourceLanguage,
-        target: info.targetLanguage,
-      },
+      query: { orderId: orderId, jobId: getTriggerGroup(Number(jobId!)) },
     })
   }
 
+  const onHoverRow = (id: number, isHover: boolean) => {
+    if (isHover) {
+      triggerGroups.map(group => {
+        if (group.includes(id)) {
+          setHoveredGroup(group)
+        }
+      })
+    } else {
+      setHoveredGroup([])
+    }
+  }
+
+  const isTriggerJob = (jobId: number) => {
+    return info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId).length > 0
+  }
+
+  const getTriggerGroup = (jobId: number) => {
+    triggerGroups.map(group => {
+      if (group.includes(jobId)) {
+        return group
+      }
+    })
+    return jobId
+  }
+
+  useEffect(() => {
+    setTriggerGroups(getTriggerGroups())
+  }, [info.jobs])
+
+  console.log("triggerGroups",triggerGroups)
+  const getTriggerGroups = (): number[][] => {
+    let groups: number[][] = [];
+    let map: Map<number, JobType> = new Map();
+
+    info.jobs.forEach(job => {
+      map.set(job.id, job)
+    })
+  
+    let visited = new Set<number>();
+  
+    for (let job of info.jobs) {
+      if (!visited.has(job.id)) {
+        let group: number[] = [];
+        let current = job;
+  
+        while (current != null && !visited.has(current.id) && current.nextJobId) {
+          group.push(current.id);
+          visited.add(current.id);
+          if (current.nextJobId != null) {
+            current = map.get(current.nextJobId)!
+          } else {
+            break;
+          }
+        }
+  
+        if (group.length > 0) {
+          groups.push(group);
+        }
+      }
+    }
+  
+    return groups;
+  }
+
+  const canUseRequestAssignButton = (job: JobType) => {
+    // job info, price가 저장되었다면 버튼을 쓸수 있게 해준다.
+    // job info: name
+    // price: totalPrice
+    if (job?.name && job?.totalPrice) {
+      return true
+    }
+    return false
+  }
+
+  const isStatusChangeableJob = (status: number) => {
+    // 변경 가능 기준 : job status가 In preparation, Requested, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
+    return [60000, 60100, 60200, 60300, 60400, 60500, 60600, 60700, 60900].includes(status)
+  }
+
+  const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
+    // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
+    return status === 60000 && isJobRequestPresent === false
+  }
+  
   const isSelected = (id: number) => selected.indexOf(id) !== -1
 
   const onSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = info.jobs
-        .filter(row => row.id !== Number(jobId!))
+        .filter(row => 
+          mode === 'manageStatus' 
+            ? isStatusChangeableJob(row.status)
+            : mode === 'delete'
+              ? isDeletableJob(row.status, row.isJobRequestPresent)
+              : true)
         .map(n => n.id)
+      const filteredNewSelected = newSelected.filter(item => !selectedAllItemJobs.includes(item))
+      setSelectedAllItemJobs([...selectedAllItemJobs, ...filteredNewSelected])
       setSelected(newSelected)
       return
     }
-    setSelected([])
+    resetSelected()
   }
 
-  const onSelectClick = (event: React.MouseEvent<unknown>, id: number) => {
+  const onSelectClick = (isChecked: boolean, id: number) => {
     const selectedIndex = selected.indexOf(id)
     let newSelected: readonly number[] = []
 
@@ -154,14 +258,78 @@ const JobListCard = ({
       )
     }
     setSelected(newSelected)
+
+    if (id) {
+      if (isChecked) {
+        if (!selectedAllItemJobs.includes(id)) {
+          setSelectedAllItemJobs(selectedAllItemJobs.concat(id))
+        }
+      } else {
+        setSelectedAllItemJobs(selectedAllItemJobs.filter(item => item !== id))
+      }
+    }
+  }
+
+  const resetSelected = () => {
+    const newAllSelected = selectedAllItemJobs.filter(item => !selected.includes(item))
+    setSelectedAllItemJobs(newAllSelected)
+    setSelected([])
   }
 
   const allChecked = useMemo(() => {
-    const filteredJobs = info.jobs.filter(row => row.id !== Number(jobId))
+    const filteredJobs = info.jobs        
+      .filter(row => 
+        mode === 'manageStatus' 
+          ? isStatusChangeableJob(row.status)
+          : mode === 'delete'
+            ? isDeletableJob(row.status, row.isJobRequestPresent)
+            : true)
     return selected.length === filteredJobs.length && filteredJobs.length > 0
   }, [selected])
 
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
+
+  const isStatusUpdatable = (changeStatus: number) => {
+    let flag = true
+    let immutableCorporationId: string[] = []
+    // approved
+    if (changeStatus === 60600) {
+      selectedAllItemJobs.map(jobId => {
+        const job = info.jobs.find(row => row.id === jobId)
+        // partially delivered, delivered, invoiced 일때만 true
+        if (job && ![60400, 60500, 60700].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    // without invoice 
+    else if (changeStatus === 60900) {
+      selectedAllItemJobs.map(jobId => {
+        const job = info.jobs.find(row => row.id === jobId)
+        // delivered, approved, invoiced 일때만 true
+        if (job && ![60500, 60600, 60700].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    // canceled
+    else if (changeStatus === 601000) {
+      selectedAllItemJobs.map(jobId => {
+        const job = info.jobs.find(row => row.id === jobId)
+        // canceled, paid가 아닐때만 true
+        if (job && [60800, 601000].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    return {
+      isUpdatable: flag,
+      immutableCorporationId: immutableCorporationId,
+    }
+  }
 
   return (
     <Card ref={ref}>
@@ -202,38 +370,43 @@ const JobListCard = ({
               {languageHelper(info.targetLanguage)}&nbsp;
             </Typography>
           </Box>
-          <Box display='flex' alignItems='center'>
-            <JobButton
-              label='Auto-create'
-              onClick={onAutoCreateJob}
-              disabled={mode !== 'view'}
-            >
-              <AutoMode sx={{ fontSize: 20 }} />
-            </JobButton>
-            <Box position='relative'>
+          {(isUserInTeamMember || isMasterManagerUser) && (
+            <Box display='flex' alignItems='center'>
               <JobButton
-                label='Add job'
-                onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                label='Auto-create'
+                onClick={() => onAutoCreateJob([info.id])}
+                disabled={mode !== 'view'}
+              >
+                <AutoMode sx={{ fontSize: 20 }} />
+              </JobButton>
+              <Box position='relative'>
+                <JobButton
+                  label='Add job'
+                  onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                  disabled={viewState}
+                >
+                  <AddFrameIcon disabled={viewState} />
+                </JobButton>
+                {isAddJobMenuOpen && (
+                  <AddJobMenu
+                    mode={mode}
+                    onChangeViewMode={onChangeViewMode}
+                    alertClose={() => setIsAddJobMenuOpen(false)}
+                    onClickAddJob={onClickAddJob}
+                    itemId={info.id}
+                    jobIndex={info.jobs.length}
+                  />
+                )}
+              </Box>
+              <JobButton
+                label='Add Job template'
+                onClick={() => onOpen()}
                 disabled={viewState}
               >
-                <AddFrameIcon disabled={viewState} />
+                <TemplateIcon disabled={viewState} />
               </JobButton>
-              {isAddJobMenuOpen && (
-                <AddJobMenu
-                  mode={mode}
-                  onChangeViewMode={onChangeViewMode}
-                  alertClose={() => setIsAddJobMenuOpen(false)}
-                />
-              )}
             </Box>
-            <JobButton
-              label='Add Job template'
-              onClick={() => onOpen()}
-              disabled={viewState}
-            >
-              <TemplateIcon disabled={viewState} />
-            </JobButton>
-          </Box>
+          )}
         </Box>
       </Box>
       <Collapse in={open} timeout='auto' unmountOnExit>
@@ -304,30 +477,41 @@ const JobListCard = ({
                     return (
                       <TableRow
                         component='tr'
-                        ref={row.id === Number(jobId!) ? tableRowRef : null}
+                        // ref={row.id === Number(jobId!) ? tableRowRef : null}
                         key={uuidv4()}
                         sx={{
                           '& > *': { borderBottom: 'unset' },
                           background:
-                            row.id === Number(jobId!)
-                              ? 'rgba(76, 78, 100, 0.12)'
+                            hoveredGroup.includes(row.id)
+                              ? 'rgba(76, 78, 100, 0.05)'
                               : '#fff',
-                        }}
-                        // hover
+                          '&:hover': {
+                            background: 'rgba(76, 78, 100, 0.05)',
+                          },
+                        }}                        
                         onClick={() => {
-                          if (mode === 'delete') return
+                          if (mode !== 'view') return
                           onClickRow(row, info)
                         }}
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onMouseEnter={() => onHoverRow(row.id, true)}
+                        onMouseLeave={() => onHoverRow(row.id, false)}
                       >
                         {viewState && (
                           <CustomTableCell padding='checkbox'>
                             <Checkbox
-                              disabled={row.id === Number(jobId!)}
+                              disabled={
+                                // row.id === Number(jobId!) ||
+                                mode === 'manageStatus'
+                                  ? !isStatusChangeableJob(row.status)
+                                  : mode === 'delete'
+                                    ? !isDeletableJob(row.status, row.isJobRequestPresent)
+                                    : false
+                              }
                               color='primary'
                               checked={isItemSelected}
-                              onClick={event => onSelectClick(event, row.id)}
+                              onChange={event => onSelectClick(event.target.checked, row.id)}
                               inputProps={{
                                 'aria-labelledby': row.corporationId,
                               }}
@@ -352,12 +536,13 @@ const JobListCard = ({
                               size='small'
                               label={row.serviceType}
                             />
-                            {/* NOTE : 트리거냐 아니냐에 따라 none/block 처리*/}
-                            <Icon
-                              icon='ic:outline-people'
-                              fontSize={24}
-                              color='#8D8E9A'
-                            />
+                            {isTriggerJob(row.id) && (
+                              <Icon
+                                icon='ic:outline-people'
+                                fontSize={24}
+                                color='#8D8E9A'
+                              />
+                            )}
                           </Box>
                         </CustomTableCell>
 
@@ -406,15 +591,19 @@ const JobListCard = ({
                                   email: row.assignedPro.email,
                                 }}
                               />
-                            ) : (
+                            ) : (isUserInTeamMember || isMasterManagerUser) ? (
                               <Button
                                 variant='outlined'
                                 size='small'
                                 onClick={() => {}}
+                                disabled={
+                                  mode !== 'view' || 
+                                  !canUseRequestAssignButton(row)
+                                }
                               >
                                 Request/Assign
                               </Button>
-                            )}
+                            ) : '-'}
                           </Box>
                         </CustomTableCell>
                         <CustomTableCell
@@ -423,30 +612,52 @@ const JobListCard = ({
                           scope='row'
                           align='right'
                         >
-                          <Box
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='flex-end'
-                            gap='8px'
-                          >
-                            <TriggerIcon />
-                            <TriggerSwitchStatus
-                              variant='body2'
-                              color={theme.palette.success.main}
-                              bgcolor='#EEFBE5'
+                          {!isTriggerJob(row.id) && (
+                            <Tooltip
+                              title={`${row.nextJobId ? 'On' : 'Off'} 
+                                [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
+                                Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
+                              `}
+                              placement='top'
                             >
-                              On
-                            </TriggerSwitchStatus>
-                          </Box>
+                              <Box
+                                display='flex'
+                                alignItems='center'
+                                justifyContent='flex-end'
+                                gap='8px'
+                              >
+                                {!row.nextJobId &&
+                                  <TriggerIcon />
+                                }
+                                {!row.autoNextJob && (
+                                  <TriggerSwitchStatus
+                                    variant='body2'
+                                    color={theme.palette.success.main}
+                                    bgcolor='#EEFBE5'
+                                  >
+                                    On
+                                  </TriggerSwitchStatus>
+                                )}
+                              </Box>
+                            </Tooltip>
+                          )}
                         </CustomTableCell>
                       </TableRow>
                     )
                   })
-                : NoList()}
+                : (mode === 'view' 
+                    ? NoList()
+                    : null
+                  )}
             </TableBody>
           </Table>
         </TableContainer>
-        <AddJobTemplate isOpen={isOpen} onClose={onClose} />
+        <AddJobTemplate 
+          isOpen={isOpen} 
+          onClose={onClose}
+          itemId={info.id}
+          createWithJobTemplateMutation={createWithJobTemplateMutation}
+        />
       </Collapse>
       {viewState && (
         <Card
@@ -460,15 +671,22 @@ const JobListCard = ({
           <DeleteMode
             mode={mode}
             onChangeViewMode={onChangeViewMode}
-            selected={selected}
+            selected={selectedAllItemJobs}
+            deleteJobsMutation={deleteJobsMutation}
+            isTriggerJob={isTriggerJob}
+            resetSelected={resetSelected}
           />
 
           <ManageStatusMode
             mode={mode}
-            statusList={statusList}
+            selected={selectedAllItemJobs}
+            statusList={statusList?.filter(status => [60600, 60900, 601000].includes(status.value))}
             changeJobStatus={changeJobStatus}
             setChangeJobStatus={setChangeJobStatus}
             onChangeViewMode={onChangeViewMode}
+            resetSelected={resetSelected}
+            isStatusUpdatable={isStatusUpdatable}
+            changeStatusMutation={changeStatusMutation}
           />
         </Card>
       )}

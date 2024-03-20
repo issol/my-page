@@ -160,6 +160,20 @@ export type CreateJobParamsType = {
   index?: number
 }
 
+export type CreateWithJobTemplateParamsType = {
+  orderId: number
+  itemId: number
+  serviceType: string[]
+  index?: number
+}
+
+export type autoCreateJobParamsType = {
+  orderId: number
+  itemId: number
+  serviceType: string[]
+  index?: number
+}
+
 export type ProJobListType = {
   id: number
   jobId: number
