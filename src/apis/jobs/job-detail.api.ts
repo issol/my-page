@@ -530,3 +530,9 @@ export const addProCurrentRequest = async (params: JobAddProsFormType) => {
   )
   return data
 }
+
+export const forceAssign = async (jobId: number, proId: number) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/${jobId}/request/assign?proId=${proId}`,
+  )
+}

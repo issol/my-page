@@ -214,7 +214,10 @@ export const getProJobAssignColumnsForRequest = (
   detailAnchorEl: HTMLElement | null,
   handleDetailClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
   handleDetailClose: () => void,
-  onClickAssign: (row: JobRequestsProType) => void,
+  onClickAssign: (
+    row: JobRequestsProType,
+    requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  ) => void,
   onClickCancel: (row: JobRequestsProType) => void,
   onClickReAssign: (row: JobRequestsProType) => void,
   onClickMessage: (row: JobRequestsProType) => void,
@@ -369,7 +372,7 @@ export const getProJobAssignColumnsForRequest = (
                 <Button
                   variant='contained'
                   onClick={() => {
-                    onClickAssign(row)
+                    onClickAssign(row, requestType)
                     handleDetailClose()
                   }}
                 >
@@ -421,7 +424,7 @@ export const getProJobAssignColumnsForRequest = (
                         <Button
                           fullWidth
                           onClick={() => {
-                            onClickAssign(row)
+                            onClickAssign(row, requestType)
                             handleDetailClose()
                           }}
                           sx={{
@@ -553,7 +556,7 @@ export const getProJobAssignColumnsForRequest = (
                       <Button
                         fullWidth
                         onClick={() => {
-                          onClickAssign(row)
+                          onClickAssign(row, requestType)
                           handleDetailClose()
                         }}
                         sx={{

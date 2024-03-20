@@ -71,6 +71,7 @@ import { useRouter } from 'next/router'
 import Message from './message-modal'
 import { UseMutationResult } from 'react-query'
 import { useGetStatusList } from '@src/queries/common.query'
+import { request } from 'http'
 
 type Props = {
   jobInfo: JobType
@@ -141,6 +142,7 @@ type Props = {
       jobId: number
       proId: number
       status: number
+      type: 'force' | 'normal'
     },
     unknown
   >
@@ -248,11 +250,15 @@ const AssignPro = ({
     setListAnchorEl(null)
   }
 
-  const handleAssign = (id: number) => {
+  const handleAssign = (
+    id: number,
+    requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  ) => {
     assignJobMutation.mutate({
       jobId: jobInfo.id,
       proId: id,
       status: 70100,
+      type: requestType === 'bulkManualAssign' ? 'normal' : 'force',
     })
   }
 
@@ -264,7 +270,10 @@ const AssignPro = ({
     closeModal('ReAssignProModal')
   }
 
-  const onClickAssign = (row: JobRequestsProType) => {
+  const onClickAssign = (
+    row: JobRequestsProType,
+    requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  ) => {
     openModal({
       type: 'AssignProModal',
       children: (
@@ -284,7 +293,7 @@ const AssignPro = ({
             </>
           }
           onClick={() => {
-            handleAssign(row.userId)
+            handleAssign(row.userId, requestType)
           }}
           onClose={() => closeModal('AssignProModal')}
           rightButtonText='Assign'
@@ -549,22 +558,24 @@ const AssignPro = ({
                 </Button>
               )
             })}
-            <Button
-              variant='outlined'
-              color='secondary'
-              sx={{
-                borderRadius: '100px',
-                border: '1px solid #8D8E9A',
-                color: '#8D8E9A',
-              }}
-              // TODO 새로운 페이지 추가 액션
-              onClick={() => {
-                setSelectedAssign(null)
-                setAddRoundMode(true)
-              }}
-            >
-              + Round{jobAssign.length + 1}
-            </Button>
+            {jobAssign.some(job => job.requestCompleted === true) ? null : (
+              <Button
+                variant='outlined'
+                color='secondary'
+                sx={{
+                  borderRadius: '100px',
+                  border: '1px solid #8D8E9A',
+                  color: '#8D8E9A',
+                }}
+                // TODO 새로운 페이지 추가 액션
+                onClick={() => {
+                  setSelectedAssign(null)
+                  setAddRoundMode(true)
+                }}
+              >
+                + Round{jobAssign.length + 1}
+              </Button>
+            )}
           </Box>
           {selectedAssign ? (
             <Box
@@ -1337,8 +1348,7 @@ const AssignPro = ({
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  console.log('hi')
-
+                  console.log(selectionModel)
                   return (
                     !Object.entries(selectionModel)
                       .filter(([key]) => key !== selectedLinguistTeam?.label)

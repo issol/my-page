@@ -65,6 +65,7 @@ import {
   addProCurrentRequest,
   createBulkRequestJobToPro,
   createRequestJobToPro,
+  forceAssign,
   handleJobAssignStatus,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
@@ -274,8 +275,15 @@ const JobDetail = () => {
   )
 
   const assignJobMutation = useMutation(
-    (data: { jobId: number; proId: number; status: number }) =>
-      handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm'),
+    (data: {
+      jobId: number
+      proId: number
+      status: number
+      type: 'force' | 'normal'
+    }) =>
+      data.type === 'normal'
+        ? handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm')
+        : forceAssign(data.jobId, data.proId),
     {
       onSuccess: (data, variables) => {
         closeModal('AssignProModal')
@@ -415,7 +423,15 @@ const JobDetail = () => {
         type: 'AssignModal',
         children: (
           <CustomModalV2
-            onClick={() => closeModal('AssignModal')}
+            onClick={() => {
+              assignJobMutation.mutate({
+                jobId: selectedJobInfo?.jobInfo.id!,
+                proId: pro.userId,
+                status: 70300,
+                type: 'force',
+              })
+              closeModal('AssignModal')
+            }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
             subtitle={
@@ -441,7 +457,15 @@ const JobDetail = () => {
         type: 'AssignModal',
         children: (
           <CustomModalV2
-            onClick={() => closeModal('AssignModal')}
+            onClick={() => {
+              assignJobMutation.mutate({
+                jobId: selectedJobInfo?.jobInfo.id!,
+                proId: pro.userId,
+                status: 70300,
+                type: 'force',
+              })
+              closeModal('AssignModal')
+            }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
             subtitle={
@@ -1005,6 +1029,15 @@ const JobDetail = () => {
                                     ] = prev[
                                       selectedLinguistTeam?.label || ''
                                     ]?.filter(value => value !== pro.userId)
+                                    if (
+                                      newState[
+                                        selectedLinguistTeam?.label || ''
+                                      ].length === 0
+                                    ) {
+                                      delete newState[
+                                        selectedLinguistTeam?.label || ''
+                                      ]
+                                    }
                                     return newState
                                   })
                                 }}
@@ -1063,7 +1096,7 @@ const JobDetail = () => {
                     </Button>
                   ) : (
                     <Button
-                      variant={assignProMode ? 'contained' : 'outlined'}
+                      variant={'contained'}
                       disabled={
                         Object.values(selectedRows).reduce(
                           (sum, array) => sum + array.data.length,
