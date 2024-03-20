@@ -1,15 +1,13 @@
 import { Box, Switch, Typography } from '@mui/material'
 import Filters from './list/filter'
 
-import { useMemo, useState, MouseEvent } from 'react'
+import { MouseEvent, useState } from 'react'
 import {
   useGetServiceType,
   useGetSimpleClientList,
 } from '@src/queries/common.query'
-import { useGetClientList } from '@src/queries/client.query'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useGetLinguistTeam } from '@src/queries/pro/linguist-team'
-import LinguistTeamList from './list/list'
 import LinguistTeamLayout from './list/layout'
 
 export type MenuType = 'card' | 'list'

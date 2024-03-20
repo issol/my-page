@@ -197,3 +197,5 @@ const LinguistTeamLayout = ({
     </Card>
   )
 }
+
+export default LinguistTeamLayout
