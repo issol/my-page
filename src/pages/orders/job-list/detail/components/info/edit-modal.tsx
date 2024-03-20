@@ -36,7 +36,7 @@ import {
 } from '@src/types/orders/order-detail'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import {
   deleteJobFile,
   saveJobInfo,
@@ -69,6 +69,17 @@ type Props = {
   }[]
   items: JobItemType | undefined
   languagePair: LanguagePairTypeInItem[]
+  saveJobInfoMutation: UseMutationResult<
+    {
+      id: number
+    },
+    unknown,
+    {
+      jobId: number
+      data: SaveJobInfoParamsType
+    },
+    unknown
+  >
 }
 
 const InfoEditModal = ({
@@ -78,6 +89,7 @@ const InfoEditModal = ({
   contactPersonList,
   items,
   languagePair,
+  saveJobInfoMutation,
 }: Props) => {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
@@ -184,19 +196,6 @@ const InfoEditModal = ({
       </Box>
     )
   })
-
-  const saveJobInfoMutation = useMutation(
-    (data: { jobId: number; data: SaveJobInfoParamsType }) =>
-      saveJobInfo(data.jobId, data.data),
-    {
-      onSuccess: (data, variables) => {
-        onClose()
-        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
-        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
-        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
-      },
-    },
-  )
 
   const uploadFileMutation = useMutation(
     (file: {
@@ -327,7 +326,14 @@ const InfoEditModal = ({
                 isShowDescription: data.isShowDescription,
               }
 
-              saveJobInfoMutation.mutate({ jobId: jobInfo.id, data: jobResult })
+              saveJobInfoMutation.mutate(
+                { jobId: jobInfo.id, data: jobResult },
+                {
+                  onSuccess: () => {
+                    onClose()
+                  },
+                },
+              )
 
               // res.map((value, idx) => {
               //   uploadFileMutation.mutate(fileInfo[idx])
@@ -359,7 +365,14 @@ const InfoEditModal = ({
           name: data.name,
           isShowDescription: data.isShowDescription,
         }
-        saveJobInfoMutation.mutate({ jobId: jobInfo.id, data: jobResult })
+        saveJobInfoMutation.mutate(
+          { jobId: jobInfo.id, data: jobResult },
+          {
+            onSuccess: () => {
+              onClose()
+            },
+          },
+        )
       }
     })
   }
