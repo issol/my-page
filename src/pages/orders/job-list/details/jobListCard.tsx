@@ -133,7 +133,12 @@ const JobListCard = ({
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
     router.push({
       pathname: '/orders/job-list/detail/',
-      query: { orderId: orderId, jobId: getTriggerGroup(Number(jobId!)) },
+      query: { 
+        orderId: orderId,
+        jobId: getTriggerGroup(Number(jobId!)),
+        source: info.sourceLanguage,
+        target: info.targetLanguage,
+      },
     })
   }
 
