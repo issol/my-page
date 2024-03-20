@@ -95,7 +95,6 @@ export const getJobInfo = async (
       contactPerson: null,
       pro: null,
       historyAt: null,
-      clientId: 0,
       feedback: '',
       files: [],
       autoNextJob: false,
