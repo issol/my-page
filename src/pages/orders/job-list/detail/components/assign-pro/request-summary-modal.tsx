@@ -25,17 +25,18 @@ import {
   JobAssignProRequestsType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
+import { AssignProListType } from '@src/types/orders/job-detail'
 
 type Props = {
   onClick: (
     selectedRequestOption: number,
     requestTerm: number | null,
-    selectedProList: ProListType[],
+    selectedProList: ProListType[] | AssignProListType[],
     existingProsLength: number,
     type: 'create' | 'add',
   ) => void
   onClose: () => void
-  selectedPros: ProListType[]
+  selectedPros: ProListType[] | AssignProListType[]
   existingPros: JobAssignProRequestsType | null
   type: 'create' | 'add'
 }
@@ -56,8 +57,9 @@ const RequestSummaryModal = ({
   )
   const [error, setError] = useState(false)
 
-  const [selectedProList, setSelectedProList] =
-    useState<ProListType[]>(selectedPros)
+  const [selectedProList, setSelectedProList] = useState<
+    ProListType[] | AssignProListType[]
+  >(selectedPros)
   const onClickRequestOptionHelperIcon = () => {
     openModal({
       type: 'RequestOptionModal',
@@ -168,7 +170,7 @@ const RequestSummaryModal = ({
           (existingPros && existingPros?.pros?.length
             ? existingPros?.pros?.length
             : 0),
-      })),
+      })) as AssignProListType[] | ProListType[],
     )
   }, [selectedPros, existingPros])
 
@@ -191,13 +193,11 @@ const RequestSummaryModal = ({
         const newList = [...prevList]
         const [removed] = newList.splice(source.index, 1)
         newList.splice(destination.index, 0, removed)
-        return newList
+        return newList as ProListType[] | AssignProListType[]
       })
     }, 'assign')
     return () => clear()
   }, [setSelectedProList])
-
-  console.log(existingPros)
 
   return (
     <Box

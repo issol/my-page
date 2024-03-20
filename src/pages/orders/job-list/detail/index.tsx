@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
+  useGetAssignableProList,
   useGetJobAssignProRequests,
   useGetJobInfo,
   useGetJobPrices,
@@ -66,9 +67,15 @@ import {
   createBulkRequestJobToPro,
   createRequestJobToPro,
   forceAssign,
+  getAssignableProList,
   handleJobAssignStatus,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import JobInfo from './components/info'
+import {
+  AssignProFilterPostType,
+  AssignProListType,
+} from '@src/types/orders/job-detail'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -114,32 +121,31 @@ const JobDetail = () => {
     label: string
   } | null>(null)
 
-  const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
-    sourceLanguage: [],
-    targetLanguage: [],
-    status: [],
-    clientId: [],
+  const [filter, setFilter] = useState<AssignProFilterPostType>({
+    source: [],
+    target: [],
+
+    client: [],
     take: 10,
     skip: 0,
     genre: [],
-    serviceTypeId: [],
+    serviceType: [],
     category: [],
-    hide: '1',
+    isOffBoard: '1',
   })
 
-  const [activeFilter, setActiveFilter] =
-    useState<LinguistTeamProListFilterType>({
-      sourceLanguage: [],
-      targetLanguage: [],
-      status: [],
-      clientId: [],
-      take: 10,
-      skip: 0,
-      genre: [],
-      serviceTypeId: [],
-      category: [],
-      hide: '1',
-    })
+  const [activeFilter, setActiveFilter] = useState<AssignProFilterPostType>({
+    source: [],
+    target: [],
+
+    client: [],
+    take: 10,
+    skip: 0,
+    genre: [],
+    serviceType: [],
+    category: [],
+    isOffBoard: '1',
+  })
 
   // const jobId = router.query.jobId
   const [jobId, setJobId] = useState<number[]>([])
@@ -153,7 +159,7 @@ const JobDetail = () => {
   }>({})
   const [selectedRows, setSelectedRows] = useState<{
     [key: string]: {
-      data: Array<ProListType>
+      data: Array<ProListType | AssignProListType>
       isPrivate?: boolean
       isPrioritized?: boolean
     }
@@ -183,7 +189,11 @@ const JobDetail = () => {
 
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
-  const { data: proList } = useGetProList(activeFilter)
+  const { data: proList } = useGetAssignableProList(
+    selectedJobInfo?.jobId!,
+    activeFilter,
+    false,
+  )
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -324,7 +334,7 @@ const JobDetail = () => {
   const handleRequest = (
     selectedRequestOption: number,
     requestTerm: number | null,
-    selectedProList: ProListType[],
+    selectedProList: ProListType[] | AssignProListType[],
     existingProsLength: number,
     type: 'create' | 'add',
   ) => {
@@ -392,9 +402,11 @@ const JobDetail = () => {
         <RequestSummaryModal
           onClick={handleRequest}
           onClose={() => closeModal('RequestModal')}
-          selectedPros={Object.values(selectedRows)
-            .map(value => value.data)
-            .flat()}
+          selectedPros={
+            Object.values(selectedRows)
+              .map(value => value.data)
+              .flat() as ProListType[] | AssignProListType[]
+          }
           existingPros={
             selectedJobInfo?.jobAssign.find(
               value => value.round === selectedAssign?.round,
@@ -409,7 +421,7 @@ const JobDetail = () => {
 
   const onClickAssign = (selectedRows: {
     [key: string]: {
-      data: Array<ProListType>
+      data: Array<ProListType | AssignProListType>
       isPrivate?: boolean | undefined
       isPrioritized?: boolean | undefined
     }
@@ -720,7 +732,10 @@ const JobDetail = () => {
                   />
                 </TabList>
                 <TabPanel value='info' sx={{ height: '100%' }}>
-                  123
+                  <JobInfo
+                    jobInfo={selectedJobInfo?.jobInfo!}
+                    jobAssign={selectedJobInfo?.jobAssign!}
+                  />
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
                   123
@@ -797,7 +812,7 @@ const JobDetail = () => {
                       activeFilter={activeFilter}
                       setFilter={setFilter}
                       setActiveFilter={setActiveFilter}
-                      proList={proList || { data: [], totalCount: 0 }}
+                      proList={proList || { data: [], totalCount: 0, count: 0 }}
                       setPastLinguistTeam={setPastLinguistTeam}
                       pastLinguistTeam={pastLinguistTeam}
                       languageList={languageList}
@@ -978,7 +993,7 @@ const JobDetail = () => {
                                     padding: '16px 16px 16px 20px',
                                   }}
                                 >
-                                  {pro.order}
+                                  {(pro as ProListType).order}
                                 </Typography>
                               ) : null}
                               <Box

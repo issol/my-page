@@ -22,7 +22,7 @@ export const useGetAssignableProList = (
     () => getAssignableProList(jobId, filter, isHistory),
     {
       staleTime: 0,
-
+      enabled: !!jobId,
       suspense: false,
       keepPreviousData: false,
     },

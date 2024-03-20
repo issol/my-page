@@ -22,13 +22,14 @@ import { ClientUserType, UserDataType } from '@src/context/types'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobRequestsProType } from '@src/types/jobs/jobs.type'
+import { AssignProListType } from '@src/types/orders/job-detail'
 import { ProListCellType, ProListType } from '@src/types/pro/list'
 import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 
 type CellType = {
-  row: ProListType
+  row: ProListType | AssignProListType
 }
 
 type ProAssignJobCellType = {
@@ -48,7 +49,7 @@ export const getProJobAssignColumns = (
   setSelectedRows?: Dispatch<
     SetStateAction<{
       [key: string]: {
-        data: ProListType[]
+        data: Array<ProListType | AssignProListType>
         isPrivate?: boolean | undefined
         isPrioritized?: boolean | undefined
       }
@@ -56,7 +57,7 @@ export const getProJobAssignColumns = (
   >,
   proList?: ProListType[],
 ) => {
-  const columns: GridColumns<ProListType> = [
+  const columns: GridColumns<ProListType | AssignProListType> = [
     {
       field: 'select',
       flex: 0.0755,
@@ -118,7 +119,7 @@ export const getProJobAssignColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-            {row.order}
+            {(row as ProListType).order}
           </Typography>
         )
       },
