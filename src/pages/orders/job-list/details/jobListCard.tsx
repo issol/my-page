@@ -21,6 +21,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -55,6 +56,7 @@ import useDialog from '@src/hooks/useDialog'
 import { Icon } from '@iconify/react'
 import { is } from 'immutable'
 import { UseMutationResult } from 'react-query'
+import { on } from 'events'
 
 const HeadRowItemNames = [
   '',
@@ -76,15 +78,7 @@ interface JobListCardProps extends ModeProps {
   isMasterManagerUser: boolean
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
-  handleChangeServiceType: (
-    event: SyntheticEvent<Element, Event>,
-    value: {
-      label: string
-      value: string
-    }[],
-    index: number,
-  ) => void
-  onClickAddJob: (itemId: number, index: number) => void
+  onClickAddJob: (itemId: number, index: number, serviceType: string[]) => void
   onAutoCreateJob: () => void
   deleteJobsMutation: UseMutationResult<void[], unknown, number[], unknown>
   changeStatusMutation: UseMutationResult<void[], unknown, {
@@ -103,7 +97,6 @@ const JobListCard = ({
   isUserInTeamMember,
   isMasterManagerUser,
   statusList,
-  handleChangeServiceType,
   onClickAddJob,
   onAutoCreateJob,
   onChangeViewMode,
@@ -128,7 +121,8 @@ const JobListCard = ({
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
     null,
   )
-  const [triggerGroups, setTriggerGroups] = useState<number[][]>([]);
+  const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
+  const [hoveredGroup, setHoveredGroup] = useState<number[]>([])
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
@@ -136,6 +130,18 @@ const JobListCard = ({
       pathname: '/orders/job-list/detail/',
       query: { orderId: orderId, jobId: getTriggerGroup(Number(jobId!)) },
     })
+  }
+
+  const onHoverRow = (id: number, isHover: boolean) => {
+    if (isHover) {
+      triggerGroups.map(group => {
+        if (group.includes(id)) {
+          setHoveredGroup(group)
+        }
+      })
+    } else {
+      setHoveredGroup([])
+    }
   }
 
   const isTriggerJob = (jobId: number) => {
@@ -261,7 +267,6 @@ const JobListCard = ({
 
   const resetSelected = () => {
     const newAllSelected = selectedAllItemJobs.filter(item => !selected.includes(item))
-    console.log('resetSelected',newAllSelected)
     setSelectedAllItemJobs(newAllSelected)
     setSelected([])
   }
@@ -382,6 +387,9 @@ const JobListCard = ({
                     mode={mode}
                     onChangeViewMode={onChangeViewMode}
                     alertClose={() => setIsAddJobMenuOpen(false)}
+                    onClickAddJob={onClickAddJob}
+                    itemId={info.id}
+                    jobIndex={info.jobs.length}
                   />
                 )}
               </Box>
@@ -468,19 +476,22 @@ const JobListCard = ({
                         key={uuidv4()}
                         sx={{
                           '& > *': { borderBottom: 'unset' },
-                          background: '#fff'
-                          // background:
-                          //   row.id === Number(jobId!)
-                          //     ? 'rgba(76, 78, 100, 0.12)'
-                          //     : '#fff',
-                        }}
-                        // hover
+                          background:
+                            hoveredGroup.includes(row.id)
+                              ? 'rgba(76, 78, 100, 0.05)'
+                              : '#fff',
+                          '&:hover': {
+                            background: 'rgba(76, 78, 100, 0.05)',
+                          },
+                        }}                        
                         onClick={() => {
                           if (mode !== 'view') return
                           onClickRow(row, info)
                         }}
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
+                        onMouseEnter={() => onHoverRow(row.id, true)}
+                        onMouseLeave={() => onHoverRow(row.id, false)}
                       >
                         {viewState && (
                           <CustomTableCell padding='checkbox'>
@@ -596,24 +607,34 @@ const JobListCard = ({
                           scope='row'
                           align='right'
                         >
-                          {isTriggerJob(row.id) && (
-                            <Box
-                              display='flex'
-                              alignItems='center'
-                              justifyContent='flex-end'
-                              gap='8px'
+                          {!isTriggerJob(row.id) && (
+                            <Tooltip
+                              title={`${row.nextJobId ? 'On' : 'Off'} 
+                                [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
+                                Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
+                              `}
+                              placement='top'
                             >
-                              {row.nextJobId &&
-                                <TriggerIcon />
-                              }
-                              <TriggerSwitchStatus
-                                variant='body2'
-                                color={theme.palette.success.main}
-                                bgcolor={row.autoNextJob ? '#EEFBE5' : '#FFF'}
+                              <Box
+                                display='flex'
+                                alignItems='center'
+                                justifyContent='flex-end'
+                                gap='8px'
                               >
-                                {row.autoNextJob && 'On'}
-                              </TriggerSwitchStatus>
-                            </Box>
+                                {!row.nextJobId &&
+                                  <TriggerIcon />
+                                }
+                                {!row.autoNextJob && (
+                                  <TriggerSwitchStatus
+                                    variant='body2'
+                                    color={theme.palette.success.main}
+                                    bgcolor='#EEFBE5'
+                                  >
+                                    On
+                                  </TriggerSwitchStatus>
+                                )}
+                              </Box>
+                            </Tooltip>
                           )}
                         </CustomTableCell>
                       </TableRow>

@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { Dispatch, useState } from 'react'
+import React, { Dispatch, useState, SyntheticEvent } from 'react'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { JobsStatusChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
@@ -165,7 +165,6 @@ export const ManageStatusMode = ({
 
   const onClickSave = (changeStatus: number) => {
     const isUpdatable = isStatusUpdatable(changeStatus)
-    console.log("isUpdatable", isUpdatable)
     if (isUpdatable.isUpdatable) {
       openModal({
         type: 'StatusChangeAlert',
@@ -290,16 +289,22 @@ export const ManageStatusMode = ({
 
 interface AddJobProps extends ModeProps {
   alertClose: () => void
+  onClickAddJob: (itemId: number, index: number, serviceType: string[]) => void
+  itemId: number
+  jobIndex: number
 }
 
-export const AddJobMenu = ({ alertClose }: AddJobProps) => {
+export const AddJobMenu = ({ alertClose, onClickAddJob, itemId, jobIndex }: AddJobProps) => {
   const [serviceTypes] = useState(ServiceTypeList)
   const [selectedServiceType, setSelectedServiceType] = useState<
     (keyof typeof ServiceType)[]
   >([])
-
   const onClickAdd = () => {
-    console.log('selected', selectedServiceType)
+    onClickAddJob(
+      itemId,
+      jobIndex,
+      selectedServiceType
+    )
     alertClose()
   }
 

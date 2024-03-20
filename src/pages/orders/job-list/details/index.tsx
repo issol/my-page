@@ -65,9 +65,7 @@ const JobDetails = () => {
   const [isMasterManagerUser, setIsMasterManagerUser] = useState(false)
 
   const [mode, setMode] = useState<JobListMode>('view')
-  const [serviceType, setServiceType] = useState<
-    Array<{ label: string; value: string }[]>
-  >([])
+
   const [selectedAllItemJobs, setSelectedAllItemJobs] = useState<number[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -75,7 +73,6 @@ const JobDetails = () => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget)
   }
-  console.log("info",jobDetails)
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -84,13 +81,13 @@ const JobDetails = () => {
     (params: CreateJobParamsType) => createJob(params),
     {
       onSuccess: (data, variables) => {
-        if (variables.index) {
-          const newServiceType = [...serviceType]
-          newServiceType.splice(variables.index, 1)
-          setServiceType(newServiceType)
-        } else {
-          setServiceType([])
-        }
+        // if (variables.index) {
+        //   const newServiceType = [...serviceType]
+        //   newServiceType.splice(variables.index, 1)
+        //   setServiceType(newServiceType)
+        // } else {
+        //   setServiceType([])
+        // }
         refetch()
       },
     },
@@ -111,25 +108,11 @@ const JobDetails = () => {
     },
   })
 
-  const handleChangeServiceType = (
-    event: SyntheticEvent<Element, Event>,
-    value: {
-      label: string
-      value: string
-    }[],
-    index: number,
-  ) => {
-    const newSelections = [...serviceType]
-    newSelections[index] = value
-    setServiceType(newSelections)
-    // setTmpServiceType(newSelections)
-  }
-
-  const onClickAddJob = (itemId: number, index: number) => {
+  const onClickAddJob = (itemId: number, index: number, serviceType: string[]) => {
     createJobMutation.mutate({
       orderId: Number(orderId),
       itemId: itemId,
-      serviceType: serviceType[index].map(value => value.value),
+      serviceType: serviceType,
       index: index,
     })
   }
@@ -398,7 +381,6 @@ const JobDetails = () => {
                 statusList={statusList}
                 isUserInTeamMember={isUserInTeamMember}
                 isMasterManagerUser={isMasterManagerUser}
-                handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
                 onAutoCreateJob={onAutoCreateJob}
                 onChangeViewMode={onChangeViewMode}
