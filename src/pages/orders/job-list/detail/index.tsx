@@ -946,9 +946,7 @@ const JobDetail = () => {
                                 setSelectedRows(newSelectedRows)
                                 setSelectionModel(prev => {
                                   const newState = { ...prev }
-                                  delete newState[
-                                    selectedLinguistTeam?.label || ''
-                                  ]
+                                  delete newState[key]
                                   return newState
                                 })
                               }}
@@ -1024,20 +1022,14 @@ const JobDetail = () => {
                                   setSelectedRows(newSelectedRows)
                                   setSelectionModel(prev => {
                                     const newState = { ...prev }
-                                    newState[
-                                      selectedLinguistTeam?.label || ''
-                                    ] = prev[
-                                      selectedLinguistTeam?.label || ''
-                                    ]?.filter(value => value !== pro.userId)
-                                    if (
-                                      newState[
-                                        selectedLinguistTeam?.label || ''
-                                      ].length === 0
-                                    ) {
-                                      delete newState[
-                                        selectedLinguistTeam?.label || ''
-                                      ]
+                                    newState[key] = prev[key]?.filter(
+                                      value => value !== pro.userId,
+                                    )
+                                    if (newState[key]?.length === 0) {
+                                      delete newState[key]
                                     }
+                                    console.log(newState, 'new')
+
                                     return newState
                                   })
                                 }}
