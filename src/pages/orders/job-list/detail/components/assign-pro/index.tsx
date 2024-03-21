@@ -285,8 +285,14 @@ const AssignPro = ({
     })
   }
 
-  const handleCancelRequest = () => {
+  const handleCancelRequest = (row: JobRequestsProType) => {
     closeModal('CancelRequestProModal')
+    assignJobMutation.mutate({
+      jobId: jobInfo.id,
+      proId: row.userId,
+      status: 70500,
+      type: 'normal',
+    })
   }
 
   const handleReAssign = () => {
@@ -339,7 +345,7 @@ const AssignPro = ({
             'Are you sure you want to cancel the job request of this Pro?'
           }
           onClick={() => {
-            handleCancelRequest()
+            handleCancelRequest(row)
           }}
           onClose={() => closeModal('CancelRequestProModal')}
           rightButtonText='Cancel request'
