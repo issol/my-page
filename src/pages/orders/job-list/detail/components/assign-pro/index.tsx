@@ -69,7 +69,7 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import Message from './message-modal'
-import { UseMutationResult } from 'react-query'
+import { UseMutationResult, useQueryClient } from 'react-query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { request } from 'http'
 import {
@@ -214,6 +214,7 @@ const AssignPro = ({
   reAssignJobMutation,
 }: Props) => {
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
   console.log(selectionModel, 'test')
   console.log(selectedRows, 'test')
 
@@ -271,6 +272,8 @@ const AssignPro = ({
     row: JobRequestsProType,
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
+    console.log(row.userId, 'getId')
+
     assignJobMutation.mutate({
       jobId: jobInfo.id,
       proId: row.userId,
@@ -548,6 +551,8 @@ const AssignPro = ({
     }
   }, [proId])
 
+  console.log(rows, 'rows')
+
   return (
     <>
       {jobAssign &&
@@ -587,7 +592,13 @@ const AssignPro = ({
                 </Button>
               )
             })}
-            {jobAssign.some(job => job.requestCompleted === true) ? null : (
+
+            {jobAssign.some(
+              job =>
+                job.pros &&
+                Array.isArray(job.pros) &&
+                job.pros.some(pro => pro.assignmentStatus === 70300),
+            ) ? null : (
               <Button
                 variant='outlined'
                 color='secondary'
@@ -598,8 +609,10 @@ const AssignPro = ({
                 }}
                 // TODO 새로운 페이지 추가 액션
                 onClick={() => {
-                  setSelectedAssign(null)
+                  // setSelectedAssign(null)
+                  queryClient.invalidateQueries(['assignProList'])
                   setAddRoundMode(true)
+                  setRows({})
                 }}
               >
                 + Round{jobAssign.length + 1}
@@ -767,7 +780,13 @@ const AssignPro = ({
                 sx={{
                   height: 'calc(75vh - 100px)',
                 }}
-                rows={selectedAssign?.pros || []}
+                rows={
+                  selectedAssign?.pros && selectedAssign.pros.length > 0
+                    ? [...selectedAssign?.pros].sort(
+                        (a, b) => a.order - b.order,
+                      )
+                    : []
+                }
                 columns={getProJobAssignColumnsForRequest(
                   auth,
                   timezoneList.getValue(),
@@ -813,7 +832,7 @@ const AssignPro = ({
             <ButtonGroup variant='outlined' color='secondary'>
               <CustomBtn
                 value='linguistTeam'
-                $focus={menu === 'linguistTeam'}
+                isFocus={menu === 'linguistTeam'}
                 onClick={e => {
                   if (menu === 'linguistTeam') return
                   setPastLinguistTeam(null)
@@ -825,7 +844,7 @@ const AssignPro = ({
                 Linguist team
               </CustomBtn>
               <CustomBtn
-                $focus={menu === 'pro'}
+                isFocus={menu === 'pro'}
                 value='pro'
                 onClick={e => {
                   if (menu === 'pro') return
@@ -1486,9 +1505,9 @@ const AssignPro = ({
 
 export default AssignPro
 
-const CustomBtn = styled(Button)<{ $focus: boolean }>`
+const CustomBtn = styled(Button)<{ isFocus: boolean }>`
   width: 145px;
   height: 36px;
-  color: ${({ $focus }) => ($focus ? '#4C4E64' : '#8d8e9a')};
-  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
+  color: ${({ isFocus }) => (isFocus ? '#4C4E64' : '#8d8e9a')};
+  background: ${({ isFocus }) => (isFocus ? 'rgba(102, 108, 255, 0.08)' : '')};
 `

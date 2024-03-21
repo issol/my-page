@@ -623,16 +623,19 @@ const JobInfo = ({
                         )
                       })}
                     </Select>
-                    <IconButton
-                      sx={{ padding: 0 }}
-                      onClick={onClickRedeliveryReason}
-                    >
-                      <Icon
-                        icon='mdi:question-mark-circle-outline'
-                        color='rgba(141, 142, 154, 1)'
-                        fontSize={20}
-                      />
-                    </IconButton>
+                    {jobInfo.status === 60250 ? (
+                      <IconButton
+                        sx={{ padding: 0 }}
+                        onClick={onClickRedeliveryReason}
+                      >
+                        <Icon
+                          icon='mdi:question-mark-circle-outline'
+                          color='rgba(141, 142, 154, 1)'
+                          fontSize={20}
+                        />
+                      </IconButton>
+                    ) : null}
+
                     {/* {jobInfo.pro ? (
 
                   ) : null} */}
