@@ -1,4 +1,4 @@
-import { JobStatusType, JobsListType } from '@src/types/jobs/jobs.type'
+import { JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
 import { Tooltip, Typography } from '@mui/material'
@@ -12,9 +12,9 @@ import { useRouter } from 'next/router'
 // ** values
 import {
   JobsStatusChip,
+  JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 // ** helpers
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
@@ -23,10 +23,10 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 // ** context
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { statusType } from '@src/types/common/status.type'
 import { timezoneSelector } from '@src/states/permission'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 type CellType = {
   row: JobsListType
@@ -88,7 +88,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(row.status as JobStatusType, statusList)
+        return JobsStatusChip(row.status as ProJobStatusType, statusList)
       },
     },
     {
@@ -241,6 +241,7 @@ export default function JobsList({
       </Box>
     )
   }
+
   return (
     <Box
       sx={{

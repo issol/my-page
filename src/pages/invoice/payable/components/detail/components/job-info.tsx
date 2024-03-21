@@ -14,8 +14,9 @@ import { timezoneSelector } from '@src/states/permission'
 // ** types
 import { JobType } from '@src/types/common/item.type'
 import { statusType } from '@src/types/common/status.type'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+
 import { useRecoilValueLoadable } from 'recoil'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 type Props = {
   row: JobType
@@ -50,7 +51,7 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
               >
                 Status
               </Typography>
-              {JobsStatusChip(row.status as JobStatusType, jobStatusList)}
+              {JobsStatusChip(row.status as ProJobStatusType, jobStatusList)}
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               <Typography

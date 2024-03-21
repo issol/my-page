@@ -1,10 +1,10 @@
 import { ProJobStatusType } from '../jobs/common.type'
-import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
+import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { PriceType, PriceUnitType } from './orders-and-quotes.type'
 import { CurrencyType } from './standard-price'
-import { MemSourceType, MemoQType } from './tm-analysis.type'
+import { MemoQType, MemSourceType } from './tm-analysis.type'
 
 export type ItemType = Omit<
   PostItemType,
@@ -78,7 +78,7 @@ export type JobType = {
   order: { id: number }
   corporationId: string
   name: string
-  status: JobStatusType | ProJobStatusType
+  status: ProJobStatusType
   contactPersonId: number
   serviceType: string
   sourceLanguage: string

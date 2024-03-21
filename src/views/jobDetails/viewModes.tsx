@@ -16,13 +16,14 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { Dispatch, useState, SyntheticEvent } from 'react'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+import React, { Dispatch, useState } from 'react'
+
 import { JobsStatusChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import { UseMutationResult } from 'react-query'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 
@@ -55,15 +56,18 @@ export const DeleteMode = ({
     'Triggers between the jobs will be deleted with the jobs. Proceed?'
 
   const onClickAlertDelete = () => {
-    deleteJobsMutation.mutateAsync([...selected]).then(() => {
-      displayCustomToast('Deleted successfully.', 'success')
-      closeModal('DeleteJobsConfirm')
-      resetSelected && resetSelected()
-      onChangeViewMode()
-    }).catch((e) => {
-      displayCustomToast('Failed to delete.', 'error')
-      closeModal('DeleteJobsConfirm')
-    })
+    deleteJobsMutation
+      .mutateAsync([...selected])
+      .then(() => {
+        displayCustomToast('Deleted successfully.', 'success')
+        closeModal('DeleteJobsConfirm')
+        resetSelected && resetSelected()
+        onChangeViewMode()
+      })
+      .catch(e => {
+        displayCustomToast('Failed to delete.', 'error')
+        closeModal('DeleteJobsConfirm')
+      })
   }
 
   const onClickDelete = () => {
@@ -119,18 +123,23 @@ export const DeleteMode = ({
 }
 
 interface ManageStatusModeProps extends ModeProps {
-  changeJobStatus: JobStatusType | null
+  changeJobStatus: ProJobStatusType | null
   statusList?: Array<{ value: number; label: string }>
-  setChangeJobStatus: Dispatch<JobStatusType | null>
+  setChangeJobStatus: Dispatch<ProJobStatusType | null>
   selected: readonly number[]
   isStatusUpdatable: (changeStatus: number) => {
-    isUpdatable: boolean;
-    immutableCorporationId: string[];
+    isUpdatable: boolean
+    immutableCorporationId: string[]
   }
-  changeStatusMutation: UseMutationResult<void[], unknown, {
-    jobIds: number[];
-    status: number;
-  }, unknown>
+  changeStatusMutation: UseMutationResult<
+    void[],
+    unknown,
+    {
+      jobIds: number[]
+      status: number
+    },
+    unknown
+  >
 }
 
 export const ManageStatusMode = ({
@@ -149,18 +158,21 @@ export const ManageStatusMode = ({
   const { openModal, closeModal } = useModal()
 
   const onClickChangeStatus = () => {
-    changeStatusMutation.mutateAsync({
-      jobIds: [...selected],
-      status: changeJobStatus!,
-    }).then(() => {
-      displayCustomToast('Saved successfully.', 'success')
-      closeModal('StatusChangeAlert')
-      resetSelected && resetSelected()
-      onChangeViewMode()
-    }).catch((e) => {
-      displayCustomToast('Failed to save.', 'error')
-      closeModal('StatusChangeAlert')
-    })
+    changeStatusMutation
+      .mutateAsync({
+        jobIds: [...selected],
+        status: changeJobStatus!,
+      })
+      .then(() => {
+        displayCustomToast('Saved successfully.', 'success')
+        closeModal('StatusChangeAlert')
+        resetSelected && resetSelected()
+        onChangeViewMode()
+      })
+      .catch(e => {
+        displayCustomToast('Failed to save.', 'error')
+        closeModal('StatusChangeAlert')
+      })
   }
 
   const onClickSave = (changeStatus: number) => {
@@ -208,9 +220,11 @@ export const ManageStatusMode = ({
                 not being fulfilled.
               </p>
               <ul style={{ display: 'flex', flexDirection: 'column' }}>
-                {isUpdatable.immutableCorporationId.map((corporationId, index) => (
-                  <li key={index}>{corporationId}</li>
-                ))}
+                {isUpdatable.immutableCorporationId.map(
+                  (corporationId, index) => (
+                    <li key={index}>{corporationId}</li>
+                  ),
+                )}
               </ul>
             </div>
           }
@@ -224,7 +238,7 @@ export const ManageStatusMode = ({
       target: { value },
     } = event
 
-    setChangeJobStatus(Number(value) as JobStatusType)
+    setChangeJobStatus(Number(value) as ProJobStatusType)
   }
 
   return (
@@ -250,13 +264,16 @@ export const ManageStatusMode = ({
             input={<OutlinedInput />}
             renderValue={selected => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {JobsStatusChip(Number(selected) as JobStatusType, statusList!)}
+                {JobsStatusChip(
+                  Number(selected) as ProJobStatusType,
+                  statusList!,
+                )}
               </Box>
             )}
           >
             {statusList?.map(status => (
               <MenuItem key={status.value} value={status.value}>
-                {JobsStatusChip(status.value as JobStatusType, statusList!)}
+                {JobsStatusChip(status.value as ProJobStatusType, statusList!)}
               </MenuItem>
             ))}
           </Select>
@@ -294,17 +311,18 @@ interface AddJobProps extends ModeProps {
   jobIndex: number
 }
 
-export const AddJobMenu = ({ alertClose, onClickAddJob, itemId, jobIndex }: AddJobProps) => {
+export const AddJobMenu = ({
+  alertClose,
+  onClickAddJob,
+  itemId,
+  jobIndex,
+}: AddJobProps) => {
   const [serviceTypes] = useState(ServiceTypeList)
   const [selectedServiceType, setSelectedServiceType] = useState<
     (keyof typeof ServiceType)[]
   >([])
   const onClickAdd = () => {
-    onClickAddJob(
-      itemId,
-      jobIndex,
-      selectedServiceType
-    )
+    onClickAddJob(itemId, jobIndex, selectedServiceType)
     alertClose()
   }
 

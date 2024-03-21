@@ -18,7 +18,6 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { addJobFeedback, saveJobInfo } from '@src/apis/jobs/job-detail.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
-// import { JobStatus } from '@src/shared/const/status/statuses'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -42,7 +41,6 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { statusType } from '@src/types/common/status.type'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import {
-  JobStatusType,
   ProJobDeliveryType,
   ProJobFeedbackType,
 } from '@src/types/jobs/jobs.type'
@@ -52,6 +50,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import JobFeedback from '../../../components/job-feedback'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 type Props = {
   row: JobType
@@ -332,6 +331,7 @@ const ViewJobInfo = ({
       },
     )
   }
+
   function filterStatus(statusCode: number) {
     switch (statusCode) {
       case 60000: //"In preparation"
@@ -588,7 +588,7 @@ const ViewJobInfo = ({
                 Status
               </Typography>
               {type === 'history' ? (
-                JobsStatusChip(row.status as JobStatusType, statusList!)
+                JobsStatusChip(row.status as ProJobStatusType, statusList!)
               ) : (
                 <Select
                   value={String(row.status)}

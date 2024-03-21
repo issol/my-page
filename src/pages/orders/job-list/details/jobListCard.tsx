@@ -1,11 +1,4 @@
-import React, {
-  RefObject,
-  SyntheticEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import {
   Box,
@@ -30,7 +23,7 @@ import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+
 import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
@@ -54,9 +47,8 @@ import {
 import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
 import useDialog from '@src/hooks/useDialog'
 import { Icon } from '@iconify/react'
-import { is } from 'immutable'
 import { UseMutationResult } from 'react-query'
-import { on } from 'events'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 const HeadRowItemNames = [
   '',
@@ -72,7 +64,7 @@ const CheckMode: Array<JobListMode> = ['edit', 'delete', 'manageStatus']
 
 interface JobListCardProps extends ModeProps {
   index: number
-  mode: JobListMode,
+  mode: JobListMode
   info: JobItemType
   isUserInTeamMember: boolean
   isMasterManagerUser: boolean
@@ -80,15 +72,25 @@ interface JobListCardProps extends ModeProps {
   statusList?: Array<{ value: number; label: string }>
   onClickAddJob: (itemId: number, index: number, serviceType: string[]) => void
   onAutoCreateJob: (itemId: number[]) => void
-  createWithJobTemplateMutation: UseMutationResult<void, unknown, {
-    itemId: number;
-    templateId: number;
-  }, unknown>
+  createWithJobTemplateMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      itemId: number
+      templateId: number
+    },
+    unknown
+  >
   deleteJobsMutation: UseMutationResult<void[], unknown, number[], unknown>
-  changeStatusMutation: UseMutationResult<void[], unknown, {
-    jobIds: number[];
-    status: number;
-  }, unknown>
+  changeStatusMutation: UseMutationResult<
+    void[],
+    unknown,
+    {
+      jobIds: number[]
+      status: number
+    },
+    unknown
+  >
   setSelectedAllItemJobs: (selected: number[]) => void
   selectedAllItemJobs: number[]
 }
@@ -123,9 +125,8 @@ const JobListCard = ({
   const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
 
   const [selected, setSelected] = useState<readonly number[]>([])
-  const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
-    null,
-  )
+  const [changeJobStatus, setChangeJobStatus] =
+    useState<ProJobStatusType | null>(null)
   const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
   const [hoveredGroup, setHoveredGroup] = useState<number[]>([])
 
@@ -133,7 +134,7 @@ const JobListCard = ({
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
     router.push({
       pathname: '/orders/job-list/detail/',
-      query: { 
+      query: {
         orderId: orderId,
         jobId: getTriggerGroup(Number(jobId!)),
         source: info.sourceLanguage,
@@ -155,7 +156,10 @@ const JobListCard = ({
   }
 
   const isTriggerJob = (jobId: number) => {
-    return info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId).length > 0
+    return (
+      info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId)
+        .length > 0
+    )
   }
 
   const getTriggerGroup = (jobId: number) => {
@@ -171,39 +175,43 @@ const JobListCard = ({
     setTriggerGroups(getTriggerGroups())
   }, [info.jobs])
 
-  console.log("triggerGroups",triggerGroups)
+  console.log('triggerGroups', triggerGroups)
   const getTriggerGroups = (): number[][] => {
-    let groups: number[][] = [];
-    let map: Map<number, JobType> = new Map();
+    let groups: number[][] = []
+    let map: Map<number, JobType> = new Map()
 
     info.jobs.forEach(job => {
       map.set(job.id, job)
     })
-  
-    let visited = new Set<number>();
-  
+
+    let visited = new Set<number>()
+
     for (let job of info.jobs) {
       if (!visited.has(job.id)) {
-        let group: number[] = [];
-        let current = job;
-  
-        while (current != null && !visited.has(current.id) && current.nextJobId) {
-          group.push(current.id);
-          visited.add(current.id);
+        let group: number[] = []
+        let current = job
+
+        while (
+          current != null &&
+          !visited.has(current.id) &&
+          current.nextJobId
+        ) {
+          group.push(current.id)
+          visited.add(current.id)
           if (current.nextJobId != null) {
             current = map.get(current.nextJobId)!
           } else {
-            break;
+            break
           }
         }
-  
+
         if (group.length > 0) {
-          groups.push(group);
+          groups.push(group)
         }
       }
     }
-  
-    return groups;
+
+    return groups
   }
 
   const canUseRequestAssignButton = (job: JobType) => {
@@ -218,27 +226,32 @@ const JobListCard = ({
 
   const isStatusChangeableJob = (status: number) => {
     // 변경 가능 기준 : job status가 In preparation, Requested, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
-    return [60000, 60100, 60200, 60300, 60400, 60500, 60600, 60700, 60900].includes(status)
+    return [
+      60000, 60100, 60200, 60300, 60400, 60500, 60600, 60700, 60900,
+    ].includes(status)
   }
 
   const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
     // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
     return status === 60000 && isJobRequestPresent === false
   }
-  
+
   const isSelected = (id: number) => selected.indexOf(id) !== -1
 
   const onSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = info.jobs
-        .filter(row => 
-          mode === 'manageStatus' 
+        .filter(row =>
+          mode === 'manageStatus'
             ? isStatusChangeableJob(row.status)
             : mode === 'delete'
               ? isDeletableJob(row.status, row.isJobRequestPresent)
-              : true)
+              : true,
+        )
         .map(n => n.id)
-      const filteredNewSelected = newSelected.filter(item => !selectedAllItemJobs.includes(item))
+      const filteredNewSelected = newSelected.filter(
+        item => !selectedAllItemJobs.includes(item),
+      )
       setSelectedAllItemJobs([...selectedAllItemJobs, ...filteredNewSelected])
       setSelected(newSelected)
       return
@@ -276,19 +289,21 @@ const JobListCard = ({
   }
 
   const resetSelected = () => {
-    const newAllSelected = selectedAllItemJobs.filter(item => !selected.includes(item))
+    const newAllSelected = selectedAllItemJobs.filter(
+      item => !selected.includes(item),
+    )
     setSelectedAllItemJobs(newAllSelected)
     setSelected([])
   }
 
   const allChecked = useMemo(() => {
-    const filteredJobs = info.jobs        
-      .filter(row => 
-        mode === 'manageStatus' 
-          ? isStatusChangeableJob(row.status)
-          : mode === 'delete'
-            ? isDeletableJob(row.status, row.isJobRequestPresent)
-            : true)
+    const filteredJobs = info.jobs.filter(row =>
+      mode === 'manageStatus'
+        ? isStatusChangeableJob(row.status)
+        : mode === 'delete'
+          ? isDeletableJob(row.status, row.isJobRequestPresent)
+          : true,
+    )
     return selected.length === filteredJobs.length && filteredJobs.length > 0
   }, [selected])
 
@@ -308,7 +323,7 @@ const JobListCard = ({
         }
       })
     }
-    // without invoice 
+    // without invoice
     else if (changeStatus === 60900) {
       selectedAllItemJobs.map(jobId => {
         const job = info.jobs.find(row => row.id === jobId)
@@ -486,14 +501,13 @@ const JobListCard = ({
                         key={uuidv4()}
                         sx={{
                           '& > *': { borderBottom: 'unset' },
-                          background:
-                            hoveredGroup.includes(row.id)
-                              ? 'rgba(76, 78, 100, 0.05)'
-                              : '#fff',
+                          background: hoveredGroup.includes(row.id)
+                            ? 'rgba(76, 78, 100, 0.05)'
+                            : '#fff',
                           '&:hover': {
                             background: 'rgba(76, 78, 100, 0.05)',
                           },
-                        }}                        
+                        }}
                         onClick={() => {
                           if (mode !== 'view') return
                           onClickRow(row, info)
@@ -511,12 +525,17 @@ const JobListCard = ({
                                 mode === 'manageStatus'
                                   ? !isStatusChangeableJob(row.status)
                                   : mode === 'delete'
-                                    ? !isDeletableJob(row.status, row.isJobRequestPresent)
+                                    ? !isDeletableJob(
+                                        row.status,
+                                        row.isJobRequestPresent,
+                                      )
                                     : false
                               }
                               color='primary'
                               checked={isItemSelected}
-                              onChange={event => onSelectClick(event.target.checked, row.id)}
+                              onChange={event =>
+                                onSelectClick(event.target.checked, row.id)
+                              }
                               inputProps={{
                                 'aria-labelledby': row.corporationId,
                               }}
@@ -557,7 +576,7 @@ const JobListCard = ({
                           scope='row'
                         >
                           {JobsStatusChip(
-                            row.status as JobStatusType,
+                            row.status as ProJobStatusType,
                             statusList!,
                           )}
                         </CustomTableCell>
@@ -596,19 +615,21 @@ const JobListCard = ({
                                   email: row.assignedPro.email,
                                 }}
                               />
-                            ) : (isUserInTeamMember || isMasterManagerUser) ? (
+                            ) : isUserInTeamMember || isMasterManagerUser ? (
                               <Button
                                 variant='outlined'
                                 size='small'
                                 onClick={() => {}}
                                 disabled={
-                                  mode !== 'view' || 
+                                  mode !== 'view' ||
                                   !canUseRequestAssignButton(row)
                                 }
                               >
                                 Request/Assign
                               </Button>
-                            ) : '-'}
+                            ) : (
+                              '-'
+                            )}
                           </Box>
                         </CustomTableCell>
                         <CustomTableCell
@@ -619,8 +640,8 @@ const JobListCard = ({
                         >
                           {!isTriggerJob(row.id) && (
                             <Tooltip
-                              title={`${row.nextJobId ? 'On' : 'Off'} 
-                                [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
+                              title={`${row.nextJobId ? 'On' : 'Off'}
+                                [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
                                 Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                               `}
                               placement='top'
@@ -631,9 +652,7 @@ const JobListCard = ({
                                 justifyContent='flex-end'
                                 gap='8px'
                               >
-                                {!row.nextJobId &&
-                                  <TriggerIcon />
-                                }
+                                {!row.nextJobId && <TriggerIcon />}
                                 {!row.autoNextJob && (
                                   <TriggerSwitchStatus
                                     variant='body2'
@@ -650,15 +669,14 @@ const JobListCard = ({
                       </TableRow>
                     )
                   })
-                : (mode === 'view' 
-                    ? NoList()
-                    : null
-                  )}
+                : mode === 'view'
+                  ? NoList()
+                  : null}
             </TableBody>
           </Table>
         </TableContainer>
-        <AddJobTemplate 
-          isOpen={isOpen} 
+        <AddJobTemplate
+          isOpen={isOpen}
           onClose={onClose}
           itemId={info.id}
           createWithJobTemplateMutation={createWithJobTemplateMutation}
@@ -685,7 +703,9 @@ const JobListCard = ({
           <ManageStatusMode
             mode={mode}
             selected={selectedAllItemJobs}
-            statusList={statusList?.filter(status => [60600, 60900, 601000].includes(status.value))}
+            statusList={statusList?.filter(status =>
+              [60600, 60900, 601000].includes(status.value),
+            )}
             changeJobStatus={changeJobStatus}
             setChangeJobStatus={setChangeJobStatus}
             onChangeViewMode={onChangeViewMode}
