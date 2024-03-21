@@ -23,7 +23,6 @@ import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import { UseMutationResult } from 'react-query'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 

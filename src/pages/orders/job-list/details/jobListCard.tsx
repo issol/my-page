@@ -48,7 +48,6 @@ import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
 import useDialog from '@src/hooks/useDialog'
 import { Icon } from '@iconify/react'
 import { UseMutationResult } from 'react-query'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 const HeadRowItemNames = [
   '',

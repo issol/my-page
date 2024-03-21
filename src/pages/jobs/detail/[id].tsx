@@ -25,6 +25,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { StatusItem } from '@src/types/common/status.type'
 import { JobListFilterType } from '../requested-ongoing-list'
 import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
+import useModal from '@src/hooks/useModal'
 type MenuType = 'jobInfo' | 'feedback'
 
 const keysJobDetailDots = [
@@ -46,7 +47,9 @@ const ProJobsDetail = () => {
   const queryClient = useQueryClient()
   const { id, assigned, tab } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    setValue(newValue)
+  }
   const { openModal, closeModal } = useModal()
 
   const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))

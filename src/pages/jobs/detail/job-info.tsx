@@ -55,6 +55,10 @@ import {
 } from '@src/apis/jobs/job-detail.api'
 import { timezoneSelector } from '@src/states/permission'
 import { JobStatus } from '@src/types/common/status.type'
+import InfoDialogButton from '@src/views/pro/infoDialog'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import styled from '@emotion/styled'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -584,7 +588,7 @@ const ProJobInfo = ({
               >
                 {ProJobStatusChip(
                   statusLabel,
-                  jobInfo.status as ProJobStatusType,
+                  jobInfo.status as JobStatus,
                 )}
 
                 {/* TODO status 체크해야함 */}
@@ -595,7 +599,7 @@ const ProJobInfo = ({
                       sx={{ padding: 0 }}
                       onClick={() =>
                         onClickOnClickStatusMoreInfo(
-                          jobInfo.status as ProJobStatusType,
+                          jobInfo.status as JobStatus,
                         )
                       }
                     >

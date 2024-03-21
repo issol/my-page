@@ -32,7 +32,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { timezoneSelector } from '@src/states/permission'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
-import { statusType } from '@src/types/common/status.type'
+import { StatusItem } from '@src/types/common/status.type'
 import { JobAssignProRequestsType } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
@@ -74,7 +74,7 @@ const JobInfo = ({
   >([])
 
   const { data: jobStatusList } = useGetStatusList('Job')
-  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(
+  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<StatusItem>>(
     jobStatusList ?? [],
   )
   const timezone = useRecoilValueLoadable(timezoneSelector)

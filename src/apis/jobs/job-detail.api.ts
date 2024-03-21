@@ -3,6 +3,9 @@ import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 
 import {
+  JobAddProsFormType,
+  JobAssignProRequestsType,
+  JobBulkRequestFormType,
   jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
