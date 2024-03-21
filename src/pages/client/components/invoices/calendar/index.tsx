@@ -5,10 +5,8 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
 
 // ** components
-
 // ** Hooks
 import { useSettings } from '@src/@core/hooks/useSettings'
 
@@ -28,9 +26,13 @@ import ClientInvoiceCalendar from './client-invoice-calendar'
 import ClientInvoiceList from '../list/list'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
-import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import {
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+} from '@src/types/common/status.type'
 
 type Props = {
   id: number
@@ -131,7 +133,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
       const res = statusList.map(value => ({
         ...value,
         color: getReceivableStatusColor(
-          value.value as InvoiceReceivableStatusType,
+          value.value as InvoiceReceivableStatusLabel & InvoiceReceivableStatus,
         ),
       }))
       setStatuses(res)

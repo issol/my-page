@@ -17,6 +17,7 @@ import { ReasonType } from '../quotes/quote'
 import { ItemType } from '../common/item.type'
 import {
   InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
   OrderLabel,
   OrderStatus,
 } from '@src/types/common/status.type'
@@ -71,7 +72,7 @@ export type InvoiceReceivableListType = {
   }
   createdAt: string
   adminCompanyName: string
-  invoiceStatus: InvoiceReceivableStatus
+  invoiceStatus: InvoiceReceivableStatus & InvoiceReceivableStatusLabel
   authorId: number
   salesCategory: string | null
   currency: Currency
@@ -174,7 +175,7 @@ export type InvoiceReceivableDetailType = {
   updatedAt: string
   deletedAt: string | null
   adminCompanyName: string
-  invoiceStatus: InvoiceReceivableStatus
+  invoiceStatus: InvoiceReceivableStatus & InvoiceReceivableStatusLabel
   authorId: number
   showDescription: boolean
   salesCategory: string

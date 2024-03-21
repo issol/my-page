@@ -2,36 +2,28 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import {
-  Badge,
-  Box,
-  Card,
-  Grid,
-  IconButton,
-  Tab,
-  Typography,
-} from '@mui/material'
+import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import {
-  SyntheticEvent,
-  useState,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
+  useState,
 } from 'react'
 import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
-import { JobListFilterType } from '../requested-ongoing-list'
+import { StatusItem } from '@src/types/common/status.type'
+
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
@@ -66,7 +58,7 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const onClickBack = () => {
     router.push(`/jobs?tab=${tab}`)

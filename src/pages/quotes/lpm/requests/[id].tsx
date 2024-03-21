@@ -12,8 +12,6 @@ import {
 } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import { styled } from '@mui/system'
-import { v4 as uuidv4 } from 'uuid'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
@@ -52,12 +50,12 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 // ** types
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
-import { RequestStatusType } from '@src/types/requests/common.type'
+
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { BookOnline } from '@mui/icons-material'
 import { getStaleDuration, hasObjValues } from '@src/shared/helpers/data.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import { RequestStatus } from '@src/types/common/status.type'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -174,7 +172,7 @@ export default function RequestDetail() {
     },
   )
 
-  function onStatusChange(status: RequestStatusType) {
+  function onStatusChange(status: RequestStatus) {
     openModal({
       type: 'statusChange',
       children: (

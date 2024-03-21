@@ -5,7 +5,6 @@ import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import { ModalType } from '@src/store/modal'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
-  CurrencyType,
   LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
@@ -13,13 +12,13 @@ import {
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
-  FieldArrayWithId,
   useFieldArray,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
 } from 'react-hook-form'
 import { languageType } from '@src/pages/orders/add-new'
+import { Currency } from '@src/types/common/currency.type'
 
 type Props = {
   getItem: UseFormGetValues<{
@@ -357,7 +356,7 @@ const Row = ({
   }
 
   const onChangeCurrency = (
-    currency: CurrencyType,
+    currency: Currency,
     index: number,
     detail: Array<ItemDetailType>,
     // detail: FieldArrayWithId<

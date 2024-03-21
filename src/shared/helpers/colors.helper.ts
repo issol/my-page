@@ -7,6 +7,8 @@ import {
   OrderLabel,
   OrderStatus,
   QuotesStatus,
+  QuotesStatusLabel,
+  RequestStatus,
 } from '@src/types/common/status.type'
 
 export const getProInvoiceStatusColor = (status: InvoicePayableStatus) => {
@@ -130,6 +132,28 @@ export const getQuoteStatusColor = (status: QuotesStatus) => {
   return statusColors[status] || ''
 }
 
+export const getColorQuoteStatusLabelName = (
+  status: QuotesStatusLabel,
+): string => {
+  const statusColorMap: Record<QuotesStatusLabel, string> = {
+    New: '#666CFF',
+    'In preparation': '#F572D8',
+    'Internal review': '#D8AF1D',
+    'Client review': '#FDB528',
+    'Quote sent': '#2B6603',
+    Expired: '#FF4D49',
+    Rejected: '#FF4D49',
+    Accepted: '#64C623',
+    'Changed into order': '#1A6BBA',
+    Canceled: '#FF4D49',
+    'Under review': '#FDB528',
+    'Revision requested': '#A81988',
+    'Under revision': '#26C6F9',
+    Revised: '#AD7028',
+  }
+  return statusColorMap[status] || ''
+}
+
 export const getProJobStatusColor = (status: JobStatus) => {
   const statusToColor: Record<JobStatus, string> = {
     60000: '#F572D8', // 'In preparation'
@@ -181,4 +205,16 @@ export const getProAppliedRolesStatusColor = (status: AppliedRolesStatus) => {
   }
 
   return statusColors[status] || ''
+}
+
+export const getColorClientRequestCalendar = (status: RequestStatus) => {
+  const statusColorMap: Record<RequestStatus, string> = {
+    50001: '#A81988',
+    50002: '#FDB528',
+    50003: '#64C623',
+    50004: '#1A6BBA',
+    50005: '#FF4D49',
+  }
+
+  return statusColorMap[status] || ''
 }

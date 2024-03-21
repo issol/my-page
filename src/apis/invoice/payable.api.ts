@@ -2,10 +2,7 @@ import {
   getPayableColor,
   getProInvoiceStatusColor,
 } from '@src/shared/helpers/colors.helper'
-import {
-  InvoicePayableStatusType,
-  InvoiceProStatusType,
-} from '@src/types/invoice/common.type'
+
 import {
   InvoicePayableDetailType,
   InvoicePayableFilterType,
@@ -18,6 +15,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { AxiosError } from 'axios'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 export const getPayableList = async (
   filter: InvoicePayableFilterType,
@@ -61,11 +59,9 @@ export const getInvoicePayableCalendarData = async (
           extendedProps: {
             calendar:
               type === 'lpm'
-                ? getPayableColor(
-                    item.invoiceStatus as InvoicePayableStatusType,
-                  )
+                ? getPayableColor(item.invoiceStatus as InvoicePayableStatus)
                 : getProInvoiceStatusColor(
-                    item.invoiceStatus as InvoiceProStatusType,
+                    item.invoiceStatus as InvoicePayableStatus,
                   ),
           },
           allDay: true,
@@ -124,13 +120,17 @@ export const updateInvoicePayable = async (
   return data
 }
 
-export const updateInvoicePaidStatus = async (payableId: number, paidAt: string, paidDateTimezone: CountryType ) => {
+export const updateInvoicePaidStatus = async (
+  payableId: number,
+  paidAt: string,
+  paidDateTimezone: CountryType,
+) => {
   const { data } = await axios.patch(
     `/api/enough/u/invoice/payable/${payableId}/set-paid`,
     {
       paidAt,
       paidDateTimezone,
-    }
+    },
   )
   return data
 }

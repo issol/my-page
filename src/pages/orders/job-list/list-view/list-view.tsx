@@ -10,7 +10,6 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import { StyledNextLink } from '@src/@core/components/customLink'
 
 // ** types
 import Filters from './filter'
@@ -24,15 +23,15 @@ import {
 } from '@src/shared/const/service-type/service-types'
 
 // ** apis
-
 // ** components
 import JobsList from './list'
-import { statusType } from '@src/types/common/status.type'
+
 import { useGetJobsList } from '@src/queries/jobs/jobs.query'
 import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { StatusItem } from '@src/types/common/status.type'
 
 export type FilterType = {
   status?: number[]
@@ -79,7 +78,7 @@ export const initialFilter: FilterType = {
 type Props = {
   clients: Array<ClientRowType>
   onCreateNewJob: () => void
-  statusList: Array<statusType>
+  statusList: Array<StatusItem>
 }
 
 export default function JobListView({

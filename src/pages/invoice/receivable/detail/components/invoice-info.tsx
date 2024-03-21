@@ -14,15 +14,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import {
-  InvoiceReceivableChip,
-  JobTypeChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
+import { InvoiceReceivableChip } from '@src/@core/components/chips/chips'
 import { styled } from '@mui/system'
 import Icon from '@src/@core/components/icon'
 import {
-  FullDateHelper,
   changeTimeZoneOffset,
   convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
@@ -30,19 +25,18 @@ import {
 import { ClientType, DeliveryFileType } from '@src/types/orders/order-detail'
 import {
   Control,
+  FieldErrors,
   UseFormGetValues,
   UseFormReset,
   UseFormSetValue,
-  UseFormWatch,
-  FieldErrors,
   UseFormTrigger,
+  UseFormWatch,
 } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import {
   ChangeEvent,
   Dispatch,
   SetStateAction,
-  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -51,13 +45,9 @@ import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder } from '@src/apis/order/order-detail.api'
+import { useMutation, UseMutationResult, useQueryClient } from 'react-query'
 import { useRouter } from 'next/router'
-import {
-  InvoiceProjectInfoFormType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import {
@@ -70,7 +60,6 @@ import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accou
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import {
   cancelInvoice,
-  checkEditable,
   deleteInvoice,
   deliverTaxInvoice,
   markInvoiceAsPaid,
@@ -98,8 +87,11 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
-import { UseMutationResult } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
+import {
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+} from '@src/types/common/status.type'
 
 interface GroupedDeliveryFileType {
   createdAt: string
@@ -273,6 +265,7 @@ const InvoiceInfo = ({
       ),
     })
   }
+
   const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
@@ -318,7 +311,8 @@ const InvoiceInfo = ({
               updateInvoiceStatus.mutate(
                 {
                   id: invoiceInfo.id,
-                  invoiceStatus: value as InvoiceReceivableStatusType,
+                  invoiceStatus: value as InvoiceReceivableStatusLabel &
+                    InvoiceReceivableStatus,
                 },
                 {
                   onSuccess: () => {

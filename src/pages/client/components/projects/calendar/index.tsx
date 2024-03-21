@@ -8,7 +8,6 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Switch from '@mui/material/Switch'
 
 // ** components
-
 // ** Hooks
 import { useSettings } from '@src/@core/hooks/useSettings'
 
@@ -16,8 +15,6 @@ import { useSettings } from '@src/@core/hooks/useSettings'
 import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
-import { useGetProjectCalendarData } from '@src/queries/pro/pro-project.query'
-import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
 import ClientProjectCalendar from './client-project-calendar'
@@ -31,11 +28,15 @@ import {
   getOrderStatusColor,
   getQuoteStatusColor,
 } from '@src/shared/helpers/colors.helper'
-import { OrderStatusType } from '@src/types/common/orders.type'
+
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
-import { QuotesStatusType } from '@src/types/common/quotes.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import {
+  OrderLabel,
+  OrderStatus,
+  QuotesStatus,
+} from '@src/types/common/status.type'
 
 type Props = {
   id: number
@@ -163,8 +164,8 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
         ...value,
         color:
           selectedType === 'order'
-            ? getOrderStatusColor(value.value as OrderStatusType)
-            : getQuoteStatusColor(value.value as QuotesStatusType),
+            ? getOrderStatusColor(value.value as OrderStatus & OrderLabel)
+            : getQuoteStatusColor(value.value as QuotesStatus),
       }))
       setStatuses(res)
     }

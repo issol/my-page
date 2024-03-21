@@ -1,7 +1,7 @@
-import { CurrencyType } from '@src/types/common/standard-price'
 import { locale } from '../const/locale'
 import { currencyMarks } from '@src/shared/const/price/currencyMarks'
 import { RoundingProcedureObj } from '../const/rounding-procedure/rounding-procedure'
+import { Currency } from '@src/types/common/currency.type'
 
 export function getPrice(
   price: number | string,
@@ -13,7 +13,7 @@ export function getPrice(
 }
 
 // ** ex: $, ₩ ..
-export function getCurrencyMark(currency: CurrencyType | null | undefined) {
+export function getCurrencyMark(currency: Currency | null | undefined) {
   if (!currency) return ''
   const currentLocale = locale[currency!]
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -27,7 +27,7 @@ export function getCurrencyMark(currency: CurrencyType | null | undefined) {
 
 export function formatCurrency(
   num: number | string,
-  currency: CurrencyType | null,
+  currency: Currency | null,
   decimalPlace?: number,
 ) {
   // if (!currency) currency = 'KRW'
@@ -54,7 +54,7 @@ export function formatByRoundingProcedure(
   price: number,
   decimalPlace: number,
   roundingType: string | number,
-  currency: CurrencyType | null,
+  currency: Currency | null,
 ): number | string {
   try {
     let type = 0
@@ -148,20 +148,20 @@ export function sliceCurrencyMark(value: string) {
 
 export const fixDigit = (number: string | null | undefined, digit: number) => {
   if (!number) return ''
-  let str = number.toString();
+  let str = number.toString()
 
   // 소수점이 있는 경우, 불필요한 0 제거
   if (str.indexOf('.') !== -1) {
     // 소수점 아래 숫자가 모두 0인 경우 소수점 이하를 제거
-    str = str.replace(/\.0+$|(\.\d*?[1-9])0+$/, '$1');
+    str = str.replace(/\.0+$|(\.\d*?[1-9])0+$/, '$1')
   } else {
     // 소수점이 없는 경우, digit에 주어진 값 만큼 소수점 자리를 잘라냄
-    const decimalPart = str.split('.')[1];
+    const decimalPart = str.split('.')[1]
     if (decimalPart && decimalPart.length > digit) {
-      str = str.slice(0, str.indexOf('.') + digit + 1);
+      str = str.slice(0, str.indexOf('.') + digit + 1)
     }
   }
 
   // 문자열을 숫자로 변환하여 반환, 소수점 아래가 0으로만 구성된 경우 정수로 반환
-  return String(parseFloat(str));
+  return String(parseFloat(str))
 }

@@ -44,7 +44,7 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
+import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob, getAssignableProList } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -55,6 +55,7 @@ import { authState } from '@src/states/auth'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
+import { JobStatus } from '@src/types/common/status.type'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -599,7 +600,7 @@ const JobDetails = () => {
                               size='small'
                             >
                               {JobsStatusChip(
-                                row.status as JobStatusType,
+                                row.status as JobStatus,
                                 statusList!,
                               )}
                             </TableCell>
@@ -652,9 +653,10 @@ const JobDetails = () => {
                               <Box>
                                 {row?.totalPrice
                                   ? formatCurrency(
-                                    // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
-                                    // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
-                                      Number(row?.totalPrice) < 1000 && row?.currency === 'KRW'
+                                      // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                                      // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                                      Number(row?.totalPrice) < 1000 &&
+                                        row?.currency === 'KRW'
                                         ? 0
                                         : Number(row?.totalPrice),
                                       row?.currency!,

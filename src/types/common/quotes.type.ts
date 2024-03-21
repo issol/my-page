@@ -52,7 +52,7 @@ export type QuotesProjectInfoAddNewType = {
 export type QuotesListType = {
   id: number
   corporationId: string
-  status: QuotesStatus & QuotesStatusLabel
+  status: QuotesStatusLabel
   projectName: string
   currency: Currency
   client: {

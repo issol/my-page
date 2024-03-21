@@ -16,8 +16,9 @@ import { Theme } from '@mui/material/styles'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { useSettings } from '@src/@core/hooks/useSettings'
 import uniqBy from 'lodash/uniqBy'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+
 import find from 'lodash/find'
+import { JobStatus } from '@src/types/common/status.type'
 
 const statusObject: Record<string, number> = {
   'Requested from LPM': 1,
@@ -86,7 +87,7 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
         return {
           ...item,
           label: Label,
-          color: getProJobStatusColor(item.value as ProJobStatusType),
+          color: getProJobStatusColor(item.value as JobStatus),
           sort: statusObject[Label],
         }
       })
@@ -123,7 +124,7 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
         ...item,
         sort: sort,
         extendedProps: {
-          calendar: getProJobStatusColor(item.status as ProJobStatusType),
+          calendar: getProJobStatusColor(item.status as JobStatus),
         },
         allDay: true,
       }
