@@ -448,6 +448,8 @@ const RequestSummaryModal = ({
               false,
               true,
               false,
+              false,
+              false,
             )}
             hideFooter
           />
