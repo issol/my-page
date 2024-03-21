@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
-import { statusType } from '@src/types/common/status.type'
+import { JobStatus } from '@src/types/common/status.type'
 import { useState } from 'react'
 import Filters from './filter'
 import JobTemplateList from './list'

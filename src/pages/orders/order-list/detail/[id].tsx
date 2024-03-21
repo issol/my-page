@@ -30,6 +30,7 @@ import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import { v4 as uuidv4 } from 'uuid'
 import {
+  JobInfoType,
   OrderDownloadData,
   OrderFeatureType,
   ProjectTeamListType,
@@ -267,7 +268,7 @@ const OrderDetail = () => {
 
   const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
     Number(id!),
-  ) as { data: JobType; isLoading: boolean }
+  ) as { data: JobInfoType[]; isLoading: boolean }
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 

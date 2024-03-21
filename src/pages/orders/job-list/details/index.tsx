@@ -24,9 +24,9 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
-import { createJob } from '@src/apis/jobs.api'
-import { deleteJob, setJobStatus } from '@src/apis/job-detail.api'
+import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { createJob } from '@src/apis/jobs/jobs.api'
+import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
@@ -44,6 +44,7 @@ import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 import { JobListMode } from '@src/views/jobDetails/viewModes'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import { JobStatus } from '@src/types/common/status.type'
+import { autoCreateJob, createWithJobTemplate } from '@src/apis/jobs/jobs.api'
 
 const JobDetails = () => {
   const router = useRouter()
