@@ -41,6 +41,7 @@ import {
   useMemo,
   Dispatch,
   SetStateAction,
+  useRef,
 } from 'react'
 import AssignPro from './components/assign-pro'
 import {
@@ -171,6 +172,9 @@ const JobDetail = () => {
     useState<JobAssignProRequestsType | null>(
       selectedJobInfo?.jobAssign[0] ?? null,
     )
+
+  console.log(selectedAssign, 'selectedAssign')
+
   const [menu, setMenu] = useState<TabType>('linguistTeam')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
@@ -343,6 +347,8 @@ const JobDetail = () => {
   })
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    setAddRoundMode(false)
+    setAddProsMode(false)
     setValue(newValue)
   }
 
@@ -367,6 +373,8 @@ const JobDetail = () => {
     }
     return null
   }
+
+  console.log(router.asPath)
 
   const [selectedLinguistTeam, setSelectedLinguistTeam] = useState<{
     value: number
@@ -444,6 +452,16 @@ const JobDetail = () => {
             variables.jobId,
           ])
         } else {
+          const path = router.asPath
+          const newPath = path
+            .replace(`jobId=${variables.jobId}`, `jobId=${data.id}`)
+            .replace(
+              `selectedJobId=${variables.jobId}`,
+              `selectedJobId=${data.id}`,
+            )
+          router.push(newPath, undefined, {
+            shallow: true,
+          })
           setJobId(prev =>
             prev.map(id => (id === variables.jobId ? data.id : id)),
           )
@@ -514,6 +532,16 @@ const JobDetail = () => {
           queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
           queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         } else {
+          const path = router.asPath
+          const newPath = path
+            .replace(`jobId=${variables.jobId}`, `jobId=${data.id}`)
+            .replace(
+              `selectedJobId=${variables.jobId}`,
+              `selectedJobId=${data.id}`,
+            )
+          router.push(newPath, undefined, {
+            shallow: true,
+          })
           setJobId(prev =>
             prev.map(id => (id === variables.jobId ? data.id : id)),
           )
@@ -921,6 +949,7 @@ const JobDetail = () => {
     const combinedList = jobInfoList.map(jobInfo => {
       const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
       const jobAssign = jobAssignList.find(assign => assign!.id === jobInfo!.id)
+
       return {
         jobInfo: jobInfo!,
 
@@ -932,13 +961,31 @@ const JobDetail = () => {
     })
 
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
-      setJobDetail(combinedList)
-      setSelectedJobInfo(combinedList[0])
-      const defaultRound = combinedList[0].jobAssignDefaultRound ?? 1
-      setSelectedAssign(
-        combinedList[0].jobAssign.find(value => value.round === defaultRound) ??
-          null,
-      )
+      console.log(selectedJobInfo, 'getValues')
+      if (selectedJobInfo) {
+        setJobDetail(combinedList)
+        const selectedJob = combinedList.find(
+          value => value.jobId === selectedJobInfo.jobInfo.id,
+        )
+        if (selectedJob) {
+          setSelectedJobInfo(selectedJob)
+          const defaultRound = selectedJob.jobAssignDefaultRound ?? 1
+          setSelectedAssign(
+            selectedJob.jobAssign.find(value => value.round === defaultRound) ??
+              null,
+          )
+        }
+      } else {
+        setJobDetail(combinedList)
+        setSelectedJobInfo(combinedList[0])
+        const defaultRound = combinedList[0].jobAssignDefaultRound ?? 1
+
+        setSelectedAssign(
+          combinedList[0].jobAssign.find(
+            value => value.round === defaultRound,
+          ) ?? null,
+        )
+      }
     }
   }, [jobInfoList, jobPriceList, jobAssignList])
 
@@ -955,15 +1002,7 @@ const JobDetail = () => {
   useEffect(() => {
     if (selectedJobId && jobDetail) {
       const selectedJob = jobDetail.find(
-        value =>
-          (value: {
-            jobId: number
-            jobInfo: JobType | undefined
-            jobPrices: JobPricesDetailType | undefined
-            jobAssign: JobAssignProRequestsType[]
-            jobAssignDefaultRound: number
-          }) =>
-            value.jobId === Number(selectedJobId),
+        value => value.jobId === Number(selectedJobId),
       )
       if (selectedJob) {
         const result = {
@@ -1051,27 +1090,27 @@ const JobDetail = () => {
                 }}
                 onClick={() => {
                   if (addRoundMode) {
+                    console.log(selectedAssign)
+
                     setAddRoundMode(false)
-                    return
                   } else if (addProsMode) {
                     setAddProsMode(false)
-                    return
                   } else if (assignProMode) {
                     setAssignProMode(false)
-                    return
+                  } else {
+                    router.push({
+                      pathname: '/orders/job-list/details/',
+                      query:
+                        jobId.length === 1
+                          ? {
+                              orderId: orderId,
+                              jobId: jobId[0],
+                            }
+                          : {
+                              orderId: orderId,
+                            },
+                    })
                   }
-                  router.push({
-                    pathname: '/orders/job-list/details/',
-                    query:
-                      jobId.length === 1
-                        ? {
-                            orderId: orderId,
-                            jobId: jobId[0],
-                          }
-                        : {
-                            orderId: orderId,
-                          },
-                  })
                 }}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
@@ -1110,6 +1149,14 @@ const JobDetail = () => {
                         jobAssignDefaultRound: value.jobAssignDefaultRound,
                       })
                       setValue('info')
+                      const path = router.asPath
+                      const newPath = path.replace(
+                        `selectedJobId=${selectedJobInfo?.jobId}`,
+                        `selectedJobId=${value.jobId}`,
+                      )
+                      router.push(newPath, undefined, {
+                        shallow: true,
+                      })
                     }}
                   >
                     <Typography fontSize={14}>
@@ -1131,8 +1178,10 @@ const JobDetail = () => {
                   (selectedJobInfo.jobInfo.name === null ||
                     selectedJobInfo.jobPrices.priceId === null)) ||
                 (selectedJobInfo?.jobAssign &&
-                  selectedJobInfo?.jobAssign.length > 0) ||
-                (!addRoundMode && !addProsMode && !assignProMode)
+                  selectedJobInfo?.jobAssign.length > 0 &&
+                  !addRoundMode &&
+                  !addProsMode &&
+                  !assignProMode)
                 ? 10.416
                 : 7.632
               : value === 'info'
