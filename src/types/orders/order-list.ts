@@ -1,7 +1,8 @@
 import { ItemType } from '../common/item.type'
-import { OrderStatusType } from '../common/orders.type'
-import { CurrencyType } from '../common/standard-price'
+
 import { CountryType } from '../sign/personalInfoTypes'
+import { Currency } from '@src/types/common/currency.type'
+import { OrderLabel, OrderStatus } from '@src/types/common/status.type'
 
 export type OrderListFilterType = {
   take?: number
@@ -31,14 +32,14 @@ export type InvoiceOrderListFilterType = {
   status?: number[]
   client?: number
   revenueFrom?: string
-  currency?: CurrencyType
+  currency?: Currency
   mine?: '0' | '1'
 }
 
 export type OrderListType = {
   id: number
   corporationId: string
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   client: {
     name: string
     email: string
@@ -56,7 +57,7 @@ export type OrderListType = {
   orderTimezone: CountryType
   revenueFrom: string
   projectDueTimezone: CountryType
-  currency: CurrencyType
+  currency: Currency
   totalPrice: number
   items?: Array<any>
   isEditable?: boolean
@@ -66,7 +67,7 @@ export type OrderListType = {
 export type OrderListForJobType = {
   id: number
   corporationId: string
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   client: {
     name: string
     email: string
@@ -78,7 +79,7 @@ export type OrderListForJobType = {
   projectDueAt: string
   orderTimezone: CountryType
   projectDueTimezone: CountryType
-  currency: CurrencyType
+  currency: Currency
   totalPrice: number
   isTeamMember: boolean
   isItems: boolean

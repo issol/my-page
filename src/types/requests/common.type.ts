@@ -1,12 +1,4 @@
-import exp from 'constants'
 import { CountryType } from '../sign/personalInfoTypes'
-
-export type RequestStatusType = 50001 | 50002 | 50003 | 50004 | 50005
-// | 'Request created'
-// | 'In preparation'
-// | 'Changed into quote'
-// | 'Changed into order'
-// | 'Canceled'
 
 export type RequestFormType = {
   lspId: string

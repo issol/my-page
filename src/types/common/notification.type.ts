@@ -1,28 +1,32 @@
+type NotificationAction =
+  | 'created'
+  | 'statusUpdated'
+  | 'deleted'
+  | 'assigned'
+  | 'unassigned'
+  | 'pastDeadline'
+  | 'restored'
+  | 'pastDueDate'
+  | 'feedbackRegistered'
+  | 'accepted'
+  | 'msgRegistered'
+  | 'edited'
+  | 'rejected'
+  | 'assignCanceled'
+
+type Notification =
+  | 'Quote'
+  | 'Order'
+  | 'Job'
+  | 'Invoice-receivable'
+  | 'Invoice-payable'
+  | 'Request'
+
 export type NotificationType = {
   id: number
   createdAt: string
-  action:
-    | 'created'
-    | 'statusUpdated'
-    | 'deleted'
-    | 'assigned'
-    | 'unassigned'
-    | 'pastDeadline'
-    | 'restored'
-    | 'pastDueDate'
-    | 'feedbackRegistered'
-    | 'accepted'
-    | 'msgRegistered'
-    | 'edited'
-    | 'rejected'
-    | 'assignCanceled'
-  type:
-    | 'Quote'
-    | 'Order'
-    | 'Job'
-    | 'Invoice-receivable'
-    | 'Invoice-payable'
-    | 'Request'
+  action: NotificationAction
+  type: Notification
   connectedLink?: string
   isRead: boolean
   entityCorporationId: string

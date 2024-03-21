@@ -1,6 +1,5 @@
-import { OrderStatusType, RevenueFormType } from './../common/orders.type'
-import { CurrencyType } from '@src/types/common/standard-price'
-import { InvoiceReceivableStatusType } from './common.type'
+import { RevenueFormType } from './../common/orders.type'
+
 import { CountryType } from '../sign/personalInfoTypes'
 
 import { StatusType } from '@src/apis/client.api'
@@ -9,16 +8,19 @@ import { AddressType, ClientAddressType } from '../schema/client-address.schema'
 import {
   ClientType,
   DeliveryFileType,
-  LanguageAndItemType,
   LanguagePairTypeInItem,
   ProjectTeamListType,
 } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ItemResType } from '../common/orders-and-quotes.type'
-import { Cancel } from 'axios'
-import { CancelReasonType } from '../requests/detail.type'
 import { ReasonType } from '../quotes/quote'
 import { ItemType } from '../common/item.type'
+import {
+  InvoiceReceivableStatus,
+  OrderLabel,
+  OrderStatus,
+} from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type InvoiceLanguageItemType = {
   invoiceId: number
@@ -69,10 +71,10 @@ export type InvoiceReceivableListType = {
   }
   createdAt: string
   adminCompanyName: string
-  invoiceStatus: InvoiceReceivableStatusType
+  invoiceStatus: InvoiceReceivableStatus
   authorId: number
   salesCategory: string | null
-  currency: CurrencyType
+  currency: Currency
   totalPrice: number
   description: string | null
   notes: string | null
@@ -127,7 +129,7 @@ export type InvoiceReceivableOrderType = {
   category: string
   serviceType: string[]
   genre: string[]
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   operatorId: number
   supervisorId: number | null
   projectManagerId: number
@@ -172,7 +174,7 @@ export type InvoiceReceivableDetailType = {
   updatedAt: string
   deletedAt: string | null
   adminCompanyName: string
-  invoiceStatus: InvoiceReceivableStatusType
+  invoiceStatus: InvoiceReceivableStatus
   authorId: number
   showDescription: boolean
   salesCategory: string
@@ -209,7 +211,7 @@ export type InvoiceReceivableDetailType = {
   orderId: number
   tax: null | string
   taxInvoiceIssued: boolean
-  currency: CurrencyType
+  currency: Currency
   taxInvoiceFiles: DeliveryFileType[]
 
   reason: ReasonType
@@ -305,7 +307,7 @@ export type InvoiceDownloadData = {
   corporationId: string
   orderCorporationId: string[]
   invoicedAt: string
-  currency: CurrencyType
+  currency: Currency
   paymentDueAt: { date: string; timezone: CountryType }
   pm: {
     email: string

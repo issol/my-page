@@ -4,46 +4,15 @@ import {
   ProjectTeamListType,
 } from '../orders/order-detail'
 import { ReasonType } from '../quotes/quote'
-import { CancelReasonType } from '../requests/detail.type'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
-import { ItemType } from './item.type'
-import { CurrencyType } from './standard-price'
 
-export type QuoteStatusType =
-  | 'New'
-  | 'In preparation'
-  | 'Internal review'
-  | 'Client review'
-  | 'Quote sent'
-  | 'Expired'
-  | 'Rejected'
-  | 'Accepted'
-  | 'Changed into order'
-  | 'Canceled'
-  | 'Under review'
-  | 'Revision requested'
-  | 'Under revision'
-  | 'Revised'
-
-export type QuotesStatusType =
-  | 20000
-  | 20100
-  | 20200
-  | 20300
-  | 20400
-  | 20500
-  | 20600
-  | 20700
-  | 20800
-  | 20900
-  | 201000
-  | 201100
-  | 201200
+import { QuotesStatus, QuotesStatusLabel } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type QuotesProjectInfoFormType = {
-  status: QuoteStatusType
+  status: QuotesStatus & QuotesStatusLabel
   workName?: string
   projectName: string
   projectDescription?: string
@@ -83,9 +52,9 @@ export type QuotesProjectInfoAddNewType = {
 export type QuotesListType = {
   id: number
   corporationId: string
-  status: QuoteStatusType
+  status: QuotesStatus & QuotesStatusLabel
   projectName: string
-  currency: CurrencyType
+  currency: Currency
   client: {
     name: string
     email: string
@@ -123,7 +92,7 @@ export type ProjectInfoType = {
   corporationId: string
   quoteDate: string
   quoteDateTimezone: CountryType
-  status: QuoteStatusType
+  status: QuotesStatus & QuotesStatusLabel
   workName: string
   category: string
   serviceType: string[]

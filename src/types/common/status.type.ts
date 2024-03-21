@@ -3,7 +3,7 @@ export type StatusItem = {
   value: number
 }
 
-/** Job Status **/
+/** ✅ Job Status **/
 export type JobStatusLabel =
   | 'In preparation' // 60000
   | 'Requested from LPM' // 60100
@@ -48,7 +48,7 @@ export type JobStatus =
   | 70400 // Canceled
   | 70500 // Unassigned
 
-/** Invoice Status **/
+/** ✅ Invoice Status **/
 
 export type InvoicePayableStatus =
   | 40000 //'Invoice created'
@@ -86,3 +86,103 @@ export type InvoiceReceivableStatus =
   | 301000 //'Overdue'
   | 301100 //'Overdue (Reminder sent)'
   | 301200 //'Canceled'
+
+/* ✅ Order Status */
+
+export type OrderStatus =
+  | 10000 // 'New'
+  | 10100 // 'In preparation'
+  | 10200 // 'Internal review'
+  | 10300 // 'Order sent'
+  | 10400 // 'In progress'
+  | 10500 // 'Under revision'
+  | 10600 // 'Partially delivered'
+  | 10700 // 'Delivery completed'
+  | 10800 // 'Redelivery requested'
+  | 10900 // 'Delivery confirmed'
+  | 101000 // 'Invoiced'
+  | 101100 // 'Paid'
+  | 101200 // 'Canceled'
+  | 10950 // 'Without invoice'
+
+export type OrderLabel =
+  | 'New' // 10000
+  | 'In preparation' // 10100
+  | 'Internal review' // 10200
+  | 'Order sent' // 10300
+  | 'In progress' // 10400
+  | 'Under revision' // 10500
+  | 'Partially delivered' // 10600
+  | 'Delivery completed' // 10700
+  | 'Redelivery requested' // 10800
+  | 'Delivery confirmed' // 10900
+  | 'Invoiced' // 101000
+  | 'Paid' // 101100
+  | 'Canceled' // 101200
+  | 'Without invoice' // 10950
+
+/* ✅ Quote Status */
+
+export type QuotesStatus =
+  | 20000
+  | 20100
+  | 20200
+  | 20300
+  | 20400
+  | 20500
+  | 20600
+  | 20700
+  | 20800
+  | 20900
+  | 201000
+  | 201100
+  | 201200
+
+export type QuotesStatusLabel =
+  | 'New'
+  | 'In preparation'
+  | 'Internal review'
+  | 'Client review'
+  | 'Quote sent'
+  | 'Expired'
+  | 'Rejected'
+  | 'Accepted'
+  | 'Changed into order'
+  | 'Canceled'
+  | 'Under review'
+  | 'Revision requested'
+  | 'Under revision'
+  | 'Revised'
+
+/* ✅ AppliedRoles Status */
+
+export type AppliedRolesStatus =
+  | 'Awaiting approval'
+  | 'Test assigned'
+  | 'Role assigned'
+  | 'Rejected by TAD'
+  | 'Test declined'
+  | 'Role declined'
+  | 'Basic test Ready'
+  | 'Skill test Ready'
+  | 'Paused'
+  | 'Basic in progress'
+  | 'Basic submitted'
+  | 'Basic failed'
+  | 'Basic passed'
+  | 'Skill in progress'
+  | 'Skill submitted'
+  | 'Skill failed'
+  | 'Contract required'
+  | 'Certified'
+  | 'Test in preparation'
+
+/* ✅ Request Status */
+
+export type RequestStatus = 50001 | 50002 | 50003 | 50004 | 50005
+export type RequestStatusLabel =
+  | 'Request created'
+  | 'In preparation'
+  | 'Changed into quote'
+  | 'Changed into order'
+  | 'Canceled'
