@@ -18,8 +18,8 @@ import {
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
-import { statusType } from '@src/types/common/status.type'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { JobStatus, StatusItem } from '@src/types/common/status.type'
+
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 import { TestStatusColor } from '@src/shared/const/chipColors'
@@ -190,6 +190,7 @@ export function WorkStatusChip(status: string) {
     />
   )
 }
+
 export const ProStatusChip = styled(Chip)<{ status: string }>`
   border: none;
   ${({ status }) =>
@@ -298,10 +299,7 @@ export const QuoteStatusChip = styled(Chip)<{
                                 : null};
 `
 
-export function JobsStatusChip(
-  status: JobStatusType,
-  statusList: statusType[],
-) {
+export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
   const color =
     status === 60000 //'In preparation'
       ? '#F572D8'
@@ -344,7 +342,7 @@ export function JobsStatusChip(
   )
 }
 
-export function assignmentStatusChip(status: number, statusList: statusType[]) {
+export function assignmentStatusChip(status: number, statusList: StatusItem[]) {
   const color =
     status === 70000 //Requested
       ? '#FDB528'
@@ -394,7 +392,7 @@ export function assignmentStatusChip(status: number, statusList: statusType[]) {
 
 export function invoicePayableStatusChip(
   status: number,
-  statusList: statusType[],
+  statusList: StatusItem[],
 ) {
   const color =
     status === 40000 //Invoiced
@@ -597,6 +595,7 @@ interface TestStatusChipProps {
   label: string
   status: string
 }
+
 export const TestStatusChip = ({ label, status }: TestStatusChipProps) => {
   const color = TestStatusColor[status as keyof typeof TestStatusColor]
   return (
