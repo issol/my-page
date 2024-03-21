@@ -25,6 +25,7 @@ import {
   useGetJobAssignProRequests,
   useGetJobDetails,
   useGetJobInfo,
+  useGetJobPriceHistory,
   useGetJobPrices,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
@@ -59,7 +60,7 @@ import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { JobType } from '@src/types/common/item.type'
+import { ItemType, JobType } from '@src/types/common/item.type'
 import {
   JobAddProsFormType,
   JobAssignProRequestsType,
@@ -82,13 +83,16 @@ import {
   forceAssign,
   getAssignableProList,
   handleJobAssignStatus,
+  handleJobReAssign,
   requestRedelivery,
+  saveJobPrices,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import JobInfo from './components/info'
 import {
   AssignProFilterPostType,
   AssignProListType,
+  SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
   useGetLangItem,
@@ -117,6 +121,15 @@ import SelectRequestRedeliveryReasonModal from './components/info/request-redeli
 import SourceFileUpload from './components/info/source-file'
 import Chip from '@src/@core/components/mui/chip'
 import { FormErrors } from '@src/shared/const/formErrors'
+import EditPrices from './components/prices/edit-prices'
+import ViewPrices from './components/prices/view-prices'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
+import { languageType } from '../../add-new'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { jobItemSchema } from '@src/types/schema/item.schema'
+import { useGetProPriceList } from '@src/queries/company/standard-price'
+import toast from 'react-hot-toast'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -202,6 +215,8 @@ const JobDetail = () => {
   const [addJobFeedbackData, setAddJobFeedbackData] = useState<string | null>(
     '',
   )
+  const [priceId, setPriceId] = useState<number | null>(null)
+  const [editPrices, setEditPrices] = useState(false)
 
   const handleAccordionChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -257,6 +272,9 @@ const JobDetail = () => {
     activeFilter,
     false,
   )
+  const { data: prices, isSuccess } = useGetProPriceList({})
+
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(Number(orderId))
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId), true)
   const { data: langItem } = useGetLangItem(Number(orderId))
@@ -271,6 +289,9 @@ const JobDetail = () => {
     isLoading: isJobDeliveriesFeedbacksLoading,
     refetch: jobDeliveriesFeedbacksRefetch,
   } = useGetProJobDeliveriesFeedbacks(selectedJobInfo?.jobId!)
+
+  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
+    useGetJobPriceHistory(selectedJobInfo?.jobId!)
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -291,6 +312,35 @@ const JobDetail = () => {
       })) || [],
     [linguistTeam],
   )
+
+  const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    trigger: itemTrigger,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: itemValid },
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
+    mode: 'onBlur',
+    defaultValues: { items: [], languagePairs: [] },
+    resolver: yupResolver(jobItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
+    context: {
+      priceId: priceId,
+    },
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
+  })
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -382,6 +432,26 @@ const JobDetail = () => {
     },
   )
 
+  const reAssignJobMutation = useMutation(
+    (data: { jobId: number }) => handleJobReAssign(data.jobId),
+    {
+      onSuccess: (data, variables) => {
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+          queryClient.invalidateQueries([
+            'jobAssignProRequests',
+            variables.jobId,
+          ])
+        } else {
+          setJobId(prev =>
+            prev.map(id => (id === variables.jobId ? data.id : id)),
+          )
+        }
+      },
+    },
+  )
+
   const addProCurrentRequestMutation = useMutation(
     (data: JobAddProsFormType) => addProCurrentRequest(data),
     {
@@ -418,7 +488,7 @@ const JobDetail = () => {
     {
       onSuccess: (data, variables) => {
         if (data.job.id === variables.jobId) {
-          queryClient.invalidateQueries('jobInfo')
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
           queryClient.invalidateQueries(['proJobDeliveries', variables.jobId])
           refetch && refetch()
         } else {
@@ -426,6 +496,35 @@ const JobDetail = () => {
             prev.map(id => (id === variables.jobId ? data.job.id : id)),
           )
         }
+      },
+    },
+  )
+
+  const saveJobPricesMutation = useMutation(
+    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+      saveJobPrices(data.jobId, data.prices),
+    {
+      onSuccess: (data, variables) => {
+        // toast.success('Job info added successfully', {
+        //   position: 'bottom-left',
+        // })
+
+        console.log('editPrice', editPrices)
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        } else {
+          setJobId(prev =>
+            prev.map(id => (id === variables.jobId ? data.id : id)),
+          )
+        }
+        setEditPrices(false)
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+        setEditPrices(false)
       },
     },
   )
@@ -612,11 +711,12 @@ const JobDetail = () => {
     return file.map((value: FileType) => {
       if (value.type === type) {
         return (
-          <Box
-            key={uuidv4()}
-            onClick={() => DownloadFile(value, S3FileType.JOB)}
-          >
-            <FileItem key={value.name} file={value} />
+          <Box key={uuidv4()}>
+            <FileItem
+              key={value.name}
+              file={value}
+              onClick={() => DownloadFile(value, S3FileType.JOB)}
+            />
           </Box>
         )
       }
@@ -733,6 +833,60 @@ const JobDetail = () => {
     })
   }
 
+  const onSubmit = () => {
+    const data = getItem(`items.${0}`)
+
+    // toast('Job info added successfully')
+
+    const res: SaveJobPricesParamsType = {
+      jobId: selectedJobInfo?.jobId!,
+      priceId: data.priceId!,
+      totalPrice: data.totalPrice,
+      currency: data.detail![0].currency,
+      detail: data.detail!,
+    }
+    saveJobPricesMutation.mutate({ jobId: res.jobId, prices: res })
+  }
+
+  const onClickUpdatePrice = () => {
+    openModal({
+      type: 'UpdatePriceModal',
+      children: (
+        <CustomModalV2
+          onClose={() => closeModal('UpdatePriceModal')}
+          title='Save all changes?'
+          subtitle='Are you sure you want to save all changes? The notification will be sent to Pro after the change.'
+          vary='successful'
+          rightButtonText='Save'
+          onClick={() => {
+            closeModal('UpdatePriceModal')
+            onSubmit()
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickUpdatePriceCancel = () => {
+    openModal({
+      type: 'UpdatePriceCancelModal',
+      children: (
+        <CustomModalV2
+          onClose={() => closeModal('UpdatePriceCancelModal')}
+          title='Discard all changes?'
+          subtitle='Are you sure you want to discard all changes?'
+          vary='error'
+          rightButtonText='Discard'
+          onClick={() => {
+            closeModal('UpdatePriceCancelModal')
+            itemReset()
+            setEditPrices(false)
+          }}
+        ></CustomModalV2>
+      ),
+    })
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
@@ -823,6 +977,58 @@ const JobDetail = () => {
       }
     }
   }, [selectedJobId, jobDetail])
+
+  useEffect(() => {
+    if (selectedJobInfo && jobDetails) {
+      const { jobPrices, jobInfo } = selectedJobInfo
+      const item = jobDetails.items.find(item =>
+        item.jobs.some(job => job.id === selectedJobInfo?.jobId),
+      )
+      if (jobPrices && jobInfo && item) {
+        const result = [
+          {
+            id: jobPrices.priceId!,
+            name: jobPrices.priceName!,
+            itemName: jobPrices.priceName!,
+            source: jobPrices.sourceLanguage ?? item.sourceLanguage,
+            target: jobPrices.targetLanguage ?? item.targetLanguage,
+            priceId: jobPrices.initialPrice?.priceId!,
+            detail:
+              !jobPrices.detail || jobPrices.detail?.length === 0
+                ? []
+                : jobPrices.detail.map(value => ({
+                    ...value,
+                    priceUnitId: value.priceUnitId ?? value.id,
+                    currency: value.currency
+                      ? value.currency
+                      : jobInfo.currency ?? null,
+                  })),
+            minimumPrice: jobPrices.minimumPrice,
+            minimumPriceApplied: jobPrices.minimumPriceApplied,
+            initialPrice: jobPrices.initialPrice,
+            totalPrice: Number(jobPrices?.totalPrice!),
+            priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
+          },
+        ]
+
+        itemReset({ items: result })
+      } else {
+        appendItems({
+          itemName: '',
+          source: 'en',
+          target: 'ko',
+          priceId: null,
+          detail: [],
+          totalPrice: 0,
+          minimumPrice: null,
+          minimumPriceApplied: false,
+          initialPrice: null,
+          priceFactor: 0,
+          currency: null,
+        })
+      }
+    }
+  }, [selectedJobInfo, jobDetails])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -933,7 +1139,9 @@ const JobDetail = () => {
                 ? selectedJobInfo?.jobInfo.pro === null
                   ? 10.416
                   : 7.632
-                : 7.632
+                : value === 'prices'
+                  ? 10.416
+                  : 7.632
             // (selectedJobInfo &&
             //   (selectedJobInfo.jobInfo.name === null ||
             //     selectedJobInfo.jobPrices.priceId === null)) ||
@@ -1019,7 +1227,90 @@ const JobDetail = () => {
                   ) : null}
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
-                  123
+                  {selectedJobInfo.jobInfo.status === 60000 || editPrices ? (
+                    <>
+                      <EditPrices
+                        priceUnitsList={priceUnitsList ?? []}
+                        itemControl={itemControl}
+                        itemErrors={itemErrors}
+                        getItem={getItem}
+                        setItem={setItem}
+                        itemTrigger={itemTrigger}
+                        itemReset={itemReset}
+                        isItemValid={itemValid}
+                        appendItems={appendItems}
+                        fields={items}
+                        row={selectedJobInfo.jobInfo}
+                        jobPrices={selectedJobInfo.jobPrices!}
+                        item={jobDetails?.items.find(item =>
+                          item.jobs.some(
+                            job => job.id === selectedJobInfo?.jobId,
+                          ),
+                        )}
+                        prices={prices}
+                        orderItems={langItem?.items || []}
+                        setPriceId={setPriceId}
+                      />
+
+                      <Box
+                        mt='20px'
+                        sx={{
+                          display: 'flex',
+                          justifyContent:
+                            selectedJobInfo.jobInfo.status === 60000
+                              ? 'flex-end'
+                              : 'center',
+                          width: '100%',
+                        }}
+                      >
+                        {selectedJobInfo.jobInfo.status === 60000 ? (
+                          <Button
+                            variant='contained'
+                            onClick={onSubmit}
+                            disabled={!itemValid}
+                          >
+                            Save draft
+                          </Button>
+                        ) : (
+                          <Box display='flex' alignItems='center' gap='32px'>
+                            <Button
+                              variant='outlined'
+                              onClick={() => {
+                                onClickUpdatePriceCancel()
+                              }}
+                              // disabled={!isItemValid}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant='contained'
+                              onClick={onClickUpdatePrice}
+                              disabled={!itemValid}
+                            >
+                              Save
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    </>
+                  ) : (
+                    <ViewPrices
+                      row={selectedJobInfo.jobInfo}
+                      priceUnitsList={priceUnitsList ?? []}
+                      itemControl={itemControl}
+                      itemErrors={itemErrors}
+                      getItem={getItem}
+                      setItem={setItem}
+                      itemTrigger={itemTrigger}
+                      itemReset={itemReset}
+                      isItemValid={itemValid}
+                      appendItems={appendItems}
+                      fields={items}
+                      setEditPrices={setEditPrices}
+                      jobPriceHistory={jobPriceHistory!}
+                      type='view'
+                    />
+                  )}
                 </TabPanel>
                 <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
                   {selectedJobInfo &&
@@ -1109,6 +1400,7 @@ const JobDetail = () => {
                       selectedAssign={selectedAssign}
                       setSelectedAssign={setSelectedAssign}
                       assignJobMutation={assignJobMutation}
+                      reAssignJobMutation={reAssignJobMutation}
                     />
                   )}
                 </TabPanel>
@@ -1304,73 +1596,80 @@ const JobDetail = () => {
                           <Typography fontSize={16} fontWeight={600}>
                             Target files from Pro
                           </Typography>
-                          <IconButton
-                            onClick={e => {
-                              e.stopPropagation()
-                              handleMenuClick(e)
-                            }}
-                            sx={{ padding: 0 }}
-                          >
-                            <Icon icon='mdi:dots-horizontal' />
-                          </IconButton>
-                          <Menu
-                            elevation={8}
-                            anchorEl={anchorEl}
-                            id='customized-menu'
-                            onClose={(e: React.MouseEvent) => {
-                              e.stopPropagation()
-                              handleClose()
-                            }}
-                            open={Boolean(anchorEl)}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'left',
-                            }}
-                            transformOrigin={{
-                              vertical: 'top',
-                              horizontal: 'right',
-                            }}
-                          >
-                            <MenuItem
-                              sx={{
-                                gap: 2,
-                                '&:hover': {
-                                  background: 'inherit',
-                                  cursor: 'default',
-                                },
-                                justifyContent: 'flex-start',
-                                alignItems: 'flex-start',
-                                padding: 0,
-                              }}
-                            >
-                              <Button
-                                startIcon={
-                                  <Icon
-                                    icon='ic:sharp-refresh'
-                                    color='#4C4E648A'
-                                    fontSize={24}
-                                  />
-                                }
-                                fullWidth
+                          {selectedJobInfo.jobInfo.status === 60300 ||
+                          selectedJobInfo.jobInfo.status === 60400 ||
+                          selectedJobInfo.jobInfo.status === 60500 ? (
+                            <>
+                              {' '}
+                              <IconButton
                                 onClick={e => {
                                   e.stopPropagation()
-                                  handleClose()
-                                  onClickRequestRedelivery()
-                                  // onClickEdit()
+                                  handleMenuClick(e)
                                 }}
-                                sx={{
-                                  justifyContent: 'flex-start',
-                                  padding: '6px 16px',
-                                  fontSize: 16,
-                                  fontWeight: 400,
-                                  color: 'rgba(76, 78, 100, 0.87)',
-                                  borderRadius: 0,
+                                sx={{ padding: 0 }}
+                              >
+                                <Icon icon='mdi:dots-horizontal' />
+                              </IconButton>
+                              <Menu
+                                elevation={8}
+                                anchorEl={anchorEl}
+                                id='customized-menu'
+                                onClose={(e: React.MouseEvent) => {
+                                  e.stopPropagation()
+                                  handleClose()
+                                }}
+                                open={Boolean(anchorEl)}
+                                anchorOrigin={{
+                                  vertical: 'bottom',
+                                  horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                  vertical: 'top',
+                                  horizontal: 'right',
                                 }}
                               >
-                                Request redelivery
-                              </Button>
-                            </MenuItem>
-                          </Menu>
+                                <MenuItem
+                                  sx={{
+                                    gap: 2,
+                                    '&:hover': {
+                                      background: 'inherit',
+                                      cursor: 'default',
+                                    },
+                                    justifyContent: 'flex-start',
+                                    alignItems: 'flex-start',
+                                    padding: 0,
+                                  }}
+                                >
+                                  <Button
+                                    startIcon={
+                                      <Icon
+                                        icon='ic:sharp-refresh'
+                                        color='#4C4E648A'
+                                        fontSize={24}
+                                      />
+                                    }
+                                    fullWidth
+                                    onClick={e => {
+                                      e.stopPropagation()
+                                      handleClose()
+                                      onClickRequestRedelivery()
+                                      // onClickEdit()
+                                    }}
+                                    sx={{
+                                      justifyContent: 'flex-start',
+                                      padding: '6px 16px',
+                                      fontSize: 16,
+                                      fontWeight: 400,
+                                      color: 'rgba(76, 78, 100, 0.87)',
+                                      borderRadius: 0,
+                                    }}
+                                  >
+                                    Request redelivery
+                                  </Button>
+                                </MenuItem>
+                              </Menu>
+                            </>
+                          ) : null}
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ padding: 0 }}>

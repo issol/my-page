@@ -7,6 +7,7 @@ export type AlertType =
   | 'question-info'
   | 'info-pie'
   | 'guideline-info'
+  | 'question-info-bold'
   | 'error-alert'
 
 export default function AlertIcon({ type }: { type: AlertType }) {
@@ -26,6 +27,8 @@ export default function AlertIcon({ type }: { type: AlertType }) {
         return 'alert-success.svg'
       case 'question-info':
         return 'status-question-info.png'
+      case 'question-info-bold':
+        return 'status-question-info-bold.svg'
       case 'error-alert':
         return 'status-error-alert.png'
       case 'info-pie':

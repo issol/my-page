@@ -11,7 +11,7 @@ type Props = {
 }
 export default function FileItem({ file, onClick, onClear }: Props) {
   return (
-    <FileList key={file.name} onClick={() => onClick && onClick(file)}>
+    <FileList key={file.name}>
       <div className='file-details'>
         <div className='file-preview'>
           <Icon
@@ -33,6 +33,16 @@ export default function FileItem({ file, onClick, onClear }: Props) {
           }}
         >
           <Icon icon='mdi:close' fontSize={20} />
+        </IconButton>
+      )}
+      {onClick && (
+        <IconButton
+          onClick={() => {
+            onClick(file)
+          }}
+          sx={{ padding: 0 }}
+        >
+          <Icon icon='ic:sharp-download' />
         </IconButton>
       )}
     </FileList>

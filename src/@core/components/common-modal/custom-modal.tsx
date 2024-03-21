@@ -22,6 +22,7 @@ type Props = {
     | 'guideline-info'
     | 'question-info'
     | 'error-alert'
+    | 'question-info-bold'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string

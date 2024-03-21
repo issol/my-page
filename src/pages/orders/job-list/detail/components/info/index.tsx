@@ -361,7 +361,7 @@ const JobInfo = ({
             </>
           }
           onClick={() => closeModal('SelectRequestRedeliveryReasonModal')}
-          vary='question-info'
+          vary='question-info-bold'
           rightButtonText=''
         />
       ),
@@ -443,6 +443,7 @@ const JobInfo = ({
               </Typography>
               <IconButton
                 sx={{ padding: 0 }}
+                disabled
                 onClick={() =>
                   onClickMessage({
                     userId: jobInfo.pro?.id!,

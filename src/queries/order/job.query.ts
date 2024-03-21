@@ -120,7 +120,7 @@ export const useGetJobAssignProRequests = (jobId: number[] | number) => {
 export const useGetJobPriceHistory = (jobId: number) => {
   return useQuery(['jobPriceHistory', jobId], () => getJobPriceHistory(jobId), {
     staleTime: 10 * 1000, // 1
-
+    enabled: !!jobId,
     suspense: false,
   })
 }
