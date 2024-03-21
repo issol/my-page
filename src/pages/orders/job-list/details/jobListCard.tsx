@@ -124,9 +124,7 @@ const JobListCard = ({
   const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
 
   const [selected, setSelected] = useState<readonly number[]>([])
-  const [changeJobStatus, setChangeJobStatus] = useState<JobStatus | null>(
-    null,
-  )
+  const [changeJobStatus, setChangeJobStatus] = useState<JobStatus | null>(null)
   const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
   const [hoveredGroup, setHoveredGroup] = useState<number[]>([])
 
@@ -162,19 +160,26 @@ const JobListCard = ({
   }
 
   const getTriggerGroup = (jobId: number) => {
-    triggerGroups.map(group => {
-      if (group.includes(jobId)) {
-        return group
-      }
-    })
-    return jobId
+    const findGroup = triggerGroups.find(group => group.includes(jobId))
+    if (findGroup) {
+      return findGroup
+    } else {
+      return jobId
+    }
+
+    // triggerGroups.map(group => {
+    //   if (group.includes(jobId)) {
+    //     return group
+    //   }
+    // })
+    // return jobId
   }
 
   useEffect(() => {
     setTriggerGroups(getTriggerGroups())
   }, [info.jobs])
 
-  console.log("triggerGroups",triggerGroups)
+  console.log('triggerGroups', triggerGroups)
   // TODO: 트리거 그룹일때 호버 백그라운드 색상 바꾸기(라인이 안보여짐)
   const getTriggerGroups = (): number[][] => {
     let groups: number[][] = []
@@ -188,12 +193,12 @@ const JobListCard = ({
 
     for (let job of info.jobs) {
       if (!visited.has(job.id)) {
-        let group: number[] = [];
-        let current = job;
-  
+        let group: number[] = []
+        let current = job
+
         while (current != null && !visited.has(current.id)) {
-          group.push(current.id);
-          visited.add(current.id);
+          group.push(current.id)
+          visited.add(current.id)
           if (current.nextJobId != null) {
             current = map.get(current.nextJobId)!
           } else {
@@ -222,7 +227,9 @@ const JobListCard = ({
 
   const isStatusChangeableJob = (status: number) => {
     // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
-    return [60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900].includes(status)
+    return [
+      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900,
+    ].includes(status)
   }
 
   const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
@@ -569,10 +576,7 @@ const JobListCard = ({
                           component='th'
                           scope='row'
                         >
-                          {JobsStatusChip(
-                            row.status as JobStatus,
-                            statusList!,
-                          )}
+                          {JobsStatusChip(row.status as JobStatus, statusList!)}
                         </CustomTableCell>
 
                         <CustomTableCell
@@ -633,8 +637,8 @@ const JobListCard = ({
                           align='right'
                         >
                           <Tooltip
-                            title={`${row.nextJobId ? 'On' : 'Off'} 
-                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
+                            title={`${row.nextJobId ? 'On' : 'Off'}
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
                             placement='top'
@@ -644,16 +648,22 @@ const JobListCard = ({
                               alignItems='center'
                               justifyContent='flex-end'
                               gap='8px'
-                              visibility={isTriggerJob(row.id) ? 'visible' : 'hidden'}
+                              visibility={
+                                isTriggerJob(row.id) ? 'visible' : 'hidden'
+                              }
                             >
                               <Box
-                                visibility={row.autoNextJob ? 'visible' : 'hidden'}
+                                visibility={
+                                  row.autoNextJob ? 'visible' : 'hidden'
+                                }
                                 margin={0}
                               >
                                 <TriggerIcon />
                               </Box>
                               <Box
-                                visibility={row.autoSharingFile ? 'visible' : 'hidden'}
+                                visibility={
+                                  row.autoSharingFile ? 'visible' : 'hidden'
+                                }
                                 margin={0}
                               >
                                 <TriggerSwitchStatus
