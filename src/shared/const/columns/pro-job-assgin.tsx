@@ -6,6 +6,7 @@ import {
   Menu,
   MenuItem,
   Radio,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import {
@@ -14,6 +15,7 @@ import {
   GridRowId,
   GridSelectionModel,
 } from '@mui/x-data-grid'
+import { v4 as uuidv4 } from 'uuid'
 import {
   ProStatusChip,
   assignmentStatusChip,
@@ -27,6 +29,7 @@ import { ProListCellType, ProListType } from '@src/types/pro/list'
 import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
+import Image from 'next/image'
 
 type CellType = {
   row: ProListType | AssignProListType
@@ -41,6 +44,8 @@ export const getProJobAssignColumns = (
   searchPro: boolean,
   requestPro: boolean,
   assignPro: boolean,
+  addRound: boolean,
+  addPros: boolean,
   selectedValue?: GridSelectionModel,
   setSelectedValue?: Dispatch<
     SetStateAction<{ [key: string]: GridSelectionModel }>
@@ -55,7 +60,7 @@ export const getProJobAssignColumns = (
       }
     }>
   >,
-  proList?: ProListType[],
+  proList?: Array<ProListType | AssignProListType>,
 ) => {
   const columns: GridColumns<ProListType | AssignProListType> = [
     {
@@ -71,8 +76,12 @@ export const getProJobAssignColumns = (
               Number(selectedValue) === row.userId
             }
             onChange={() => {
+              console.log(proList)
+
               const selectedPros =
                 proList?.filter(pro => pro.userId === row.userId) ?? []
+              console.log(selectedPros)
+
               setSelectedValue &&
                 setSelectedValue(prev => ({
                   ...{
@@ -137,17 +146,37 @@ export const getProJobAssignColumns = (
       ),
       renderCell: ({ row }: CellType) => {
         return (
-          <LegalNameEmail
-            row={{
-              isOnboarded: row.isOnboarded,
-              isActive: row.isActive,
+          <Box
+            sx={{
+              display: 'flex',
 
-              firstName: row.firstName,
-              middleName: row.middleName,
-              lastName: row.lastName,
-              email: row.email,
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
-          />
+          >
+            <LegalNameEmail
+              row={{
+                isOnboarded: row.isOnboarded,
+                isActive: row.isActive,
+
+                firstName: row.firstName,
+                middleName: row.middleName,
+                lastName: row.lastName,
+                email: row.email,
+              }}
+            />
+            {assignPro || addPros || addRound ? (
+              <Box>
+                <Image
+                  src={`/images/icons/job-icons/status-${(row as AssignProListType).responseLight === 70100 ? 'green' : (row as AssignProListType).responseLight === 70000 || (row as AssignProListType).responseLight === 70500 || (row as AssignProListType).responseLight === 70600 ? 'orange' : (row as AssignProListType).responseLight === 70200 || ((row as AssignProListType).responseLight === 70400 && 'red')}.svg`}
+                  alt=''
+                  width={8}
+                  height={8}
+                />
+              </Box>
+            ) : null}
+          </Box>
         )
       },
     },
@@ -169,12 +198,13 @@ export const getProJobAssignColumns = (
       },
     },
     {
-      flex: 0.1321,
+      flex: 0.2,
       field: 'avg',
       hideSortIcons: true,
       sortable: false,
       disableColumnMenu: true,
-      hide: !searchPro,
+      align: 'center',
+      hide: !searchPro && !assignPro && !addRound,
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
           Avg. response time
@@ -185,7 +215,7 @@ export const getProJobAssignColumns = (
       },
     },
     {
-      flex: searchPro ? 0.1635 : requestPro ? 0.2782 : 0.2453,
+      flex: searchPro || assignPro ? 0.1635 : requestPro ? 0.2782 : 0.2453,
       field: 'jobs',
       hideSortIcons: true,
       disableColumnMenu: true,
@@ -196,7 +226,27 @@ export const getProJobAssignColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        return <Typography> {row.ongoingJobCount} job(s)</Typography>
+        return (
+          <Tooltip
+            title={
+              <ul
+                style={{
+                  paddingLeft: 18,
+                  maxWidth: '170px',
+                  minWidth: '100px',
+                }}
+              >
+                {(row as AssignProListType).ongoingJobList?.map(value => {
+                  return <li key={uuidv4()}>{value}</li>
+                })}{' '}
+              </ul>
+            }
+          >
+            <Typography>
+              {row.ongoingJobCount ? `${row.ongoingJobCount} job(s)` : '-'}
+            </Typography>
+          </Tooltip>
+        )
       },
     },
   ]

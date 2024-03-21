@@ -75,6 +75,7 @@ export type AssignProListType = {
   responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600 // statusCode
   ongoingJobCount: number
   avgResponseTime: number // 분단위 표시
+  ongoingJobList: string[]
 }
 
 export type SaveJobInfoParamsType = {

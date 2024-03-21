@@ -1090,13 +1090,17 @@ const JobDetail = () => {
                 }}
                 onClick={() => {
                   if (addRoundMode) {
-                    console.log(selectedAssign)
-
                     setAddRoundMode(false)
+                    setMenu('linguistTeam')
+                    setSelectedLinguistTeam(null)
                   } else if (addProsMode) {
                     setAddProsMode(false)
+                    setMenu('linguistTeam')
+                    setSelectedLinguistTeam(null)
                   } else if (assignProMode) {
                     setAssignProMode(false)
+                    setMenu('linguistTeam')
+                    setSelectedLinguistTeam(null)
                   } else {
                     router.push({
                       pathname: '/orders/job-list/details/',
@@ -1255,6 +1259,7 @@ const JobDetail = () => {
                     value='history'
                     label='Request history'
                     iconPosition='start'
+                    disabled
                     icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
                     onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
                   />
@@ -1453,9 +1458,7 @@ const JobDetail = () => {
                     />
                   )}
                 </TabPanel>
-                <TabPanel value='history' sx={{ height: '100%' }}>
-                  123123
-                </TabPanel>
+                <TabPanel value='history' sx={{ height: '100%' }}></TabPanel>
               </TabContext>
             )}
           </Box>

@@ -1384,6 +1384,8 @@ const AssignPro = ({
                   false,
                   false,
                   assignProMode,
+                  addRoundMode,
+                  addProsMode,
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,
                   selectedLinguistTeam?.label || '',
@@ -1446,12 +1448,15 @@ const AssignPro = ({
                   false,
                   false,
                   assignProMode,
+                  addRoundMode,
+                  addProsMode,
 
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,
                   selectedLinguistTeam?.label || '',
                   setSelectedRows,
-                  detail?.pros,
+                  // detail?.pros,
+                  rows[selectedLinguistTeam?.label || ''] ?? [],
                 )}
                 checkboxSelection={!assignProMode}
                 selectionModel={

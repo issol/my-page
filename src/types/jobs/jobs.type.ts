@@ -304,6 +304,7 @@ export type JobRequestsProType = {
   assignmentStatusUpdatedAt: string
   responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
   ongoingJobCount: number
+  ongoingJobList: string[]
   order: number
   jobRequestId: number
 }
