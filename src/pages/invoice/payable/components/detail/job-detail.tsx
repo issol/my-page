@@ -59,7 +59,7 @@ import { toast } from 'react-hot-toast'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from './components/prices'
-import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
+
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useGetStatusList } from '@src/queries/common.query'
 import { languageType } from '@src/pages/orders/add-new'
@@ -68,6 +68,7 @@ import {
   jobPriceHistoryType,
   JobPricesDetailType,
 } from '@src/types/jobs/jobs.type'
+import EditPrices from '@src/pages/orders/job-list/detail/components/prices/edit-prices'
 
 type Props = {
   id: number

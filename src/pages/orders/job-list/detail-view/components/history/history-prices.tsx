@@ -1,7 +1,7 @@
 import { Box, Card, Divider, Typography } from '@mui/material'
 import { JobType } from '@src/types/common/item.type'
 import { useEffect, useState } from 'react'
-import PriceHistoryRow from '../prices/price-history-row'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { jobPriceHistoryType } from '@src/types/jobs/jobs.type'
@@ -9,6 +9,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import PriceHistoryRow from '../../../detail/components/prices/price-history-row'
 
 type Props = {
   jobInfo: JobType

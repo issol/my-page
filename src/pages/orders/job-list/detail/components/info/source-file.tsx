@@ -45,11 +45,19 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
+import Image from 'next/image'
 
 type Props = {
-  info: AssignProListType
+  info:
+    | AssignProListType
+    | {
+        id: number
+        firstName: string
+        middleName: string
+        lastName: string
+      }
   row: JobType
-  orderDetail: ProjectInfoType
+
   item: JobItemType
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
@@ -68,7 +76,7 @@ type Props = {
 const SourceFileUpload = ({
   info,
   row,
-  orderDetail,
+
   item,
   refetch,
   statusList,
@@ -293,268 +301,246 @@ const SourceFileUpload = ({
   }, [sourceFileList, files])
 
   return (
-    <Box sx={{ padding: '50px 60px', position: 'relative' }}>
-      <IconButton
-        sx={{ position: 'absolute', top: '20px', right: '20px' }}
-        onClick={() => {
-          closeModal('SourceFileUploadModal')
-          closeModal('JobDetailViewModal')
-        }}
-      >
-        <Icon icon='mdi:close' />
-      </IconButton>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px',
-        }}
-      >
+    <Box
+      sx={{
+        maxWidth: '780px',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+      }}
+    >
+      <Box sx={{ padding: '50px 60px', position: 'relative' }}>
+        <IconButton
+          sx={{ position: 'absolute', top: '20px', right: '20px' }}
+          onClick={() => {
+            closeModal('SourceFileUploadModal')
+            closeModal('JobDetailViewModal')
+          }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
         <Box
           sx={{
             display: 'flex',
-            width: '100%',
-            gap: '8px',
-            alignItems: 'center',
+            flexDirection: 'column',
+            gap: '15px',
           }}
         >
-          <IconButton
-            sx={{ padding: '0 !important', height: '24px' }}
-            onClick={() => {
-              closeModal('AssignProMessageModal')
-              openModal({
-                type: 'JobDetailViewModal',
-                children: (
-                  <Box
-                    sx={{
-                      maxWidth: '1180px',
-                      width: '100%',
-                      maxHeight: '90vh',
-                      background: '#ffffff',
-                      boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-                      borderRadius: '10px',
-                      overflow: 'scroll',
-                      '&::-webkit-scrollbar': {
-                        display: 'none',
-                      },
-                    }}
-                  >
-                    <JobInfoDetailView
-                      tab={'assignPro'}
-                      row={row}
-                      orderDetail={orderDetail}
-                      item={item}
-                      refetch={refetch}
-                    />
-                  </Box>
-                ),
-              })
-            }}
-          >
-            <Icon icon='mdi:chevron-left' width={24} height={24} />
-          </IconButton>
-          <img src='/images/icons/order-icons/source-file-pro.svg' alt='' />
-          <Typography variant='h5'>
-            {getLegalName({
-              firstName: info.firstName,
-              middleName: info.middleName,
-              lastName: info.lastName,
-            })}
-          </Typography>
-          {/* <AssignmentStatusChip
-            label={info.assignmentStatus}
-            status={info.assignmentStatus!}
-          /> */}
-          {assignmentStatusChip(Number(info.assignmentStatus), statusList!)}
-        </Box>
-        <Divider />
-        <Box>
-          <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <Typography variant='subtitle1' fontWeight={600}>
-              Source file to Pro
-            </Typography>
-            <Typography variant='subtitle2'>
-              {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-            </Typography>
-          </Box>
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '24px',
-              mt: '24px',
+              width: '100%',
+              gap: '8px',
+              alignItems: 'center',
             }}
           >
-            {sourceFileList &&
-              sourceFileList?.length > 0 &&
-              // uploadedFileList(sourceFileList!, 'SOURCE')}
-              groupedFiles.map(value => {
-                return (
-                  <Box key={uuidv4()}>
-                    <Typography
-                      variant='body2'
-                      fontSize={14}
-                      fontWeight={400}
-                      sx={{ mb: '5px' }}
-                    >
-                      {convertTimeToTimezone(
-                        value.createdAt,
-                        auth.getValue().user?.timezone,
-                        timezone.getValue(),
-                      )}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(2,1fr)',
-                        gridGap: '16px',
-                      }}
-                    >
-                      {value.data.map(item => {
-                        return (
-                          <Box
-                            key={uuidv4()}
-                            sx={{
-                              display: 'flex',
-                              marginBottom: '8px',
-                              width: '100%',
-                              justifyContent: 'space-between',
-                              borderRadius: '8px',
-                              padding: '10px 12px',
-                              border: '1px solid rgba(76, 78, 100, 0.22)',
-                              background: '#f9f8f9',
-                            }}
-                          >
+            <Image
+              src='/images/icons/order-icons/source-file-pro.svg'
+              alt=''
+              width={50}
+              height={50}
+            />
+            <Typography fontSize={20} fontWeight={500}>
+              {getLegalName({
+                firstName: info.firstName,
+                middleName: info.middleName,
+                lastName: info.lastName,
+              })}
+            </Typography>
+            {/* <AssignmentStatusChip
+            label={info.assignmentStatus}
+            status={info.assignmentStatus!}
+          /> */}
+            {/* {assignmentStatusChip(Number(info.assignmentStatus), statusList!)} */}
+          </Box>
+          <Divider />
+          <Box>
+            <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <Typography variant='subtitle1' fontWeight={600}>
+                Source file to Pro
+              </Typography>
+              <Typography variant='subtitle2'>
+                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+                // mt: '24px',
+              }}
+            >
+              {sourceFileList &&
+                sourceFileList?.length > 0 &&
+                // uploadedFileList(sourceFileList!, 'SOURCE')}
+                groupedFiles.map(value => {
+                  return (
+                    <Box key={uuidv4()}>
+                      <Typography
+                        variant='body2'
+                        fontSize={14}
+                        fontWeight={400}
+                        sx={{ mb: '5px' }}
+                      >
+                        {convertTimeToTimezone(
+                          value.createdAt,
+                          auth.getValue().user?.timezone,
+                          timezone.getValue(),
+                        )}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2,1fr)',
+                          gridGap: '16px',
+                        }}
+                      >
+                        {value.data.map(item => {
+                          return (
                             <Box
+                              key={uuidv4()}
                               sx={{
                                 display: 'flex',
-                                alignItems: 'center',
+                                marginBottom: '8px',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                                borderRadius: '8px',
+                                padding: '10px 12px',
+                                border: '1px solid rgba(76, 78, 100, 0.22)',
+                                background: '#f9f8f9',
                               }}
                             >
                               <Box
                                 sx={{
-                                  marginRight: '8px',
                                   display: 'flex',
+                                  alignItems: 'center',
                                 }}
                               >
-                                <Icon
-                                  icon='material-symbols:file-present-outline'
-                                  style={{
-                                    color: 'rgba(76, 78, 100, 0.54)',
+                                <Box
+                                  sx={{
+                                    marginRight: '8px',
+                                    display: 'flex',
                                   }}
-                                  fontSize={24}
-                                />
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                }}
-                              >
-                                <Tooltip title={item.name}>
-                                  <Typography
-                                    variant='body1'
-                                    fontSize={14}
-                                    fontWeight={600}
-                                    lineHeight={'20px'}
-                                    sx={{
-                                      overflow: 'hidden',
-                                      wordBreak: 'break-all',
-                                      textOverflow: 'ellipsis',
-                                      display: '-webkit-box',
-                                      WebkitLineClamp: 1,
-                                      WebkitBoxOrient: 'vertical',
-                                    }}
-                                  >
-                                    {item.name}
-                                  </Typography>
-                                </Tooltip>
-
-                                <Typography
-                                  variant='caption'
-                                  lineHeight={'14px'}
                                 >
-                                  {formatFileSize(item.size)}
-                                </Typography>
-                              </Box>
-                            </Box>
+                                  <Icon
+                                    icon='material-symbols:file-present-outline'
+                                    style={{
+                                      color: 'rgba(76, 78, 100, 0.54)',
+                                    }}
+                                    fontSize={24}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                  }}
+                                >
+                                  <Tooltip title={item.name}>
+                                    <Typography
+                                      variant='body1'
+                                      fontSize={14}
+                                      fontWeight={600}
+                                      lineHeight={'20px'}
+                                      sx={{
+                                        overflow: 'hidden',
+                                        wordBreak: 'break-all',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 1,
+                                        WebkitBoxOrient: 'vertical',
+                                      }}
+                                    >
+                                      {item.name}
+                                    </Typography>
+                                  </Tooltip>
 
-                            {/* <IconButton
+                                  <Typography
+                                    variant='caption'
+                                    lineHeight={'14px'}
+                                  >
+                                    {formatFileSize(item.size)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              {/* <IconButton
                               onClick={() => downloadOneFile(item)}
                               disabled={isFileUploading || !isUpdatable}
                             >
                               <Icon icon='mdi:download' fontSize={24} />
                             </IconButton> */}
-                          </Box>
-                        )
-                      })}
+                            </Box>
+                          )
+                        })}
+                      </Box>
                     </Box>
-                  </Box>
-                )
-              })}
+                  )
+                })}
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              width: '100%',
+              border: '1px dashed #666CFF',
+              borderRadius: '10px',
+              padding: '20px',
+            }}
+          >
+            <div {...getRootProps({ className: 'dropzone' })}>
+              <Button
+                variant='outlined'
+                disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
+                  row.status,
+                )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+              >
+                <input {...getInputProps()} />
+                <Icon
+                  icon='ic:baseline-attachment'
+                  color='#666CFF'
+                  fontSize={18}
+                ></Icon>
+                &nbsp; Upload files
+              </Button>
+            </div>
+
+            {files.length > 0 && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  mt: '20px',
+                  width: '100%',
+                  gap: '20px',
+                }}
+              >
+                {files.map((file: FileType, index: number) => {
+                  return (
+                    <Box key={uuidv4()}>
+                      <FileItem
+                        key={file.name}
+                        file={file}
+                        onClear={handleRemoveFile}
+                      />
+                    </Box>
+                  )
+                })}
+              </Box>
+            )}
           </Box>
         </Box>
-
-        <Divider />
-
-        <Box
-          sx={{
-            width: '100%',
-            border: '1px dashed #666CFF',
-            borderRadius: '10px',
-            padding: '20px',
-          }}
-        >
-          <div {...getRootProps({ className: 'dropzone' })}>
-            <Button
-              variant='outlined'
-              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
-                row.status,
-              )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
-            >
-              <input {...getInputProps()} />
-              <Icon
-                icon='ic:baseline-attachment'
-                color='#666CFF'
-                fontSize={18}
-              ></Icon>
-              &nbsp; Upload files
-            </Button>
-          </div>
-
-          {files.length > 0 && (
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                mt: '20px',
-                width: '100%',
-                gap: '20px',
-              }}
-            >
-              {files.map((file: FileType, index: number) => {
-                return (
-                  <Box key={uuidv4()}>
-                    <FileItem
-                      key={file.name}
-                      file={file}
-                      onClear={handleRemoveFile}
-                    />
-                  </Box>
-                )
-              })}
-            </Box>
-          )}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '32px' }}>
+          <Button
+            variant='contained'
+            disabled={files.length === 0}
+            onClick={onSubmit}
+          >
+            Send
+          </Button>
         </Box>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '9px' }}>
-        <Button
-          variant='contained'
-          disabled={files.length === 0}
-          onClick={onSubmit}
-        >
-          Send
-        </Button>
       </Box>
     </Box>
   )

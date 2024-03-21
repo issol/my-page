@@ -7,6 +7,21 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { PriceType } from '../common/orders-and-quotes.type'
 import { JobStatus } from '@src/types/common/status.type'
 import { Currency } from '@src/types/common/currency.type'
+export type JobStatusType =
+  | 60000 // In preparation
+  | 60100 //Requested
+  | 60110 //Assigned
+  | 60200 // In progress
+  | 60250 // Redelivery requested
+  | 60300 // Overdue
+  | 60400 // Partially delivered
+  | 60500 // Delivered
+  | 60600 // Approved
+  | 60700 // Invoiced
+  | 60800 // Paid
+  | 60900 // Without invoice
+  | 601000 // Canceled
+  | 601100 // Payment cancled
 
 export type JobsListType = {
   id: number

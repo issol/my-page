@@ -120,7 +120,7 @@ export const useGetJobAssignProRequests = (jobId: number[] | number) => {
 export const useGetJobPriceHistory = (jobId: number) => {
   return useQuery(['jobPriceHistory', jobId], () => getJobPriceHistory(jobId), {
     staleTime: 10 * 1000, // 1
-
+    enabled: !!jobId,
     suspense: false,
   })
 }
@@ -137,5 +137,6 @@ export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
     staleTime: 10 * 1000,
     suspense: false,
+    enabled: !!jobId,
   })
 }

@@ -54,6 +54,7 @@ import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   onClose: () => void
@@ -378,7 +379,7 @@ const InfoEditModal = ({
   }
 
   const onSubmit = () => {
-    if (!isDirty) {
+    if (!isDirty && deletedFiles.length === 0 && files.length === 0) {
       onClose()
     } else {
       openModal({

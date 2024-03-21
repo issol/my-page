@@ -69,7 +69,18 @@ export const getJobInfo = async (
       : await axios.get(`/api/enough/u/job/${id}/info`)
     // console.log(data)
 
-    return data
+    const result: JobType = {
+      ...data,
+      redeliveryHistory: {
+        deleteReason: ['Did not follow the guidelines', 'Typo', 'Time code'],
+        message: 'Please redeliver the file with the following reasons',
+        jobId: data.id,
+        id: 1,
+      },
+    }
+
+    // return data
+    return result
   } catch (e: any) {
     return {
       id: 0,
@@ -82,6 +93,7 @@ export const getJobInfo = async (
       serviceType: '',
       sourceLanguage: '',
       targetLanguage: '',
+      isJobRequestPresent: false,
       startedAt: '',
       dueAt: '',
       totalPrice: 0,
@@ -537,4 +549,15 @@ export const forceAssign = async (jobId: number, proId: number) => {
   const { data } = await axios.patch(
     `/api/enough/u/job/${jobId}/request/assign?proId=${proId}`,
   )
+}
+
+export const requestRedelivery = async (params: {
+  jobId: number
+  deleteReason: string[]
+  message?: string
+}) => {
+  const { data } = await axios.post(`/api/enough/u/job/redelivery`, {
+    ...params,
+  })
+  return data
 }

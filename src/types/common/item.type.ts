@@ -132,7 +132,11 @@ export type JobType = {
   statusCodeForAutoNextJob: number | null
   autoSharingFile: boolean
   sortingOrder: number
-
-  // pro에게 request 보낸기록 유무
   isJobRequestPresent: boolean
+  redeliveryHistory?: {
+    jobId: number
+    deleteReason: string[]
+    message: string
+    id: number
+  }
 }

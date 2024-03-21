@@ -347,6 +347,7 @@ export const getProJobAssignColumnsForRequest = (
             {row.assignmentStatus === null ? null : (
               <IconButton
                 sx={{ padding: 0 }}
+                disabled
                 onClick={() => onClickMessage(row)}
               >
                 <Icon icon='mdi:message-text' />

@@ -150,6 +150,16 @@ type Props = {
     },
     unknown
   >
+  reAssignJobMutation: UseMutationResult<
+    {
+      id: number
+    },
+    unknown,
+    {
+      jobId: number
+    },
+    unknown
+  >
 }
 
 function loadServerRows(
@@ -201,6 +211,7 @@ const AssignPro = ({
   selectedAssign,
   setSelectedAssign,
   assignJobMutation,
+  reAssignJobMutation,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   console.log(selectionModel, 'test')
@@ -277,6 +288,9 @@ const AssignPro = ({
 
   const handleReAssign = () => {
     closeModal('ReAssignProModal')
+    reAssignJobMutation.mutate({
+      jobId: jobInfo.id,
+    })
   }
 
   const onClickAssign = (
@@ -359,7 +373,12 @@ const AssignPro = ({
       children: (
         <Message
           jobId={jobInfo.id}
-          info={row}
+          info={{
+            userId: row.userId,
+            firstName: row.firstName,
+            lastName: row.lastName,
+            middleName: row.middleName ?? null,
+          }}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
@@ -599,13 +618,12 @@ const AssignPro = ({
             >
               <Typography fontSize={16} fontWeight={600}>
                 {selectedAssign?.type === 'relayRequest'
-                  ? 'Relay request'
+                  ? `Relay request (${selectedAssign?.pros.length ?? 0})`
                   : selectedAssign?.type === 'bulkAutoAssign'
-                    ? 'Bulk request - First come first served'
+                    ? `Bulk request - First come first served (${selectedAssign?.pros.length ?? 0})`
                     : selectedAssign?.type === 'bulkManualAssign'
-                      ? 'Bulk request - Manual assign'
-                      : '-'}{' '}
-                ({selectedAssign?.pros.length ?? 0})
+                      ? `Bulk request - Manual assign (${selectedAssign?.pros.length ?? 0})`
+                      : ''}{' '}
               </Typography>
               <Box>
                 <IconButton

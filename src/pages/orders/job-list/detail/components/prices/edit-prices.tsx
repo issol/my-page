@@ -95,7 +95,7 @@ type Props = {
     'id'
   >[]
   jobPrices: JobPricesDetailType
-  setJobId?: (n: number) => void
+
   item?: JobItemType
   prices?: StandardPriceListType[]
   orderItems: ItemType[]
@@ -115,7 +115,7 @@ const EditPrices = ({
   fields,
   row,
   jobPrices,
-  setJobId,
+
   item,
   prices,
   orderItems,

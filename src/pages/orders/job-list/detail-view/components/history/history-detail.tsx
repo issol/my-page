@@ -12,8 +12,7 @@ import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { JobHistoryType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
-import ViewJobInfo from '../job-info/view-job-info'
-import JobInfoDetailView from '../..'
+
 import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { Resolver, useFieldArray, useForm } from 'react-hook-form'
@@ -21,7 +20,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 // import ViewPrices from '../prices/view-prices'
 import ViewHistoryPrices from './history-prices'
-import AssignPro from '../assign-pro/assign-pro'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
@@ -168,12 +167,12 @@ export default function HistoryDetail({
             },
           }}
         >
-          <JobInfoDetailView
+          {/* <JobInfoDetailView
             tab={'history'}
             row={originJobInfo!}
             orderDetail={orderDetail}
             item={item}
-          />
+          /> */}
         </Box>
       ),
     })
@@ -243,7 +242,7 @@ export default function HistoryDetail({
             />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            {jobInfo && !jobInfoLoading && (
+            {/* {jobInfo && !jobInfoLoading && (
               <ViewJobInfo
                 row={jobInfo!}
                 type='history'
@@ -252,13 +251,13 @@ export default function HistoryDetail({
                 statusList={statusList}
                 jobDeliveriesFeedbacks={{ deliveries: [], feedbacks: [] }}
               />
-            )}
+            )} */}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <ViewHistoryPrices jobInfo={jobInfo!} jobPrices={jobPrices!} />
           </TabPanel>
           <TabPanel value='assignPro'>
-            <AssignPro
+            {/* <AssignPro
               user={auth.getValue().user!}
               row={jobInfo!}
               orderDetail={orderDetail}
@@ -267,7 +266,7 @@ export default function HistoryDetail({
               item={item}
               //TODO: assignment status에 70000대 코드 처리 추가해야 함
               statusList={statusList!}
-            />
+            /> */}
           </TabPanel>
         </TabContext>
       </Box>
