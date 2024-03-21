@@ -40,12 +40,12 @@ import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 
 import InformationModal from '@src/@core/components/common-modal/information-modal'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
 
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
+import CustomChip from '@src/@core/components/mui/chip'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
@@ -54,11 +54,7 @@ import {
   patchProJobSourceFileDownload,
 } from '@src/apis/jobs/job-detail.api'
 import { timezoneSelector } from '@src/states/permission'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
-import styled from '@emotion/styled'
-import CustomChip from '@src/@core/components/mui/chip'
-import { v4 as uuidv4 } from 'uuid'
-import InfoDialogButton from '@src/views/pro/infoDialog'
+import { JobStatus } from '@src/types/common/status.type'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -89,8 +85,7 @@ const ProJobInfo = ({
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const updateJob = useMutation(
-    (status: ProJobStatusType) =>
-      patchProJobDetail(jobInfo.id, { status: status }),
+    (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
@@ -351,7 +346,8 @@ const ProJobInfo = ({
     })
   }
 
-  const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
+  const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
+    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -533,7 +529,7 @@ const ProJobInfo = ({
   useEffect(() => {
     if (jobInfo) {
       if (jobInfo.status === 60300) {
-        onClickOnClickStatusMoreInfo(jobInfo.status as ProJobStatusType)
+        onClickOnClickStatusMoreInfo(jobInfo.status as JobStatus)
       }
     }
   }, [jobInfo])

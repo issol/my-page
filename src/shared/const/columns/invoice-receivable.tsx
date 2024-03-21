@@ -160,26 +160,26 @@ export const getInvoiceReceivableListColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
-            {row.order?.category ? (
+            {row.orders.length === 1 ? (
               <JobTypeChip
                 size='small'
-                type={row.order.category}
-                label={row.order.category}
+                type={row.orders[0].category}
+                label={row.orders[0].category}
               />
             ) : (
               '-'
             )}
 
-            {row.order?.serviceType?.length ? (
+            {row.orders.length === 1 && row.orders[0].serviceType.length ? (
               <>
                 <ServiceTypeChip
                   size='small'
-                  label={row.order.serviceType[0]}
+                  label={row.orders[0].serviceType[0]}
                 />
-                {row.order?.serviceType.length > 1 ? (
+                {row.orders[0]?.serviceType.length > 1 ? (
                   <ExtraNumberChip
                     size='small'
-                    label={`+${row.order?.serviceType.slice(1).length}`}
+                    label={`+${row.orders[0]?.serviceType.slice(1).length}`}
                   />
                 ) : null}
               </>

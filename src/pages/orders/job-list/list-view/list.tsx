@@ -24,9 +24,9 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { statusType } from '@src/types/common/status.type'
+
 import { timezoneSelector } from '@src/states/permission'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { JobStatus, StatusItem } from '@src/types/common/status.type'
 
 type CellType = {
   row: JobsListType
@@ -42,7 +42,7 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
-  statusList: Array<statusType>
+  statusList: Array<StatusItem>
 }
 
 export default function JobsList({
@@ -88,7 +88,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(row.status as ProJobStatusType, statusList)
+        return JobsStatusChip(row.status as JobStatus, statusList)
       },
     },
     {

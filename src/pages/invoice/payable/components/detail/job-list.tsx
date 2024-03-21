@@ -14,7 +14,7 @@ import { Icon } from '@iconify/react'
 import { css, styled } from '@mui/system'
 import { InvoicePayableJobType } from '@src/types/invoice/payable.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { CurrencyType } from '@src/types/common/standard-price'
+
 import {
   formatCurrency,
   getCurrencyMark,
@@ -23,6 +23,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useRouter } from 'next/router'
 import { v4 as uuidv4 } from 'uuid'
+import { Currency } from '@src/types/common/currency.type'
 
 type Props = {
   data: {
@@ -30,7 +31,7 @@ type Props = {
     totalCount: number
     data: InvoicePayableJobType[]
   }
-  currency: CurrencyType | undefined
+  currency: Currency | undefined
   onRowClick: (id: number) => void
   selectedJobs: number[]
   setSelectedJobs: (id: number[]) => void
@@ -356,6 +357,7 @@ export default function InvoiceJobList({
 const HeaderCell = styled(TableCell)`
   height: 20px;
   position: relative;
+
   &::before {
     content: '';
     position: absolute;
@@ -372,18 +374,19 @@ const CustomTableRow = styled(TableRow)<{ $isDisabled?: boolean }>`
   ${({ $isDisabled }) =>
     $isDisabled
       ? css`
-      pointer-events:none;
-      position: relative;
-      width: 100%;
-      &::after {
-        content: "";
-        position: absolute;
+        pointer-events: none;
+        position: relative;
         width: 100%;
-        height:100%;
-        top: 0;
-        left: 0;
-        mix-blend-mode:multiply;
-        background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;
-  `
+
+        &::after {
+          content: "";
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          mix-blend-mode: multiply;
+          background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;
+      `
       : ``}
 `

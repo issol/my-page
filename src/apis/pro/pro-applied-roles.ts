@@ -2,14 +2,9 @@ import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   ProAppliedRolesFilterType,
-  ProAppliedRolesStatusType,
   ProAppliedRolesType,
 } from '@src/types/pro/pro-applied-roles'
-import {
-  ContractDetailType,
-  ContractParam,
-  currentVersionType,
-} from '../contract.api'
+import { ContractParam, currentVersionType } from '../contract.api'
 import dayjs from 'dayjs'
 
 export const getProAppliedRoles = async (

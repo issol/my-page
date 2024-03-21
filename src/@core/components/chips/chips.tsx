@@ -2,14 +2,8 @@ import CustomChip from '@src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 
-import { QuoteStatusType } from '@src/types/common/quotes.type'
-import {
-  InvoiceProStatusType,
-  InvoiceReceivableStatusCodeLabelMixType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
-import { RequestStatusType } from '@src/types/requests/common.type'
+
 import {
   getOrderStatusColor,
   getProAppliedRolesStatusColor,
@@ -17,14 +11,23 @@ import {
   getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
-import { OrderStatusType } from '@src/types/common/orders.type'
-import { statusType } from '@src/types/common/status.type'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
-import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
+
 import { TestStatusColor } from '@src/shared/const/chipColors'
 import { styled } from '@mui/system'
 import { OverridableStringUnion } from '@mui/types'
 import { ChipPropsColorOverrides } from '@mui/material/Chip/Chip'
+import {
+  AppliedRolesStatus,
+  InvoicePayableStatus,
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+  JobStatus,
+  OrderLabel,
+  OrderStatus,
+  QuotesStatusLabel,
+  RequestStatus,
+  StatusItem,
+} from '@src/types/common/status.type'
 
 export function renderStatusChip(status: string) {
   const statusColors: Record<
@@ -135,9 +138,9 @@ export const RoleChip = styled(Chip)<{ type: string }>`
     }
 
     return `
-      background: ${background};
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)) ${background};
       border-color: ${borderColor};
-      color: #111111; // 글자색 설정
+      color: #111111;
     `
   }}
 `
@@ -286,7 +289,7 @@ export const ExtraNumberChip = styled(Chip)`
 `
 
 export const OrderStatusChip = styled(Chip)<{
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
 }>`
   border: none;
   background: linear-gradient(
@@ -299,7 +302,7 @@ export const OrderStatusChip = styled(Chip)<{
 `
 
 export const QuoteStatusChip = styled(Chip)<{
-  status: QuoteStatusType
+  status: QuotesStatusLabel
 }>`
   border: none;
 
@@ -329,11 +332,8 @@ export const QuoteStatusChip = styled(Chip)<{
   }}
 `
 
-export function JobsStatusChip(
-  status: ProJobStatusType,
-  statusList: statusType[],
-) {
-  const statusColors: Record<ProJobStatusType, string> = {
+export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
+  const statusColors: Record<JobStatus, string> = {
     60000: '#F572D8', // 'In preparation'
     60100: '#A81988', // 'Requested'
     60110: '#6D788D', // 'Awaiting prior job'
@@ -370,7 +370,7 @@ export function JobsStatusChip(
   )
 }
 
-export function assignmentStatusChip(status: number, statusList: statusType[]) {
+export function assignmentStatusChip(status: number, statusList: StatusItem[]) {
   const statusColors: Record<string, string> = {
     70000: '#FDB528', // Requested
     70100: '#6AD721', // Request accepted
@@ -418,7 +418,7 @@ export function assignmentStatusChip(status: number, statusList: statusType[]) {
 
 export function invoicePayableStatusChip(
   status: number,
-  statusList: statusType[],
+  statusList: StatusItem[],
 ) {
   const statusColors: Record<string, string> = {
     40000: '#9B6CD8', // Invoiced
@@ -475,7 +475,7 @@ export function invoicePayableStatusChip(
 
 export function InvoiceReceivableChip(
   label: string,
-  status: InvoiceReceivableStatusType | InvoiceReceivableStatusCodeLabelMixType,
+  status: InvoiceReceivableStatusLabel & InvoiceReceivableStatus,
 ) {
   const color = getReceivableStatusColor(status)
 
@@ -496,7 +496,7 @@ export function InvoiceReceivableChip(
   )
 }
 
-export function InvoiceProChip(label: string, status: InvoiceProStatusType) {
+export function InvoiceProChip(label: string, status: InvoicePayableStatus) {
   const color = getProInvoiceStatusColor(status)
 
   return (
@@ -550,11 +550,8 @@ export function PermissionChip(permission: UserType) {
   )
 }
 
-export function ClientRequestStatusChip(
-  status: RequestStatusType,
-  label: string,
-) {
-  const statusColors: Record<RequestStatusType, string> = {
+export function ClientRequestStatusChip(status: RequestStatus, label: string) {
+  const statusColors: Record<RequestStatus, string> = {
     50001: '#A81988', // Custom color for status 50001
     50002: '#FDB528', // Custom color for status 50002
     50003: '#64C623', // Custom color for status 50003
@@ -577,7 +574,7 @@ export function ClientRequestStatusChip(
   )
 }
 
-export function ProJobStatusChip(label: string, status: ProJobStatusType) {
+export function ProJobStatusChip(label: string, status: JobStatus) {
   const color = getProJobStatusColor(status)
 
   return (
@@ -595,7 +592,7 @@ export function ProJobStatusChip(label: string, status: ProJobStatusType) {
 
 export function ProAppliedRolesStatusChip(
   label: string,
-  status: ProAppliedRolesStatusType,
+  status: AppliedRolesStatus,
 ) {
   const color = getProAppliedRolesStatusColor(status)
 

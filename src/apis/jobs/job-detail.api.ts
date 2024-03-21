@@ -1,17 +1,14 @@
 import axios from '@src/configs/axios'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+
 import {
-  JobAddProsFormType,
-  JobAssignProRequestsType,
-  JobBulkRequestFormType,
+  jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
-  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -20,6 +17,7 @@ import {
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
+import { JobStatus } from '@src/types/common/status.type'
 
 export const getAssignableProList = async (
   id: number,
@@ -125,7 +123,7 @@ export const saveJobInfo = async (
 
 // TODO: api url 수정 필요
 export const setJobStatus = async (id: number, status: number) => {
-  await axios.patch(`/api/enough/u/job/${id}/status`, { status: status })
+  await axios.patch(`/api/enough/u/job/${id}/set-status`, { status: status })
 }
 
 export const deleteJob = async (id: number) => {
@@ -401,7 +399,7 @@ export const getProJobDetail = async (
 
 export const patchProJobDetail = async (
   id: number,
-  params: { status: ProJobStatusType },
+  params: { status: JobStatus },
 ) => {
   await axios.patch(`/api/enough/u/job/${id}`, { ...params })
 }
@@ -422,19 +420,6 @@ export const getProJobDeliveriesFeedbacks = async (
   )
 
   return data
-  // return {
-  //   deliveries: data.deliveries,
-  //   feedbacks: [
-  //     {
-  //       id: 1,
-  //       isChecked: true,
-  //       name: 'Master (D) K',
-  //       email: 'd_master_1@glozinc.com',
-  //       createdAt: '2023-09-18T01:44:49.997Z',
-  //       feedback: 'rishatest',
-  //     },
-  //   ],
-  // }
 }
 
 export const postProJobDeliveries = async (params: {

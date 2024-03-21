@@ -16,11 +16,10 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  UseFormWatch,
 } from 'react-hook-form'
 
 // ** types
-import { ItemType, PostItemType } from '@src/types/common/item.type'
+import { ItemType } from '@src/types/common/item.type'
 
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -29,13 +28,11 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { MemberType } from '@src/types/schema/project-team.schema'
 import { languageType } from '@src/pages/quotes/add-new'
 import {
-  CurrencyType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 
 // ** helpers
-
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
@@ -43,15 +40,11 @@ import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** helpers
-
 import Link from 'next/link'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 
-import {
-  formatCurrency,
-  getCurrencyMark,
-} from '@src/shared/helpers/price.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
@@ -185,17 +178,18 @@ export default function ItemForm({
           pair => itemPriceId === pair.id!,
         )
         // 첫번째 item과 Currency가 다른 item을 찾아 priceId를 null 처리한다.
-        if (
-          itemPrice[0]?.currency &&
-          baseCurrency !== itemPrice[0]?.currency
-        ) {
+        if (itemPrice[0]?.currency && baseCurrency !== itemPrice[0]?.currency) {
           setValue(`items.${idx}.priceId`, null, setValueOptions)
           isUpdate = true
         }
         // 첫번째 item과 Currency가 다른 item 중 Not Applicable을 사용하는 경우, price unit의 currency를 baseCurrency로 변경한다.
         if (item.priceId === -1 && item.currency !== baseCurrency) {
           item.detail?.map((priceUnit, priceUnitIdx) => {
-            setValue(`items.${idx}.detail.${priceUnitIdx}.currency`, baseCurrency, setValueOptions)
+            setValue(
+              `items.${idx}.detail.${priceUnitIdx}.currency`,
+              baseCurrency,
+              setValueOptions,
+            )
           })
           setValue(`items.${idx}.currency`, baseCurrency, setValueOptions)
         }

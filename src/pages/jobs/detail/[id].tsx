@@ -22,15 +22,9 @@ import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
-import useModal from '@src/hooks/useModal'
-import InfoDialogButton from '@src/views/pro/infoDialog'
+import { StatusItem } from '@src/types/common/status.type'
 import { JobListFilterType } from '../requested-ongoing-list'
-import {
-  JobPricesDetailType,
-  jobPriceHistoryType,
-} from '@src/types/jobs/jobs.type'
-
+import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
 type MenuType = 'jobInfo' | 'feedback'
 
 const keysJobDetailDots = [
@@ -50,9 +44,7 @@ const excludedStatuses = [
 const ProJobsDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
-
   const { id, assigned, tab } = router.query
-
   const [value, setValue] = useState<MenuType>('jobInfo')
   const [statusList, setStatusList] = useState<Array<statusType>>([])
   const { openModal, closeModal } = useModal()
@@ -73,10 +65,8 @@ const ProJobsDetail = () => {
   // @ts-ignore
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
-    !!(assigned && assigned === 'false'),
-  ) as {
-    data: JobPricesDetailType | jobPriceHistoryType
-  }
+    assigned && assigned === 'false' ? true : false,
+  ) as { data: JobPricesDetailType | jobPriceHistoryType }
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
   const {
@@ -84,9 +74,8 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setValue(newValue)
-  }
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
+
   const onClickBack = () => {
     router.push(`/jobs?tab=${tab}`)
   }
@@ -127,20 +116,7 @@ const ProJobsDetail = () => {
             <Icon icon='ic:sharp-arrow-back-ios' fontSize={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography
-            variant='h5'
-            fontWeight={500}
-          >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
-          <Box display='flex' position='relative'>
-            <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
-            <div style={{ position: 'absolute', top: 0, left: 36 }}>
-              <InfoDialogButton
-                title='Connected jobs'
-                style={{ position: 'absolute', top: 0, left: 0 }}
-                contents='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
-              />
-            </div>
-          </Box>
+          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (

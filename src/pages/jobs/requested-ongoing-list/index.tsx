@@ -11,7 +11,7 @@ import {
 import { useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
+import { StatusItem } from '@src/types/common/status.type'
 
 const defaultValues: FilterType = {
   jobDueDate: [],
@@ -68,7 +68,7 @@ const RequestedOngoingList = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)

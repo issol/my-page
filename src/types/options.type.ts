@@ -1,5 +1,5 @@
-import { RequestStatusType } from './requests/common.type'
 import { CountryType } from './sign/personalInfoTypes'
+import { RequestStatus } from '@src/types/common/status.type'
 
 export type UnitOptionType = {
   id: number
@@ -25,5 +25,5 @@ export type CompanyOptionType = {
 export type ClientRequestListType = {
   id: number
   statusCode: number
-  statusName: RequestStatusType
+  statusName: RequestStatus
 }

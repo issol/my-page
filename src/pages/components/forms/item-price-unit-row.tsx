@@ -3,7 +3,6 @@ import {
   Box,
   IconButton,
   TableCell,
-  TableRow,
   TextField,
   Typography,
 } from '@mui/material'
@@ -31,11 +30,9 @@ import {
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
-import {
-  CurrencyType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { Currency } from '@src/types/common/currency.type'
 
 interface Props {
   idx: number
@@ -75,7 +72,7 @@ interface Props {
   showCurrency?: boolean
   initialPriceName: `items.${number}.initialPrice`
   onChangeCurrency: (
-    currency: CurrencyType,
+    currency: Currency,
     index: number,
     detail: Array<ItemDetailType>,
     // detail: FieldArrayWithId<

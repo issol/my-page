@@ -1,5 +1,4 @@
 import axios from 'src/configs/axios'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { UserDataType } from '@src/context/types'
 import { v4 as uuidv4 } from 'uuid'
@@ -11,7 +10,6 @@ import {
 } from '@src/types/common/orders-and-quotes.type'
 import {
   ProjectInfoType,
-  QuoteStatusType,
   QuotesListType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
@@ -24,8 +22,8 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { CancelReasonType } from '@src/types/requests/detail.type'
 import { updateProjectInfoType } from '@src/pages/quotes/detail/[id]'
+import { getColorQuoteStatusLabelName } from '@src/shared/helpers/colors.helper'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -54,38 +52,6 @@ export const getQuotesList = async (
   }
 }
 
-function getColor(status: QuoteStatusType) {
-  return status === 'New'
-    ? '#666CFF'
-    : status === 'In preparation'
-    ? `#F572D8`
-    : status === 'Internal review'
-    ? `#D8AF1D`
-    : status === 'Client review'
-    ? `#FDB528`
-    : status === 'Expired'
-    ? '#FF4D49'
-    : status === 'Rejected'
-    ? '#FF4D49'
-    : status === 'Accepted'
-    ? '#64C623'
-    : status === 'Changed into order'
-    ? '#1A6BBA'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : status === 'Under review'
-    ? '#FDB528'
-    : status === 'Revised'
-    ? '#AD7028'
-    : status === 'Revision requested'
-    ? '#A81988'
-    : status === 'Under revision'
-    ? '#26C6F9'
-    : status === 'Quote sent'
-    ? '#2B6603'
-    : ''
-}
-
 export const getQuotesCalendarData = async (
   year: number,
   month: number,
@@ -101,7 +67,7 @@ export const getQuotesCalendarData = async (
         return {
           ...item,
           extendedProps: {
-            calendar: getColor(item.status),
+            calendar: getColorQuoteStatusLabelName(item.status),
           },
           allDay: true,
         }

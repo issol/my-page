@@ -1,17 +1,17 @@
 import { FileType } from '../common/file.type'
 import { ItemDetailType } from '../common/item.type'
-import { CurrencyType } from '../common/standard-price'
-import { statusType } from '../common/status.type'
+
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
-import { ProJobStatusType } from './common.type'
+
 import { PriceType } from '../common/orders-and-quotes.type'
-// import { JobStatusType } from './common.type'
+import { JobStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
-  status: ProJobStatusType
+  status: JobStatus
   name: string
   jobName?: string
   category: string // order의 category
@@ -19,7 +19,7 @@ export type JobsListType = {
   startedAt: string
   dueAt: string
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   // order: OrderDetailType
   orderId: number
   client: {
@@ -40,7 +40,7 @@ export type JobsTrackerListType = {
   name: string //work name
   category: string
   serviceType: string[]
-  currency: CurrencyType
+  currency: Currency
   totalPrice: number //해당 Currency를 기준으로 환율 계산 Order date 날짜의 환율을 기준으로 함
 }
 
@@ -73,29 +73,6 @@ export type JobHistoryType = {
   requestedAt: string
 }
 
-export type JobInfoDetailType = {
-  id: number
-  corporationId: string
-  name: string
-  status: Array<statusType>
-  contactPersonId: number
-  serviceType: string
-  sourceLanguage: string
-  targetLanguage: string
-  startedAt: string
-  dueAt: string
-  startTimezone: CountryType
-  dueTimezone: CountryType
-  description: string
-  isShowDescription: boolean
-  files: Array<{
-    name: string
-    size: number
-    file: string // s3 key
-    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-  }>
-}
-
 export type JobPricesDetailType = {
   id: number
   source: string
@@ -104,7 +81,7 @@ export type JobPricesDetailType = {
   targetLanguage?: string
   priceId: number | null
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   priceName: string
   isUsedCAT: boolean
   datas?: Array<{
@@ -164,8 +141,8 @@ export type ProJobListType = {
   serviceType: string
   name: string
   dueAt: string
-  status: ProJobStatusType
-  currency: CurrencyType
+  status: JobStatus
+  currency: Currency
   lightUpDot: boolean
   totalPrice: string
   message: {
@@ -202,7 +179,7 @@ export type ProJobDetailType = {
   id: number
   corporationId: string
   name: string
-  status: ProJobStatusType
+  status: JobStatus
 
   order: {
     client: {

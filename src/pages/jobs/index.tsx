@@ -19,9 +19,12 @@ import RequestedOngoingList, {
 import DeliveredInactiveList, {
   completedDefaultFilters,
 } from './delivered-inactive-list'
-import { useGetProJobList } from '@src/queries/jobs/jobs.query'
+import {
+  useGetProJobClientList,
+  useGetProJobList,
+} from '@src/queries/jobs/jobs.query'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { useRouter } from 'next/router'
-import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'requested' | 'completed'
 
@@ -61,8 +64,7 @@ const Jobs = () => {
   }, [completedJob, ongoingJob])
 
   useEffect(() => {
-    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed'))
-      setValue(tabQuery)
+    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed')) setValue(tabQuery)
   }, [tabQuery])
 
   return (

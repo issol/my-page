@@ -1,11 +1,8 @@
 import { ClientRowType } from '@src/apis/client.api'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
-import {
-  RequestItemFormPayloadType,
-  RequestItemFormType,
-  RequestStatusType,
-} from './common.type'
+import { RequestItemFormPayloadType } from './common.type'
 import { ClientAddressType } from '../schema/client-address.schema'
+import { RequestStatus } from '@src/types/common/status.type'
 
 export type RequestDetailType = {
   id: number
@@ -13,7 +10,7 @@ export type RequestDetailType = {
   lsp: { id: string; name: string; email: string }
   contactPerson: ContactPersonType
   client: ClientRowType & { addresses?: ClientAddressType[] } //lpm에게만 오는 데이터
-  status: RequestStatusType
+  status: RequestStatus
   items: Array<RequestItemFormPayloadType & { id: number }>
   sampleFiles?: Array<{
     id?: number

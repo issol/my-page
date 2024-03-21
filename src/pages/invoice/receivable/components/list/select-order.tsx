@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { ChangeEvent, ChangeEventHandler, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -7,17 +7,12 @@ import {
   Autocomplete,
   Box,
   Button,
-  Card,
   Checkbox,
-  Divider,
   FormControl,
   Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
   OutlinedInput,
-  Radio,
-  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -25,21 +20,14 @@ import {
 import {
   DataGrid,
   GRID_CHECKBOX_SELECTION_COL_DEF,
-  GridCellCheckboxRenderer,
-  GridColumnHeaderParams,
   GridColumns,
-  GridHeaderCheckbox,
   GridSelectionModel,
-  GridValidRowModel,
-  GridValueGetterParams,
-  selectedIdsLookupSelector,
 } from '@mui/x-data-grid'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
 // ** components
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // ** apis
@@ -48,17 +36,15 @@ import { useGetOrderList } from '@src/queries/order/order.query'
 // ** types
 import {
   InvoiceOrderListFilterType,
-  OrderListFilterType,
   OrderListType,
 } from '@src/types/orders/order-list'
 import { Controller, useForm } from 'react-hook-form'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import NoList from '@src/pages/components/no-list'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { addOrderToInvoice } from '@src/apis/invoice/common.api'
-import { CurrencyType } from '@src/types/common/standard-price'
+import { Currency } from '@src/types/common/currency.type'
 
 const initialFilter: InvoiceOrderListFilterType = {
   search: '',
@@ -103,7 +89,7 @@ type Props = {
   invoiceId?: number
   invoiceClient?: number
   invoiceRevenueFrom?: string
-  invoiceCurrency?: CurrencyType
+  invoiceCurrency?: Currency
 }
 
 export default function SelectOrder({
@@ -551,7 +537,11 @@ export default function SelectOrder({
                               id='client'
                               getOptionLabel={option => option.label}
                               renderInput={params => (
-                                <TextField {...params} autoComplete='off' label='Client' />
+                                <TextField
+                                  {...params}
+                                  autoComplete='off'
+                                  label='Client'
+                                />
                               )}
                             />
                           )
@@ -570,8 +560,8 @@ export default function SelectOrder({
                               a.value > b.value
                                 ? 1
                                 : b.value > a.value
-                                ? -1
-                                : 0,
+                                  ? -1
+                                  : 0,
                             )}
                             value={value ?? null}
                             onChange={(e, v) => onChange(v)}
@@ -621,7 +611,11 @@ export default function SelectOrder({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Status' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Status'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

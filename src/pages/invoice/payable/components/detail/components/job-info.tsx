@@ -13,14 +13,13 @@ import { timezoneSelector } from '@src/states/permission'
 
 // ** types
 import { JobType } from '@src/types/common/item.type'
-import { statusType } from '@src/types/common/status.type'
 
 import { useRecoilValueLoadable } from 'recoil'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { JobStatus, StatusItem } from '@src/types/common/status.type'
 
 type Props = {
   row: JobType
-  jobStatusList: Array<statusType>
+  jobStatusList: Array<StatusItem>
 }
 const ViewJobInfo = ({ row, jobStatusList }: Props) => {
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -51,7 +50,7 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
               >
                 Status
               </Typography>
-              {JobsStatusChip(row.status as ProJobStatusType, jobStatusList)}
+              {JobsStatusChip(row.status as JobStatus, jobStatusList)}
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               <Typography

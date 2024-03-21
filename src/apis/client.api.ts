@@ -1,5 +1,4 @@
 import axios from 'src/configs/axios'
-import logger from '@src/@core/utils/logger'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { FilterType } from '@src/pages/client'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
@@ -33,9 +32,13 @@ import {
   getQuoteStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
-import { QuotesStatusType } from '@src/types/common/quotes.type'
-import { OrderStatusType } from '@src/types/common/orders.type'
+
 import { FileType } from '@src/types/common/file.type'
+import {
+  OrderLabel,
+  OrderStatus,
+  QuotesStatus,
+} from '@src/types/common/status.type'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -319,8 +322,8 @@ export const getClientProjectsCalendarData = async (
           extendedProps: {
             calendar:
               item.type === 'order'
-                ? getOrderStatusColor(item.status as OrderStatusType)
-                : getQuoteStatusColor(item.status as QuotesStatusType),
+                ? getOrderStatusColor(item.status as OrderStatus & OrderLabel)
+                : getQuoteStatusColor(item.status as QuotesStatus),
           },
           allDay: true,
         }

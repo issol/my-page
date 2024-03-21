@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Typography } from '@mui/material'
 
 // ** components
 import Calendar from './calendar'
@@ -30,23 +28,18 @@ import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
 import PayableList from '../list/list'
 
 // ** values
-import { InvoicePayableCalendarStatus } from '@src/shared/const/status/statuses'
 import { useGetStatusList } from '@src/queries/common.query'
 import {
   getPayableColor,
   getProInvoiceStatusColor,
 } from '@src/shared/helpers/colors.helper'
-import {
-  InvoicePayableStatusType,
-  InvoiceProStatusType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
+
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-payable'
-import { time } from 'console'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 export type Role = 'pro' | 'lpm'
 type Props = {
@@ -79,8 +72,8 @@ const CalendarContainer = ({ type }: Props) => {
     label: i.label,
     color:
       type === 'lpm'
-        ? getPayableColor(i.value as InvoicePayableStatusType)
-        : getProInvoiceStatusColor(i.value as InvoiceProStatusType),
+        ? getPayableColor(i.value as InvoicePayableStatus)
+        : getProInvoiceStatusColor(i.value as InvoicePayableStatus),
   }))
 
   const [skip, setSkip] = useState(0)

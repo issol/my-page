@@ -46,7 +46,6 @@ import {
   PayableFormType,
 } from '@src/types/invoice/payable.type'
 
-
 // ** apis
 import {
   useCheckInvoicePayableEditable,
@@ -67,11 +66,11 @@ import {
   account_manage,
   invoice_payable,
 } from '@src/shared/const/permission-class'
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+
 import { fixDigit } from '@src/shared/helpers/price.helper'
 import ModalWithDatePicker from '@src/pages/client/components/modals/modal-with-datepicker'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type MenuType = 'info' | 'history'
 
@@ -134,7 +133,7 @@ export default function PayableDetail() {
   )
 
   const updateStatusMutation = useMutation(
-    (data: { id: number; status: InvoicePayableStatusType }) =>
+    (data: { id: number; status: InvoicePayableStatus }) =>
       updateInvoicePayable(data.id, { invoiceStatus: data.status }),
     {
       onSuccess: () => {
@@ -311,10 +310,15 @@ export default function PayableDetail() {
 
   const updateInvoicePaidStatusMutation = useMutation(
     (data: {
-      payableId: number;
-      paidAt: string;
-      paidDateTimezone: CountryType;
-    }) => updateInvoicePaidStatus(data.payableId, data.paidAt, data.paidDateTimezone),
+      payableId: number
+      paidAt: string
+      paidDateTimezone: CountryType
+    }) =>
+      updateInvoicePaidStatus(
+        data.payableId,
+        data.paidAt,
+        data.paidDateTimezone,
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })

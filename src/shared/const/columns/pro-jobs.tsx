@@ -82,12 +82,10 @@ export const getProJobColumns = (
     })
   }
 
-  const getJobDateDiff = (
-    jobDueDate: string,
-    useRemainingTime: Boolean,
-    deliveredDate?: string,
-  ) => {
-    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
+  const getJobDateDiff = (jobDueDate: string, useRemainingTime: Boolean, deliveredDate?: string) => {
+    const now = deliveredDate
+      ? dayjs(deliveredDate)
+      : dayjs()
 
     const dueDate = dayjs(jobDueDate)
 

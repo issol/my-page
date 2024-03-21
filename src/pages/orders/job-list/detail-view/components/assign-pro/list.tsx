@@ -21,7 +21,7 @@ import {
   AssignProListType,
 } from '@src/types/orders/job-detail'
 import { Dispatch, SetStateAction } from 'react'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { JobStatus } from '@src/types/common/status.type'
 
 type Props = {
   listCount: number
@@ -128,7 +128,7 @@ const AssignProList = ({
                 sx={{ height: '30px' }}
                 disabled={[
                   60400, 60500, 60600, 60700, 60800, 60900, 601000,
-                ].includes(jobInfo.status as ProJobStatusType)} //Partially delivered, delivered, Approved, Invoiced, without invoice, paid, canceled
+                ].includes(jobInfo.status as JobStatus)} //Partially delivered, delivered, Approved, Invoiced, without invoice, paid, canceled
                 onClick={() => onClickRequestJob('re-assign')}
               >
                 &nbsp; Re-assign

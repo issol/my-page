@@ -38,7 +38,7 @@ import {
 } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { statusType } from '@src/types/common/status.type'
+
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import {
   ProJobDeliveryType,
@@ -50,7 +50,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import JobFeedback from '../../../components/job-feedback'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { JobStatus, StatusItem } from '@src/types/common/status.type'
 
 type Props = {
   row: JobType
@@ -111,7 +111,7 @@ const ViewJobInfo = ({
   setJobId,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(
+  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<StatusItem>>(
     statusList!,
   )
   const [useJobFeedbackForm, setUseJobFeedbackForm] = useState<boolean>(false)
@@ -588,7 +588,7 @@ const ViewJobInfo = ({
                 Status
               </Typography>
               {type === 'history' ? (
-                JobsStatusChip(row.status as ProJobStatusType, statusList!)
+                JobsStatusChip(row.status as JobStatus, statusList!)
               ) : (
                 <Select
                   value={String(row.status)}

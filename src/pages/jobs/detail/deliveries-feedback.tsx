@@ -22,12 +22,8 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
-import {
-  JobsFileType,
-  ProJobDeliveryType,
-  ProJobDetailType,
-} from '@src/types/jobs/jobs.type'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { JobsFileType, ProJobDeliveryType, ProJobDetailType } from '@src/types/jobs/jobs.type'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import PartialDeliveryModal from './components/modal/partial-delivery-modal'
@@ -232,7 +228,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         .reduce((acc: File[], file: File) => {
           let result = 0
           acc.concat(file).forEach((file: FileType) => (result += file.size))
-          console.log('file size', result, MAXIMUM_FILE_SIZE)
+          console.log("file size",result,MAXIMUM_FILE_SIZE)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
@@ -424,9 +420,8 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
               >
                 <Typography variant='h6'>Deliveries</Typography>
-                <Typography variant='body2' fontSize='12px'>
-                  {formatFileSize(fileSize + deliveryFileSize)}/
-                  {byteToGB(MAXIMUM_FILE_SIZE)}
+                <Typography variant='body2'>
+                  {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (

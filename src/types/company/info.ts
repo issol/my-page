@@ -27,7 +27,6 @@ export type CompanyAddressFormType = {
     value: string
     label: string
   }
-
   zipCode?: string
 }
 

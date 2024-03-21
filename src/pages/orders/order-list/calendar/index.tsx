@@ -1,21 +1,17 @@
 // ** React Imports
-import { ChangeEvent, Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
 
 // ** components
-
 // ** Hooks
 import { useSettings } from '@src/@core/hooks/useSettings'
 
 // ** FullCalendar & App Components Imports
 import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
-
-import { Typography } from '@mui/material'
 
 import { OrderListCalendarEventType } from '@src/apis/order/order-list.api'
 import {
@@ -32,10 +28,10 @@ import { useGetStatusList } from '@src/queries/common.query'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import Calendar from './order-list-calendar-view'
-import { OrderStatusType } from '@src/types/common/orders.type'
+
 import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
-import { hide } from '@popperjs/core'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { OrderLabel, OrderStatus } from '@src/types/common/status.type'
 
 const defaultFilters: OrderListFilterType = {
   hideCompleted: '0',
@@ -132,8 +128,8 @@ const OrderListCalendar = () => {
       const res = statusList.map(value => ({
         ...value,
         color: getOrderStatusColor(
-          value.value as OrderStatusType,
-          value.label as OrderStatusType,
+          value.value as OrderStatus & OrderLabel,
+          value.label as OrderStatus & OrderLabel,
         ),
       }))
       setStatuses(res)

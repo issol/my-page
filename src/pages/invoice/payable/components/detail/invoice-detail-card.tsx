@@ -29,10 +29,6 @@ import {
   getInvoiceDetailInfoSchema,
   invoiceDetailInfoDefaultValue,
 } from '@src/types/schema/invoice-detail-info.schema'
-import {
-  InvoicePayableStatusType,
-  InvoiceProStatusType,
-} from '@src/types/invoice/common.type'
 
 // ** react hook form
 import { Resolver, useForm } from 'react-hook-form'
@@ -57,6 +53,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { useRouter } from 'next/router'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type Props = {
   isUpdatable: boolean
@@ -108,7 +105,7 @@ export default function InvoiceDetailCard({
       reset({
         taxInfo: data.taxInfo,
         taxRate: data.taxRate,
-        invoiceStatus: data.invoiceStatus as InvoicePayableStatusType,
+        invoiceStatus: data.invoiceStatus as InvoicePayableStatus,
         payDueAt: data.payDueAt,
         payDueTimezone: data.payDueTimezone,
         paidAt: data.paidAt,
@@ -123,7 +120,10 @@ export default function InvoiceDetailCard({
     const changedData = []
     if (data) {
       for (const key in saveData) {
-        if (saveData[key as keyof PayableFormType] !== data[key as keyof PayableFormType]) {
+        if (
+          saveData[key as keyof PayableFormType] !==
+          data[key as keyof PayableFormType]
+        ) {
           changedData.push(key)
         }
       }
@@ -145,7 +145,7 @@ export default function InvoiceDetailCard({
             if (!updatePayable) return
             updatePayable.mutate(getValues())
             // Save 할때 status를 under revision으로 변경해 준다
-            // 만약 계정이 Accounting팀 계정이고 
+            // 만약 계정이 Accounting팀 계정이고
             // payDueAt, payDueTimezone, paidAt, paidDateTimezone중 하나라도 변경되었을 경우엔 status를 변경하지 않는다
             const isDataChanged = changedDataChecker()
             if (isDataChanged.isChanged) {
@@ -170,7 +170,7 @@ export default function InvoiceDetailCard({
     })
   }
 
-  function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatusType) {
+  function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatus) {
     if (!updatePayable) return
     updatePayable.mutate({ invoiceStatus })
   }
@@ -192,7 +192,7 @@ export default function InvoiceDetailCard({
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice details</Typography>
             {(isUpdatable && data?.invoiceStatus !== 40300) ||
-              isAccountManager ? ( //Paid
+            isAccountManager ? ( //Paid
               <IconButton onClick={onClickInvoiceDetailEdit}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
@@ -234,7 +234,7 @@ export default function InvoiceDetailCard({
                               taxInfo: data.taxInfo,
                               taxRate: data.taxRate,
                               invoiceStatus:
-                                data.invoiceStatus as InvoicePayableStatusType,
+                                data.invoiceStatus as InvoicePayableStatus,
                               payDueAt: data.payDueAt,
                               payDueTimezone: data.payDueTimezone,
                               paidAt: data.paidAt,
@@ -309,14 +309,14 @@ export default function InvoiceDetailCard({
                     currentRole.name === 'ACCOUNT_MANAGER') ? (
                     <Box sx={{ width: '50%' }}>
                       {invoicePayableStatusChip(
-                        data?.invoiceStatus as InvoicePayableStatusType,
+                        data?.invoiceStatus as InvoicePayableStatus,
                         statusList,
                       )}
                     </Box>
                   ) : currentRole && currentRole.name === 'PRO' ? (
                     <Box sx={{ width: '50%' }}>
                       {invoicePayableStatusChip(
-                        data?.invoiceStatus as InvoiceProStatusType,
+                        data?.invoiceStatus as InvoicePayableStatus,
                         statusList,
                       )}
                     </Box>

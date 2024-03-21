@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Typography } from '@mui/material'
 
 // ** components
 import ReceivableCalendar from './calendar'
@@ -24,23 +22,15 @@ import { CalendarEventType } from '@src/types/common/calendar.type'
 
 // ** apis
 import ProInvoiceList from '../list/list'
-import {
-  InvoicePayableStatusType,
-  InvoiceReceivableStatusType,
-  ProInvoiceListFilterType,
-  ProInvoiceListType,
-} from '@src/types/invoice/common.type'
-import { useGetStatusList } from '@src/queries/common.query'
-import {
-  getPayableColor,
-  getReceivableStatusColor,
-} from '@src/shared/helpers/colors.helper'
+
+import { getPayableColor } from '@src/shared/helpers/colors.helper'
 import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
 import {
   InvoicePayableFilterType,
   InvoicePayableListType,
 } from '@src/types/invoice/payable.type'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type Props = {
   statusList: Array<{
@@ -73,7 +63,7 @@ const CalendarContainer = ({ statusList, userId }: Props) => {
   const statuses = statusList?.map(i => ({
     value: i.value,
     label: i.label,
-    color: getPayableColor(i.value as InvoicePayableStatusType),
+    color: getPayableColor(i.value as InvoicePayableStatus),
   }))
 
   const [year, setYear] = useState(new Date().getFullYear())

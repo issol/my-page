@@ -1,7 +1,6 @@
-import { CurrencyType } from '@src/types/common/standard-price'
-import { InvoicePayableStatusType, InvoiceProStatusType } from './common.type'
 import { CountryType } from '../sign/personalInfoTypes'
-import { LanguageAndItemType } from '../orders/order-detail'
+import { Currency } from '@src/types/common/currency.type'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 export type InvoicePayableFilterType = {
   invoiceStatus?: number[]
@@ -25,7 +24,7 @@ export type InvoicePayableListType = {
   id: number
   adminCompanyName: string
   corporationId: string
-  invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
+  invoiceStatus: InvoicePayableStatus
   pro?: { name: string; email: string }
   invoicedAt: string
   payDueAt?: string
@@ -33,14 +32,14 @@ export type InvoicePayableListType = {
   paidAt: string | null
   paidDateTimezone: CountryType | null
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   statusUpdatedAt: string
 }
 
 export type PayableFormType = {
   taxInfo?: string
   taxRate?: string | null
-  invoiceStatus?: InvoicePayableStatusType | InvoiceProStatusType
+  invoiceStatus?: InvoicePayableStatus
   payDueAt?: string
   payDueTimezone?: CountryType
   paidAt?: string | null
@@ -58,7 +57,7 @@ export type InvoicePayableDetailType = {
   corporationId: string
   invoicedAt: string
   invoicedTimezone: CountryType
-  invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
+  invoiceStatus: InvoicePayableStatus
 
   pro?: {
     id: number
@@ -82,7 +81,7 @@ export type InvoicePayableDetailType = {
   paidAt: string | null
   paidDateTimezone: CountryType | null
   description: string
-  currency: CurrencyType
+  currency: Currency
   subtotal: number
   totalPrice: number
   tax: string | null
@@ -116,7 +115,7 @@ export type PayableHistoryType = {
   corporationId: string
   invoicedAt: string
   invoicedTimezone: CountryType
-  invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
+  invoiceStatus: InvoicePayableStatus
   invoiceConfirmedAt: string | null
   invoiceConfirmTimezone?: CountryType
   pro?: { name: string; email: string; id: number }
@@ -127,7 +126,7 @@ export type PayableHistoryType = {
   paidAt: string | null
   paidDateTimezone: CountryType | null
   description: string
-  currency: CurrencyType
+  currency: Currency
   subtotal: number
   totalPrice: number
   tax: string
@@ -168,5 +167,5 @@ export type InvoicePayableDownloadData = {
   tax: string | null
   taxRate: string
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
 }

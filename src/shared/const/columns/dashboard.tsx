@@ -40,10 +40,13 @@ import {
   OrderChipLabel,
 } from '@src/shared/const/dashboard/chip'
 
-import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { useRouter } from 'next/router'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
+import {
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+  JobStatus,
+} from '@src/types/common/status.type'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -550,7 +553,7 @@ export const StatusJobColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>status</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
-      const status = row?.status as ProJobStatusType
+      const status = row?.status as JobStatus
       return <div>{JobsStatusChip(status, JobStatusList)}</div>
     },
   },
@@ -940,7 +943,8 @@ export const ReceivableColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      const status = row.status as InvoiceReceivableStatusType
+      const status = row.status as InvoiceReceivableStatusLabel &
+        InvoiceReceivableStatus
       if (!status) return <Box>-</Box>
       return (
         <Box>{InvoiceReceivableChip(InvoiceReceivable[status], status)}</Box>

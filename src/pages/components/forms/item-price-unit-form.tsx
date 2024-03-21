@@ -2,13 +2,7 @@
 import { useRef, useState } from 'react'
 
 // ** styled components
-import Paper from '@mui/material/Paper'
-import Table from '@mui/material/Table'
-import TableRow from '@mui/material/TableRow'
-import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 
 // ** Icon Imports
@@ -16,7 +10,6 @@ import Icon from '@src/@core/components/icon'
 
 // ** types
 import {
-  CurrencyType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
@@ -51,6 +44,7 @@ import { styled } from '@mui/material/styles'
 import _ from 'lodash'
 import { languageType } from '@src/pages/quotes/add-new'
 import Row from './item-price-unit-row'
+import { Currency } from '@src/types/common/currency.type'
 
 type Props = {
   control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
@@ -85,7 +79,7 @@ type Props = {
   onDeletePriceUnit: (priceUnitId: number) => void
   onDeleteNoPriceUnit: (index: number) => void
   onChangeCurrency: (
-    currency: CurrencyType,
+    currency: Currency,
     index: number,
     detail: Array<ItemDetailType>,
     // detail: FieldArrayWithId<

@@ -16,8 +16,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { Dispatch, useState } from 'react'
-
+import React, { Dispatch, useState, SyntheticEvent } from 'react'
+import { JobStatus } from '@src/types/common/status.type'
 import { JobsStatusChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -123,9 +123,9 @@ export const DeleteMode = ({
 }
 
 interface ManageStatusModeProps extends ModeProps {
-  changeJobStatus: ProJobStatusType | null
+  changeJobStatus: JobStatus | null
   statusList?: Array<{ value: number; label: string }>
-  setChangeJobStatus: Dispatch<ProJobStatusType | null>
+  setChangeJobStatus: Dispatch<JobStatus | null>
   selected: readonly number[]
   isStatusUpdatable: (changeStatus: number) => {
     isUpdatable: boolean
@@ -238,7 +238,7 @@ export const ManageStatusMode = ({
       target: { value },
     } = event
 
-    setChangeJobStatus(Number(value) as ProJobStatusType)
+    setChangeJobStatus(Number(value) as JobStatus)
   }
 
   return (
@@ -264,16 +264,13 @@ export const ManageStatusMode = ({
             input={<OutlinedInput />}
             renderValue={selected => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {JobsStatusChip(
-                  Number(selected) as ProJobStatusType,
-                  statusList!,
-                )}
+                {JobsStatusChip(Number(selected) as JobStatus, statusList!)}
               </Box>
             )}
           >
             {statusList?.map(status => (
               <MenuItem key={status.value} value={status.value}>
-                {JobsStatusChip(status.value as ProJobStatusType, statusList!)}
+                {JobsStatusChip(status.value as JobStatus, statusList!)}
               </MenuItem>
             ))}
           </Select>
