@@ -24,7 +24,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
-import { JobsFileType, ProJobDetailType } from '@src/types/jobs/jobs.type'
+import { JobsFileType, ProJobDeliveryType, ProJobDetailType } from '@src/types/jobs/jobs.type'
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
@@ -106,6 +106,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   const [files, setFiles] = useState<File[]>([])
   const [fileSize, setFileSize] = useState(0)
+  const [deliveryFileSize, setDeliveryFileSize] = useState(0)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setWithoutFiles(event.target.checked)
@@ -224,14 +225,15 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          let result = fileSize
+          let result = 0
           acc.concat(file).forEach((file: FileType) => (result += file.size))
+          console.log("file size",result,MAXIMUM_FILE_SIZE)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
               children: (
                 <AlertModal
-                  title='The maximum file size you can upload is 2gb.'
+                  title='The maximum file size you can upload is 100GB.'
                   onClick={() => closeModal('AlertMaximumFileSizeModal')}
                   vary='error'
                   buttonText='Okay'
@@ -264,10 +266,26 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   useEffect(() => {
     let result = 0
-    files.forEach((file: FileType) => (result += file.size))
+    files.forEach((file: FileType) => (result += Number(file.size)))
 
     setFileSize(result)
   }, [files])
+
+  useEffect(() => {
+    if (data?.deliveries) {
+      setDeliveryFileSize(getDeliveryFileSize(data?.deliveries))
+    }
+  }, [data])
+
+  const getDeliveryFileSize = (deliveries: ProJobDeliveryType[]) => {
+    let result = 0
+    deliveries.forEach((delivery: ProJobDeliveryType) => {
+      delivery.files.forEach((file: JobsFileType) => {
+        result += Number(file.size)
+      })
+    })
+    return result
+  }
 
   const onSubmit = (deliveryType: 'final' | 'partial') => {
     closeModal('DeliverToClientModal')
@@ -402,7 +420,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               >
                 <Typography variant='h6'>Deliveries</Typography>
                 <Typography variant='body2'>
-                  {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(

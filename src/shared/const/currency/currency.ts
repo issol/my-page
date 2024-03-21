@@ -1,6 +1,6 @@
-import { CurrencyType } from '@src/types/common/standard-price'
+import { Currency } from '@src/types/common/currency.type'
 
-export const CurrencyList: { label: string; value: CurrencyType }[] = [
+export const CurrencyList: { label: string; value: Currency }[] = [
   { label: '$ USD', value: 'USD' },
   { label: '₩ KRW', value: 'KRW' },
   { label: '$ SGD', value: 'SGD' },

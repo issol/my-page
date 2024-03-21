@@ -1,6 +1,6 @@
 import { CreateClientResType } from '../client/client'
+import { Currency } from '@src/types/common/currency.type'
 
-export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
   isStandard: boolean
@@ -9,7 +9,7 @@ export type StandardPriceListType = {
   pro?: any | null
   category: string
   serviceType: string[]
-  currency: CurrencyType | null
+  currency: Currency | null
   catBasis?: string
 
   decimalPlace: number
@@ -30,7 +30,7 @@ export type LanguagePairListType = {
   target: string
   priceFactor: number
   minimumPrice: number
-  currency: CurrencyType
+  currency: Currency
   createdAt: string
   deletedAt: string | null
   updatedAt: string
@@ -76,7 +76,7 @@ export type AddNewPriceType = {
   priceName: string
   category: string
   serviceType: Array<string>
-  currency: CurrencyType | null
+  currency: Currency | null
   catBasis?: string
   decimalPlace: number
   roundingProcedure: number
@@ -151,7 +151,7 @@ export type LanguagePairParams = {
   target: string
   priceFactor: string | null
   minimumPrice: string | null
-  currency: CurrencyType
+  currency: Currency
 }
 
 export type PriceUnitDataType = {
@@ -241,7 +241,7 @@ export type CreatePriceResType = {
   name: string
   category: string
   serviceType: string[]
-  currency: CurrencyType
+  currency: Currency
   calculationBasis: string
   rounding: number
   numberPlace: number

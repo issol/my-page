@@ -1,14 +1,8 @@
 import { Icon } from '@iconify/react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import {
-  FullDateHelper,
-  FullDateTimezoneHelper,
-} from '@src/shared/helpers/date.helper'
-import {
-  ProAppliedRolesStatusType,
-  ProAppliedRolesType,
-} from '@src/types/pro/pro-applied-roles'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { ProAppliedRolesType } from '@src/types/pro/pro-applied-roles'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 

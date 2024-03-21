@@ -93,6 +93,7 @@ export default function ClientInfo({
     handleSubmit,
     reset,
     watch,
+    trigger,
     formState: { errors, isValid },
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
@@ -112,12 +113,13 @@ export default function ClientInfo({
       fax: clientInfo.fax ?? '',
       websiteLink: clientInfo.websiteLink ?? '',
       isTaxable: clientInfo.isTaxable,
-      tax: clientInfo.tax,
+      tax: clientInfo.tax ?? null,
       headquarter: clientInfo.headquarter,
       registrationNumber: clientInfo.registrationNumber,
       representativeName: clientInfo.representativeName,
       commencementDate: clientInfo.commencementDate,
     })
+    trigger()
   }, [clientInfo])
 
   const updateCompanyInfoMutation = useMutation(
@@ -510,6 +512,7 @@ export default function ClientInfo({
                   getValue={getValues}
                   errors={errors}
                   watch={watch}
+                  trigger={trigger}
                 />
                 <Grid
                   item
@@ -527,7 +530,7 @@ export default function ClientInfo({
                   </Button>
                   <Button
                     variant='contained'
-                    disabled={!isValid}
+                    disabled={!isValid || (watch('isTaxable') && !watch('tax'))}
                     onClick={onSave}
                   >
                     Save

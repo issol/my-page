@@ -1,6 +1,6 @@
-import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
-import { InvoiceProStatusType } from './common.type'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type InvoiceProFilterType = {
   invoiceStatus?: number[]
@@ -22,14 +22,14 @@ export type InvoiceProListType = {
   id: number
   adminCompanyName: string
   corporationId: string
-  invoiceStatus: InvoiceProStatusType
+  invoiceStatus: InvoicePayableStatus
 
   invoicedAt: string
 
   paidAt: string | null
   paidDateTimezone: CountryType | null
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   statusUpdatedAt: string
 }
 
@@ -38,7 +38,7 @@ export type InvoiceProDetailType = {
   corporationId: string
   invoicedAt: string
   invoicedAtTimezone: CountryType
-  invoiceStatus: InvoiceProStatusType
+  invoiceStatus: InvoicePayableStatus
 
   taxInfo: string
   taxRate: number
@@ -46,7 +46,7 @@ export type InvoiceProDetailType = {
   paidAt: string | null
   paidDateTimezone: CountryType | null
   description: string
-  currency: CurrencyType
+  currency: InvoicePayableStatus
   subtotal: number
   totalPrice: number
   tax: number | null

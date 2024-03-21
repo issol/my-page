@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import { JobListFilterType } from '../requested-ongoing-list'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   useGetProJobClientList,
   useGetProJobList,
@@ -8,19 +8,18 @@ import {
 import { useForm } from 'react-hook-form'
 import Filters from './filters'
 import { useGetStatusList } from '@src/queries/common.query'
-
+import { useMutation, useQueryClient } from 'react-query'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import JobList from '../requested-ongoing-list/list'
 import useModal from '@src/hooks/useModal'
 import SelectJobModal from './components/select-job-modal'
-import { useMutation } from 'react-query'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { createInvoicePayable } from '@src/apis/invoice/payable.api'
-import { statusType } from '@src/types/common/status.type'
+
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { StatusItem } from '@src/types/common/status.type'
 
 export type FilterType = {
   jobDueDate: Date[]
@@ -62,6 +61,7 @@ export const completedDefaultFilters: JobListFilterType = {
 const DeliveredInactiveList = () => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const [filters, setFilters] = useState<JobListFilterType>(
     completedDefaultFilters,
@@ -76,7 +76,7 @@ const DeliveredInactiveList = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -98,9 +98,20 @@ const DeliveredInactiveList = () => {
       !statusListLoading &&
       !assignmentStatusListLoading
     ) {
-      const filteredJobStatusList = jobStatusList.filter(value => {
-        return value.value >= 60600 && value.value !== 601100
-      })
+      const customStatusList = [
+        60600, 60700, 60800, 70200, 601000, 70500, 60900,
+      ]
+      const filteredJobStatusList = [
+        ...jobStatusList.filter(value => {
+          return value.value >= 60600 && value.value !== 601100
+        }),
+        ...assignmentJobStatusList.filter(value => {
+          return [70200, 70500].includes(value.value)
+        }),
+      ].sort(
+        (a, b) =>
+          customStatusList.indexOf(a.value) - customStatusList.indexOf(b.value),
+      )
       setStatusList([...filteredJobStatusList])
     }
   }, [
@@ -245,6 +256,10 @@ const DeliveredInactiveList = () => {
       ),
     })
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['proJobList', filters])
+  }, [])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

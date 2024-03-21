@@ -33,7 +33,7 @@ import toast from 'react-hot-toast'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
-import { CurrencyType } from '@src/types/common/standard-price'
+
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -57,6 +57,7 @@ import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/
 
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { Currency } from '@src/types/common/currency.type'
 
 type Props = {
   row: JobType
@@ -73,7 +74,7 @@ type Props = {
       isStandard: boolean
       category: string
       serviceType: Array<string>
-      currency: CurrencyType
+      currency: Currency
       calculationBasis: string
       rounding: number
       numberPlace: number

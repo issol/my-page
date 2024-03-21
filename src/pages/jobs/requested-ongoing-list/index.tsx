@@ -8,9 +8,10 @@ import {
   useGetProJobClientList,
   useGetProJobList,
 } from '@src/queries/jobs/jobs.query'
+import { useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
+import { StatusItem } from '@src/types/common/status.type'
 
 const defaultValues: FilterType = {
   jobDueDate: [],
@@ -47,6 +48,8 @@ export const ongoingDefaultFilters: JobListFilterType = {
 }
 
 const RequestedOngoingList = () => {
+  const queryClient = useQueryClient()
+
   const [filters, setFilters] = useState<JobListFilterType>(
     ongoingDefaultFilters,
   )
@@ -65,7 +68,7 @@ const RequestedOngoingList = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -122,6 +125,10 @@ const RequestedOngoingList = () => {
 
     setFilters(filter)
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['proJobList', filters])
+  }, [])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

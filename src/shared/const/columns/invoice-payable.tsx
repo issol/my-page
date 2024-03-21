@@ -4,9 +4,10 @@ import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { InvoiceProStatusType } from '@src/types/invoice/common.type'
+
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 import { Loadable } from 'recoil'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -65,7 +66,7 @@ export const getInvoicePayableListColumns = (
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
             {invoicePayableStatusChip(
-              row.invoiceStatus as InvoiceProStatusType,
+              row.invoiceStatus as InvoicePayableStatus,
               statusList,
             )}
           </>

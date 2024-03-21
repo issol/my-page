@@ -23,9 +23,8 @@ import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
+import { StatusItem } from '@src/types/common/status.type'
 import { JobListFilterType } from '../requested-ongoing-list'
-
 type MenuType = 'jobInfo' | 'feedback'
 
 const jobDetailDotsKeys = [
@@ -46,7 +45,7 @@ const excludedStatuses = [
 const ProJobsDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { id, assigned } = router.query
+  const { id, assigned, tab } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -75,20 +74,10 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const onClickBack = () => {
-    const filter: JobListFilterType = {
-      take: 10,
-      skip: 0,
-      search: '',
-      client: null,
-      dueDateFrom: '',
-      dueDateTo: '',
-      listType: 'requested-ongoing',
-    }
-    queryClient.invalidateQueries(['proJobList', filter])
-    router.push('/jobs')
+    router.push(`/jobs?tab=${tab}`)
   }
 
   useEffect(() => {
@@ -132,7 +121,7 @@ const ProJobsDetail = () => {
             <Icon icon='mdi:chevron-left' width={24} height={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{jobDetail?.corporationId}</Typography>
+          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (

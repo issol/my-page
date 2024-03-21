@@ -1,10 +1,11 @@
-import { ProJobStatusType } from '../jobs/common.type'
-import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
+import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { PriceType, PriceUnitType } from './orders-and-quotes.type'
-import { CurrencyType } from './standard-price'
-import { MemSourceType, MemoQType } from './tm-analysis.type'
+
+import { MemoQType, MemSourceType } from './tm-analysis.type'
+import { JobStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type ItemType = Omit<
   PostItemType,
@@ -21,7 +22,7 @@ export type ItemType = Omit<
   orderId?: number
   idx?: number
   indexing?: number
-  currency: CurrencyType | null
+  currency: Currency | null
 }
 
 export type AnalysisFileType = {
@@ -57,7 +58,7 @@ export type ItemDetailType = {
   unitPrice: number | null
   prices: number | string
   unit: string
-  currency: CurrencyType | null
+  currency: Currency | null
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
   title?: string
@@ -78,7 +79,7 @@ export type JobType = {
   order: { id: number }
   corporationId: string
   name: string
-  status: JobStatusType | ProJobStatusType
+  status: JobStatus
   contactPersonId: number
   serviceType: string
   sourceLanguage: string

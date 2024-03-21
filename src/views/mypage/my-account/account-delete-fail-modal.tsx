@@ -1,14 +1,16 @@
-import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { CurrencyType } from '@src/types/common/standard-price'
+
 import { styled } from '@mui/system'
+import { Currency } from '@src/types/common/currency.type'
+
 type Props = {
   onClose: () => void
   reason: {
     corporationIds: string[]
     totalPrice: number
-    currency: CurrencyType
+    currency: Currency
   }
 }
 export default function AccountDeleteFailedModal({ onClose, reason }: Props) {

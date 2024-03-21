@@ -1,7 +1,7 @@
 import { ItemDetailType } from '../common/item.type'
-import { CurrencyType } from '../common/standard-price'
-import { ContactPersonType } from '../schema/client-contact-person.schema'
+
 import { CountryType } from '../sign/personalInfoTypes'
+import { Currency } from '@src/types/common/currency.type'
 
 export type AddJobInfoType = {
   jobName: string
@@ -113,6 +113,6 @@ export type SaveJobPricesParamsType = {
   jobId: number
   priceId: number
   totalPrice: number
-  currency: CurrencyType | null
+  currency: Currency | null
   detail: ItemDetailType[]
 }

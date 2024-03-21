@@ -1,8 +1,9 @@
 import { CurrentTestType } from '../certification-test/detail'
+import { AppliedRolesStatus } from '@src/types/common/status.type'
 
 export type ProAppliedRolesStatusHistoryType = {
   id: number
-  status: ProAppliedRolesStatusType
+  status: AppliedRolesStatus
   updatedAt: string
 }
 
@@ -34,7 +35,7 @@ export type ProAppliedRolesType = {
     testPaperFormUrl: string
     testStartedAt: string | null
   }
-  status: ProAppliedRolesStatusType
+  status: AppliedRolesStatus
 
   reason: {
     type: 'Paused' | 'Rejected'
@@ -47,24 +48,3 @@ export type ProAppliedRolesType = {
   testGuideline: CurrentTestType
   statusHistory: Array<ProAppliedRolesStatusHistoryType>
 }
-
-export type ProAppliedRolesStatusType =
-  | 'Awaiting approval'
-  | 'Test assigned'
-  | 'Role assigned'
-  | 'Rejected by TAD'
-  | 'Test declined'
-  | 'Role declined'
-  | 'Basic test Ready'
-  | 'Skill test Ready'
-  | 'Paused'
-  | 'Basic in progress'
-  | 'Basic submitted'
-  | 'Basic failed'
-  | 'Basic passed'
-  | 'Skill in progress'
-  | 'Skill submitted'
-  | 'Skill failed'
-  | 'Contract required'
-  | 'Certified'
-  | 'Test in preparation'

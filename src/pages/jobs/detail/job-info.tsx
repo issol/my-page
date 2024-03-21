@@ -25,11 +25,7 @@ import {
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import {
-  byteToGB,
-  byteToMB,
-  formatFileSize,
-} from '@src/shared/helpers/file-size.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
@@ -39,23 +35,19 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 
 import InformationModal from '@src/@core/components/common-modal/information-modal'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
 
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
 import CustomChip from '@src/@core/components/mui/chip'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   handleJobAssignStatus,
@@ -64,6 +56,7 @@ import {
 } from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
+import { JobStatus } from '@src/types/common/status.type'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -92,8 +85,7 @@ const ProJobInfo = ({
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const updateJob = useMutation(
-    (status: ProJobStatusType) =>
-      patchProJobDetail(jobInfo.id, { status: status }),
+    (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
@@ -360,7 +352,8 @@ const ProJobInfo = ({
     })
   }
 
-  const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
+  const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
+    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -398,7 +391,7 @@ const ProJobInfo = ({
                 </>
               }
             />
-          ) : status === 60400 ? (
+          ) : [601000, 70400].includes(status) ? (
             <PriceUnitGuideline
               vary='info'
               subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
@@ -427,7 +420,7 @@ const ProJobInfo = ({
               extra={`If you need any assistance related to this matter, please contact ${jobInfo.contactPerson?.email}.`}
             />
           ) : (
-            status === 601000 && (
+            status === 60300 && (
               <PriceUnitGuideline
                 subtitle={
                   <>
@@ -498,8 +491,8 @@ const ProJobInfo = ({
     }
   }
 
-  const getJobDateDiff = (jobDueDate: string) => {
-    const now = dayjs()
+  const getJobDateDiff = (jobDueDate: string, deliveredDate?: string) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
     const dueDate = dayjs(jobDueDate)
     const diff = dueDate.diff(now, 'second')
     const isPast = diff < 0
@@ -537,6 +530,15 @@ const ProJobInfo = ({
       )
     }
   }
+
+  // status가 Overdue일 때, onClickOnClickStatusMoreInfo를 호출하여 디테일 페이지 진입시 모달을 띄워준다.
+  useEffect(() => {
+    if (jobInfo) {
+      if (jobInfo.status === 60300) {
+        onClickOnClickStatusMoreInfo(jobInfo.status as JobStatus)
+      }
+    }
+  }, [jobInfo])
 
   return (
     <Grid container xs={12} spacing={4}>
@@ -607,10 +609,7 @@ const ProJobInfo = ({
                       alignItems: 'center',
                     }}
                   >
-                    {ProJobStatusChip(
-                      statusLabel,
-                      jobInfo.status as ProJobStatusType,
-                    )}
+                    {ProJobStatusChip(statusLabel, jobInfo.status as JobStatus)}
                     {/* TODO status 체크해야함 */}
                     {jobInfo.status === 60900 ||
                     jobInfo.status === 70400 ||
@@ -619,7 +618,7 @@ const ProJobInfo = ({
                         sx={{ padding: 0 }}
                         onClick={() =>
                           onClickOnClickStatusMoreInfo(
-                            jobInfo.status as ProJobStatusType,
+                            jobInfo.status as JobStatus,
                           )
                         }
                       >
@@ -978,9 +977,12 @@ const ProJobInfo = ({
                         alignItems: 'center',
                       }}
                     >
-                      {jobInfo.status === 601000 ? (
+                      {[60300, 60500].includes(jobInfo.status) ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {getJobDateDiff(jobInfo.dueAt)}
+                          {getJobDateDiff(
+                            jobInfo.dueAt,
+                            jobInfo.finalProDeliveredAt,
+                          )}
                         </Box>
                       ) : (
                         <Typography variant='body2'>
