@@ -122,7 +122,7 @@ export const saveJobInfo = async (
 
 // TODO: api url 수정 필요
 export const setJobStatus = async (id: number, status: number) => {
-  await axios.patch(`/api/enough/u/job/${id}/status`, { status: status })
+  await axios.patch(`/api/enough/u/job/${id}/set-status`, { status: status })
 }
 
 export const deleteJob = async (id: number) => {
