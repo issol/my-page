@@ -174,7 +174,8 @@ const JobListCard = ({
     setTriggerGroups(getTriggerGroups())
   }, [info.jobs])
 
-  console.log('triggerGroups', triggerGroups)
+  console.log("triggerGroups",triggerGroups)
+  // TODO: 트리거 그룹일때 호버 백그라운드 색상 바꾸기(라인이 안보여짐)
   const getTriggerGroups = (): number[][] => {
     let groups: number[][] = []
     let map: Map<number, JobType> = new Map()
@@ -187,16 +188,12 @@ const JobListCard = ({
 
     for (let job of info.jobs) {
       if (!visited.has(job.id)) {
-        let group: number[] = []
-        let current = job
-
-        while (
-          current != null &&
-          !visited.has(current.id) &&
-          current.nextJobId
-        ) {
-          group.push(current.id)
-          visited.add(current.id)
+        let group: number[] = [];
+        let current = job;
+  
+        while (current != null && !visited.has(current.id)) {
+          group.push(current.id);
+          visited.add(current.id);
           if (current.nextJobId != null) {
             current = map.get(current.nextJobId)!
           } else {
@@ -656,7 +653,7 @@ const JobListCard = ({
                                 <TriggerIcon />
                               </Box>
                               <Box
-                                visibility={row.autoNextJob ? 'visible' : 'hidden'}
+                                visibility={row.autoSharingFile ? 'visible' : 'hidden'}
                                 margin={0}
                               >
                                 <TriggerSwitchStatus

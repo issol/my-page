@@ -204,12 +204,16 @@ export const createJob = async (params: CreateJobParamsType) => {
   await axios.post(`/api/enough/u/job`, { ...params })
 }
 
-export const createWithJobTemplate = async (itemId: number, templateId: number) => {
-  await axios.post(`/api/enough/u/job`, { itemId, templateId })
+export const createWithJobTemplate = async (orderId: number, itemId: number, templateId: number) => {
+  await axios.post(`/api/enough/u/job/generate-by-template`, { orderId, itemId, templateId })
 }
 
-export const autoCreateJob = async (itemId: number[]) => {
-  await axios.post(`/api/enough/u/job`, { ...itemId })
+export const autoCreateByItem = async (orderId: number, itemId: number) => {
+  await axios.post(`/api/enough/u/job/generate-by-item`, { orderId, itemId })
+}
+
+export const autoCreateByOrder = async (orderId: number) => {
+  await axios.post(`/api/enough/u/job/generate-by-order`, { orderId })
 }
 
 export const getProJobList = async (

@@ -25,7 +25,7 @@ import {
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
-import { createJob } from '@src/apis/jobs/jobs.api'
+import { autoCreateByItem, autoCreateByOrder, createJob, createWithJobTemplate } from '@src/apis/jobs/jobs.api'
 import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -44,7 +44,6 @@ import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 import { JobListMode } from '@src/views/jobDetails/viewModes'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import { JobStatus } from '@src/types/common/status.type'
-import { autoCreateJob, createWithJobTemplate } from '@src/apis/jobs/jobs.api'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -98,7 +97,7 @@ const JobDetails = () => {
   
   const createWithJobTemplateMutation = useMutation(
     (params: { itemId: number; templateId: number }) => 
-      createWithJobTemplate(params.itemId, params.templateId),
+      createWithJobTemplate(Number(orderId), params.itemId, params.templateId),
     {
       onSuccess: (data, variables) => {
         // if (variables.index) {
@@ -117,7 +116,11 @@ const JobDetails = () => {
   )
 
   const autoCreateJobMutation = useMutation(
-    (itemId: number[]) => autoCreateJob(itemId),
+    (itemId: number[]) => (
+      itemId.length === 1
+        ? autoCreateByItem(Number(orderId), itemId[0])
+        : autoCreateByOrder(Number(orderId))
+    ),
     {
       onSuccess: (data, variables) => {
         // if (variables.index) {
