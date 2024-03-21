@@ -138,9 +138,9 @@ export const RoleChip = styled(Chip)<{ type: string }>`
     }
 
     return `
-      background: ${background};
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)) ${background};
       border-color: ${borderColor};
-      color: #111111; // 글자색 설정
+      color: #111111;
     `
   }}
 `
