@@ -327,7 +327,9 @@ const JobDetails = () => {
     setMode('delete')
   }
 
-  const onEditTrigger = () => {}
+  const onEditTrigger = () => {
+    setMode('edit')
+  }
 
   const onManageJobStatus = () => {
     setMode('manageStatus')
