@@ -23,7 +23,7 @@ import {
   UseFormTrigger,
   useFieldArray,
 } from 'react-hook-form'
-import PriceHistoryRow from '../prices/price-history-row'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
@@ -37,6 +37,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { statusType } from '@src/types/common/status.type'
 import { timezoneSelector } from '@src/states/permission'
+import PriceHistoryRow from '../../../detail/components/prices/price-history-row'
 
 type Props = {
   jobInfo: JobType
