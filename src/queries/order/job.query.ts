@@ -137,5 +137,6 @@ export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
     staleTime: 10 * 1000,
     suspense: false,
+    enabled: !!jobId,
   })
 }

@@ -12,18 +12,20 @@ import { PriceType } from '../common/orders-and-quotes.type'
 // import { JobStatusType } from './common.type'
 
 export type JobStatusType =
-  | 60000
-  | 60100
-  | 60200
-  | 60300
-  | 60400
-  | 60500
-  | 60600
-  | 60700
-  | 60800
-  | 60900
-  | 601000
-  | 601100
+  | 60000 // In preparation
+  | 60100 //Requested
+  | 60110 //Assigned
+  | 60200 // In progress
+  | 60250 // Redelivery requested
+  | 60300 // Overdue
+  | 60400 // Partially delivered
+  | 60500 // Delivered
+  | 60600 // Approved
+  | 60700 // Invoiced
+  | 60800 // Paid
+  | 60900 // Without invoice
+  | 601000 // Canceled
+  | 601100 // Payment cancled
 
 export type JobsListType = {
   id: number

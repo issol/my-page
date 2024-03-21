@@ -29,7 +29,12 @@ import { sendMessageToPro } from '@src/apis/jobs/job-detail.api'
 
 type Props = {
   jobId: number
-  info: JobRequestsProType
+  info: {
+    userId: number
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
   onClose: () => void
 }
 

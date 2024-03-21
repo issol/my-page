@@ -129,4 +129,11 @@ export type JobType = {
   statusCodeForAutoNextJob: number | null
   autoSharingFile: boolean
   sortingOrder: number
+  isJobRequestPresent: boolean
+  redeliveryHistory?: {
+    jobId: number
+    deleteReason: string[]
+    message: string
+    id: number
+  }
 }

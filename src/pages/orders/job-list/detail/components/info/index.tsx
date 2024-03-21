@@ -33,7 +33,10 @@ import { timezoneSelector } from '@src/states/permission'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { statusType } from '@src/types/common/status.type'
-import { JobAssignProRequestsType } from '@src/types/jobs/jobs.type'
+import {
+  JobAssignProRequestsType,
+  JobRequestsProType,
+} from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
@@ -46,6 +49,8 @@ import {
   ProjectInfoType,
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import Message from '../assign-pro/message-modal'
 
 type Props = {
   jobInfo: JobType
@@ -309,6 +314,77 @@ const JobInfo = ({
     })
   }
 
+  const onClickRedeliveryReason = () => {
+    console.log(jobInfo.pro)
+
+    openModal({
+      type: 'SelectRequestRedeliveryReasonModal',
+      children: (
+        <CustomModal
+          noButton
+          closeButton
+          onClose={() => closeModal('SelectRequestRedeliveryReasonModal')}
+          title={
+            <>
+              <Typography fontSize={20} fontWeight={500}>
+                Requested reason
+              </Typography>
+
+              <ul>
+                {jobInfo.redeliveryHistory?.deleteReason.map(
+                  (reason, index) => (
+                    <li key={uuidv4()}>
+                      <Typography
+                        fontSize={16}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                        textAlign={'left'}
+                      >
+                        {reason}
+                      </Typography>
+                    </li>
+                  ),
+                )}
+              </ul>
+
+              <Typography fontSize={20} fontWeight={500} mt='16px'>
+                Message to Pro
+              </Typography>
+              <Typography
+                fontSize={16}
+                color='#8D8E9A'
+                fontWeight={400}
+                mt='10px'
+              >
+                {jobInfo.redeliveryHistory?.message ?? '-'}
+              </Typography>
+            </>
+          }
+          onClick={() => closeModal('SelectRequestRedeliveryReasonModal')}
+          vary='question-info'
+          rightButtonText=''
+        />
+      ),
+    })
+  }
+
+  const onClickMessage = (row: {
+    userId: number
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }) => {
+    openModal({
+      type: 'AssignProMessageModal',
+      children: (
+        <Message
+          jobId={jobInfo.id}
+          info={row}
+          onClose={() => closeModal('AssignProMessageModal')}
+        />
+      ),
+    })
+  }
   useEffect(() => {
     if (jobInfo && jobStatusList) filterStatus(jobInfo.status)
   }, [jobInfo, jobStatusList])
@@ -361,9 +437,25 @@ const JobInfo = ({
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography fontSize={20} fontWeight={500}>
-              {jobInfo.corporationId}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Typography fontSize={20} fontWeight={500}>
+                {jobInfo.corporationId}
+              </Typography>
+              <IconButton
+                sx={{ padding: 0 }}
+                onClick={() =>
+                  onClickMessage({
+                    userId: jobInfo.pro?.id!,
+                    firstName: jobInfo.pro?.firstName!,
+                    middleName: jobInfo.pro?.middleName!,
+                    lastName: jobInfo.pro?.lastName!,
+                  })
+                }
+              >
+                <Icon icon='mdi:message-text' />
+              </IconButton>
+            </Box>
+
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {jobInfo.autoNextJob ? (
                 <Image
@@ -486,14 +578,14 @@ const JobInfo = ({
           </Box>
           <Divider />
           <Grid container spacing={4} rowSpacing={6}>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Job name
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <Typography
                     fontSize={14}
                     fontWeight={400}
@@ -504,39 +596,57 @@ const JobInfo = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container alignItems={'center'}>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Status
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
-                  <Select
-                    value={String(jobInfo.status)}
-                    onChange={onChangeStatus}
-                    size='small'
-                    sx={{ width: '253px' }}
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    {filteredJobStatus?.map(status => {
-                      return (
-                        <MenuItem key={uuidv4()} value={status.value}>
-                          {status.label}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
+                    <Select
+                      value={String(jobInfo.status)}
+                      onChange={onChangeStatus}
+                      size='small'
+                      fullWidth
+                      // sx={{ width: '253px' }}
+                    >
+                      {filteredJobStatus?.map(status => {
+                        return (
+                          <MenuItem key={uuidv4()} value={status.value}>
+                            {status.label}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                    <IconButton
+                      sx={{ padding: 0 }}
+                      onClick={onClickRedeliveryReason}
+                    >
+                      <Icon
+                        icon='mdi:question-mark-circle-outline'
+                        color='rgba(141, 142, 154, 1)'
+                        fontSize={20}
+                      />
+                    </IconButton>
+                    {/* {jobInfo.pro ? (
+
+                  ) : null} */}
+                  </Box>
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Contact person for job
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <Typography
                     fontSize={14}
                     fontWeight={400}
@@ -551,26 +661,26 @@ const JobInfo = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Service type
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <ServiceTypeChip label={jobInfo.serviceType} size='small' />
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Language pair
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <Typography
                     fontSize={14}
                     fontWeight={400}
@@ -591,14 +701,14 @@ const JobInfo = ({
           </Grid>
           <Divider />
           <Grid container spacing={4} rowSpacing={6}>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Job start date
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <Typography
                     fontSize={14}
                     fontWeight={400}
@@ -615,14 +725,14 @@ const JobInfo = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={jobInfo.pro === null ? 6 : 12}>
               <Grid container>
-                <Grid item xs={4.32}>
+                <Grid item xs={jobInfo.pro === null ? 4.32 : 3.054}>
                   <Typography fontSize={14} fontWeight={600}>
                     Job due date
                   </Typography>
                 </Grid>
-                <Grid item xs={7.68}>
+                <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
                   <Typography
                     fontSize={14}
                     fontWeight={400}
@@ -667,75 +777,80 @@ const JobInfo = ({
                 : '-'}
             </Typography>
           </Box>
-          <Divider />
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: jobInfo.files && jobInfo.files.length ? '20px' : 0,
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography fontSize={14} fontWeight={600}>
-                Sample files to pro
-              </Typography>
-              <Button
-                variant='outlined'
+          {jobInfo.pro ? null : (
+            <>
+              {' '}
+              <Divider />
+              <Box
                 sx={{
-                  height: '30px',
-                  border: '1px solid #BBBCC4 !important',
-                  color: '#BBBCC4 !important',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: jobInfo.files && jobInfo.files.length ? '20px' : 0,
                 }}
-                disabled={
-                  !(
-                    jobInfo.files &&
-                    jobInfo.files.find(value => value.type === 'SAMPLE')
-                  )
-                }
-                onClick={() =>
-                  DownloadAllFiles(
-                    jobInfo.files!.filter(value => value.type === 'SAMPLE'),
-                    S3FileType.JOB,
-                  )
-                }
               >
-                <Icon icon='mdi:download' fontSize={18} />
-                &nbsp; Download all
-              </Button>
-            </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography fontSize={14} fontWeight={600}>
+                    Sample files to pro
+                  </Typography>
+                  <Button
+                    variant='outlined'
+                    sx={{
+                      height: '30px',
+                      border: '1px solid #BBBCC4 !important',
+                      color: '#BBBCC4 !important',
+                    }}
+                    disabled={
+                      !(
+                        jobInfo.files &&
+                        jobInfo.files.find(value => value.type === 'SAMPLE')
+                      )
+                    }
+                    onClick={() =>
+                      DownloadAllFiles(
+                        jobInfo.files!.filter(value => value.type === 'SAMPLE'),
+                        S3FileType.JOB,
+                      )
+                    }
+                  >
+                    <Icon icon='mdi:download' fontSize={18} />
+                    &nbsp; Download all
+                  </Button>
+                </Box>
 
-            <Box
-              sx={{
-                display:
-                  jobInfo.files && jobInfo.files.length ? 'grid' : 'none',
-                gridTemplateColumns: 'repeat(2, 1fr)',
+                <Box
+                  sx={{
+                    display:
+                      jobInfo.files && jobInfo.files.length ? 'grid' : 'none',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
 
-                width: '100%',
-                gap: '20px',
-              }}
-            >
-              {jobInfo.files && fileList(jobInfo.files, 'SAMPLE')}
-            </Box>
+                    width: '100%',
+                    gap: '20px',
+                  }}
+                >
+                  {jobInfo.files && fileList(jobInfo.files, 'SAMPLE')}
+                </Box>
 
-            <Box>
-              <Typography
-                fontSize={12}
-                fontWeight={400}
-                color='rgba(76, 78, 100, 0.60)'
-              >
-                {formatFileSize(
-                  jobInfo.files ? getFileSize(jobInfo?.files, 'SAMPLE') : 0,
-                )}
-                / {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
-            </Box>
-          </Box>
+                <Box>
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    color='rgba(76, 78, 100, 0.60)'
+                  >
+                    {formatFileSize(
+                      jobInfo.files ? getFileSize(jobInfo?.files, 'SAMPLE') : 0,
+                    )}
+                    / {byteToGB(MAXIMUM_FILE_SIZE)}
+                  </Typography>
+                </Box>
+              </Box>
+            </>
+          )}
         </Box>
       </Box>
     </Box>

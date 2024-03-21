@@ -3,12 +3,19 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Card,
+  Divider,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Tab,
+  TextField,
   Typography,
   styled,
 } from '@mui/material'
@@ -19,9 +26,12 @@ import {
   useGetJobDetails,
   useGetJobInfo,
   useGetJobPrices,
+  useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+
 import {
   useEffect,
   useState,
@@ -35,6 +45,7 @@ import AssignPro from './components/assign-pro'
 import {
   useGetServiceType,
   useGetSimpleClientList,
+  useGetStatusList,
 } from '@src/queries/common.query'
 import { ProListType } from '@src/types/pro/list'
 import { v4 as uuidv4 } from 'uuid'
@@ -64,12 +75,14 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
 import { UseQueryResult, useMutation, useQueryClient } from 'react-query'
 import {
+  addJobFeedback,
   addProCurrentRequest,
   createBulkRequestJobToPro,
   createRequestJobToPro,
   forceAssign,
   getAssignableProList,
   handleJobAssignStatus,
+  requestRedelivery,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import JobInfo from './components/info'
@@ -82,6 +95,28 @@ import {
   useGetProjectInfo,
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
+import FileItem from '@src/@core/components/fileItem'
+import { FileType } from '@src/types/common/file.type'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+import {
+  DownloadAllFiles,
+  DownloadFile,
+} from '@src/shared/helpers/downlaod-file'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
+import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
+
+import { ReasonType } from '@src/types/quotes/quote'
+import { RequestRedeliveryReason } from '@src/shared/const/reason/reason'
+import SelectRequestRedeliveryReasonModal from './components/info/request-redelivery-modal'
+import SourceFileUpload from './components/info/source-file'
+import Chip from '@src/@core/components/mui/chip'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -90,14 +125,16 @@ export type TabType = 'linguistTeam' | 'pro'
 const JobDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
-
-  console.log(queryClient)
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
   const orderId = router.query.orderId as string
   const roundQuery = router.query.round as string | undefined
   const proId = router.query.proId as string | undefined
+  const selectedJobId = router.query.selectedJobId as string
 
   const [jobDetail, setJobDetail] = useState<
     Array<{
@@ -122,6 +159,7 @@ const JobDetail = () => {
       selectedJobInfo?.jobAssign[0] ?? null,
     )
   const [menu, setMenu] = useState<TabType>('linguistTeam')
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
     value: number
     label: string
@@ -159,6 +197,24 @@ const JobDetail = () => {
   const [addRoundMode, setAddRoundMode] = useState(false)
   const [addProsMode, setAddProsMode] = useState(false)
   const [assignProMode, setAssignProMode] = useState(false)
+  const [expanded, setExpanded] = useState<string | false>(false)
+  const [useJobFeedbackForm, setUseJobFeedbackForm] = useState(false)
+  const [addJobFeedbackData, setAddJobFeedbackData] = useState<string | null>(
+    '',
+  )
+
+  const handleAccordionChange =
+    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false)
+    }
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const [selectionModel, setSelectionModel] = useState<{
     [key: string]: GridSelectionModel
@@ -193,6 +249,7 @@ const JobDetail = () => {
     >[]
   ).map(value => value.data)
 
+  const { data: jobStatusList } = useGetStatusList('Job')
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
   const { data: proList } = useGetAssignableProList(
@@ -203,6 +260,17 @@ const JobDetail = () => {
   const { data: projectTeam } = useGetProjectTeam(Number(orderId))
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId), true)
   const { data: langItem } = useGetLangItem(Number(orderId))
+  const {
+    data: sourceFileList,
+    isLoading,
+    refetch: refetchSourceFileList,
+  } = useGetSourceFile(selectedJobInfo?.jobId!)
+
+  const {
+    data: jobDeliveriesFeedbacks,
+    isLoading: isJobDeliveriesFeedbacksLoading,
+    refetch: jobDeliveriesFeedbacksRefetch,
+  } = useGetProJobDeliveriesFeedbacks(selectedJobInfo?.jobId!)
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -328,6 +396,36 @@ const JobDetail = () => {
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
+  const requestRedeliveryMutation = useMutation(
+    (data: { jobId: number; deleteReason: string[]; message?: string }) =>
+      requestRedelivery(data),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
+  const addJobFeedbackMutation = useMutation(
+    (data: { jobId: number; data: string }) =>
+      addJobFeedback(data.jobId, data.data),
+    {
+      onSuccess: (data, variables) => {
+        if (data.job.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          queryClient.invalidateQueries(['proJobDeliveries', variables.jobId])
+          refetch && refetch()
+        } else {
+          setJobId(prev =>
+            prev.map(id => (id === variables.jobId ? data.job.id : id)),
+          )
+        }
       },
     },
   )
@@ -510,6 +608,131 @@ const JobDetail = () => {
     }
   }
 
+  const fileList = (file: FileType[], type: string) => {
+    return file.map((value: FileType) => {
+      if (value.type === type) {
+        return (
+          <Box
+            key={uuidv4()}
+            onClick={() => DownloadFile(value, S3FileType.JOB)}
+          >
+            <FileItem key={value.name} file={value} />
+          </Box>
+        )
+      }
+    })
+  }
+
+  const getFileSize = (file: FileType[], type: string) => {
+    const files = file.filter((file: FileType) => file.type === type)
+    let size = 0
+    files.forEach((file: FileType) => {
+      size += file.size
+    })
+
+    return size
+  }
+
+  const onClickUploadSourceFile = () => {
+    if (jobDetails) {
+      openModal({
+        type: 'UploadSourceFileModal',
+        children: (
+          <SourceFileUpload
+            info={selectedJobInfo?.jobInfo.pro!}
+            row={selectedJobInfo?.jobInfo!}
+            item={
+              jobDetails.items.find(item =>
+                item.jobs.some(job => job.id === selectedJobInfo?.jobId),
+              )!
+            }
+            refetch={refetch!}
+            statusList={jobStatusList!}
+          />
+        ),
+      })
+    }
+  }
+
+  const onClickRequestRedelivery = () => {
+    openModal({
+      type: 'RequestRedeliveryModal',
+      children: (
+        <SelectRequestRedeliveryReasonModal
+          onClose={() => closeModal('RequestRedeliveryModal')}
+          onClick={(deleteReason: string[], message?: string) =>
+            requestRedeliveryMutation.mutate({
+              jobId: selectedJobInfo?.jobInfo.id!,
+              deleteReason,
+              message,
+            })
+          }
+        />
+      ),
+    })
+  }
+
+  const onClickDiscardFeedback = () => {
+    if (addJobFeedbackData === '' || addJobFeedbackData === null) {
+      setAddJobFeedbackData('')
+      setUseJobFeedbackForm(false)
+      return
+    }
+    openModal({
+      type: 'DiscardFeedbackModal',
+      children: (
+        <CustomModalV2
+          title='Discard feedback?'
+          subtitle={'Are you sure you want to discard this feedback?'}
+          vary='error-alert'
+          rightButtonText='Discard'
+          onClick={() => {
+            setAddJobFeedbackData('')
+            setUseJobFeedbackForm(false)
+            closeModal('DiscardFeedbackModal')
+          }}
+          onClose={() => closeModal('DiscardFeedbackModal')}
+        />
+      ),
+    })
+  }
+
+  const onClickAddFeedback = () => {
+    if (addJobFeedbackData === '') {
+      setAddJobFeedbackData(null)
+      return
+    }
+    openModal({
+      type: 'AddFeedbackModal',
+      children: (
+        <CustomModalV2
+          title='Add feedback?'
+          subtitle={
+            'Are you sure you want to add this feedback? It will be delivered to the Pro as well.'
+          }
+          vary='successful'
+          rightButtonText='Add'
+          onClick={() => {
+            closeModal('DiscardFeedbackModal')
+            addJobFeedbackMutation.mutate(
+              {
+                jobId: selectedJobInfo?.jobId!,
+                data: addJobFeedbackData!,
+              },
+              {
+                onSuccess: () => {
+                  setAddJobFeedbackData('')
+                  setUseJobFeedbackForm(false)
+                },
+              },
+            )
+          }}
+          onClose={() => closeModal('AddFeedbackModal')}
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
@@ -546,6 +769,7 @@ const JobDetail = () => {
       const jobAssign = jobAssignList.find(assign => assign!.id === jobInfo!.id)
       return {
         jobInfo: jobInfo!,
+
         jobPrices: jobPrices!,
         jobId: jobInfo!.id,
         jobAssign: jobAssign?.requests!,
@@ -574,7 +798,31 @@ const JobDetail = () => {
     }
   }, [roundQuery, selectedJobInfo])
 
-  console.log(jobDetails, 'getValues')
+  useEffect(() => {
+    if (selectedJobId && jobDetail) {
+      const selectedJob = jobDetail.find(
+        value =>
+          (value: {
+            jobId: number
+            jobInfo: JobType | undefined
+            jobPrices: JobPricesDetailType | undefined
+            jobAssign: JobAssignProRequestsType[]
+            jobAssignDefaultRound: number
+          }) =>
+            value.jobId === Number(selectedJobId),
+      )
+      if (selectedJob) {
+        const result = {
+          jobId: selectedJob.jobId,
+          jobInfo: selectedJob.jobInfo!,
+          jobPrices: selectedJob.jobPrices!,
+          jobAssign: selectedJob.jobAssign!,
+          jobAssignDefaultRound: selectedJob.jobAssignDefaultRound,
+        }
+        setSelectedJobInfo(result)
+      }
+    }
+  }, [selectedJobId, jobDetail])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -672,16 +920,30 @@ const JobDetail = () => {
         <Grid
           item
           xs={
-            (selectedJobInfo &&
-              (selectedJobInfo.jobInfo.name === null ||
-                selectedJobInfo.jobPrices.priceId === null)) ||
-            (selectedJobInfo?.jobAssign &&
-              selectedJobInfo?.jobAssign.length > 0 &&
-              !addRoundMode &&
-              !addProsMode &&
-              !assignProMode)
-              ? 10.416
-              : 7.632
+            value === 'assign'
+              ? (selectedJobInfo &&
+                  (selectedJobInfo.jobInfo.name === null ||
+                    selectedJobInfo.jobPrices.priceId === null)) ||
+                (selectedJobInfo?.jobAssign &&
+                  selectedJobInfo?.jobAssign.length > 0) ||
+                (!addRoundMode && !addProsMode && !assignProMode)
+                ? 10.416
+                : 7.632
+              : value === 'info'
+                ? selectedJobInfo?.jobInfo.pro === null
+                  ? 10.416
+                  : 7.632
+                : 7.632
+            // (selectedJobInfo &&
+            //   (selectedJobInfo.jobInfo.name === null ||
+            //     selectedJobInfo.jobPrices.priceId === null)) ||
+            // (selectedJobInfo?.jobAssign &&
+            //   selectedJobInfo?.jobAssign.length > 0 &&
+            //   value === 'assign') ||
+            // (!addRoundMode && !addProsMode && !assignProMode) ||
+            // (selectedJobInfo?.jobInfo.pro === null && value === 'info')
+            //   ? 10.416
+            //   : 7.632
           }
           sx={{ height: '100%' }}
         >
@@ -860,7 +1122,7 @@ const JobDetail = () => {
         {selectedJobInfo &&
         (selectedJobInfo.jobInfo.name === null ||
           selectedJobInfo.jobPrices.priceId === null) ? null : (
-          <Grid item xs={2.784} sx={{}}>
+          <Grid item xs={2.784}>
             <Box
               sx={{
                 display: 'flex',
@@ -879,191 +1141,803 @@ const JobDetail = () => {
                   borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                 }}
               ></Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-
-                  height: '100%',
-                }}
-              >
+              {value === 'info' && selectedJobInfo?.jobInfo ? (
                 <Box
                   sx={{
                     display: 'flex',
-
                     flexDirection: 'column',
+
+                    height: '100%',
                   }}
                 >
-                  <Typography
-                    sx={{ padding: '20px' }}
-                    fontSize={14}
-                    fontWeight={600}
-                  >
-                    Selected Pros (
-                    {Object.values(selectedRows).reduce(
-                      (sum, array) => sum + array.data.length,
-                      0,
-                    )}
-                    )
-                  </Typography>
                   <Box
                     sx={{
-                      overflowY: 'scroll',
-                      maxHeight: 'calc(85vh - 210px)',
-                      height: '100%',
-                      '&::-webkit-scrollbar': {
-                        width: 6,
-                      },
-                      '&::-webkit-scrollbar-thumb': {
-                        borderRadius: 20,
-                        background: hexToRGBA('#57596C', 0.6),
-                      },
-                      '&::-webkit-scrollbar-track': {
-                        borderRadius: 20,
-                        background: 'transparent',
-                      },
+                      display: 'flex',
+
+                      flexDirection: 'column',
                     }}
                   >
-                    {Object.keys(selectedRows).map((key, index) => (
-                      <Box key={uuidv4()}>
-                        {selectedRows[key].data.length === 0 ? null : (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              padding: '8px 16px 8px 20px',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
+                    <Accordion
+                      expanded={expanded === 'panel1'}
+                      onChange={handleAccordionChange('panel1')}
+                      sx={{
+                        borderRadius: '0 !important',
+                        boxShadow: 'none !important',
+                        background: expanded === 'panel1' ? '#F7F8FF' : '#FFF',
+                        padding: '20px',
+                        margin: '0 !important',
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls='panel1bh-content'
+                        id='panel1bh-header'
+                        sx={{ padding: 0 }}
+                      >
+                        <Typography fontSize={16} fontWeight={600}>
+                          Source files to Pro
+                        </Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: 0 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Typography
+                            fontSize={12}
+                            fontWeight={400}
+                            color='rgba(76, 78, 100, 0.60)'
+                          >
+                            {formatFileSize(
+                              sourceFileList
+                                ? getFileSize(sourceFileList, 'SOURCE')
+                                : 0,
+                            )}
+                            / {byteToGB(MAXIMUM_FILE_SIZE)}
+                          </Typography>
+                          <Button
+                            fullWidth
+                            variant='contained'
+                            sx={{ mt: '8px' }}
+                            onClick={() => onClickUploadSourceFile()}
+                          >
+                            Upload files
+                          </Button>
+                          {sourceFileList && sourceFileList.length > 0
+                            ? Object.entries(
+                                sourceFileList.reduce(
+                                  (acc: { [key: string]: any[] }, cur) => {
+                                    const date = cur.createdAt!
+                                    if (!acc[date]) {
+                                      acc[date] = []
+                                    }
+                                    acc[date].push(cur)
+                                    return acc
+                                  },
+                                  {},
+                                ),
+                              ).map(([key, value]) => {
+                                return (
+                                  <Box key={uuidv4()}>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+
+                                        marginBottom: '10px',
+                                        mt: '20px',
+                                      }}
+                                    >
+                                      <Typography
+                                        variant='body1'
+                                        fontWeight={600}
+                                      >
+                                        {key
+                                          ? convertTimeToTimezone(
+                                              key,
+                                              auth?.getValue().user?.timezone!,
+                                              timezone.getValue(),
+                                            )
+                                          : '-'}
+                                      </Typography>
+                                      <IconButton
+                                        sx={{
+                                          border: '1px solid #666CFF',
+                                          borderRadius: '10px',
+                                          background: '#FFF',
+                                          padding: '4px',
+                                        }}
+                                        onClick={() => {
+                                          DownloadAllFiles(
+                                            value,
+                                            S3FileType.JOB,
+                                          )
+                                        }}
+                                      >
+                                        <Icon
+                                          icon='ic:sharp-download'
+                                          color='#666CFF'
+                                          fontSize={24}
+                                        />
+                                      </IconButton>
+                                    </Box>
+
+                                    <Box
+                                      sx={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(1, 1fr)',
+                                        width: '100%',
+                                        gap: '8px',
+                                      }}
+                                    >
+                                      {fileList(value, 'SOURCE')}
+                                    </Box>
+                                  </Box>
+                                )
+                              })
+                            : null}
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+                    <Accordion
+                      expanded={expanded === 'panel2'}
+                      onChange={handleAccordionChange('panel2')}
+                      sx={{
+                        borderRadius: '0 !important',
+                        boxShadow: 'none !important',
+                        background: expanded === 'panel2' ? '#F7F8FF' : '#FFF',
+                        padding: '20px',
+                        margin: '0 !important',
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls='panel1bh-content'
+                        id='panel1bh-header'
+                        sx={{ padding: 0 }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                          }}
+                        >
+                          <Typography fontSize={16} fontWeight={600}>
+                            Target files from Pro
+                          </Typography>
+                          <IconButton
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleMenuClick(e)
+                            }}
+                            sx={{ padding: 0 }}
+                          >
+                            <Icon icon='mdi:dots-horizontal' />
+                          </IconButton>
+                          <Menu
+                            elevation={8}
+                            anchorEl={anchorEl}
+                            id='customized-menu'
+                            onClose={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              handleClose()
+                            }}
+                            open={Boolean(anchorEl)}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'left',
+                            }}
+                            transformOrigin={{
+                              vertical: 'top',
+                              horizontal: 'right',
                             }}
                           >
-                            <Box
+                            <MenuItem
                               sx={{
-                                display: 'flex',
-                                gap: '8px',
-                                alignItems: 'center',
+                                gap: 2,
+                                '&:hover': {
+                                  background: 'inherit',
+                                  cursor: 'default',
+                                },
+                                justifyContent: 'flex-start',
+                                alignItems: 'flex-start',
+                                padding: 0,
                               }}
                             >
-                              {selectedRows[key].isPrivate ? (
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '5px',
-                                    background: '#F7F7F9',
-                                  }}
-                                >
-                                  <Icon icon='mdi:lock' color='#8D8E9A' />
-                                </Box>
-                              ) : null}
-                              <Typography
-                                fontSize={12}
-                                fontWeight={400}
-                                color='#8D8E9A'
+                              <Button
+                                startIcon={
+                                  <Icon
+                                    icon='ic:sharp-refresh'
+                                    color='#4C4E648A'
+                                    fontSize={24}
+                                  />
+                                }
+                                fullWidth
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  handleClose()
+                                  onClickRequestRedelivery()
+                                  // onClickEdit()
+                                }}
                                 sx={{
-                                  width: '100%',
-                                  maxWidth: '210px',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
+                                  justifyContent: 'flex-start',
+                                  padding: '6px 16px',
+                                  fontSize: 16,
+                                  fontWeight: 400,
+                                  color: 'rgba(76, 78, 100, 0.87)',
+                                  borderRadius: 0,
                                 }}
                               >
-                                {key}
-                              </Typography>
-                            </Box>
-                            <IconButton
-                              sx={{ padding: 0 }}
-                              onClick={() => {
-                                const newSelectedRows = { ...selectedRows }
-
-                                delete newSelectedRows[key]
-                                setSelectedRows(newSelectedRows)
-                                setSelectionModel(prev => {
-                                  const newState = { ...prev }
-                                  delete newState[key]
-                                  return newState
-                                })
+                                Request redelivery
+                              </Button>
+                            </MenuItem>
+                          </Menu>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: 0 }}>
+                        {jobDeliveriesFeedbacks?.deliveries &&
+                        jobDeliveriesFeedbacks?.deliveries.some(delivery =>
+                          delivery.files.some(files => files.type === 'TARGET'),
+                        ) ? (
+                          jobDeliveriesFeedbacks?.deliveries.map(delivery => (
+                            <Box
+                              key={delivery.id}
+                              sx={{
+                                padding: '20px',
+                                border: '1px solid #4C4E6454',
+                                borderRadius: '8px',
                               }}
                             >
-                              <Icon
-                                icon='mdi:close'
-                                color='#8D8E9A'
-                                fontSize={20}
-                              />
-                            </IconButton>
-                          </Box>
-                        )}
-
-                        {selectedRows[key].data.map((pro, index) => (
-                          <Box
-                            key={uuidv4()}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <Box sx={{ display: 'flex' }}>
-                              {selectedRows[key].isPrioritized ? (
-                                <Typography
-                                  fontSize={14}
-                                  fontWeight={600}
-                                  sx={{
-                                    padding: '16px 16px 16px 20px',
-                                  }}
-                                >
-                                  {(pro as ProListType).order}
-                                </Typography>
-                              ) : null}
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  maxWidth: selectedRows[key].isPrioritized
-                                    ? '210px'
-                                    : '250px',
-                                  padding: selectedRows[key].isPrioritized
-                                    ? 'inherit'
-                                    : '0 0 0 20px',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  marginBottom: '10px',
                                 }}
                               >
-                                <LegalNameEmail
-                                  row={{
-                                    isOnboarded: pro.isOnboarded,
-                                    isActive: pro.isActive,
-
-                                    firstName: pro.firstName,
-                                    middleName: pro.middleName,
-                                    lastName: pro.lastName,
-                                    email: pro.email,
-                                  }}
-                                />
+                                <Typography variant='body1' fontWeight={600}>
+                                  {delivery.deliveredDate
+                                    ? convertTimeToTimezone(
+                                        delivery.deliveredDate,
+                                        auth?.getValue().user?.timezone!,
+                                        timezone.getValue(),
+                                      )
+                                    : '-'}
+                                </Typography>
+                                {delivery.files.length ? (
+                                  <IconButton
+                                    sx={{
+                                      border: '1px solid #666CFF',
+                                      borderRadius: '10px',
+                                      background: '#FFF',
+                                      padding: '4px',
+                                    }}
+                                    onClick={() => {
+                                      DownloadAllFiles(
+                                        delivery.files,
+                                        S3FileType.JOB,
+                                      )
+                                    }}
+                                  >
+                                    <Icon
+                                      icon='ic:sharp-download'
+                                      color='#666CFF'
+                                      fontSize={24}
+                                    />
+                                  </IconButton>
+                                ) : null}
+                              </Box>
+                              <Box sx={{ marginBottom: '10px' }}>
+                                {delivery.files.length ? (
+                                  <Typography variant='subtitle2'>
+                                    {formatFileSize(
+                                      delivery.files
+                                        ? getFileSize(delivery?.files, 'TARGET')
+                                        : 0,
+                                    )}
+                                  </Typography>
+                                ) : null}
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(2, 1fr)',
+                                  width: '100%',
+                                  gap: '20px',
+                                }}
+                              >
+                                {delivery.files.length
+                                  ? fileList(delivery.files, 'TARGET')
+                                  : 'No target files'}
+                              </Box>
+                              <Divider />
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  marginTop: '16px',
+                                  marginBottom: '16px',
+                                }}
+                              >
+                                <Typography variant='body1' fontWeight={600}>
+                                  Notes from from Pro
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '10px',
+                                  marginTop: '16px',
+                                }}
+                              >
+                                <Typography variant='body1' fontWeight={400}>
+                                  {delivery.note ?? '-'}
+                                </Typography>
                               </Box>
                             </Box>
+                          ))
+                        ) : (
+                          <Typography variant='subtitle2'>
+                            There are no files delivered from Pro
+                          </Typography>
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
+                    <Accordion
+                      expanded={expanded === 'panel3'}
+                      onChange={handleAccordionChange('panel3')}
+                      sx={{
+                        borderRadius: '0 !important',
+                        boxShadow: 'none !important',
+                        background: expanded === 'panel3' ? '#F7F8FF' : '#FFF',
+                        padding: '20px',
+                        margin: '0 !important',
+                        borderBottom: '1px solid #E9EAEC',
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls='panel1bh-content'
+                        id='panel1bh-header'
+                        sx={{ padding: 0 }}
+                      >
+                        <Typography fontSize={16} fontWeight={600}>
+                          Job feedback
+                        </Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: 0 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          {/* {selectedJobInfo.jobInfo.status === 60400 ||
+                          selectedJobInfo.jobInfo.status === 60500 ||
+                          selectedJobInfo.jobInfo.status === 60250 ? ( */}
+                          <>
+                            <Button
+                              fullWidth
+                              variant='contained'
+                              sx={{ mt: '8px' }}
+                              onClick={() => setUseJobFeedbackForm(true)}
+                            >
+                              Add feedback
+                            </Button>
+                            {/* <Divider /> */}
+                          </>
+                          {/* ) : null} */}
+
+                          {useJobFeedbackForm ? (
+                            <>
+                              <Divider
+                                sx={{
+                                  my: '20px !important',
+                                }}
+                              />
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '14px',
+                                  marginTop: '14px',
+                                  marginBottom: '14px',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                                    <Chip
+                                      size='small'
+                                      skin='light'
+                                      label={'Writer'}
+                                      color='error'
+                                      sx={{
+                                        textTransform: 'capitalize',
+                                        '& .MuiChip-label': {
+                                          lineHeight: '18px',
+                                        },
+                                        mr: 1,
+                                      }}
+                                    />
+                                    <Typography
+                                      variant='body1'
+                                      sx={{
+                                        fontSize: '14px',
+                                        fontWeight: 500,
+                                        lineHeight: '21px',
+                                        letterSpacing: '0.1px',
+                                        color: '#666CFF',
+                                      }}
+                                    >
+                                      {getLegalName({
+                                        firstName:
+                                          auth?.getValue().user?.firstName,
+                                        middleName:
+                                          auth?.getValue().user?.middleName,
+                                        lastName:
+                                          auth?.getValue().user?.lastName,
+                                      })}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px',
+                                  }}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    autoComplete='off'
+                                    rows={4}
+                                    value={addJobFeedbackData}
+                                    placeholder='Write down a feedback.'
+                                    onChange={event => {
+                                      if (event.target.value) {
+                                        setAddJobFeedbackData(
+                                          event.target.value,
+                                        )
+                                      } else {
+                                        setAddJobFeedbackData(null)
+                                      }
+                                    }}
+                                    multiline
+                                    error={
+                                      addJobFeedbackData === null ? true : false
+                                    }
+                                    helperText={
+                                      addJobFeedbackData === null
+                                        ? FormErrors.required
+                                        : null
+                                    }
+                                    id='textarea-outlined-static'
+                                  />
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      gap: '8px',
+                                      justifyContent: 'end',
+                                    }}
+                                  >
+                                    <Button
+                                      variant='outlined'
+                                      size='small'
+                                      onClick={onClickDiscardFeedback}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      variant='contained'
+                                      size='small'
+                                      onClick={onClickAddFeedback}
+                                    >
+                                      Confirm
+                                    </Button>
+                                  </Box>
+                                  {/* {feedbacks && feedbacks.length ? (
+                                  <Divider
+                                    sx={{
+                                      my: theme =>
+                                        `${theme.spacing(4)} !important`,
+                                    }}
+                                  />
+                                ) : null} */}
+                                </Box>
+                              </Box>
+                            </>
+                          ) : null}
+                          <Divider
+                            sx={{
+                              my: '20px !important',
+                            }}
+                          />
+                          {jobDeliveriesFeedbacks?.feedbacks &&
+                          jobDeliveriesFeedbacks.feedbacks.length > 0
+                            ? jobDeliveriesFeedbacks.feedbacks.map(value => {
+                                return (
+                                  <Box
+                                    key={uuidv4()}
+                                    sx={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box sx={{ display: 'flex', gap: '8px' }}>
+                                        <Chip
+                                          size='small'
+                                          skin='light'
+                                          label={'Writer'}
+                                          color='error'
+                                          sx={{
+                                            textTransform: 'capitalize',
+                                            '& .MuiChip-label': {
+                                              lineHeight: '18px',
+                                            },
+                                            mr: 1,
+                                          }}
+                                        />
+                                        <Typography
+                                          variant='body1'
+                                          sx={{
+                                            fontSize: '14px',
+                                            fontWeight: 500,
+                                            lineHeight: '21px',
+                                            letterSpacing: '0.1px',
+                                            color:
+                                              value.email ===
+                                              auth?.getValue().user?.email
+                                                ? '#666CFF'
+                                                : 'rgba(76, 78, 100, 0.87)',
+                                          }}
+                                        >
+                                          {value.name}
+                                        </Typography>
+                                      </Box>
+
+                                      {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                                      {/* <Box sx={{ display: 'flex' }}>
+                                  {selectedComment && selectedComment?.id === value.id ? (
+                                    <></>
+                                  ) : (
+                                    <>
+                                      {ability.can(
+                                        'update',
+                                        new pro_comment(value.userId),
+                                      ) && value.userId === user.userId ? (
+                                        <IconButton
+                                          sx={{ padding: 1 }}
+                                          onClick={() => onClickEditComment(value)}
+                                        >
+                                          <Icon icon='mdi:pencil-outline' />
+                                        </IconButton>
+                                      ) : null}
+                                      {ability.can(
+                                        'delete',
+                                        new pro_comment(value.userId),
+                                      ) ? (
+                                        <IconButton
+                                          sx={{ padding: 1 }}
+                                          onClick={() => onClickDeleteComment(value)}
+                                        >
+                                          <Icon icon='mdi:delete-outline' />
+                                        </IconButton>
+                                      ) : null}
+                                    </>
+                                  )}
+                                </Box> */}
+                                    </Box>
+
+                                    <Typography
+                                      variant='body2'
+                                      fontSize={12}
+                                      sx={{ mt: '4px' }}
+                                    >
+                                      {convertTimeToTimezone(
+                                        value.createdAt,
+                                        auth?.getValue().user?.timezone,
+                                        timezone.getValue(),
+                                      )}
+                                    </Typography>
+                                    {value.isChecked ? (
+                                      <Box
+                                        display='flex'
+                                        justifyContent='flex-end'
+                                      >
+                                        <Image
+                                          src='/images/icons/job-icons/icon-check.svg'
+                                          alt='logo'
+                                          width={44}
+                                          height={24}
+                                        />
+                                        <Typography
+                                          variant='body1'
+                                          sx={{
+                                            color: 'rgba(76, 78, 100, 0.6)',
+                                            fontWeight: 600,
+                                            fontSize: '14px',
+                                            lineHeight: '21px',
+                                            letterSpacing: '0.15px',
+                                          }}
+                                        >
+                                          {'Read by Pro'}
+                                        </Typography>
+                                      </Box>
+                                    ) : null}
+
+                                    {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                                    {/* {selectedComment && selectedComment?.id === value.id ? (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px',
+                                  }}
+                                >
+                                  <TextField
+                                    fullWidth
+                                    rows={4}
+                                    value={comment}
+                                    onChange={handleCommentChange}
+                                    multiline
+                                    id='textarea-outlined-static'
+                                  />
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      gap: '8px',
+                                      justifyContent: 'end',
+                                    }}
+                                  >
+                                    <Button
+                                      variant='outlined'
+                                      size='small'
+                                      onClick={onClickEditCancelComment}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      variant='contained'
+                                      size='small'
+                                      onClick={onClickEditConfirmComment}
+                                    >
+                                      Confirm
+                                    </Button>
+                                  </Box>
+                                </Box>
+                              ) : (
+                                <Box>{value.comment}</Box>
+                              )} */}
+                                    <Typography
+                                      fontSize={14}
+                                      fontWeight={400}
+                                      sx={{ mt: '16px' }}
+                                    >
+                                      {value.feedback}
+                                    </Typography>
+                                  </Box>
+                                )
+                              })
+                            : null}
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+                  </Box>
+                </Box>
+              ) : value === 'assign' ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+
+                    height: '100%',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <Typography
+                      sx={{ padding: '20px' }}
+                      fontSize={14}
+                      fontWeight={600}
+                    >
+                      Selected Pros (
+                      {Object.values(selectedRows).reduce(
+                        (sum, array) => sum + array.data.length,
+                        0,
+                      )}
+                      )
+                    </Typography>
+                    <Box
+                      sx={{
+                        overflowY: 'scroll',
+                        maxHeight: 'calc(85vh - 210px)',
+                        height: '100%',
+                        '&::-webkit-scrollbar': {
+                          width: 6,
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          borderRadius: 20,
+                          background: hexToRGBA('#57596C', 0.6),
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          borderRadius: 20,
+                          background: 'transparent',
+                        },
+                      }}
+                    >
+                      {Object.keys(selectedRows).map((key, index) => (
+                        <Box key={uuidv4()}>
+                          {selectedRows[key].data.length === 0 ? null : (
                             <Box
                               sx={{
                                 display: 'flex',
-
-                                width: '40px',
-                                height: '100%',
-                                padding: '16px 20px 16px 4px',
+                                padding: '8px 16px 8px 20px',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                               }}
                             >
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                {selectedRows[key].isPrivate ? (
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: '5px',
+                                      background: '#F7F7F9',
+                                    }}
+                                  >
+                                    <Icon icon='mdi:lock' color='#8D8E9A' />
+                                  </Box>
+                                ) : null}
+                                <Typography
+                                  fontSize={12}
+                                  fontWeight={400}
+                                  color='#8D8E9A'
+                                  sx={{
+                                    width: '100%',
+                                    maxWidth: '210px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                  }}
+                                >
+                                  {key}
+                                </Typography>
+                              </Box>
                               <IconButton
                                 sx={{ padding: 0 }}
                                 onClick={() => {
                                   const newSelectedRows = { ...selectedRows }
-                                  newSelectedRows[key].data.splice(index, 1)
+
+                                  delete newSelectedRows[key]
                                   setSelectedRows(newSelectedRows)
                                   setSelectionModel(prev => {
                                     const newState = { ...prev }
-                                    newState[key] = prev[key]?.filter(
-                                      value => value !== pro.userId,
-                                    )
-                                    if (newState[key]?.length === 0) {
-                                      delete newState[key]
-                                    }
-                                    console.log(newState, 'new')
-
+                                    delete newState[key]
                                     return newState
                                   })
                                 }}
@@ -1075,82 +1949,166 @@ const JobDetail = () => {
                                 />
                               </IconButton>
                             </Box>
-                          </Box>
-                        ))}
-                      </Box>
-                    ))}
+                          )}
+
+                          {selectedRows[key].data.map((pro, index) => (
+                            <Box
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <Box sx={{ display: 'flex' }}>
+                                {selectedRows[key].isPrioritized ? (
+                                  <Typography
+                                    fontSize={14}
+                                    fontWeight={600}
+                                    sx={{
+                                      padding: '16px 16px 16px 20px',
+                                    }}
+                                  >
+                                    {(pro as ProListType).order}
+                                  </Typography>
+                                ) : null}
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    maxWidth: selectedRows[key].isPrioritized
+                                      ? '210px'
+                                      : '250px',
+                                    padding: selectedRows[key].isPrioritized
+                                      ? 'inherit'
+                                      : '0 0 0 20px',
+                                  }}
+                                >
+                                  <LegalNameEmail
+                                    row={{
+                                      isOnboarded: pro.isOnboarded,
+                                      isActive: pro.isActive,
+
+                                      firstName: pro.firstName,
+                                      middleName: pro.middleName,
+                                      lastName: pro.lastName,
+                                      email: pro.email,
+                                    }}
+                                  />
+                                </Box>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+
+                                  width: '40px',
+                                  height: '100%',
+                                  padding: '16px 20px 16px 4px',
+                                }}
+                              >
+                                <IconButton
+                                  sx={{ padding: 0 }}
+                                  onClick={() => {
+                                    const newSelectedRows = { ...selectedRows }
+                                    newSelectedRows[key].data.splice(index, 1)
+                                    setSelectedRows(newSelectedRows)
+                                    setSelectionModel(prev => {
+                                      const newState = { ...prev }
+                                      newState[key] = prev[key]?.filter(
+                                        value => value !== pro.userId,
+                                      )
+                                      if (newState[key]?.length === 0) {
+                                        delete newState[key]
+                                      }
+                                      console.log(newState, 'new')
+
+                                      return newState
+                                    })
+                                  }}
+                                >
+                                  <Icon
+                                    icon='mdi:close'
+                                    color='#8D8E9A'
+                                    fontSize={20}
+                                  />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      padding: '32px 24px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '16px',
+                      height: '156px',
+                      // flex: 1,
+                      width: '100%',
+                      position: 'absolute',
+                      bottom: 0,
+                      // position: 'relative',
+                      // transform: 'translateY(-100%)',
+                      // position: 'absolute',
+                      // bottom: 0,
+                    }}
+                  >
+                    {assignProMode ? null : (
+                      <Button
+                        variant={addProsMode ? 'contained' : 'outlined'}
+                        onClick={onClickRequest}
+                      >
+                        Request
+                      </Button>
+                    )}
+
+                    {addProsMode ? (
+                      <Button
+                        variant='outlined'
+                        onClick={() => {
+                          setAddProsMode(false)
+                          setAssignProMode(false)
+                          setSelectionModel({})
+                          setSelectedRows({})
+                          setSelectedLinguistTeam(null)
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={'contained'}
+                        disabled={
+                          Object.values(selectedRows).reduce(
+                            (sum, array) => sum + array.data.length,
+                            0,
+                          ) !== 1
+                        }
+                        onClick={() => {
+                          onClickAssign(selectedRows)
+                        }}
+                      >
+                        Assign
+                      </Button>
+                    )}
+                    {assignProMode ? (
+                      <Button
+                        variant='outlined'
+                        onClick={() => {
+                          setAssignProMode(false)
+                          setSelectionModel({})
+                          setSelectedRows({})
+                          setSelectedLinguistTeam(null)
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    ) : null}
                   </Box>
                 </Box>
-                <Box
-                  sx={{
-                    padding: '32px 24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px',
-                    height: '156px',
-                    // flex: 1,
-                    width: '100%',
-                    position: 'absolute',
-                    bottom: 0,
-                    // position: 'relative',
-                    // transform: 'translateY(-100%)',
-                    // position: 'absolute',
-                    // bottom: 0,
-                  }}
-                >
-                  {assignProMode ? null : (
-                    <Button
-                      variant={addProsMode ? 'contained' : 'outlined'}
-                      onClick={onClickRequest}
-                    >
-                      Request
-                    </Button>
-                  )}
-
-                  {addProsMode ? (
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setAddProsMode(false)
-                        setAssignProMode(false)
-                        setSelectionModel({})
-                        setSelectedRows({})
-                        setSelectedLinguistTeam(null)
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={'contained'}
-                      disabled={
-                        Object.values(selectedRows).reduce(
-                          (sum, array) => sum + array.data.length,
-                          0,
-                        ) !== 1
-                      }
-                      onClick={() => {
-                        onClickAssign(selectedRows)
-                      }}
-                    >
-                      Assign
-                    </Button>
-                  )}
-                  {assignProMode ? (
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setAssignProMode(false)
-                        setSelectionModel({})
-                        setSelectedRows({})
-                        setSelectedLinguistTeam(null)
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  ) : null}
-                </Box>
-              </Box>
+              ) : null}
             </Box>
           </Grid>
         )}

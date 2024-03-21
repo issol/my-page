@@ -116,6 +116,7 @@ export const useGetProJobDeliveriesFeedbacks = (id: number) => {
       staleTime: 60 * 1000, // 1
       suspense: true,
       keepPreviousData: true,
+      enabled: !!id,
     },
   )
 }

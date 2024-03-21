@@ -359,7 +359,12 @@ const AssignPro = ({
       children: (
         <Message
           jobId={jobInfo.id}
-          info={row}
+          info={{
+            userId: row.userId,
+            firstName: row.firstName,
+            lastName: row.lastName,
+            middleName: row.middleName,
+          }}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
