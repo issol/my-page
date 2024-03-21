@@ -135,9 +135,8 @@ const JobListCard = ({
       pathname: '/orders/job-list/detail/',
       query: { 
         orderId: orderId,
-        jobId: getTriggerGroup(Number(jobId!)),
-        source: info.sourceLanguage,
-        target: info.targetLanguage,
+        jobId: getTriggerGroup(Number(row.id!)),
+        selectedJobId: row.id,
       },
     })
   }
