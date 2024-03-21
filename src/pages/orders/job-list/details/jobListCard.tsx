@@ -617,35 +617,40 @@ const JobListCard = ({
                           scope='row'
                           align='right'
                         >
-                          {!isTriggerJob(row.id) && (
-                            <Tooltip
-                              title={`${row.nextJobId ? 'On' : 'Off'} 
-                                [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
-                                Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
-                              `}
-                              placement='top'
+                          <Tooltip
+                            title={`${row.nextJobId ? 'On' : 'Off'} 
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}], 
+                              Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
+                            `}
+                            placement='top'
+                          >
+                            <Box
+                              display='flex'
+                              alignItems='center'
+                              justifyContent='flex-end'
+                              gap='8px'
+                              visibility={isTriggerJob(row.id) ? 'visible' : 'hidden'}
                             >
                               <Box
-                                display='flex'
-                                alignItems='center'
-                                justifyContent='flex-end'
-                                gap='8px'
+                                visibility={row.autoNextJob ? 'visible' : 'hidden'}
+                                margin={0}
                               >
-                                {!row.nextJobId &&
-                                  <TriggerIcon />
-                                }
-                                {!row.autoNextJob && (
-                                  <TriggerSwitchStatus
-                                    variant='body2'
-                                    color={theme.palette.success.main}
-                                    bgcolor='#EEFBE5'
-                                  >
-                                    On
-                                  </TriggerSwitchStatus>
-                                )}
+                                <TriggerIcon />
                               </Box>
-                            </Tooltip>
-                          )}
+                              <Box
+                                visibility={row.autoNextJob ? 'visible' : 'hidden'}
+                                margin={0}
+                              >
+                                <TriggerSwitchStatus
+                                  variant='body2'
+                                  color={theme.palette.success.main}
+                                  bgcolor='#EEFBE5'
+                                >
+                                  On
+                                </TriggerSwitchStatus>
+                              </Box>
+                            </Box>
+                          </Tooltip>
                         </CustomTableCell>
                       </TableRow>
                     )
