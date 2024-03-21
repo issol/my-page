@@ -30,7 +30,7 @@ import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { JobStatus } from '@src/types/common/status.type'
 import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
@@ -123,7 +123,7 @@ const JobListCard = ({
   const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
 
   const [selected, setSelected] = useState<readonly number[]>([])
-  const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
+  const [changeJobStatus, setChangeJobStatus] = useState<JobStatus | null>(
     null,
   )
   const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
@@ -216,8 +216,8 @@ const JobListCard = ({
   }
 
   const isStatusChangeableJob = (status: number) => {
-    // 변경 가능 기준 : job status가 In preparation, Requested, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
-    return [60000, 60100, 60200, 60300, 60400, 60500, 60600, 60700, 60900].includes(status)
+    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
+    return [60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900].includes(status)
   }
 
   const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
@@ -556,7 +556,7 @@ const JobListCard = ({
                           scope='row'
                         >
                           {JobsStatusChip(
-                            row.status as JobStatusType,
+                            row.status as JobStatus,
                             statusList!,
                           )}
                         </CustomTableCell>
