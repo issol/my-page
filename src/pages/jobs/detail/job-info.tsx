@@ -584,7 +584,7 @@ const ProJobInfo = ({
               serviceType={data?.previousJob?.serviceType}
               date={convertTimeToTimezone(
                 data?.previousJob?.dueAt,
-                data?.previousJob?.dueTimezone.code ||
+                data?.previousJob?.dueTimezone?.code ||
                   auth.getValue()?.user?.timezone,
                 timezone.getValue(),
               )}
@@ -595,7 +595,7 @@ const ProJobInfo = ({
               serviceType={data?.nextJob?.serviceType}
               date={convertTimeToTimezone(
                 data?.nextJob?.dueAt,
-                data?.nextJob?.dueTimezone.code ||
+                data?.nextJob?.dueTimezone?.code ||
                   auth.getValue()?.user?.timezone,
                 timezone.getValue(),
               )}
