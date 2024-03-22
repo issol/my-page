@@ -619,6 +619,8 @@ const AssignPro = ({
                   queryClient.invalidateQueries(['assignProList'])
                   setAddRoundMode(true)
                   setRows({})
+                  setSelectionModel({})
+                  setSelectedRows({})
                 }}
               >
                 + Round{jobAssign.length + 1}
@@ -686,8 +688,11 @@ const AssignPro = ({
                         fullWidth
                         onClick={() => {
                           handleListClose()
-                          setAddProsMode(true)
                           setMenu('linguistTeam')
+                          setAddProsMode(true)
+                          setRows({})
+                          setSelectionModel({})
+                          setSelectedRows({})
                         }}
                         sx={{
                           justifyContent: 'flex-start',
@@ -727,6 +732,9 @@ const AssignPro = ({
                           setAssignProMode(true)
                           handleListClose()
                           setMenu('linguistTeam')
+                          setRows({})
+                          setSelectionModel({})
+                          setSelectedRows({})
                         }}
                         sx={{
                           justifyContent: 'flex-start',
