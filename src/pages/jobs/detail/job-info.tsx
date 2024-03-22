@@ -581,6 +581,7 @@ const ProJobInfo = ({
             <NextPrevItemCard
               title='Previous job'
               userInfo={data?.previousJob?.pro}
+              serviceType={data?.previousJob.serviceType}
               date={convertTimeToTimezone(
                 data?.previousJob?.dueAt,
                 data?.previousJob?.dueTimezone.code ||
@@ -591,6 +592,7 @@ const ProJobInfo = ({
             <NextPrevItemCard
               title='Next job'
               userInfo={data?.nextJob?.pro}
+              serviceType={data?.nextJob.serviceType}
               date={convertTimeToTimezone(
                 data?.nextJob?.dueAt,
                 data?.nextJob?.dueTimezone.code ||
@@ -992,6 +994,7 @@ interface NextPrevItemCardProps {
     lastName: string
     email: string
   }
+  serviceType?: string
   link?: string
 }
 
@@ -999,6 +1002,7 @@ const NextPrevItemCard = ({
   title,
   userInfo,
   link,
+  serviceType,
   date,
 }: NextPrevItemCardProps) => {
   return (
@@ -1027,7 +1031,7 @@ const NextPrevItemCard = ({
           <Box display='flex' width='100%' flexWrap='wrap'>
             <Box display='flex' alignItems='center' gap='20px'>
               <LegalNameEmail row={{ ...userInfo }} link={link} />
-              <ServiceTypeChip size='small' label='Approved' />
+              <ServiceTypeChip size='small' label={serviceType} />
             </Box>
             <Typography
               width='100%'
