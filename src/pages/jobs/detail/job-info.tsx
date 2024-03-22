@@ -34,7 +34,7 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 
@@ -54,10 +54,12 @@ import {
 } from '@src/apis/jobs/job-detail.api'
 import { timezoneSelector } from '@src/states/permission'
 import { JobStatus } from '@src/types/common/status.type'
-import InfoDialogButton from '@src/views/pro/infoDialog'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import styled from '@emotion/styled'
 import { v4 as uuidv4 } from 'uuid'
+import InfoDialogButton from '@src/views/pro/infoDialog'
+import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
+import { useRouter } from 'next/router'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -79,15 +81,29 @@ const ProJobInfo = ({
   statusList,
   jobDetailDots,
 }: Props) => {
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+
+  const router = useRouter()
+
+  const { isNextJob } = router.query
+  const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
+
   const sideBoxRef = useRef<HTMLDivElement>(null)
 
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
   const queryClient = useQueryClient()
-  const statusLabel =
-    statusList?.find(i => i.value === jobInfo.status)?.label || ''
+  const { data } = useGetProPreviousAndNextJob(jobInfo.id)
+
   const { openModal, closeModal } = useModal()
-  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+
+  const [rightBoxWidth, setRightBoxWidth] = useState(0)
+
+  const statusLabel = useMemo(
+    () => statusList?.find(i => i.value === jobInfo.status)?.label || '',
+    [statusList],
+  )
 
   const updateJob = useMutation(
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
@@ -490,6 +506,19 @@ const ProJobInfo = ({
     }
   }
 
+  useEffect(() => {
+    if (sideBoxRef.current) {
+      const height = sideBoxRef.current.offsetHeight
+
+      if (height === 0) {
+        setRightBoxWidth(0)
+        return
+      }
+
+      setRightBoxWidth(266)
+    }
+  }, [])
+
   const getJobDateDiff = (jobDueDate: string, deliveredDate?: string) => {
     const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
     const dueDate = dayjs(jobDueDate)
@@ -538,37 +567,36 @@ const ProJobInfo = ({
     }
   }, [jobInfo])
 
-  const BoxHeight = useMemo(() => {
-    if (!sideBoxRef.current) return 0
-    return sideBoxRef.current.getBoundingClientRect().height > 2 ? 0 : 266
-  }, [sideBoxRef.current])
-
   return (
     <Box display='flex' width='100%' gap={4} flex={1}>
-      <Box>
-        <Card sx={{ padding: '20px', marginBottom: '24px' }}>
+      <Box width='100%'>
+        <Card
+          sx={{
+            display: isPrevAndNextJob ? 'block' : 'none',
+            padding: '20px',
+            marginBottom: '24px',
+          }}
+        >
           <Box display='flex' flexWrap='wrap' gap='10px '>
             <NextPrevItemCard
               title='Previous job'
-              userInfo={{
-                isOnboarded: true,
-                isActive: true,
-                firstName: 'Jenny',
-                lastName: 'Wilson',
-                email: 'proemail@example.com',
-              }}
-              date='09/03/2023, 05:30 PM (KST)'
+              userInfo={data?.previousJob?.pro}
+              date={convertTimeToTimezone(
+                data?.previousJob?.dueAt,
+                data?.previousJob?.dueTimezone.code ||
+                  auth.getValue()?.user?.timezone,
+                timezone.getValue(),
+              )}
             />
             <NextPrevItemCard
               title='Next job'
-              userInfo={{
-                isOnboarded: true,
-                isActive: true,
-                firstName: 'Jenny',
-                lastName: 'Wilson',
-                email: 'proemail@example.com',
-              }}
-              date='09/03/2023, 05:30 PM (KST)'
+              userInfo={data?.nextJob?.pro}
+              date={convertTimeToTimezone(
+                data?.nextJob?.dueAt,
+                data?.nextJob?.dueTimezone.code ||
+                  auth.getValue()?.user?.timezone,
+                timezone.getValue(),
+              )}
             />
           </Box>
         </Card>
@@ -828,8 +856,11 @@ const ProJobInfo = ({
           </Box>
         </Card>
       </Box>
-      <Box ref={sideBoxRef} minWidth={BoxHeight}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Box minWidth={rightBoxWidth}>
+        <Box
+          ref={sideBoxRef}
+          sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+        >
           {(fileList && fileList.length === 0) ||
           [70200, 70300, 70400, 70500, 601000].includes(
             jobInfo.status,
@@ -985,12 +1016,13 @@ const NextPrevItemCard = ({
         borderRadius='10px'
         marginTop='8px'
       >
-        {!userInfo && (
+        {(!userInfo && (
           <Box width='100%' display='flex' justifyContent='space-between'>
             <Typography variant='body2'>-</Typography>
             <ServiceTypeChip size='small' label='Approved' />
           </Box>
-        )}
+        )) ||
+          ''}
         {userInfo && (
           <Box display='flex' width='100%' flexWrap='wrap'>
             <Box display='flex' alignItems='center' gap='20px'>
