@@ -176,7 +176,8 @@ export type ProJobListType = {
       | null
   }
   finalProDeliveredAt: string
-  autoNextJob?: boolean
+  autoNextJob?: boolean // 트리거가 존재하는지 유무
+  isPreviousAndNextJob?: boolean // 다음 아이템이 존재하는지 여부
 }
 
 export type JobsFileType = {
@@ -333,4 +334,19 @@ export type JobAssignProRequestsType = {
   requestCompleted: boolean
   pros: Array<JobRequestsProType>
   interval: number
+}
+
+export type JobPrevNextItem = {
+  pro: {
+    userId: number
+    firstName: string
+    middleName: string
+    lastName: string
+    email: string
+    isActive: boolean
+    isOnboarded: boolean
+  }
+  serviceType: string
+  dueAt: Date
+  dueTimezone: CountryType
 }

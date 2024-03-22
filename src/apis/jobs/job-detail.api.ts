@@ -6,6 +6,7 @@ import {
   JobAddProsFormType,
   JobAssignProRequestsType,
   JobBulkRequestFormType,
+  JobPrevNextItem,
   jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
@@ -420,6 +421,13 @@ export const patchProJobDetail = async (
 
 export const getProJobDetailDots = async (id: number): Promise<string[]> => {
   const { data } = await axios.get(`/api/enough/u/job/${id}/dot`)
+  return data
+}
+
+export const getPreviousAndNextJob = async (
+  jobId: number,
+): Promise<{ previousJob: JobPrevNextItem; nextJob: JobPrevNextItem }> => {
+  const { data } = await axios.get(`/api/enough/u/job/${jobId}/previous-next`)
   return data
 }
 
