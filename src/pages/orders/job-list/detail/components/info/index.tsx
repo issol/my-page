@@ -40,7 +40,7 @@ import {
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import InfoEditModal from './edit-modal'
@@ -59,6 +59,15 @@ type Props = {
   items: JobItemType | undefined
   languagePair: LanguagePairTypeInItem[]
   setJobId: Dispatch<SetStateAction<number[]>>
+  setJobStatusMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      jobId: number
+      status: number
+    },
+    unknown
+  >
 }
 
 const JobInfo = ({
@@ -68,6 +77,7 @@ const JobInfo = ({
   items,
   languagePair,
   setJobId,
+  setJobStatusMutation,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -129,29 +139,13 @@ const JobInfo = ({
   }
 
   const handleChange = (status: number) => {
-    const res: SaveJobInfoParamsType = {
-      contactPersonId: jobInfo.contactPerson?.userId!,
-      description: jobInfo.description ?? null,
-      startDate: jobInfo.startedAt ? jobInfo.startedAt.toString() : null,
-      startTimezone: jobInfo.startTimezone ?? null,
-
-      dueDate: jobInfo.dueAt ? jobInfo.dueAt?.toString() : undefined,
-      dueTimezone: jobInfo.dueTimezone,
-      status: Number(status),
-      sourceLanguage: jobInfo.sourceLanguage,
-      targetLanguage: jobInfo.targetLanguage,
-      name: jobInfo.name,
-      isShowDescription: jobInfo.isShowDescription,
-    }
-
-    saveJobInfoMutation.mutate(
+    setJobStatusMutation.mutate(
       {
         jobId: jobInfo.id,
-        data: res,
+        status: Number(status),
       },
       {
         onSuccess: () => {
-          // setJobStatus(Number(event.target.value))
           closeModal('StatusAlertModal')
           filterStatus(Number(status))
         },
