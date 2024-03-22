@@ -59,11 +59,12 @@ const SelectPro = ({
   setExpandSelectProArea,
   expandSelectProArea,
 }: Props) => {
-
-  const getClientName = (clients: Array<{
-    id: number
-    client: string
-  }>) => {
+  const getClientName = (
+    clients: Array<{
+      id: number
+      client: string
+    }>,
+  ) => {
     const clientName: Array<string> = []
     clients.map((client, index) => {
       clientName.push(client.client)
@@ -287,11 +288,12 @@ const SelectPro = ({
                     ) : null}
                     <Box
                       sx={{
-                        paddingLeft:
-                          type === 'detail' &&
-                          getValues('isPrioritized') === '0'
-                            ? 0
-                            : '16px',
+                        paddingLeft: '16px',
+                        // paddingLeft:
+                        //   type === 'detail' &&
+                        //   getValues('isPrioritized') === '0'
+                        //     ? 0
+                        //     : '16px',
                         display: 'flex',
 
                         flex:
@@ -346,26 +348,27 @@ const SelectPro = ({
                           alignItems: 'center',
                         }}
                       >
-                        {!value.clients?.length
-                          ? '-'
-                          : <Box
-                              key={uuidv4()}
+                        {!value.clients?.length ? (
+                          '-'
+                        ) : (
+                          <Box
+                            key={uuidv4()}
+                            sx={{
+                              display: 'flex',
+                            }}
+                          >
+                            <Box
                               sx={{
-                                display: 'flex',
+                                maxWidth: '160px',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis',
                               }}
                             >
-                              <Box
-                                sx={{
-                                  maxWidth: '160px',
-                                  overflow: 'hidden',
-                                  whiteSpace: 'nowrap',
-                                  textOverflow: 'ellipsis',
-                                }}
-                              >
-                                {`${getClientName(value.clients)}`}
-                              </Box>
+                              {`${getClientName(value.clients)}`}
                             </Box>
-}
+                          </Box>
+                        )}
                         {value.clients?.length > 1 ? (
                           <Box>+{value.clients?.length - 1}</Box>
                         ) : null}
@@ -398,14 +401,12 @@ const SelectPro = ({
                         ) : (
                           '-'
                         )}
-                        {
-                          value.jobInfo?.length > 1 ? (
-                            <ExtraNumberChip
-                              label={`+${value.jobInfo?.slice(1).length}`}
-                              size='small'
-                            />
-                          ) : null
-                        }
+                        {value.jobInfo?.length > 1 ? (
+                          <ExtraNumberChip
+                            label={`+${value.jobInfo?.slice(1).length}`}
+                            size='small'
+                          />
+                        ) : null}
                       </Box>
                     </Box>
                     <Box
