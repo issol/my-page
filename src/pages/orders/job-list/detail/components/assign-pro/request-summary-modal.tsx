@@ -53,7 +53,7 @@ const RequestSummaryModal = ({
   const { openModal, closeModal } = useModal()
   const [selectedRequestOption, setSelectedRequestOption] = useState(0)
   const [requestTerm, setRequestTerm] = useState<number | null>(
-    existingPros ? existingPros.interval : null,
+    existingPros && type === 'add' ? existingPros.interval : null,
   )
   const [error, setError] = useState(false)
 
@@ -635,7 +635,7 @@ const RequestSummaryModal = ({
               <FormControl className='filterFormControl'>
                 <TextField
                   value={requestTerm}
-                  disabled={existingPros ? true : false}
+                  disabled={existingPros && type === 'add' ? true : false}
                   onChange={e => {
                     if (e.target.value) {
                       setRequestTerm(Number(e.target.value))

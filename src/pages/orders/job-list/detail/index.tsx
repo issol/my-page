@@ -433,6 +433,7 @@ const JobDetail = () => {
     {
       onSuccess: (data, variables) => {
         closeModal('AssignProModal')
+        setAssignProMode(false)
         displayCustomToast('Assigned successfully', 'success')
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
