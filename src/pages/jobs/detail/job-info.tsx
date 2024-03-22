@@ -581,7 +581,7 @@ const ProJobInfo = ({
             <NextPrevItemCard
               title='Previous job'
               userInfo={data?.previousJob?.pro}
-              serviceType={data?.previousJob.serviceType}
+              serviceType={data?.previousJob?.serviceType}
               date={convertTimeToTimezone(
                 data?.previousJob?.dueAt,
                 data?.previousJob?.dueTimezone.code ||
@@ -592,7 +592,7 @@ const ProJobInfo = ({
             <NextPrevItemCard
               title='Next job'
               userInfo={data?.nextJob?.pro}
-              serviceType={data?.nextJob.serviceType}
+              serviceType={data?.nextJob?.serviceType}
               date={convertTimeToTimezone(
                 data?.nextJob?.dueAt,
                 data?.nextJob?.dueTimezone.code ||

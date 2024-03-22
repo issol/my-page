@@ -166,9 +166,11 @@ export const convertTimeToTimezone = (
     // 위 코드 삭제시 사용할 코드
     // const timezoneAbbr = timezoneInfo.code
 
+    const timeZone = timezoneAbbr ? `(${timezoneAbbr})` : ''
+
     return useISOString && useISOString
       ? convertDate.toISO({ includeOffset: false })!
-      : convertDate.toFormat('MM/dd/yyyy, hh:mm a ') + `(${timezoneAbbr})`
+      : convertDate.toFormat('MM/dd/yyyy, hh:mm a ') + timeZone
   } catch (e) {
     return '-'
   }
