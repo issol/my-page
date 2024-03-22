@@ -136,7 +136,7 @@ const JobInfo = ({
       startDate: jobInfo.startedAt ? jobInfo.startedAt.toString() : null,
       startTimezone: jobInfo.startTimezone ?? null,
 
-      dueDate: jobInfo.dueAt.toString(),
+      dueDate: jobInfo.dueAt ? jobInfo.dueAt?.toString() : undefined,
       dueTimezone: jobInfo.dueTimezone,
       status: Number(status),
       sourceLanguage: jobInfo.sourceLanguage,

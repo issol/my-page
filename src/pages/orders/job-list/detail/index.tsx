@@ -493,6 +493,7 @@ const JobDetail = () => {
       requestRedelivery(data),
     {
       onSuccess: (data, variables) => {
+        closeModal('RequestRedeliveryModal')
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
@@ -1742,18 +1743,31 @@ const JobDetail = () => {
                           delivery.files.some(files => files.type === 'TARGET'),
                         ) ? (
                           jobDeliveriesFeedbacks?.deliveries.map(delivery => (
-                            <Box
-                              key={delivery.id}
-                              sx={{
-                                padding: '20px',
-                                border: '1px solid #4C4E6454',
-                                borderRadius: '8px',
-                              }}
-                            >
+                            <Box key={delivery.id} sx={{}}>
+                              <Typography
+                                fontSize={12}
+                                fontWeight={400}
+                                color='rgba(76, 78, 100, 0.60)'
+                              >
+                                {formatFileSize(
+                                  jobDeliveriesFeedbacks.deliveries.flatMap(
+                                    delivery => delivery.files,
+                                  )
+                                    ? getFileSize(
+                                        jobDeliveriesFeedbacks.deliveries.flatMap(
+                                          delivery => delivery.files,
+                                        ),
+                                        'TARGET',
+                                      )
+                                    : 0,
+                                )}
+                                / {byteToGB(MAXIMUM_FILE_SIZE)}
+                              </Typography>
                               <Box
                                 sx={{
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'space-between',
                                   gap: '10px',
                                   marginBottom: '10px',
                                 }}
@@ -1767,6 +1781,7 @@ const JobDetail = () => {
                                       )
                                     : '-'}
                                 </Typography>
+
                                 {delivery.files.length ? (
                                   <IconButton
                                     sx={{
@@ -1790,7 +1805,8 @@ const JobDetail = () => {
                                   </IconButton>
                                 ) : null}
                               </Box>
-                              <Box sx={{ marginBottom: '10px' }}>
+
+                              {/* <Box sx={{ marginBottom: '10px' }}>
                                 {delivery.files.length ? (
                                   <Typography variant='subtitle2'>
                                     {formatFileSize(
@@ -1800,11 +1816,11 @@ const JobDetail = () => {
                                     )}
                                   </Typography>
                                 ) : null}
-                              </Box>
+                              </Box> */}
                               <Box
                                 sx={{
                                   display: 'grid',
-                                  gridTemplateColumns: 'repeat(2, 1fr)',
+                                  gridTemplateColumns: 'repeat(1, 1fr)',
                                   width: '100%',
                                   gap: '20px',
                                 }}
@@ -1813,17 +1829,16 @@ const JobDetail = () => {
                                   ? fileList(delivery.files, 'TARGET')
                                   : 'No target files'}
                               </Box>
-                              <Divider />
+
                               <Box
                                 sx={{
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '10px',
-                                  marginTop: '16px',
-                                  marginBottom: '16px',
+                                  marginTop: '24px',
                                 }}
                               >
-                                <Typography variant='body1' fontWeight={600}>
+                                <Typography fontSize={14} fontWeight={400}>
                                   Notes from from Pro
                                 </Typography>
                               </Box>
@@ -1831,11 +1846,15 @@ const JobDetail = () => {
                                 sx={{
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '10px',
-                                  marginTop: '16px',
+
+                                  marginTop: '8px',
                                 }}
                               >
-                                <Typography variant='body1' fontWeight={400}>
+                                <Typography
+                                  color='#8D8E9A'
+                                  fontWeight={400}
+                                  fontSize={14}
+                                >
                                   {delivery.note ?? '-'}
                                 </Typography>
                               </Box>
