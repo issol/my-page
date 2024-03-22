@@ -16,7 +16,7 @@ import {
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import FileItem from '@src/@core/components/fileItem'
-import { saveJobInfo } from '@src/apis/jobs/job-detail.api'
+import { saveJobInfo, setMoveToNextJob } from '@src/apis/jobs/job-detail.api'
 import useModal from '@src/hooks/useModal'
 import { useGetStatusList } from '@src/queries/common.query'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
@@ -51,10 +51,12 @@ import {
 } from '@src/types/orders/order-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Message from '../assign-pro/message-modal'
+import MoveNextJobModal from './move-next-job-modal'
 
 type Props = {
   jobInfo: JobType
   jobAssign: JobAssignProRequestsType[]
+  jobInfoList: Array<JobType | undefined>
   projectTeam: ProjectTeamListType[]
   items: JobItemType | undefined
   languagePair: LanguagePairTypeInItem[]
@@ -73,6 +75,7 @@ type Props = {
 const JobInfo = ({
   jobInfo,
   jobAssign,
+  jobInfoList,
   projectTeam,
   items,
   languagePair,
@@ -119,6 +122,18 @@ const JobInfo = ({
           )
         }
         // setSuccess && setSuccess(true)
+      },
+    },
+  )
+
+  const setMoveToNextJobMutation = useMutation(
+    (data: { jobId: number; autoSharingFile: '1' | '0' }) =>
+      setMoveToNextJob(data),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
       },
     },
   )
@@ -379,9 +394,31 @@ const JobInfo = ({
       ),
     })
   }
+
+  const handleNextJob = (autoFile: boolean) => {
+    closeModal('MoveNextJobModal')
+    setMoveToNextJobMutation.mutate({
+      jobId: jobInfo.id,
+      autoSharingFile: autoFile ? '1' : '0',
+    })
+  }
+
+  const onClickMoveNextJob = () => {
+    openModal({
+      type: 'MoveNextJobModal',
+      children: (
+        <MoveNextJobModal
+          onClose={() => closeModal('MoveNextJobModal')}
+          onClick={handleNextJob}
+        />
+      ),
+    })
+  }
   useEffect(() => {
     if (jobInfo && jobStatusList) filterStatus(jobInfo.status)
   }, [jobInfo, jobStatusList])
+
+  console.log(jobInfoList)
 
   useEffect(() => {
     if (projectTeam) {
@@ -460,20 +497,37 @@ const JobInfo = ({
                   height={24}
                 ></Image>
               ) : null}
-              <Box
-                sx={{
-                  padding: '3px 4px',
-                  borderRadius: '5px',
-                  background: jobInfo.autoNextJob ? '#EEFBE5' : '#E9EAEC',
-                }}
-              >
-                <Typography
-                  fontSize={13}
-                  color={jobInfo.autoNextJob ? '#6AD721' : '#BBBCC4'}
+              {jobInfo.autoNextJob ? (
+                <Box
+                  sx={{
+                    padding: '3px 4px',
+                    borderRadius: '5px',
+                    background: jobInfo.autoNextJob ? '#EEFBE5' : '#E9EAEC',
+                  }}
                 >
-                  {jobInfo.autoNextJob ? 'On' : 'Off'}
-                </Typography>
-              </Box>
+                  <Typography
+                    fontSize={13}
+                    color={jobInfo.autoNextJob ? '#6AD721' : '#BBBCC4'}
+                  >
+                    {jobInfo.autoNextJob ? 'On' : 'Off'}
+                  </Typography>
+                </Box>
+              ) : jobInfoList.find(value => value?.id === jobInfo.nextJobId) ? (
+                jobInfoList.find(value => value?.id === jobInfo.nextJobId)
+                  ?.pro !== null && jobInfo.autoNextJob ? (
+                  <Button
+                    startIcon={<Icon icon='ic:sharp-read-more' fontSize={24} />}
+                    fullWidth
+                    onClick={() => {
+                      onClickMoveNextJob()
+                    }}
+                    variant='outlined'
+                  >
+                    Move on to the next job
+                  </Button>
+                ) : null
+              ) : null}
+
               <Box>
                 <IconButton sx={{ padding: 0 }} onClick={handleMenuClick}>
                   <Icon icon='mdi:dots-vertical' />
@@ -531,42 +585,50 @@ const JobInfo = ({
                     </Button>
                   </MenuItem>
 
-                  <MenuItem
-                    sx={{
-                      gap: 2,
-                      '&:hover': {
-                        background: 'inherit',
-                        cursor: 'default',
-                      },
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start',
-                      padding: 0,
-                    }}
-                  >
-                    <Button
-                      startIcon={
-                        <Icon
-                          icon='ic:sharp-read-more'
-                          color='#4C4E648A'
-                          fontSize={24}
-                        />
-                      }
-                      fullWidth
-                      onClick={() => {
-                        handleMenuClose()
-                      }}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        fontSize: 16,
-                        fontWeight: 400,
-                        color: 'rgba(76, 78, 100, 0.87)',
-                        borderRadius: 0,
-                      }}
-                    >
-                      Move on to the next job
-                    </Button>
-                  </MenuItem>
+                  {jobInfoList.find(
+                    value => value?.id === jobInfo.nextJobId,
+                  ) ? (
+                    jobInfoList.find(value => value?.id === jobInfo.nextJobId)
+                      ?.pro !== null && jobInfo.autoNextJob ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          padding: 0,
+                        }}
+                      >
+                        <Button
+                          startIcon={
+                            <Icon
+                              icon='ic:sharp-read-more'
+                              color='#4C4E648A'
+                              fontSize={24}
+                            />
+                          }
+                          fullWidth
+                          onClick={() => {
+                            handleMenuClose()
+                            onClickMoveNextJob()
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Move on to the next job
+                        </Button>
+                      </MenuItem>
+                    ) : null
+                  ) : null}
                 </Menu>
               </Box>
             </Box>

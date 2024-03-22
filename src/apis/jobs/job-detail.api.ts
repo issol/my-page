@@ -564,3 +564,15 @@ export const requestRedelivery = async (params: {
   })
   return data
 }
+
+export const setMoveToNextJob = async (params: {
+  jobId: number
+  autoSharingFile: '1' | '0'
+}) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/${params.jobId}/move-to-next`,
+    {
+      autoSharingFile: params.autoSharingFile,
+    },
+  )
+}

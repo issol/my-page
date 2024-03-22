@@ -124,6 +124,107 @@ const JobListCard = ({
     })
   }
 
+  const onHoverRow = (id: number, isHover: boolean) => {
+    if (isHover) {
+      triggerGroups.map(group => {
+        if (group.includes(id)) {
+          setHoveredGroup(group)
+        }
+      })
+    } else {
+      setHoveredGroup([])
+    }
+  }
+
+  const isTriggerJob = (jobId: number) => {
+    return (
+      info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId)
+        .length > 0
+    )
+  }
+
+  const getTriggerGroup = (jobId: number) => {
+    const findGroup = triggerGroups.find(group => group.includes(jobId))
+    if (findGroup) {
+      return findGroup
+    } else {
+      return jobId
+    }
+
+    // triggerGroups.map(group => {
+    //   if (group.includes(jobId)) {
+    //     return group
+    //   }
+    // })
+    // return jobId
+  }
+  console.log(triggerGroups)
+
+  useEffect(() => {
+    setTriggerGroups(getTriggerGroups())
+  }, [info.jobs])
+
+  console.log('triggerGroups', triggerGroups)
+  // TODO: 트리거 그룹일때 호버 백그라운드 색상 바꾸기(라인이 안보여짐)
+  const getTriggerGroups = (): number[][] => {
+    let groups: number[][] = []
+    let map: Map<number, JobType> = new Map()
+
+    const jobs = [...info.jobs].sort((a, b) => a.sortingOrder - b.sortingOrder)
+
+    jobs.forEach(job => {
+      map.set(job.id, job)
+    })
+
+    let visited = new Set<number>()
+
+    for (let job of jobs) {
+      if (!visited.has(job.id)) {
+        let group: number[] = []
+        let current = job
+
+        while (current != null && !visited.has(current.id)) {
+          group.push(current.id)
+          visited.add(current.id)
+          if (current.nextJobId != null) {
+            current = map.get(current.nextJobId)!
+          } else {
+            break
+          }
+        }
+
+        if (group.length > 0) {
+          groups.push(group)
+        }
+      }
+    }
+    console.log(groups)
+
+    return groups
+  }
+
+  const canUseRequestAssignButton = (job: JobType) => {
+    // job info, price가 저장되었다면 버튼을 쓸수 있게 해준다.
+    // job info: name
+    // price: totalPrice
+    if (job?.name && job?.totalPrice) {
+      return true
+    }
+    return false
+  }
+
+  const isStatusChangeableJob = (status: number) => {
+    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
+    return [
+      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900,
+    ].includes(status)
+  }
+
+  const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
+    // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
+    return status === 60000 && isJobRequestPresent === false
+  }
+
   const isSelected = (id: number) => selected.indexOf(id) !== -1
 
   const onSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,161 +400,208 @@ const JobListCard = ({
             </TableHead>
             <TableBody>
               {info.jobs.length > 0
-                ? info.jobs.map((row, index) => {
-                    const isItemSelected = isSelected(row.id)
-                    return (
-                      <TableRow
-                        component='tr'
-                        ref={row.id === Number(jobId!) ? tableRowRef : null}
-                        key={uuidv4()}
-                        sx={{
-                          '& > *': { borderBottom: 'unset' },
-                          background:
-                            row.id === Number(jobId!)
-                              ? 'rgba(76, 78, 100, 0.12)'
+                ? [...info.jobs]
+                    .sort((a, b) => a.sortingOrder - b.sortingOrder)
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.id)
+                      return (
+                        <TableRow
+                          component='tr'
+                          // ref={row.id === Number(jobId!) ? tableRowRef : null}
+                          key={uuidv4()}
+                          sx={{
+                            '& > *': { borderBottom: 'unset' },
+                            background: hoveredGroup.includes(row.id)
+                              ? 'rgba(76, 78, 100, 0.05)'
                               : '#fff',
-                        }}
-                        // hover
-                        onClick={() => {
-                          if (mode === 'delete') return
-                          onClickRow(row, info)
-                        }}
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
-                        {viewState && (
-                          <CustomTableCell padding='checkbox'>
-                            <Checkbox
-                              disabled={row.id === Number(jobId!)}
-                              color='primary'
-                              checked={isItemSelected}
-                              onClick={event => onSelectClick(event, row.id)}
-                              inputProps={{
-                                'aria-labelledby': row.corporationId,
-                              }}
-                            />
-                          </CustomTableCell>
-                        )}
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
+                            '&:hover': {
+                              background: 'rgba(76, 78, 100, 0.05)',
+                            },
+                          }}
+                          onClick={() => {
+                            if (mode !== 'view') return
+                            onClickRow(row, info)
+                          }}
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                          onMouseEnter={() => onHoverRow(row.id, true)}
+                          onMouseLeave={() => onHoverRow(row.id, false)}
                         >
-                          {row.corporationId}
-                        </CustomTableCell>
-
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
-                        >
-                          <Box display='flex' alignItems='center' gap='8px'>
-                            <ServiceTypeChip
-                              size='small'
-                              label={row.serviceType}
-                            />
-                            {/* NOTE : 트리거냐 아니냐에 따라 none/block 처리*/}
-                            <Icon
-                              icon='ic:outline-people'
-                              fontSize={24}
-                              color='#8D8E9A'
-                            />
-                          </Box>
-                        </CustomTableCell>
-
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
-                        >
-                          {JobsStatusChip(
-                            row.status as JobStatusType,
-                            statusList!,
-                          )}
-                        </CustomTableCell>
-
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
-                        >
-                          {row?.totalPrice
-                            ? formatCurrency(
-                                // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
-                                // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
-                                Number(row?.totalPrice) < 1000 &&
-                                  row?.currency === 'KRW'
-                                  ? 0
-                                  : Number(row?.totalPrice),
-                                row?.currency!,
-                              )
-                            : '-'}
-                        </CustomTableCell>
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
-                        >
-                          <Box>
-                            {row.assignedPro ? (
-                              <LegalName
-                                row={{
-                                  isOnboarded: true,
-                                  isActive: true,
-                                  firstName: row.assignedPro.firstName,
-                                  middleName: row.assignedPro.middleName,
-                                  lastName: row.assignedPro.lastName,
-                                  email: row.assignedPro.email,
+                          {viewState && (
+                            <CustomTableCell padding='checkbox'>
+                              <Checkbox
+                                disabled={
+                                  // row.id === Number(jobId!) ||
+                                  mode === 'manageStatus'
+                                    ? !isStatusChangeableJob(row.status)
+                                    : mode === 'delete'
+                                      ? !isDeletableJob(
+                                          row.status,
+                                          row.isJobRequestPresent,
+                                        )
+                                      : false
+                                }
+                                color='primary'
+                                checked={isItemSelected}
+                                onChange={event =>
+                                  onSelectClick(event.target.checked, row.id)
+                                }
+                                inputProps={{
+                                  'aria-labelledby': row.corporationId,
                                 }}
                               />
-                            ) : (
-                              <Button
-                                variant='outlined'
-                                size='small'
-                                onClick={e => {
-                                  e.stopPropagation()
-                                  router.push({
-                                    pathname: '/orders/job-list/detail/',
-                                    query: {
-                                      orderId: orderId,
-                                      jobId: getTriggerGroup(Number(row.id!)),
-                                      selectedJobId: row.id,
-                                      menu: 'assign',
-                                    },
-                                  })
-                                }}
-                              >
-                                Request/Assign
-                              </Button>
-                            )}
-                          </Box>
-                        </CustomTableCell>
-                        <CustomTableCell
-                          size='small'
-                          component='th'
-                          scope='row'
-                          align='right'
-                        >
-                          <Box
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='flex-end'
-                            gap='8px'
+                            </CustomTableCell>
+                          )}
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
                           >
-                            <TriggerIcon />
-                            <TriggerSwitchStatus
-                              variant='body2'
-                              color={theme.palette.success.main}
-                              bgcolor='#EEFBE5'
+                            {row.corporationId}
+                          </CustomTableCell>
+
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
+                          >
+                            <Box display='flex' alignItems='center' gap='8px'>
+                              <ServiceTypeChip
+                                size='small'
+                                label={row.serviceType}
+                              />
+                              {isTriggerJob(row.id) && (
+                                <Icon
+                                  icon='ic:outline-people'
+                                  fontSize={24}
+                                  color='#8D8E9A'
+                                />
+                              )}
+                            </Box>
+                          </CustomTableCell>
+
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
+                          >
+                            {JobsStatusChip(
+                              row.status as JobStatus,
+                              statusList!,
+                            )}
+                          </CustomTableCell>
+
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
+                          >
+                            {row?.totalPrice
+                              ? formatCurrency(
+                                  // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                                  // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                                  Number(row?.totalPrice) < 1000 &&
+                                    row?.currency === 'KRW'
+                                    ? 0
+                                    : Number(row?.totalPrice),
+                                  row?.currency!,
+                                )
+                              : '-'}
+                          </CustomTableCell>
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
+                          >
+                            <Box>
+                              {row.assignedPro ? (
+                                <LegalName
+                                  row={{
+                                    isOnboarded: true,
+                                    isActive: true,
+                                    firstName: row.assignedPro.firstName,
+                                    middleName: row.assignedPro.middleName,
+                                    lastName: row.assignedPro.lastName,
+                                    email: row.assignedPro.email,
+                                  }}
+                                />
+                              ) : isUserInTeamMember || isMasterManagerUser ? (
+                                <Button
+                                  variant='outlined'
+                                  size='small'
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    router.push({
+                                      pathname: '/orders/job-list/detail/',
+                                      query: {
+                                        orderId: orderId,
+                                        jobId: getTriggerGroup(Number(row.id!)),
+                                        selectedJobId: row.id,
+                                        menu: 'assign',
+                                      },
+                                    })
+                                  }}
+                                >
+                                  Request/Assign
+                                </Button>
+                              ) : (
+                                '-'
+                              )}
+                            </Box>
+                          </CustomTableCell>
+                          <CustomTableCell
+                            size='small'
+                            component='th'
+                            scope='row'
+                            align='right'
+                          >
+                            <Tooltip
+                              title={`${row.nextJobId ? 'On' : 'Off'}
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
+                              Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
+                            `}
+                              placement='top'
                             >
-                              On
-                            </TriggerSwitchStatus>
-                          </Box>
-                        </CustomTableCell>
-                      </TableRow>
-                    )
-                  })
-                : NoList()}
+                              <Box
+                                display='flex'
+                                alignItems='center'
+                                justifyContent='flex-end'
+                                gap='8px'
+                                visibility={
+                                  isTriggerJob(row.id) ? 'visible' : 'hidden'
+                                }
+                              >
+                                <Box
+                                  visibility={
+                                    row.autoNextJob ? 'visible' : 'hidden'
+                                  }
+                                  margin={0}
+                                >
+                                  <TriggerIcon />
+                                </Box>
+                                <Box
+                                  visibility={
+                                    row.autoSharingFile ? 'visible' : 'hidden'
+                                  }
+                                  margin={0}
+                                >
+                                  <TriggerSwitchStatus
+                                    variant='body2'
+                                    color={theme.palette.success.main}
+                                    bgcolor='#EEFBE5'
+                                  >
+                                    On
+                                  </TriggerSwitchStatus>
+                                </Box>
+                              </Box>
+                            </Tooltip>
+                          </CustomTableCell>
+                        </TableRow>
+                      )
+                    })
+                : mode === 'view'
+                  ? NoList()
+                  : null}
             </TableBody>
           </Table>
         </TableContainer>

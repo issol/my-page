@@ -1282,6 +1282,7 @@ const JobDetail = () => {
                   {jobDetails && langItem ? (
                     <JobInfo
                       jobInfo={selectedJobInfo?.jobInfo!}
+                      jobInfoList={jobInfoList}
                       jobAssign={selectedJobInfo?.jobAssign!}
                       projectTeam={projectTeam ?? []}
                       items={jobDetails.items.find(item =>
