@@ -105,7 +105,7 @@ const JobList = ({
                   `/jobs/detail/${params.row.jobId}?${searchParams.toString()}`,
                 )
           }}
-          rowsPerPageOptions={[10, 25, 50]}ㅇㅇㅇㅇㅇㅇㅇ
+          rowsPerPageOptions={[10, 25, 50]}
           pagination
           page={page}
           pageSize={rowsPerPage}
