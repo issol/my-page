@@ -157,21 +157,23 @@ const SelectPro = ({
                   />
                 )}
               />
-              <Tooltip title='Expand this section'>
-                <IconButton
-                  sx={{ padding: 0, marginLeft: '16px' }}
-                  onClick={() =>
-                    setExpandSelectProArea &&
-                    setExpandSelectProArea(!expandSelectProArea)
-                  }
-                >
-                  {expandSelectProArea ? (
-                    <Icon icon='pajamas:expand-down' />
-                  ) : (
-                    <Icon icon='pajamas:expand-up' />
-                  )}
-                </IconButton>
-              </Tooltip>
+              {type === 'edit' ? (
+                <Tooltip title='Expand this section'>
+                  <IconButton
+                    sx={{ padding: 0, marginLeft: '16px' }}
+                    onClick={() =>
+                      setExpandSelectProArea &&
+                      setExpandSelectProArea(!expandSelectProArea)
+                    }
+                  >
+                    {expandSelectProArea ? (
+                      <Icon icon='pajamas:expand-down' />
+                    ) : (
+                      <Icon icon='pajamas:expand-up' />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              ) : null}
             </>
           )}
         </Box>
