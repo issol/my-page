@@ -1109,14 +1109,41 @@ const JobDetail = () => {
                     setAddRoundMode(false)
                     setMenu('linguistTeam')
                     setSelectedLinguistTeam(null)
+                    if (selectedJobInfo) {
+                      setSelectedAssign(
+                        selectedJobInfo.jobAssign.find(
+                          value =>
+                            value.round ===
+                            selectedJobInfo.jobAssignDefaultRound,
+                        ) ?? null,
+                      )
+                    }
                   } else if (addProsMode) {
                     setAddProsMode(false)
                     setMenu('linguistTeam')
                     setSelectedLinguistTeam(null)
+                    if (selectedJobInfo) {
+                      setSelectedAssign(
+                        selectedJobInfo.jobAssign.find(
+                          value =>
+                            value.round ===
+                            selectedJobInfo.jobAssignDefaultRound,
+                        ) ?? null,
+                      )
+                    }
                   } else if (assignProMode) {
                     setAssignProMode(false)
                     setMenu('linguistTeam')
                     setSelectedLinguistTeam(null)
+                    if (selectedJobInfo) {
+                      setSelectedAssign(
+                        selectedJobInfo.jobAssign.find(
+                          value =>
+                            value.round ===
+                            selectedJobInfo.jobAssignDefaultRound,
+                        ) ?? null,
+                      )
+                    }
                   } else {
                     router.push({
                       pathname: '/orders/job-list/details/',

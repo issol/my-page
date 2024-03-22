@@ -218,8 +218,10 @@ const AssignPro = ({
   console.log(selectionModel, 'test')
   console.log(selectedRows, 'test')
 
-  const [detailAnchorEl, setDetailAnchorEl] =
-    useState<HTMLButtonElement | null>(null)
+  const [detailAnchorEl, setDetailAnchorEl] = useState<{
+    el: HTMLButtonElement | null
+    id: number | null
+  }>({ el: null, id: null })
   const [selectedUser, setSelectedUser] = useState<{
     userId: number
     firstName: string
@@ -269,12 +271,12 @@ const AssignPro = ({
       assignmentStatus: number
     },
   ) => {
-    setDetailAnchorEl(event.currentTarget)
+    setDetailAnchorEl({ id: row.userId, el: event.currentTarget })
     setSelectedUser(row)
   }
 
   const handleDetailClose = () => {
-    setDetailAnchorEl(null)
+    setDetailAnchorEl({ id: null, el: null })
   }
 
   const handleListClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -670,7 +672,7 @@ const AssignPro = ({
                 }}
                 // TODO 새로운 페이지 추가 액션
                 onClick={() => {
-                  // setSelectedAssign(null)
+                  setSelectedAssign(null)
                   queryClient.invalidateQueries(['assignProList'])
                   setAddRoundMode(true)
                   setRows({})

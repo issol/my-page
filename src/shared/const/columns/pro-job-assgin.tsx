@@ -262,7 +262,7 @@ export const getProJobAssignColumnsForRequest = (
   }>,
   timezoneList: TimeZoneType[],
   requestCompleted: boolean,
-  detailAnchorEl: HTMLElement | null,
+  detailAnchorEl: { el: HTMLElement | null; id: number | null },
   handleDetailClick: (
     event: React.MouseEvent<HTMLButtonElement>,
     row: {
@@ -497,10 +497,18 @@ export const getProJobAssignColumnsForRequest = (
                   </IconButton>
                   <Menu
                     elevation={8}
-                    anchorEl={detailAnchorEl}
+                    anchorEl={
+                      detailAnchorEl.id === selectedUser?.userId
+                        ? detailAnchorEl.el
+                        : null
+                    }
                     id='customized-menu'
                     onClose={handleDetailClose}
-                    open={Boolean(detailAnchorEl)}
+                    open={Boolean(
+                      detailAnchorEl.id === selectedUser?.userId
+                        ? detailAnchorEl.el
+                        : null,
+                    )}
                     anchorOrigin={{
                       vertical: 'bottom',
                       horizontal: 'left',
@@ -639,10 +647,18 @@ export const getProJobAssignColumnsForRequest = (
                 </IconButton>
                 <Menu
                   elevation={8}
-                  anchorEl={detailAnchorEl}
+                  anchorEl={
+                    detailAnchorEl.id === selectedUser?.userId
+                      ? detailAnchorEl.el
+                      : null
+                  }
                   id='customized-menu'
                   onClose={handleDetailClose}
-                  open={Boolean(detailAnchorEl)}
+                  open={Boolean(
+                    detailAnchorEl.id === selectedUser?.userId
+                      ? detailAnchorEl.el
+                      : null,
+                  )}
                   anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
