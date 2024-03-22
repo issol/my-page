@@ -301,22 +301,16 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         size: number
         type: 'SAMPLE' | 'TARGET' | 'SOURCE'
       }> = []
-      const paths: string[] = files.map(
-        file => {
-          // return `project/${jobInfo.id}/delivery/${file.name}`
-          //TODO: 경로에 delivery가 들어가는게 맞는지 확인 필요
-          return `project/${jobInfo.id}/${file.name}`
-        },
-        // getFilePath(['delivery', jobInfo.id.toString()], file.name),
-      )
+      const paths: string[] = files.map(file => {
+        return `project/${jobInfo.id}/${file.name}`
+      })
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.ORDER_DELIVERY, url).then(
           res => {
             fileInfo.push({
               name: files[idx].name,
               size: files[idx]?.size,
-              // filePath: url,
-              // fileExtension: splitFileNameAndExtension(files[idx].name)[1],
+
               type: 'TARGET',
             })
             return uploadFileToS3(res.url, files[idx])
@@ -326,9 +320,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       Promise.all(promiseArr)
         .then(res => {
           setIsFileUploading(false)
-          // logger.debug('upload client guideline file success :', res)
 
-          // updateProject.mutate({ deliveries: fileInfo })
           updateDeliveries.mutate({
             jobId: jobInfo.id,
             deliveryType: deliveryType,
@@ -336,8 +328,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
             isWithoutFile: withoutFiles,
             files: fileInfo.length > 0 ? fileInfo : undefined,
           })
-
-          // setImportedFiles([])
         })
         .catch(err => {
           setIsFileUploading(false)
@@ -355,7 +345,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         note: note ?? undefined,
         isWithoutFile: withoutFiles,
         files: [],
-        // files: fileInfo.length > 0 ? fileInfo : undefined,
       })
     }
   }
@@ -388,16 +377,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
             onClick={() => handleRemoveFile(file)}
           />
         </IconButton>
-        {/* {jobInfo.status === 'Declined' ||
-        jobInfo.status === 'Canceled' ? null : (
-          <IconButton
-            onClick={() => downloadOneFile(file)}
-            // disabled={jobInfo.status === 'Declined'}
-            // disabled={isFileUploading || !isUserInTeamMember}
-          >
-            <Icon icon='mdi:download' fontSize={24} />
-          </IconButton>
-        )} */}
       </FileBox>
     </Box>
   ))
@@ -429,7 +408,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              {!NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) && (
                 <Box
                   sx={{
                     display: 'flex',
