@@ -493,6 +493,7 @@ const JobDetail = () => {
       requestRedelivery(data),
     {
       onSuccess: (data, variables) => {
+        closeModal('RequestRedeliveryModal')
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
