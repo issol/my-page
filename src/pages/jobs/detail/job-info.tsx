@@ -578,28 +578,33 @@ const ProJobInfo = ({
           }}
         >
           <Box display='flex' flexWrap='wrap' gap='10px '>
-            <NextPrevItemCard
-              title='Previous job'
-              userInfo={data?.previousJob?.pro}
-              serviceType={data?.previousJob?.serviceType}
-              date={convertTimeToTimezone(
-                data?.previousJob?.dueAt,
-                data?.previousJob?.dueTimezone?.code ||
-                  auth.getValue()?.user?.timezone,
-                timezone.getValue(),
-              )}
-            />
-            <NextPrevItemCard
-              title='Next job'
-              userInfo={data?.nextJob?.pro}
-              serviceType={data?.nextJob?.serviceType}
-              date={convertTimeToTimezone(
-                data?.nextJob?.dueAt,
-                data?.nextJob?.dueTimezone?.code ||
-                  auth.getValue()?.user?.timezone,
-                timezone.getValue(),
-              )}
-            />
+            {data?.previousJob && (
+              <NextPrevItemCard
+                title='Previous job'
+                userInfo={data?.previousJob?.pro}
+                serviceType={data?.previousJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.previousJob?.dueAt,
+                  data?.previousJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
+
+            {data?.nextJob && (
+              <NextPrevItemCard
+                title='Next job'
+                userInfo={data?.nextJob?.pro}
+                serviceType={data?.nextJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.nextJob?.dueAt,
+                  data?.nextJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
           </Box>
         </Card>
 
