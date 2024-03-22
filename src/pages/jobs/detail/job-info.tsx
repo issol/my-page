@@ -56,6 +56,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { JobStatus } from '@src/types/common/status.type'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import styled from '@emotion/styled'
+
 import { v4 as uuidv4 } from 'uuid'
 import InfoDialogButton from '@src/views/pro/infoDialog'
 import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
@@ -578,28 +579,33 @@ const ProJobInfo = ({
           }}
         >
           <Box display='flex' flexWrap='wrap' gap='10px '>
-            <NextPrevItemCard
-              title='Previous job'
-              userInfo={data?.previousJob?.pro}
-              serviceType={data?.previousJob?.serviceType}
-              date={convertTimeToTimezone(
-                data?.previousJob?.dueAt,
-                data?.previousJob?.dueTimezone?.code ||
-                  auth.getValue()?.user?.timezone,
-                timezone.getValue(),
-              )}
-            />
-            <NextPrevItemCard
-              title='Next job'
-              userInfo={data?.nextJob?.pro}
-              serviceType={data?.nextJob?.serviceType}
-              date={convertTimeToTimezone(
-                data?.nextJob?.dueAt,
-                data?.nextJob?.dueTimezone?.code ||
-                  auth.getValue()?.user?.timezone,
-                timezone.getValue(),
-              )}
-            />
+            {data?.previousJob && (
+              <NextPrevItemCard
+                title='Previous job'
+                userInfo={data?.previousJob?.pro}
+                serviceType={data?.previousJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.previousJob?.dueAt,
+                  data?.previousJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
+
+            {data?.nextJob && (
+              <NextPrevItemCard
+                title='Next job'
+                userInfo={data?.nextJob?.pro}
+                serviceType={data?.nextJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.nextJob?.dueAt,
+                  data?.nextJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
           </Box>
         </Card>
 
