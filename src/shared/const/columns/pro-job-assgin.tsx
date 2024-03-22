@@ -263,20 +263,60 @@ export const getProJobAssignColumnsForRequest = (
   timezoneList: TimeZoneType[],
   requestCompleted: boolean,
   detailAnchorEl: HTMLElement | null,
-  handleDetailClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
+  handleDetailClick: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    row: {
+      userId: number
+      firstName: string
+      middleName?: string | null
+      lastName: string
+      assignmentStatus: number
+    },
+  ) => void,
   handleDetailClose: () => void,
   onClickAssign: (
-    row: JobRequestsProType,
+    row: {
+      userId: number
+      firstName: string
+      middleName?: string | null
+      lastName: string
+      assignmentStatus: number
+    },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => void,
-  onClickCancel: (row: JobRequestsProType) => void,
-  onClickReAssign: (row: JobRequestsProType) => void,
-  onClickMessage: (row: JobRequestsProType) => void,
+  onClickCancel: (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => void,
+  onClickReAssign: (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => void,
+  onClickMessage: (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => void,
   requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   jobStatusList: {
     value: number
     label: string
   }[],
+  selectedUser: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  },
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -417,6 +457,8 @@ export const getProJobAssignColumnsForRequest = (
       sortable: false,
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
+        console.log(row, 'column-row')
+
         return (
           <>
             {requestType === 'bulkManualAssign' ? (
@@ -424,7 +466,7 @@ export const getProJobAssignColumnsForRequest = (
                 <Button
                   variant='contained'
                   onClick={() => {
-                    onClickAssign(row, requestType)
+                    onClickAssign(selectedUser, requestType)
                     handleDetailClose()
                   }}
                 >
@@ -441,7 +483,15 @@ export const getProJobAssignColumnsForRequest = (
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
                     // onClick={handleClick}
-                    onClick={handleDetailClick}
+                    onClick={e =>
+                      handleDetailClick(e, {
+                        userId: row.userId,
+                        firstName: row.firstName,
+                        middleName: row.middleName,
+                        lastName: row.lastName,
+                        assignmentStatus: row.assignmentStatus,
+                      })
+                    }
                   >
                     <Icon icon='mdi:dots-horizontal' />
                   </IconButton>
@@ -476,7 +526,9 @@ export const getProJobAssignColumnsForRequest = (
                         <Button
                           fullWidth
                           onClick={() => {
-                            onClickAssign(row, requestType)
+                            console.log(row, 'column-row12')
+
+                            onClickAssign(selectedUser, requestType)
                             handleDetailClose()
                           }}
                           sx={{
@@ -518,7 +570,7 @@ export const getProJobAssignColumnsForRequest = (
                             borderRadius: 0,
                           }}
                           onClick={() => {
-                            onClickCancel(row)
+                            onClickCancel(selectedUser)
                             handleDetailClose()
                           }}
                           // onClick={onClickDeleteButton}
@@ -543,7 +595,7 @@ export const getProJobAssignColumnsForRequest = (
                         <Button
                           fullWidth
                           onClick={() => {
-                            onClickReAssign(row)
+                            onClickReAssign(selectedUser)
                             handleDetailClose()
                           }}
                           sx={{
@@ -573,7 +625,15 @@ export const getProJobAssignColumnsForRequest = (
                 <IconButton
                   sx={{ width: '24px', height: '24px', padding: 0 }}
                   // onClick={handleClick}
-                  onClick={handleDetailClick}
+                  onClick={e =>
+                    handleDetailClick(e, {
+                      userId: row.userId,
+                      firstName: row.firstName,
+                      middleName: row.middleName,
+                      lastName: row.lastName,
+                      assignmentStatus: row.assignmentStatus,
+                    })
+                  }
                 >
                   <Icon icon='mdi:dots-horizontal' />
                 </IconButton>
@@ -608,7 +668,7 @@ export const getProJobAssignColumnsForRequest = (
                       <Button
                         fullWidth
                         onClick={() => {
-                          onClickAssign(row, requestType)
+                          onClickAssign(selectedUser, requestType)
                           handleDetailClose()
                         }}
                         sx={{
@@ -650,7 +710,7 @@ export const getProJobAssignColumnsForRequest = (
                           borderRadius: 0,
                         }}
                         onClick={() => {
-                          onClickCancel(row)
+                          onClickCancel(selectedUser)
                           handleDetailClose()
                         }}
                         // onClick={onClickDeleteButton}
@@ -675,7 +735,7 @@ export const getProJobAssignColumnsForRequest = (
                       <Button
                         fullWidth
                         onClick={() => {
-                          onClickReAssign(row)
+                          onClickReAssign(selectedUser)
                           handleDetailClose()
                         }}
                         sx={{

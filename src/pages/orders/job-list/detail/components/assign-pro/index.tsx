@@ -220,6 +220,13 @@ const AssignPro = ({
 
   const [detailAnchorEl, setDetailAnchorEl] =
     useState<HTMLButtonElement | null>(null)
+  const [selectedUser, setSelectedUser] = useState<{
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  } | null>(null)
 
   const [listAnchorEl, setListAnchorEl] = useState<HTMLButtonElement | null>(
     null,
@@ -252,8 +259,18 @@ const AssignPro = ({
     setAnchorEl(null)
   }
 
-  const handleDetailClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleDetailClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    row: {
+      userId: number
+      firstName: string
+      middleName?: string | null
+      lastName: string
+      assignmentStatus: number
+    },
+  ) => {
     setDetailAnchorEl(event.currentTarget)
+    setSelectedUser(row)
   }
 
   const handleDetailClose = () => {
@@ -269,7 +286,13 @@ const AssignPro = ({
   }
 
   const handleAssign = (
-    row: JobRequestsProType,
+    row: {
+      userId: number
+      firstName: string
+      middleName?: string | null
+      lastName: string
+      assignmentStatus: number
+    },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
     console.log(row.userId, 'getId')
@@ -285,7 +308,13 @@ const AssignPro = ({
     })
   }
 
-  const handleCancelRequest = (row: JobRequestsProType) => {
+  const handleCancelRequest = (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => {
     closeModal('CancelRequestProModal')
     assignJobMutation.mutate({
       jobId: jobInfo.id,
@@ -303,9 +332,17 @@ const AssignPro = ({
   }
 
   const onClickAssign = (
-    row: JobRequestsProType,
+    row: {
+      userId: number
+      firstName: string
+      middleName?: string | null
+      lastName: string
+      assignmentStatus: number
+    },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
+    console.log(row, 'row')
+
     openModal({
       type: 'AssignProModal',
       children: (
@@ -335,7 +372,13 @@ const AssignPro = ({
     })
   }
 
-  const onClickCancel = (row: JobRequestsProType) => {
+  const onClickCancel = (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => {
     openModal({
       type: 'CancelRequestProModal',
       children: (
@@ -356,7 +399,13 @@ const AssignPro = ({
     })
   }
 
-  const onClickReAssign = (row: JobRequestsProType) => {
+  const onClickReAssign = (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => {
     openModal({
       type: 'ReAssignProModal',
       children: (
@@ -376,7 +425,13 @@ const AssignPro = ({
     })
   }
 
-  const onClickMessage = (row: JobRequestsProType) => {
+  const onClickMessage = (row: {
+    userId: number
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    assignmentStatus: number
+  }) => {
     openModal({
       type: 'AssignProMessageModal',
       children: (
@@ -817,6 +872,7 @@ const AssignPro = ({
                   onClickMessage,
                   selectedAssign.type,
                   jobStatusList || [],
+                  selectedUser!,
                 )}
                 keepNonExistentRowsSelected
                 getRowId={row => row.userId}
