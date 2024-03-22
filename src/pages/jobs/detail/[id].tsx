@@ -15,7 +15,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
@@ -23,7 +22,6 @@ import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
-import useModal from '@src/hooks/useModal'
 import InfoDialogButton from '@src/views/pro/infoDialog'
 
 type MenuType = 'jobInfo' | 'feedback'
@@ -44,13 +42,12 @@ const excludedStatuses = [
 
 const ProJobsDetail = () => {
   const router = useRouter()
-  const queryClient = useQueryClient()
 
-  const { id, assigned, tab } = router.query
+  const { id, assigned, tab, hasNext } = router.query
+  const nextJob = JSON.parse((hasNext as string) || 'false')
 
   const [value, setValue] = useState<MenuType>('jobInfo')
   const [statusList, setStatusList] = useState<Array<statusType>>([])
-  const { openModal, closeModal } = useModal()
 
   const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
@@ -59,6 +56,7 @@ const ProJobsDetail = () => {
     !!(assigned && assigned === 'false'),
     isFetched,
   )
+
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
       router.push(`/jobs/detail/${jobDetail?.id}/`)
@@ -124,7 +122,7 @@ const ProJobsDetail = () => {
             variant='h5'
             fontWeight={500}
           >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
-          <Box display='flex' position='relative'>
+          <Box display={nextJob ? 'flex' : 'none'} position='relative'>
             <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
             <div style={{ position: 'absolute', top: 0, left: 36 }}>
               <InfoDialogButton

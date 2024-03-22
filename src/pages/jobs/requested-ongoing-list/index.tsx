@@ -63,6 +63,7 @@ const RequestedOngoingList = () => {
 
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
+
   const {
     data: assignmentJobStatusList,
     isLoading: assignmentStatusListLoading,
@@ -137,7 +138,7 @@ const RequestedOngoingList = () => {
       <JobList
         type='requested'
         columns={getProJobColumns(statusList && statusList!)}
-        list={jobList?.data!}
+        list={(jobList?.data || []).map(item => ({ ...item, status: 60110 }))}
         listCount={jobList?.totalCount!}
         page={page}
         setPage={setPage}

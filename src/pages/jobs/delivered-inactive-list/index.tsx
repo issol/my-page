@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import { JobListFilterType } from '../requested-ongoing-list'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   useGetProJobClientList,
   useGetProJobList,
@@ -8,13 +8,11 @@ import {
 import { useForm } from 'react-hook-form'
 import Filters from './filters'
 import { useGetStatusList } from '@src/queries/common.query'
-import { useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import JobList from '../requested-ongoing-list/list'
 import useModal from '@src/hooks/useModal'
 import SelectJobModal from './components/select-job-modal'
-import { useMutation } from 'react-query'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { createInvoicePayable } from '@src/apis/invoice/payable.api'
 import { statusType } from '@src/types/common/status.type'
 import { toast } from 'react-hot-toast'
@@ -100,13 +98,7 @@ const DeliveredInactiveList = () => {
       !assignmentStatusListLoading
     ) {
       const customStatusList = [
-        60600,
-        60700,
-        60800,
-        70200,
-        601000,
-        70500,
-        60900,
+        60600, 60700, 60800, 70200, 601000, 70500, 60900,
       ]
       const filteredJobStatusList = [
         ...jobStatusList.filter(value => {
@@ -115,7 +107,10 @@ const DeliveredInactiveList = () => {
         ...assignmentJobStatusList.filter(value => {
           return [70200, 70500].includes(value.value)
         }),
-      ].sort((a, b) => customStatusList.indexOf(a.value) - customStatusList.indexOf(b.value));
+      ].sort(
+        (a, b) =>
+          customStatusList.indexOf(a.value) - customStatusList.indexOf(b.value),
+      )
       setStatusList([...filteredJobStatusList])
     }
   }, [

@@ -74,7 +74,6 @@ const JobList = ({
             cursor: 'pointer',
 
             [`& .${gridClasses.row}.overdue`]: {
-              // background: 'rgba(255, 77, 73, .1)',
               background: '#FFE1E0',
             },
           }}
@@ -91,12 +90,19 @@ const JobList = ({
               params.row.status as number,
             )
 
+            const paramsObj = {
+              tab: type === 'requested' ? 'requested' : 'completed',
+              hasNext: params.row.autoNextJob || false,
+            }
+
+            const searchParams = new URLSearchParams(paramsObj)
+
             isChangeRouter
               ? router.push(
-                  `/jobs/detail/${params.row.id}?assigned=false&tab=${type === 'requested' ? 'requested' : 'completed'}`,
+                  `/jobs/detail/${params.row.id}?assigned=false&${searchParams.toString()}`,
                 )
               : router.push(
-                  `/jobs/detail/${params.row.jobId}?tab=${type === 'requested' ? 'requested' : 'completed'}`,
+                  `/jobs/detail/${params.row.jobId}?${searchParams.toString()}`,
                 )
           }}
           rowsPerPageOptions={[10, 25, 50]}
