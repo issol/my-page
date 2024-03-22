@@ -165,7 +165,7 @@ const JobDetails = () => {
       take: 10,
     }
     queryClient.invalidateQueries(['jobList', filter])
-    router.back()
+    router.push('/orders/job-list')
   }
 
   const jobDetailMenu = () => {

@@ -410,7 +410,18 @@ const JobListCard = ({
                               <Button
                                 variant='outlined'
                                 size='small'
-                                onClick={() => {}}
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  router.push({
+                                    pathname: '/orders/job-list/detail/',
+                                    query: {
+                                      orderId: orderId,
+                                      jobId: getTriggerGroup(Number(row.id!)),
+                                      selectedJobId: row.id,
+                                      menu: 'assign',
+                                    },
+                                  })
+                                }}
                               >
                                 Request/Assign
                               </Button>
