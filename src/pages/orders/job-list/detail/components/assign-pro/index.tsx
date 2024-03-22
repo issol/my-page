@@ -687,6 +687,7 @@ const AssignPro = ({
                         onClick={() => {
                           handleListClose()
                           setAddProsMode(true)
+                          setMenu('linguistTeam')
                         }}
                         sx={{
                           justifyContent: 'flex-start',
@@ -725,6 +726,7 @@ const AssignPro = ({
                         onClick={() => {
                           setAssignProMode(true)
                           handleListClose()
+                          setMenu('linguistTeam')
                         }}
                         sx={{
                           justifyContent: 'flex-start',

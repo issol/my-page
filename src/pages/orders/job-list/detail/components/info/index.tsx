@@ -589,7 +589,12 @@ const JobInfo = ({
                     value => value?.id === jobInfo.nextJobId,
                   ) ? (
                     jobInfoList.find(value => value?.id === jobInfo.nextJobId)
-                      ?.pro !== null && jobInfo.autoNextJob ? (
+                      ?.pro !== null &&
+                    jobInfo.autoNextJob &&
+                    jobInfo.status !== 60000 &&
+                    jobInfo.status !== 60100 &&
+                    jobInfo.status !== 60110 &&
+                    jobInfo.status !== 60200 ? (
                       <MenuItem
                         sx={{
                           gap: 2,
