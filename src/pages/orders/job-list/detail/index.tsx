@@ -1408,7 +1408,19 @@ const JobDetail = () => {
                             Please enter all required fields first
                           </Typography>
                         </Box>
-                        <Button variant='contained' sx={{ mt: '32px' }}>
+                        <Button
+                          variant='contained'
+                          sx={{ mt: '32px' }}
+                          onClick={() => {
+                            if (!selectedJobInfo.jobInfo.name) {
+                              setValue('info')
+                            } else if (!selectedJobInfo.jobPrices.priceId) {
+                              setValue('prices')
+                            } else {
+                              setValue('info')
+                            }
+                          }}
+                        >
                           {!selectedJobInfo.jobInfo.name
                             ? 'Fill out job info'
                             : !selectedJobInfo.jobPrices.priceId
