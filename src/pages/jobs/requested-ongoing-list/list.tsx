@@ -93,6 +93,7 @@ const JobList = ({
             const paramsObj = {
               tab: type === 'requested' ? 'requested' : 'completed',
               hasNext: params.row.autoNextJob || false,
+              isNextJob: params.row.isPreviousAndNextJob || false,
             }
 
             const searchParams = new URLSearchParams(paramsObj)

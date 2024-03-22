@@ -4,6 +4,7 @@ import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
   JobAssignProRequestsType,
+  JobPrevNextItem,
   jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
@@ -388,6 +389,13 @@ export const getProJobDetailDots = async (id: number): Promise<string[]> => {
   return data
 }
 
+export const getPreviousAndNextJob = async (
+  jobId: number,
+): Promise<{ previousJob: JobPrevNextItem; nextJob: JobPrevNextItem }> => {
+  const { data } = await axios.get(`/api/enough/u/job/${jobId}/previous-next`)
+  return data
+}
+
 export const getProJobDeliveriesFeedbacks = async (
   id: number,
 ): Promise<{
@@ -399,19 +407,6 @@ export const getProJobDeliveriesFeedbacks = async (
   )
 
   return data
-  // return {
-  //   deliveries: data.deliveries,
-  //   feedbacks: [
-  //     {
-  //       id: 1,
-  //       isChecked: true,
-  //       name: 'Master (D) K',
-  //       email: 'd_master_1@glozinc.com',
-  //       createdAt: '2023-09-18T01:44:49.997Z',
-  //       feedback: 'rishatest',
-  //     },
-  //   ],
-  // }
 }
 
 export const postProJobDeliveries = async (params: {
