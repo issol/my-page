@@ -39,7 +39,6 @@ import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 
 import InformationModal from '@src/@core/components/common-modal/information-modal'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
 
@@ -53,9 +52,11 @@ import {
   patchProJobSourceFileDownload,
 } from '@src/apis/jobs/job-detail.api'
 import { timezoneSelector } from '@src/states/permission'
+import { JobStatus } from '@src/types/common/status.type'
+import CustomChip from '@src/@core/components/mui/chip'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import styled from '@emotion/styled'
-import CustomChip from '@src/@core/components/mui/chip'
+
 import { v4 as uuidv4 } from 'uuid'
 import InfoDialogButton from '@src/views/pro/infoDialog'
 import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
@@ -106,8 +107,7 @@ const ProJobInfo = ({
   )
 
   const updateJob = useMutation(
-    (status: ProJobStatusType) =>
-      patchProJobDetail(jobInfo.id, { status: status }),
+    (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
@@ -127,7 +127,7 @@ const ProJobInfo = ({
 
   const selectAssignMutation = useMutation(
     (data: { jobId: number; proId: number; status: number }) =>
-      handleJobAssignStatus(data.jobId, data.proId, data.status),
+      handleJobAssignStatus(data.jobId, data.proId, data.status, 'pro'),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
@@ -368,7 +368,8 @@ const ProJobInfo = ({
     })
   }
 
-  const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
+  const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
+    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -562,7 +563,7 @@ const ProJobInfo = ({
   useEffect(() => {
     if (jobInfo) {
       if (jobInfo.status === 60300) {
-        onClickOnClickStatusMoreInfo(jobInfo.status as ProJobStatusType)
+        onClickOnClickStatusMoreInfo(jobInfo.status as JobStatus)
       }
     }
   }, [jobInfo])
@@ -628,7 +629,7 @@ const ProJobInfo = ({
               >
                 {ProJobStatusChip(
                   statusLabel,
-                  jobInfo.status as ProJobStatusType,
+                  jobInfo.status as JobStatus,
                 )}
 
                 {/* TODO status 체크해야함 */}
@@ -639,7 +640,7 @@ const ProJobInfo = ({
                       sx={{ padding: 0 }}
                       onClick={() =>
                         onClickOnClickStatusMoreInfo(
-                          jobInfo.status as ProJobStatusType,
+                          jobInfo.status as JobStatus,
                         )
                       }
                     >
