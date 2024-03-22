@@ -56,6 +56,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { JobStatus } from '@src/types/common/status.type'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import styled from '@emotion/styled'
+
 import { v4 as uuidv4 } from 'uuid'
 import InfoDialogButton from '@src/views/pro/infoDialog'
 import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
