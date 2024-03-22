@@ -256,7 +256,14 @@ export const getProJobColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
-        return <ServiceTypeChip size='small' label={row.serviceType} />
+        return (
+          <Box display='flex' gap='8px'>
+            <ServiceTypeChip size='small' label={row.serviceType} />
+            {row.autoNextJob && (
+              <Icon icon='ic:outline-people' fontSize={24} color='#8D8E9A' />
+            )}
+          </Box>
+        )
       },
     },
     {
@@ -329,12 +336,13 @@ export const getProJobColumns = (
           <Box sx={{ margin: '0 auto' }}>
             <Badge badgeContent={row.message?.unReadCount} color='primary'>
               <IconButton
+                disabled
                 sx={{ padding: 0 }}
                 onClick={event => onClickMessage(event, row)}
               >
                 <Icon
                   icon='material-symbols:chat'
-                  color='rgba(76, 78, 100, 0.87)'
+                  color='rgba(187, 188, 196, 1)'
                 />
               </IconButton>
             </Badge>

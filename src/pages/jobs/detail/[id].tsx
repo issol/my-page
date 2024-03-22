@@ -15,7 +15,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
@@ -23,9 +22,8 @@ import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StatusItem } from '@src/types/common/status.type'
-import { JobListFilterType } from '../requested-ongoing-list'
-import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
-import useModal from '@src/hooks/useModal'
+import InfoDialogButton from '@src/views/pro/infoDialog'
+
 type MenuType = 'jobInfo' | 'feedback'
 
 const keysJobDetailDots = [
@@ -44,13 +42,12 @@ const excludedStatuses = [
 
 const ProJobsDetail = () => {
   const router = useRouter()
-  const queryClient = useQueryClient()
-  const { id, assigned, tab } = router.query
+
+  const { id, assigned, tab, hasNext } = router.query
+  const nextJob = JSON.parse((hasNext as string) || 'false')
+
   const [value, setValue] = useState<MenuType>('jobInfo')
-  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setValue(newValue)
-  }
-  const { openModal, closeModal } = useModal()
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
   const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
@@ -59,6 +56,7 @@ const ProJobsDetail = () => {
     !!(assigned && assigned === 'false'),
     isFetched,
   )
+
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
       router.push(`/jobs/detail/${jobDetail?.id}/`)
@@ -68,8 +66,8 @@ const ProJobsDetail = () => {
   // @ts-ignore
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
-    assigned && assigned === 'false' ? true : false,
-  ) as { data: JobPricesDetailType | jobPriceHistoryType }
+    !!(assigned && assigned === 'false'),
+  )
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
   const {
@@ -77,8 +75,9 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
-
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    setValue(newValue)
+  }
   const onClickBack = () => {
     router.push(`/jobs?tab=${tab}`)
   }
@@ -119,7 +118,20 @@ const ProJobsDetail = () => {
             <Icon icon='ic:sharp-arrow-back-ios' fontSize={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Typography
+            variant='h5'
+            fontWeight={500}
+          >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Box display={nextJob ? 'flex' : 'none'} position='relative'>
+            <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
+            <div style={{ position: 'absolute', top: 0, left: 36 }}>
+              <InfoDialogButton
+                title='Connected jobs'
+                style={{ position: 'absolute', top: 0, left: 0 }}
+                contents='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
+              />
+            </div>
+          </Box>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (

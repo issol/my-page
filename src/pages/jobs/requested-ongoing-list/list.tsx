@@ -74,7 +74,6 @@ const JobList = ({
             cursor: 'pointer',
 
             [`& .${gridClasses.row}.overdue`]: {
-              // background: 'rgba(255, 77, 73, .1)',
               background: '#FFE1E0',
             },
           }}
@@ -83,12 +82,30 @@ const JobList = ({
           rowCount={listCount ?? 0}
           loading={isLoading}
           onCellClick={(params, event) => {
-            event.stopPropagation(),
-            [70000,70100,70200,70300,70400].includes(params.row.status as number)
-              ? router.push(`/jobs/detail/${params.row.id}?assigned=false&tab=${type === 'requested' ? 'requested' : 'completed'}`)
-              : router.push(`/jobs/detail/${params.row.jobId}?tab=${type === 'requested' ? 'requested' : 'completed'}`)
+            event.stopPropagation()
+
+            if (params.field === 'status') return
+
+            const isChangeRouter = [70000, 70100, 70200, 70300, 70400].includes(
+              params.row.status as number,
+            )
+
+            const paramsObj = {
+              tab: type === 'requested' ? 'requested' : 'completed',
+              hasNext: params.row.autoNextJob || false,
+            }
+
+            const searchParams = new URLSearchParams(paramsObj)
+
+            isChangeRouter
+              ? router.push(
+                  `/jobs/detail/${params.row.id}?assigned=false&${searchParams.toString()}`,
+                )
+              : router.push(
+                  `/jobs/detail/${params.row.jobId}?${searchParams.toString()}`,
+                )
           }}
-          rowsPerPageOptions={[10, 25, 50]}
+          rowsPerPageOptions={[10, 25, 50]}ㅇㅇㅇㅇㅇㅇㅇ
           pagination
           page={page}
           pageSize={rowsPerPage}

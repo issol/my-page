@@ -176,6 +176,7 @@ export type ProJobListType = {
       | null
   }
   finalProDeliveredAt: string
+  autoNextJob?: boolean
 }
 
 export type JobsFileType = {
