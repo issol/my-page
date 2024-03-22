@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Divider,
-  Grid,
   IconButton,
   Tooltip,
   Typography,
@@ -35,7 +34,7 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 
@@ -80,6 +79,8 @@ const ProJobInfo = ({
   statusList,
   jobDetailDots,
 }: Props) => {
+  const sideBoxRef = useRef<HTMLDivElement>(null)
+
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const queryClient = useQueryClient()
@@ -528,7 +529,6 @@ const ProJobInfo = ({
       )
     }
   }
-
   // status가 Overdue일 때, onClickOnClickStatusMoreInfo를 호출하여 디테일 페이지 진입시 모달을 띄워준다.
   useEffect(() => {
     if (jobInfo) {
@@ -538,9 +538,14 @@ const ProJobInfo = ({
     }
   }, [jobInfo])
 
+  const BoxHeight = useMemo(() => {
+    if (!sideBoxRef.current) return 0
+    return sideBoxRef.current.getBoundingClientRect().height > 2 ? 0 : 266
+  }, [sideBoxRef.current])
+
   return (
-    <Grid container width='100%' xs={12} spacing={4} padding={0}>
-      <Grid item xs={9.25}>
+    <Box display='flex' width='100%' gap={4} flex={1}>
+      <Box>
         <Card sx={{ padding: '20px', marginBottom: '24px' }}>
           <Box display='flex' flexWrap='wrap' gap='10px '>
             <NextPrevItemCard
@@ -822,8 +827,8 @@ const ProJobInfo = ({
             </Box>
           </Box>
         </Card>
-      </Grid>
-      <Grid item xs={2.75} padding={0}>
+      </Box>
+      <Box ref={sideBoxRef} minWidth={BoxHeight}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {(fileList && fileList.length === 0) ||
           [70200, 70300, 70400, 70500, 601000].includes(
@@ -940,8 +945,8 @@ const ProJobInfo = ({
             </Card>
           ) : null}
         </Box>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   )
 }
 
