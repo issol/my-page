@@ -87,6 +87,7 @@ import {
   handleJobReAssign,
   requestRedelivery,
   saveJobPrices,
+  setJobStatus,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import JobInfo from './components/info'
@@ -558,6 +559,18 @@ const JobDetail = () => {
     },
   )
 
+  const setJobStatusMutation = useMutation(
+    (data: { jobId: number; status: number }) =>
+      setJobStatus(data.jobId, data.status),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
   const onSearch = () => {
     setActiveFilter({
       ...filter,
@@ -877,6 +890,8 @@ const JobDetail = () => {
     saveJobPricesMutation.mutate({ jobId: res.jobId, prices: res })
   }
 
+  console.log(selectedJobInfo, 'selectedJob')
+
   const onClickUpdatePrice = () => {
     openModal({
       type: 'UpdatePriceModal',
@@ -939,8 +954,6 @@ const JobDetail = () => {
   }, [menuQuery])
 
   useEffect(() => {
-    console.log(jobAssignList)
-
     if (
       jobInfoList.includes(undefined) ||
       jobPriceList.includes(undefined) ||
@@ -1278,6 +1291,7 @@ const JobDetail = () => {
                       )}
                       languagePair={langItem.languagePairs || []}
                       setJobId={setJobId}
+                      setJobStatusMutation={setJobStatusMutation}
                     />
                   ) : null}
                 </TabPanel>
