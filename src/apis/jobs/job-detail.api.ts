@@ -85,6 +85,7 @@ export const getJobInfo = async (
   } catch (e: any) {
     return {
       id: 0,
+      authorId: 0,
       order: { id: -1 },
       corporationId: '',
       clientId: 0,
