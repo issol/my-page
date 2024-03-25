@@ -127,7 +127,7 @@ export const permissionSelector = selector<PermissionObjectType>({
     const isLogin = get(authState).user !== null
 
     if (isLogin) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV !== 'development') {
         const { data } = await axios.get(`/api/enough/a/role/map`)
         return data
       } else {
