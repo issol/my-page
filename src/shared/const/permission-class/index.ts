@@ -183,3 +183,13 @@ export class linguist_team {
     })
   }
 }
+
+export class job_template {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(job_template.prototype.constructor, 'name', {
+      value: 'job_template',
+    })
+  }
+}

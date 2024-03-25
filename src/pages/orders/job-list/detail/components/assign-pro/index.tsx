@@ -41,7 +41,14 @@ import {
   LinguistTeamProListFilterType,
 } from '@src/types/pro/linguist-team'
 import { ProListType } from '@src/types/pro/list'
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { TabType } from '../..'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _, { round } from 'lodash'
@@ -76,6 +83,8 @@ import {
   AssignProFilterPostType,
   AssignProListType,
 } from '@src/types/orders/job-detail'
+import { job_list } from '@src/shared/const/permission-class'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 type Props = {
   jobInfo: JobType
@@ -215,8 +224,7 @@ const AssignPro = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-  console.log(selectionModel, 'test')
-  console.log(selectedRows, 'test')
+  const ability = useContext(AbilityContext)
 
   const [detailAnchorEl, setDetailAnchorEl] = useState<{
     el: HTMLButtonElement | null
