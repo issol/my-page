@@ -14,7 +14,6 @@ import { useRouter } from 'next/router'
 import React, {
   MouseEvent,
   ReactElement,
-  SyntheticEvent,
   useEffect,
   useRef,
   useState,
@@ -25,7 +24,12 @@ import {
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
-import { autoCreateByItem, autoCreateByOrder, createJob, createWithJobTemplate } from '@src/apis/jobs/jobs.api'
+import {
+  autoCreateByItem,
+  autoCreateByOrder,
+  createJob,
+  createWithJobTemplate,
+} from '@src/apis/jobs/jobs.api'
 import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -43,7 +47,6 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 import { JobListMode } from '@src/views/jobDetails/viewModes'
 import { displayCustomToast } from '@src/shared/utils/toast'
-import { JobStatus } from '@src/types/common/status.type'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -94,9 +97,9 @@ const JobDetails = () => {
       },
     },
   )
-  
+
   const createWithJobTemplateMutation = useMutation(
-    (params: { itemId: number; templateId: number }) => 
+    (params: { itemId: number; templateId: number }) =>
       createWithJobTemplate(Number(orderId), params.itemId, params.templateId),
     {
       onSuccess: (data, variables) => {
@@ -109,18 +112,15 @@ const JobDetails = () => {
         // }
         refetch()
       },
-      onError: () => {
-
-      }
+      onError: () => {},
     },
   )
 
   const autoCreateJobMutation = useMutation(
-    (itemId: number[]) => (
+    (itemId: number[]) =>
       itemId.length === 1
         ? autoCreateByItem(Number(orderId), itemId[0])
-        : autoCreateByOrder(Number(orderId))
-    ),
+        : autoCreateByOrder(Number(orderId)),
     {
       onSuccess: (data, variables) => {
         // if (variables.index) {
@@ -136,21 +136,29 @@ const JobDetails = () => {
   )
 
   const changeStatusMutation = useMutation(
-    (value: { jobIds: number[]; status: number }) => 
-    Promise.all(value.jobIds.map(jobId => setJobStatus(jobId, value.status))), {
-    onSuccess: () => {
-      refetch()
+    (value: { jobIds: number[]; status: number }) =>
+      Promise.all(value.jobIds.map(jobId => setJobStatus(jobId, value.status))),
+    {
+      onSuccess: () => {
+        refetch()
+      },
     },
-  })
+  )
 
-  const deleteJobsMutation = useMutation((jobIds: number[]) => 
-    Promise.all(jobIds.map(jobId => deleteJob(jobId))), {
-    onSuccess: () => {
-      refetch()
+  const deleteJobsMutation = useMutation(
+    (jobIds: number[]) => Promise.all(jobIds.map(jobId => deleteJob(jobId))),
+    {
+      onSuccess: () => {
+        refetch()
+      },
     },
-  })
+  )
 
-  const onClickAddJob = (itemId: number, index: number, serviceType: string[]) => {
+  const onClickAddJob = (
+    itemId: number,
+    index: number,
+    serviceType: string[],
+  ) => {
     createJobMutation.mutate({
       orderId: Number(orderId),
       itemId: itemId,
@@ -188,8 +196,9 @@ const JobDetails = () => {
       const roles = auth.getValue().user?.roles ?? [{ name: '', type: '' }]
       setIsMasterManagerUser(
         roles.some(
-          role => role.name === 'LPM' && 
-          (role.type === 'Master' || role.type === 'Manager')
+          role =>
+            role.name === 'LPM' &&
+            (role.type === 'Master' || role.type === 'Manager'),
         ),
       )
     }
@@ -212,7 +221,8 @@ const JobDetails = () => {
             vary='error-alert'
             subtitle={
               <p>
-                Are you sure you want to leave this page? Changes you made will not be saved.
+                Are you sure you want to leave this page? Changes you made will
+                not be saved.
               </p>
             }
             rightButtonText='Leave'
@@ -288,33 +298,49 @@ const JobDetails = () => {
     setMode('view')
   }
 
-  const onAutoCreateJob = (itemId: number[]) => {
+  const onAutoCreateJob = (type: 'itemUnit' | 'JobUnit', itemId: number[]) => {
     if (!itemId || itemId.length === 0) return
+
+    const itemDescription = (
+      <p>
+        Based on the service type and language pair configured in the order,
+        jobs will be automatically created. <br />
+        <br />
+        Would you like to proceed with the creation of Jobs?
+      </p>
+    )
+
+    const JobDescription = (
+      <p>
+        Based on the service type and language pair configured in the order,
+        jobs will be automatically created under each Item.
+        <br />
+        <br />
+        Would you like to proceed with the creation of Jobs?
+      </p>
+    )
+
+    const subtitle = type === 'itemUnit' ? itemDescription : JobDescription
+
     openModal({
       type: 'AutoCreateJobProceedConfirm',
       children: (
         <CustomModalV2
           onClick={() => {
-            autoCreateJobMutation.mutateAsync(itemId)
-            .then(() => {
-              closeModal('AutoCreateJobProceedConfirm')
-            })
-            .catch(() => {
-              displayCustomToast('Failed to delete.', 'error')
-              closeModal('AutoCreateJobProceedConfirm')
-            })
+            autoCreateJobMutation
+              .mutateAsync(itemId)
+              .then(() => {
+                closeModal('AutoCreateJobProceedConfirm')
+              })
+              .catch(() => {
+                displayCustomToast('Failed to delete.', 'error')
+                closeModal('AutoCreateJobProceedConfirm')
+              })
           }}
           onClose={() => closeModal('AutoCreateJobProceedConfirm')}
           title='Auto-create jobs'
           vary='successful'
-          subtitle={
-            <p>
-              Based on the service type and language pair configured in the
-              order, jobs will be automatically created under each Item. <br />
-              <br />
-              Would you like to proceed with the creation of {0} Jobs?
-            </p>
-          }
+          subtitle={subtitle}
           rightButtonText='Proceed'
         />
       ),
@@ -322,10 +348,11 @@ const JobDetails = () => {
   }
 
   const onCreateWithJobTemplate = (itemId: number, templateId: number) => {
-    createWithJobTemplateMutation.mutateAsync({ itemId, templateId })
-    .then(() => {
-      closeModal('AddJobTemplate')
-    })
+    createWithJobTemplateMutation
+      .mutateAsync({ itemId, templateId })
+      .then(() => {
+        closeModal('AddJobTemplate')
+      })
   }
 
   const onDeleteJobs = () => {
@@ -339,13 +366,16 @@ const JobDetails = () => {
   const onManageJobStatus = () => {
     setMode('manageStatus')
   }
-  
+
   const hasJobs = () => {
-    let count = 0;
+    let count = 0
     if (jobDetails?.items) {
-      count = jobDetails.items.reduce((total, item) => total + item.jobs.length, 0);
+      count = jobDetails.items.reduce(
+        (total, item) => total + item.jobs.length,
+        0,
+      )
     }
-    return count > 0;
+    return count > 0
   }
 
   return (
@@ -395,7 +425,12 @@ const JobDetails = () => {
             <Box display='flex' alignItems='center'>
               <JobButton
                 label='Auto-create jobs'
-                onClick={() => onAutoCreateJob(jobDetails?.items.map(item => item.id)!)}
+                onClick={() =>
+                  onAutoCreateJob(
+                    'JobUnit',
+                    jobDetails?.items.map(item => item.id)!,
+                  )
+                }
                 disabled={mode !== 'view'}
               >
                 <AutoMode sx={{ fontSize: 20 }} />
