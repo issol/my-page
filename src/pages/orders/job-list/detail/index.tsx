@@ -531,8 +531,8 @@ const JobDetail = () => {
         //   position: 'bottom-left',
         // })
 
-        console.log('editPrice', editPrices)
         if (data.id === variables.jobId) {
+          displayCustomToast('Saved successfully', 'success')
           queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
           queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         } else {
@@ -546,6 +546,7 @@ const JobDetail = () => {
           router.push(newPath, undefined, {
             shallow: true,
           })
+          displayCustomToast('Saved successfully', 'success')
           setJobId(prev =>
             prev.map(id => (id === variables.jobId ? data.id : id)),
           )
@@ -566,6 +567,7 @@ const JobDetail = () => {
       setJobStatus(data.jobId, data.status),
     {
       onSuccess: (data, variables) => {
+        displayCustomToast('Saved successfully', 'success')
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
@@ -962,27 +964,31 @@ const JobDetail = () => {
       jobAssignList.includes(undefined)
     )
       return
-    const combinedList = jobInfoList.map(jobInfo => {
-      const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
-      const jobAssign = jobAssignList.find(assign => assign!.id === jobInfo!.id)
+    const combinedList = jobInfoList
+      .sort((a, b) => a?.sortingOrder! - b?.sortingOrder!)
+      .map(jobInfo => {
+        const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
+        const jobAssign = jobAssignList.find(
+          assign => assign!.id === jobInfo!.id,
+        )
 
-      return {
-        jobInfo: jobInfo!,
+        return {
+          jobInfo: jobInfo!,
 
-        jobPrices: jobPrices!,
-        jobId: jobInfo!.id,
-        jobAssign: jobAssign?.requests!,
-        jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
-      }
-    })
+          jobPrices: jobPrices!,
+          jobId: jobInfo!.id,
+          jobAssign: jobAssign?.requests!,
+          jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
+        }
+      })
 
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
-      console.log(selectedJobInfo, 'getValues')
       if (selectedJobInfo) {
         setJobDetail(combinedList)
         const selectedJob = combinedList.find(
           value => value.jobId === selectedJobInfo.jobInfo.id,
         )
+
         if (selectedJob) {
           setSelectedJobInfo(selectedJob)
           const defaultRound = selectedJob.jobAssignDefaultRound ?? 1
@@ -992,18 +998,21 @@ const JobDetail = () => {
           )
         }
       } else {
+        const selectedJob =
+          combinedList.find(value => value.jobId === Number(selectedJobId)) ??
+          combinedList[0]
+
         setJobDetail(combinedList)
-        setSelectedJobInfo(combinedList[0])
-        const defaultRound = combinedList[0].jobAssignDefaultRound ?? 1
+        setSelectedJobInfo(selectedJob)
+        const defaultRound = selectedJob?.jobAssignDefaultRound ?? 1
 
         setSelectedAssign(
-          combinedList[0].jobAssign.find(
-            value => value.round === defaultRound,
-          ) ?? null,
+          selectedJob.jobAssign.find(value => value.round === defaultRound) ??
+            null,
         )
       }
     }
-  }, [jobInfoList, jobPriceList, jobAssignList])
+  }, [jobInfoList, jobPriceList, jobAssignList, selectedJobInfo, jobDetail])
 
   useEffect(() => {
     if (roundQuery && selectedJobInfo) {
@@ -1084,6 +1093,8 @@ const JobDetail = () => {
       }
     }
   }, [selectedJobInfo, jobDetails])
+
+  console.log(selectedAssign, 'rows2')
 
   return (
     <Card sx={{ height: '100%' }}>

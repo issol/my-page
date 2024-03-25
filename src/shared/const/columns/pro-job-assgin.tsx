@@ -46,6 +46,10 @@ export const getProJobAssignColumns = (
   assignPro: boolean,
   addRound: boolean,
   addPros: boolean,
+  jobStatusList: {
+    value: number
+    label: string
+  }[],
   selectedValue?: GridSelectionModel,
   setSelectedValue?: Dispatch<
     SetStateAction<{ [key: string]: GridSelectionModel }>
@@ -167,14 +171,19 @@ export const getProJobAssignColumns = (
               }}
             />
             {assignPro || addPros || addRound ? (
-              <Box>
+              <Tooltip
+                title={
+                  jobStatusList.find(value => value.value === row.responseLight)
+                    ?.label ?? '-'
+                }
+              >
                 <Image
                   src={`/images/icons/job-icons/status-${(row as AssignProListType).responseLight === 70100 ? 'green' : (row as AssignProListType).responseLight === 70000 || (row as AssignProListType).responseLight === 70500 || (row as AssignProListType).responseLight === 70600 ? 'orange' : (row as AssignProListType).responseLight === 70200 || ((row as AssignProListType).responseLight === 70400 && 'red')}.svg`}
                   alt=''
                   width={8}
                   height={8}
                 />
-              </Box>
+              </Tooltip>
             ) : null}
           </Box>
         )

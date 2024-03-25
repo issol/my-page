@@ -70,6 +70,7 @@ export type JobItemType = {
   sourceLanguage: string
   targetLanguage: string
   contactPersonId: number
+  sortingOrder: number
   jobs: Array<JobType>
 }
 

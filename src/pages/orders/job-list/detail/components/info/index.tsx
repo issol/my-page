@@ -52,6 +52,7 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Message from '../assign-pro/message-modal'
 import MoveNextJobModal from './move-next-job-modal'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 type Props = {
   jobInfo: JobType
@@ -109,6 +110,7 @@ const JobInfo = ({
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: (data, variables) => {
+        displayCustomToast('Saved successfully', 'success')
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
           queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
@@ -826,7 +828,7 @@ const JobInfo = ({
                 Job description
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Checkbox disabled />
+                <Checkbox disabled checked={jobInfo.isShowDescription} />
                 <Typography fontSize={14} fontWeight={400} color='#BBBCC4'>
                   Show job description to Pro
                 </Typography>
@@ -867,8 +869,6 @@ const JobInfo = ({
                     variant='outlined'
                     sx={{
                       height: '30px',
-                      border: '1px solid #BBBCC4 !important',
-                      color: '#BBBCC4 !important',
                     }}
                     disabled={
                       !(
