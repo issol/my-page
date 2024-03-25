@@ -39,6 +39,10 @@ type Props = {
   selectedPros: ProListType[] | AssignProListType[]
   existingPros: JobAssignProRequestsType | null
   type: 'create' | 'add'
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
 
 const RequestSummaryModal = ({
@@ -47,6 +51,7 @@ const RequestSummaryModal = ({
   selectedPros,
   existingPros,
   type,
+  statusList,
 }: Props) => {
   console.log(existingPros)
 
@@ -450,6 +455,7 @@ const RequestSummaryModal = ({
               false,
               false,
               false,
+              statusList || [],
             )}
             hideFooter
           />
