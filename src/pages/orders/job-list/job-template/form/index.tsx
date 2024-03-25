@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Icon } from '@iconify/react'
-import { MouseEvent, useContext, useEffect } from 'react'
+import { MouseEvent, useContext, useEffect, useRef } from 'react'
 import {
   Autocomplete,
   Box,
@@ -34,7 +34,14 @@ import { JobTemplateFormSchema } from '@src/types/schema/job-template.shema'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { Suspense, useState } from 'react'
-import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
+import {
+  Controller,
+  FieldError,
+  FieldErrors,
+  Resolver,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { useMutation, useQueryClient } from 'react-query'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
@@ -45,6 +52,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { job_template } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 const AddNewJobTemplate = () => {
   const router = useRouter()
@@ -62,6 +70,7 @@ const AddNewJobTemplate = () => {
     )
   const { openModal, closeModal } = useModal()
   const [formMode, setFormMode] = useState(mode)
+  const errorRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -76,6 +85,7 @@ const AddNewJobTemplate = () => {
     setValue,
     trigger,
     setError,
+    setFocus,
     watch,
     reset,
     formState: { errors, isValid, isSubmitted, touchedFields, isDirty },
@@ -441,6 +451,29 @@ const AddNewJobTemplate = () => {
     })
   }
 
+  const onError = (errors: FieldErrors<JobTemplateFormType>) => {
+    if (Object.keys(errors).includes('options')) {
+      const firstErrorIndex = Object.keys(errors.options || {}).sort()[0]
+      errorRefs.current[Number(firstErrorIndex)]?.focus()
+      // setFocus('options')
+      // return
+    } else {
+      const firstErrorName: keyof JobTemplateFormType = Object.keys(
+        errors,
+      )[0] as keyof JobTemplateFormType
+      setFocus(firstErrorName)
+      // trigger(firstErrorName)
+    }
+
+    // const firstErrorName: keyof JobTemplateFormType = Object.keys(
+    //   errors,
+    // )[0] as keyof JobTemplateFormType
+    // console.log(firstErrorName)
+
+    // setFocus(firstErrorName)
+    // trigger(firstErrorName)
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     setFormMode(mode)
@@ -479,7 +512,6 @@ const AddNewJobTemplate = () => {
       }
     }
   }, [mode, templateInfo])
-  console.log(getValues())
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -621,7 +653,10 @@ const AddNewJobTemplate = () => {
             </Box>
           ) : null}
         </Box>
-        <form onSubmit={handleSubmit(onClickSave)} style={{ height: '100%' }}>
+        <form
+          onSubmit={handleSubmit(onClickSave, onError)}
+          style={{ height: '100%' }}
+        >
           <Grid container xs={12} sx={{ height: '100%' }}>
             <Grid item xs={8}>
               <Box
@@ -737,6 +772,7 @@ const AddNewJobTemplate = () => {
                                 <Controller
                                   name={`options.${index}.serviceTypeId`}
                                   control={control}
+                                  rules={{ required: FormErrors.required }}
                                   render={({ field, formState }) => {
                                     const showError = formState.isSubmitted
 
@@ -765,6 +801,10 @@ const AddNewJobTemplate = () => {
                                             <TextField
                                               {...params}
                                               autoComplete='off'
+                                              // inputRef={field.ref}
+                                              inputRef={ref => {
+                                                errorRefs.current[index] = ref
+                                              }}
                                               // label='Service type'
                                               placeholder='Select service type'
                                               error={
@@ -1181,6 +1221,7 @@ const AddNewJobTemplate = () => {
                       render={({ field, formState }) => {
                         return (
                           <TextField
+                            inputRef={field.ref}
                             value={field.value}
                             error={!!errors.name && formState.isSubmitted}
                             helperText={
