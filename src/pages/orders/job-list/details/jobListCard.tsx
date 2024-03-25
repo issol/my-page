@@ -26,7 +26,6 @@ import {
 import { JobStatus } from '@src/types/common/status.type'
 import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRouter } from 'next/router'
 import {
   AutoMode,
@@ -115,9 +114,8 @@ const JobListCard = ({
   const theme = useTheme()
 
   const router = useRouter()
-  const { orderId, jobId } = router.query
+  const { orderId } = router.query
 
-  const currentRole = getCurrentRole()
   const { isOpen, onOpen, onClose } = useDialog()
 
   const [open, setOpen] = useState<boolean>(true)
@@ -212,16 +210,13 @@ const JobListCard = ({
     // job info, price가 저장되었다면 버튼을 쓸수 있게 해준다.
     // job info: name
     // price: totalPrice
-    if (job?.name && job?.totalPrice) {
-      return true
-    }
-    return false
+    return !!(job?.name && job?.totalPrice)
   }
 
   const isStatusChangeableJob = (status: number) => {
-    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
+    // 변경 가능 기준 : job status가 In preparation, Redelivery requested, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
     return [
-      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900,
+      60000, 60110, 60200, 60250, 60300, 60400, 60500, 60600, 60700, 60900,
     ].includes(status)
   }
 
@@ -311,7 +306,7 @@ const JobListCard = ({
       selectedAllItemJobs.map(jobId => {
         const job = info.jobs.find(row => row.id === jobId)
         // partially delivered, delivered, invoiced 일때만 true
-        if (job && ![60400, 60500, 60700].includes(job.status)) {
+        if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
           flag = false
           immutableCorporationId.push(job.corporationId)
         }
@@ -322,7 +317,7 @@ const JobListCard = ({
       selectedAllItemJobs.map(jobId => {
         const job = info.jobs.find(row => row.id === jobId)
         // delivered, approved, invoiced 일때만 true
-        if (job && ![60500, 60600, 60700].includes(job.status)) {
+        if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
           flag = false
           immutableCorporationId.push(job.corporationId)
         }
