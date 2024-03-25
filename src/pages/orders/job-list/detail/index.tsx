@@ -665,6 +665,7 @@ const JobDetail = () => {
             ) ?? null
           }
           type={addProsMode ? 'add' : 'create'}
+          statusList={jobStatusList || []}
         />
       ),
       isCloseable: true,
