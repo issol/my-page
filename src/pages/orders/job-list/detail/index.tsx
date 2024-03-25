@@ -43,6 +43,7 @@ import {
   Dispatch,
   SetStateAction,
   useRef,
+  useContext,
 } from 'react'
 import AssignPro from './components/assign-pro'
 import {
@@ -133,6 +134,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
 import toast from 'react-hot-toast'
+import { job_list } from '@src/shared/const/permission-class'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -144,6 +147,7 @@ const JobDetail = () => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const ability = useContext(AbilityContext)
 
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
@@ -936,6 +940,16 @@ const JobDetail = () => {
     })
   }
 
+  const selectedJobUpdatable = () => {
+    if (selectedJobInfo) {
+      const Writer = new job_list(selectedJobInfo?.jobInfo.authorId)
+      const isUpdatable = ability.can('update', Writer)
+      return isUpdatable
+    } else {
+      return false
+    }
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
@@ -1094,8 +1108,6 @@ const JobDetail = () => {
       }
     }
   }, [selectedJobInfo, jobDetails])
-
-  console.log(selectedAssign, 'rows2')
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -1751,9 +1763,10 @@ const JobDetail = () => {
                           <Typography fontSize={16} fontWeight={600}>
                             Target files from Pro
                           </Typography>
-                          {selectedJobInfo.jobInfo.status === 60300 ||
-                          selectedJobInfo.jobInfo.status === 60400 ||
-                          selectedJobInfo.jobInfo.status === 60500 ? (
+                          {(selectedJobInfo.jobInfo.status === 60300 ||
+                            selectedJobInfo.jobInfo.status === 60400 ||
+                            selectedJobInfo.jobInfo.status === 60500) &&
+                          selectedJobUpdatable() ? (
                             <>
                               {' '}
                               <IconButton

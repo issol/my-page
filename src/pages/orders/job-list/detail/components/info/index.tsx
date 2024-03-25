@@ -13,7 +13,10 @@ import {
   SelectChangeEvent,
   Typography,
 } from '@mui/material'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  JobsStatusChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import FileItem from '@src/@core/components/fileItem'
 import { saveJobInfo, setMoveToNextJob } from '@src/apis/jobs/job-detail.api'
@@ -39,7 +42,13 @@ import {
 } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -53,6 +62,8 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Message from '../assign-pro/message-modal'
 import MoveNextJobModal from './move-next-job-modal'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import { job_list } from '@src/shared/const/permission-class'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 type Props = {
   jobInfo: JobType
@@ -86,6 +97,11 @@ const JobInfo = ({
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+  const ability = useContext(AbilityContext)
+
+  const Writer = new job_list(jobInfo.authorId)
+  const isUpdatable = ability.can('update', Writer)
+  const isDeletable = ability.can('delete', Writer)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [contactPersonList, setContactPersonList] = useState<
@@ -516,7 +532,13 @@ const JobInfo = ({
                 </Box>
               ) : jobInfoList.find(value => value?.id === jobInfo.nextJobId) ? (
                 jobInfoList.find(value => value?.id === jobInfo.nextJobId)
-                  ?.pro !== null && jobInfo.autoNextJob ? (
+                  ?.pro !== null &&
+                jobInfo.autoNextJob &&
+                jobInfo.status !== 60000 &&
+                jobInfo.status !== 60100 &&
+                jobInfo.status !== 60110 &&
+                jobInfo.status !== 60200 &&
+                isUpdatable ? (
                   <Button
                     startIcon={<Icon icon='ic:sharp-read-more' fontSize={24} />}
                     fullWidth
@@ -529,115 +551,117 @@ const JobInfo = ({
                   </Button>
                 ) : null
               ) : null}
-
-              <Box>
-                <IconButton sx={{ padding: 0 }} onClick={handleMenuClick}>
-                  <Icon icon='mdi:dots-vertical' />
-                </IconButton>
-                <Menu
-                  elevation={8}
-                  anchorEl={anchorEl}
-                  id='customized-menu'
-                  onClose={handleMenuClose}
-                  open={Boolean(anchorEl)}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                >
-                  <MenuItem
-                    sx={{
-                      gap: 2,
-                      '&:hover': {
-                        background: 'inherit',
-                        cursor: 'default',
-                      },
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start',
-                      padding: 0,
+              {isUpdatable ? (
+                <Box>
+                  <IconButton sx={{ padding: 0 }} onClick={handleMenuClick}>
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={anchorEl}
+                    id='customized-menu'
+                    onClose={handleMenuClose}
+                    open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
                     }}
                   >
-                    <Button
-                      startIcon={
-                        <Icon
-                          icon='mdi:pencil-outline'
-                          color='#4C4E648A'
-                          fontSize={24}
-                        />
-                      }
-                      fullWidth
-                      onClick={() => {
-                        handleMenuClose()
-                        onClickEdit()
-                      }}
+                    <MenuItem
                       sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
                         justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        fontSize: 16,
-                        fontWeight: 400,
-                        color: 'rgba(76, 78, 100, 0.87)',
-                        borderRadius: 0,
+                        alignItems: 'flex-start',
+                        padding: 0,
                       }}
                     >
-                      Edit
-                    </Button>
-                  </MenuItem>
-
-                  {jobInfoList.find(
-                    value => value?.id === jobInfo.nextJobId,
-                  ) ? (
-                    jobInfoList.find(value => value?.id === jobInfo.nextJobId)
-                      ?.pro !== null &&
-                    jobInfo.autoNextJob &&
-                    jobInfo.status !== 60000 &&
-                    jobInfo.status !== 60100 &&
-                    jobInfo.status !== 60110 &&
-                    jobInfo.status !== 60200 ? (
-                      <MenuItem
+                      <Button
+                        startIcon={
+                          <Icon
+                            icon='mdi:pencil-outline'
+                            color='#4C4E648A'
+                            fontSize={24}
+                          />
+                        }
+                        fullWidth
+                        onClick={() => {
+                          handleMenuClose()
+                          onClickEdit()
+                        }}
                         sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
                           justifyContent: 'flex-start',
-                          alignItems: 'flex-start',
-                          padding: 0,
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
                         }}
                       >
-                        <Button
-                          startIcon={
-                            <Icon
-                              icon='ic:sharp-read-more'
-                              color='#4C4E648A'
-                              fontSize={24}
-                            />
-                          }
-                          fullWidth
-                          onClick={() => {
-                            handleMenuClose()
-                            onClickMoveNextJob()
-                          }}
+                        Edit
+                      </Button>
+                    </MenuItem>
+
+                    {jobInfoList.find(
+                      value => value?.id === jobInfo.nextJobId,
+                    ) ? (
+                      jobInfoList.find(value => value?.id === jobInfo.nextJobId)
+                        ?.pro !== null &&
+                      jobInfo.autoNextJob &&
+                      jobInfo.status !== 60000 &&
+                      jobInfo.status !== 60100 &&
+                      jobInfo.status !== 60110 &&
+                      jobInfo.status !== 60200 &&
+                      isUpdatable ? (
+                        <MenuItem
                           sx={{
+                            gap: 2,
+                            '&:hover': {
+                              background: 'inherit',
+                              cursor: 'default',
+                            },
                             justifyContent: 'flex-start',
-                            padding: '6px 16px',
-                            fontSize: 16,
-                            fontWeight: 400,
-                            color: 'rgba(76, 78, 100, 0.87)',
-                            borderRadius: 0,
+                            alignItems: 'flex-start',
+                            padding: 0,
                           }}
                         >
-                          Move on to the next job
-                        </Button>
-                      </MenuItem>
-                    ) : null
-                  ) : null}
-                </Menu>
-              </Box>
+                          <Button
+                            startIcon={
+                              <Icon
+                                icon='ic:sharp-read-more'
+                                color='#4C4E648A'
+                                fontSize={24}
+                              />
+                            }
+                            fullWidth
+                            onClick={() => {
+                              handleMenuClose()
+                              onClickMoveNextJob()
+                            }}
+                            sx={{
+                              justifyContent: 'flex-start',
+                              padding: '6px 16px',
+                              fontSize: 16,
+                              fontWeight: 400,
+                              color: 'rgba(76, 78, 100, 0.87)',
+                              borderRadius: 0,
+                            }}
+                          >
+                            Move on to the next job
+                          </Button>
+                        </MenuItem>
+                      ) : null
+                    ) : null}
+                  </Menu>
+                </Box>
+              ) : null}
             </Box>
           </Box>
           <Divider />
@@ -668,41 +692,41 @@ const JobInfo = ({
                   </Typography>
                 </Grid>
                 <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <Select
-                      value={String(jobInfo.status)}
-                      onChange={onChangeStatus}
-                      size='small'
-                      fullWidth
-                      // sx={{ width: '253px' }}
+                  {isUpdatable ? (
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >
-                      {filteredJobStatus?.map(status => {
-                        return (
-                          <MenuItem key={uuidv4()} value={status.value}>
-                            {status.label}
-                          </MenuItem>
-                        )
-                      })}
-                    </Select>
-                    {jobInfo.status === 60250 ? (
-                      <IconButton
-                        sx={{ padding: 0 }}
-                        onClick={onClickRedeliveryReason}
+                      <Select
+                        value={String(jobInfo.status)}
+                        onChange={onChangeStatus}
+                        size='small'
+                        fullWidth
+                        // sx={{ width: '253px' }}
                       >
-                        <Icon
-                          icon='mdi:question-mark-circle-outline'
-                          color='rgba(141, 142, 154, 1)'
-                          fontSize={20}
-                        />
-                      </IconButton>
-                    ) : null}
-
-                    {/* {jobInfo.pro ? (
-
-                  ) : null} */}
-                  </Box>
+                        {filteredJobStatus?.map(status => {
+                          return (
+                            <MenuItem key={uuidv4()} value={status.value}>
+                              {status.label}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                      {jobInfo.status === 60250 ? (
+                        <IconButton
+                          sx={{ padding: 0 }}
+                          onClick={onClickRedeliveryReason}
+                        >
+                          <Icon
+                            icon='mdi:question-mark-circle-outline'
+                            color='rgba(141, 142, 154, 1)'
+                            fontSize={20}
+                          />
+                        </IconButton>
+                      ) : null}
+                    </Box>
+                  ) : (
+                    <>{JobsStatusChip(jobInfo.status, jobStatusList ?? [])}</>
+                  )}
                 </Grid>
               </Grid>
             </Grid>

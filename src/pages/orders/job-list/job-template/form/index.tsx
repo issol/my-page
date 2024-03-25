@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Icon } from '@iconify/react'
-import { MouseEvent, useEffect } from 'react'
+import { MouseEvent, useContext, useEffect } from 'react'
 import {
   Autocomplete,
   Box,
@@ -16,6 +16,7 @@ import {
   RadioGroup,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
@@ -42,6 +43,8 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { job_template } from '@src/shared/const/permission-class'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 const AddNewJobTemplate = () => {
   const router = useRouter()
@@ -51,6 +54,7 @@ const AddNewJobTemplate = () => {
   const { data: serviceTypeList, isLoading } = useGetServiceType()
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const auth = useRecoilValueLoadable(authState)
+  const ability = useContext(AbilityContext)
   const { data: templateInfo, isLoading: templateInfoLoading } =
     useGetJobTemplateDetail(
       Number(id),
@@ -60,6 +64,10 @@ const AddNewJobTemplate = () => {
   const [formMode, setFormMode] = useState(mode)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const Writer = new job_template(templateInfo?.authorId!)
+  const isUpdatable = ability.can('update', Writer)
+  const isDeletable = ability.can('delete', Writer)
 
   const {
     control,
@@ -547,26 +555,33 @@ const AddNewJobTemplate = () => {
                     padding: 0,
                   }}
                 >
-                  <Button
-                    fullWidth
-                    startIcon={<Icon icon='mdi:pencil-outline' />}
-                    onClick={() => {
-                      handleClose()
-
-                      router.replace(
-                        `/orders/job-list/job-template/form?mode=edit&id=${id}`,
-                      )
-                    }}
-                    sx={{
-                      justifyContent: 'flex-start',
-                      padding: '6px 16px',
-                      color: 'rgba(76, 78, 100, 0.87)',
-                      borderRadius: 0,
-                    }}
+                  <Tooltip
+                    title='Not authorized'
+                    disableHoverListener={isUpdatable}
                   >
-                    Edit
-                  </Button>
+                    <Button
+                      fullWidth
+                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                      disabled={!isUpdatable}
+                      onClick={() => {
+                        handleClose()
+
+                        router.replace(
+                          `/orders/job-list/job-template/form?mode=edit&id=${id}`,
+                        )
+                      }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        padding: '6px 16px',
+                        color: 'rgba(76, 78, 100, 0.87)',
+                        borderRadius: 0,
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </Tooltip>
                 </MenuItem>
+
                 <MenuItem
                   sx={{
                     gap: 2,
@@ -579,18 +594,24 @@ const AddNewJobTemplate = () => {
                     padding: 0,
                   }}
                 >
-                  <Button
-                    startIcon={<Icon icon='mdi:trash-outline' />}
-                    sx={{
-                      justifyContent: 'flex-start',
-                      padding: '6px 16px',
-                      color: '#FF4D49',
-                      borderRadius: 0,
-                    }}
-                    onClick={onClickDeleteJobTemplate}
+                  <Tooltip
+                    title='Not authorized'
+                    disableHoverListener={isDeletable}
                   >
-                    Delete
-                  </Button>
+                    <Button
+                      startIcon={<Icon icon='mdi:trash-outline' />}
+                      disabled={!isDeletable}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        padding: '6px 16px',
+                        color: '#FF4D49',
+                        borderRadius: 0,
+                      }}
+                      onClick={onClickDeleteJobTemplate}
+                    >
+                      Delete
+                    </Button>
+                  </Tooltip>
                 </MenuItem>
               </Menu>
             </Box>
