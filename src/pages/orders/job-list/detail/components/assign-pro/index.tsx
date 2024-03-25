@@ -614,7 +614,7 @@ const AssignPro = ({
     }
   }, [proId])
 
-  console.log(rows, 'rows')
+  console.log(selectedAssign, 'rows')
 
   return (
     <>
@@ -1460,6 +1460,7 @@ const AssignPro = ({
                   assignProMode,
                   addRoundMode,
                   addProsMode,
+                  jobStatusList || [],
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,
                   selectedLinguistTeam?.label || '',
@@ -1524,6 +1525,7 @@ const AssignPro = ({
                   assignProMode,
                   addRoundMode,
                   addProsMode,
+                  jobStatusList || [],
 
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,

@@ -487,6 +487,8 @@ const InfoEditModal = ({
       sx={{
         maxWidth: '702px',
         width: '100%',
+
+        maxHeight: '85vh',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -1016,32 +1018,39 @@ const InfoEditModal = ({
                         </Button>
                       </div>
                     </Box>
-                    {uploadedFiles && (
-                      <Box
-                        sx={{
-                          display: uploadedFiles.length > 0 ? 'grid' : 'none',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
+                    <Box
+                      sx={{
+                        maxHeight: '200px',
+                        overflowY: 'scroll',
+                      }}
+                    >
+                      {uploadedFiles && (
+                        <Box
+                          sx={{
+                            display: uploadedFiles.length > 0 ? 'grid' : 'none',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
 
-                          width: '100%',
-                          gap: '20px',
-                        }}
-                      >
-                        {uploadedFileList(uploadedFiles, 'SAMPLE')}
-                      </Box>
-                    )}
-                    {fileList.length > 0 && (
-                      <Box
-                        sx={{
-                          display: fileList.length > 0 ? 'grid' : 'none',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
+                            width: '100%',
+                            gap: '20px',
+                          }}
+                        >
+                          {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                        </Box>
+                      )}
+                      {fileList.length > 0 && (
+                        <Box
+                          sx={{
+                            display: fileList.length > 0 ? 'grid' : 'none',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
 
-                          width: '100%',
-                          gap: '20px',
-                        }}
-                      >
-                        {fileList}
-                      </Box>
-                    )}
+                            width: '100%',
+                            gap: '20px',
+                          }}
+                        >
+                          {fileList}
+                        </Box>
+                      )}
+                    </Box>
 
                     <Box>
                       <Typography
@@ -1070,7 +1079,7 @@ const InfoEditModal = ({
               Cancel
             </Button>
             <Button variant='contained' type='submit'>
-              Save
+              {jobInfo.pro === null ? 'Save' : 'Save changes'}
             </Button>
           </Box>
         </form>

@@ -36,6 +36,12 @@ export const useGetJobDetails = (orderId: number, enabled: boolean) => {
     suspense: false,
     keepPreviousData: true,
     enabled: !!orderId && enabled,
+    select: data => {
+      return {
+        ...data,
+        items: data.items.sort((a, b) => a.sortingOrder - b.sortingOrder),
+      }
+    },
   })
 }
 
