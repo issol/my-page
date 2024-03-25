@@ -559,26 +559,28 @@ const AddNewJobTemplate = () => {
                     title='Not authorized'
                     disableHoverListener={isUpdatable}
                   >
-                    <Button
-                      fullWidth
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      disabled={!isUpdatable}
-                      onClick={() => {
-                        handleClose()
+                    <Box>
+                      <Button
+                        fullWidth
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        disabled={!isUpdatable}
+                        onClick={() => {
+                          handleClose()
 
-                        router.replace(
-                          `/orders/job-list/job-template/form?mode=edit&id=${id}`,
-                        )
-                      }}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: 'rgba(76, 78, 100, 0.87)',
-                        borderRadius: 0,
-                      }}
-                    >
-                      Edit
-                    </Button>
+                          router.replace(
+                            `/orders/job-list/job-template/form?mode=edit&id=${id}`,
+                          )
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </Box>
                   </Tooltip>
                 </MenuItem>
 
@@ -598,19 +600,21 @@ const AddNewJobTemplate = () => {
                     title='Not authorized'
                     disableHoverListener={isDeletable}
                   >
-                    <Button
-                      startIcon={<Icon icon='mdi:trash-outline' />}
-                      disabled={!isDeletable}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: '#FF4D49',
-                        borderRadius: 0,
-                      }}
-                      onClick={onClickDeleteJobTemplate}
-                    >
-                      Delete
-                    </Button>
+                    <Box>
+                      <Button
+                        startIcon={<Icon icon='mdi:trash-outline' />}
+                        disabled={!isDeletable}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: '#FF4D49',
+                          borderRadius: 0,
+                        }}
+                        onClick={onClickDeleteJobTemplate}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
                   </Tooltip>
                 </MenuItem>
               </Menu>
