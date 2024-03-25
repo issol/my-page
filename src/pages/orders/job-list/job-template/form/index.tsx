@@ -177,7 +177,7 @@ const AddNewJobTemplate = () => {
             'name',
             {
               type: 'custom',
-              message: 'Same name exists.',
+              message: 'Same name exists',
             },
             { shouldFocus: true },
           )
