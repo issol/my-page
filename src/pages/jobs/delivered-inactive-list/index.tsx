@@ -99,14 +99,14 @@ const DeliveredInactiveList = () => {
       !assignmentStatusListLoading
     ) {
       const customStatusList = [
-        60600, 60700, 60800, 70200, 601000, 70500, 60900,
+        60600, 60700, 60800, 70200, 601000, 70400, 70500, 60900,
       ]
       const filteredJobStatusList = [
         ...jobStatusList.filter(value => {
           return value.value >= 60600 && value.value !== 601100
         }),
         ...assignmentJobStatusList.filter(value => {
-          return [70200, 70500].includes(value.value)
+          return [70200, 70400, 70500].includes(value.value)
         }),
       ].sort(
         (a, b) =>
@@ -121,6 +121,7 @@ const DeliveredInactiveList = () => {
     assignmentStatusListLoading,
   ])
 
+  console.log("statusList", statusList)
   const createInvoiceMutation = useMutation(
     (params: {
       // invoiceStatus: string

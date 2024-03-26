@@ -324,7 +324,7 @@ const InfoEditModal = ({
                 sourceLanguage: data.source !== ' ' ? data.source : null,
                 targetLanguage: data.target !== ' ' ? data.target : null,
                 name: data.name,
-                isShowDescription: data.isShowDescription,
+                isShowDescription: data.isShowDescription ? '1' : '0',
               }
 
               saveJobInfoMutation.mutate(
@@ -364,7 +364,7 @@ const InfoEditModal = ({
           sourceLanguage: data.source !== ' ' ? data.source : null,
           targetLanguage: data.target !== ' ' ? data.target : null,
           name: data.name,
-          isShowDescription: data.isShowDescription,
+          isShowDescription: data.isShowDescription ? '1' : '0',
         }
         saveJobInfoMutation.mutate(
           { jobId: jobInfo.id, data: jobResult },
