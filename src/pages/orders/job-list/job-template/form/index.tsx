@@ -319,6 +319,7 @@ const AddNewJobTemplate = () => {
   const onClickJobTemplateHelpIcon = () => {
     openModal({
       type: 'JobTemplateHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -353,6 +354,7 @@ const AddNewJobTemplate = () => {
   const onClickAutoTriggerHelpIcon = () => {
     openModal({
       type: 'AutoTriggerHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -388,6 +390,7 @@ const AddNewJobTemplate = () => {
   const onClickAutoFileShareHelpIcon = () => {
     openModal({
       type: 'AutoFileShareHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
