@@ -1051,7 +1051,11 @@ const LinguistTeamDetail = () => {
                         Client
                       </Typography>
                       <Typography fontSize={14} fontWeight={400}>
-                        {data.clientId}
+                        {data.clientId
+                          ? clientList?.find(
+                              value => value.clientId === data.clientId,
+                            ).name ?? '-'
+                          : '-'}
                       </Typography>
                     </Box>
                   </Grid>
