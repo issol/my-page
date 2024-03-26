@@ -331,8 +331,8 @@ const JobListCard = ({
   }
 
   useEffect(() => {
-    const groupedJobs: { [key: number]: any[] } = info.jobs.reduce(
-      (groups: { [key: number]: any[] }, job) => {
+    const groupedJobs: { [key: number]: JobType[] } = info.jobs.reduce(
+      (groups: { [key: number]: JobType[] }, job) => {
         const key = job.templateId
         if (key === null) return groups
         else {
