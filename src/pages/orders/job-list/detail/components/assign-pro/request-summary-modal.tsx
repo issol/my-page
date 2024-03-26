@@ -554,7 +554,7 @@ const RequestSummaryModal = ({
                         sx={{
                           paddingLeft: '16px',
                           display: 'flex',
-
+                          overflow: 'hidden',
                           flex: selectedRequestOption === 0 ? 0.3974 : 0.45,
                         }}
                       >
