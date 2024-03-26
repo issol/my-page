@@ -197,6 +197,7 @@ export type ProJobDetailType = {
   corporationId: string
   name: string
   status: JobStatus
+  jobRequestId: number
 
   order: {
     client: {

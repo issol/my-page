@@ -129,8 +129,8 @@ const ProJobInfo = ({
     (data: { jobId: number; proId: number; status: number }) =>
       handleJobAssignStatus(data.jobId, data.proId, data.status, 'pro'),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['proJobDetail'])
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['proJobDetail', variables.jobId])
       },
     },
   )
@@ -275,7 +275,7 @@ const ProJobInfo = ({
     // TODO API 연결
     selectAssignMutation.mutate(
       {
-        jobId: jobInfo.id,
+        jobId: jobInfo.jobRequestId,
         proId: auth.getValue().user?.id!,
         status: response === 'Decline' ? 70200 : 70100,
       },
@@ -627,10 +627,7 @@ const ProJobInfo = ({
                 label='Status'
                 isBadge={jobDetailDots.includes('status')}
               >
-                {ProJobStatusChip(
-                  statusLabel,
-                  jobInfo.status as JobStatus,
-                )}
+                {ProJobStatusChip(statusLabel, jobInfo.status as JobStatus)}
 
                 {/* TODO status 체크해야함 */}
                 {jobInfo.status === 60900 ||
