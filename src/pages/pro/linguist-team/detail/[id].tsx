@@ -345,7 +345,7 @@ const LinguistTeamDetail = () => {
       type: 'SaveLinguistTeam',
       children: (
         <CustomModal
-          vary='info'
+          vary='successful'
           title={
             <Box
               sx={{
