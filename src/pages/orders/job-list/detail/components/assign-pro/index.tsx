@@ -543,7 +543,6 @@ const AssignPro = ({
     } else if (menu === 'pro' && proList.data.length > 0) {
       const selectedPros =
         proList.data.filter(pro => selectionModel.includes(pro.userId)) ?? []
-
       setSelectedRows(prev => {
         // detail.isPrioritized가 false이면 selectionModel의 순서에 따라 정렬합니다.
         selectedPros.sort(
@@ -551,8 +550,21 @@ const AssignPro = ({
             selectionModel.indexOf(a.userId) - selectionModel.indexOf(b.userId),
         )
 
+        // 기존 데이터에서 데이터 영역만 추출합니다.
+        const prevData = prev[selectedLinguistTeam?.label || '']?.data || []
+        // 선택된 값과 비교해서 삭제된 값을 필터하여 제거합니다. 추가된 것은 반영하지 않습니다.
+        const prevFilteredData = prevData.filter(
+          pro => selectionModel.includes(pro.userId),
+        )
+        
         // 기존 데이터와 새로운 데이터를 합칩니다.
-        const newData = [...selectedPros]
+        const newData = [
+          ...prevFilteredData,
+          // prevFilteredData와 비교하여 새롭게 추가된 항목만 추가합니다.
+          ...selectedPros.filter(
+            pro => !prevFilteredData.map(prevPro => prevPro.userId).includes(pro.userId),
+          )
+        ]
 
         return {
           ...prev,
@@ -565,7 +577,7 @@ const AssignPro = ({
       const result = {
         [selectedLinguistTeam?.label || '']: selectionModel,
       }
-
+      console.log("result",result)
       setSelectionModel(prev => ({ ...prev, ...result }))
     }
   }
