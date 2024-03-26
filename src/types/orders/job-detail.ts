@@ -90,7 +90,7 @@ export type SaveJobInfoParamsType = {
   sourceLanguage?: string | null
   targetLanguage?: string | null
   name?: string
-  isShowDescription?: boolean
+  isShowDescription?: string
 }
 
 export type SaveJobPricesParamsType = {
