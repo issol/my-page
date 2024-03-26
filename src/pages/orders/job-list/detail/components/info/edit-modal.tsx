@@ -520,326 +520,259 @@ const InfoEditModal = ({
         }}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Grid container spacing={6} sx={{ padding: '32px 20px 20px 20px' }}>
-            <Grid item xs={12}>
-              <Box className='filterFormControl'>
-                <Controller
-                  name='name'
-                  control={control}
-                  render={({
-                    field: { value, onChange, onBlur },
-                    formState,
-                  }) => {
-                    const showError = formState.isSubmitted
-                    return (
-                      <TextField
-                        fullWidth
-                        autoComplete='off'
-                        value={value || ''}
-                        onBlur={onBlur}
-                        label='Job name*'
-                        sx={{ height: '46px' }}
-                        inputProps={{
-                          style: {
-                            height: '46px',
-                            padding: '0 14px',
-                          },
-                        }}
-                        onChange={e => {
-                          const { value } = e.target
-                          if (value === '') {
-                            onChange('')
-                          } else {
-                            const filteredValue = value.slice(0, 100)
-                            e.target.value = filteredValue
-                            onChange(e.target.value)
-                          }
-                        }}
-                        error={showError && Boolean(errors.name)}
-                        helperText={
-                          showError &&
-                          Boolean(errors.name) &&
-                          FormErrors.required
-                        }
-                      />
-                    )
-                  }}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormControl'>
-                <TextField
-                  disabled
-                  autoComplete='off'
-                  id='status'
-                  label='Status*'
-                  fullWidth
-                  sx={{ height: '46px' }}
-                  inputProps={{
-                    style: {
-                      height: '46px',
-                      padding: '0 14px',
-                    },
-                  }}
-                  defaultValue={
-                    statusList?.find(list => list.value === jobInfo.status)
-                      ?.label!
-                  }
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormSoloAutoComplete'>
-                <Controller
-                  control={control}
-                  name='contactPerson'
-                  render={({ field: { onChange, value }, formState }) => {
-                    const showError = formState.isSubmitted
-                    return (
-                      <Autocomplete
-                        fullWidth
-                        onChange={(event, item) => {
-                          if (item) {
-                            onChange(item)
-                          } else {
-                            onChange(null)
-                          }
-                        }}
-                        value={value || null}
-                        options={contactPersonList}
-                        id='contactPerson'
-                        getOptionLabel={option => option.label || ''}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            autoComplete='off'
-                            label='Contact person for job*'
-                            error={showError && Boolean(errors.contactPerson)}
-                            helperText={
-                              showError &&
-                              Boolean(errors.contactPerson) &&
-                              FormErrors.required
-                            }
-                          />
-                        )}
-                      />
-                    )
-                  }}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormControl'>
-                <TextField
-                  disabled
-                  autoComplete='off'
-                  id='serviceType'
-                  label='Service type*'
-                  fullWidth
-                  sx={{ height: '46px' }}
-                  inputProps={{
-                    style: {
-                      height: '46px',
-                      padding: '0 14px',
-                    },
-                  }}
-                  defaultValue={jobInfo.serviceType}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormSoloAutoComplete'>
-                {getValues('source') !== undefined &&
-                  getValues('target') !== undefined && (
-                    <Controller
-                      control={control}
-                      name='source'
-                      render={({ field: { onChange, value }, formState }) => {
-                        const showError = formState.isSubmitted
-                        return (
-                          <Autocomplete
-                            fullWidth
-                            disabled={Boolean(jobInfo.pro)}
-                            // isOptionEqualToValue={(option, newValue) => {
-                            //   return option.source === newValue.source
-                            // }}
-                            onChange={(event, item) => {
-                              if (item) {
-                                setValue(
-                                  'source',
-                                  item?.source,
-                                  setValueOptions,
-                                )
-                                setValue(
-                                  'target',
-                                  item?.target,
-                                  setValueOptions,
-                                )
-                                trigger('source')
-                                trigger('target')
-                              } else {
-                                setValue('source', null, setValueOptions)
-                                setValue('target', null, setValueOptions)
-                                trigger('source')
-                                trigger('target')
-                              }
-                              // onChange(item)
-                            }}
-                            value={
-                              value === null
-                                ? null
-                                : [
-                                    {
-                                      source: ' ',
-                                      target: ' ',
-                                    },
-                                    ...languagePair.map(data => ({
-                                      source: data.source,
-                                      target: data.target,
-                                    })),
-                                  ].find(
-                                    item =>
-                                      item.source === value &&
-                                      item.target === getValues(`target`),
-                                  )
-                            }
-                            defaultValue={{
-                              source: getValues('source'),
-                              target: getValues('target'),
-                            }}
-                            options={[
-                              {
-                                source: ' ',
-                                target: ' ',
-                              },
-                              ...languagePair
-                                .map(value => ({
-                                  source: value.source,
-                                  target: value.target,
-                                }))
-                                .sort((a, b) =>
-                                  a.source.localeCompare(b.source),
-                                ),
-                            ]}
-                            getOptionLabel={option => {
-                              if (
-                                option.source === ' ' &&
-                                option.target === ' '
-                              ) {
-                                return 'Language-independent'
-                              } else {
-                                return `${languageHelper(
-                                  option.source,
-                                )} → ${languageHelper(option.target)}`
-                              }
-                            }}
-                            id='languagePair'
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                autoComplete='off'
-                                label='Language pair*'
-                                error={showError && Boolean(errors.source)}
-                                helperText={
-                                  showError &&
-                                  Boolean(errors.source) &&
-                                  FormErrors.required
-                                }
-                              />
-                            )}
-                          />
-                        )
-                      }}
-                    />
-                  )}
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormControl'>
-                <Controller
-                  control={control}
-                  name='startedAt'
-                  render={({ field: { onChange, value } }) => (
-                    <Box sx={{ width: '100%' }}>
-                      <DatePicker
-                        selected={value}
-                        dateFormat='MM/dd/yyyy, hh:mm a'
-                        showTimeSelect={true}
-                        shouldCloseOnSelect={false}
-                        id='date-range-picker-months'
-                        onChange={onChange}
-                        popperPlacement={popperPlacement}
-                        customInput={
-                          <Box>
-                            <CustomInput
-                              label='Job start date'
-                              icon='calendar'
-                              sx={{ height: '46px' }}
-                              placeholder='MM/DD/YYYY, HH:MM'
-                              // placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                              readOnly
-                              value={value ? dateValue(value) : ''}
-                            />
-                          </Box>
-                        }
-                        disabled={Boolean(jobInfo.pro)}
-                      />
-                    </Box>
-                  )}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormSoloAutoComplete'>
-                <Controller
-                  name='startTimezone'
-                  control={control}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <Autocomplete
-                      fullWidth
-                      disabled={Boolean(jobInfo.pro)}
-                      value={value || null}
-                      options={timeZoneList as CountryType[]}
-                      onChange={(e, v) => {
-                        if (v) {
-                          onChange(v)
-                        } else {
-                          onChange(null)
-                        }
-                      }}
-                      getOptionLabel={option =>
-                        timeZoneFormatter(option, timezone.getValue()) ?? ''
-                      }
-                      renderOption={(props, option) => (
-                        <Box component='li' {...props} key={uuidv4()}>
-                          {timeZoneFormatter(option, timezone.getValue())}
-                        </Box>
-                      )}
-                      renderInput={params => (
+          <Box
+            sx={{
+              overflowY: 'scroll',
+              height: '100%',
+              maxHeight: 'calc(85vh - 200px)',
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+            }}
+          >
+            <Grid container spacing={6} sx={{ padding: '32px 20px 20px 20px' }}>
+              <Grid item xs={12}>
+                <Box className='filterFormControl'>
+                  <Controller
+                    name='name'
+                    control={control}
+                    render={({
+                      field: { value, onChange, onBlur },
+                      formState,
+                    }) => {
+                      const showError = formState.isSubmitted
+                      return (
                         <TextField
-                          {...params}
+                          fullWidth
                           autoComplete='off'
-                          label='Timezone'
-                          // error={Boolean(errors.startTimezone)}
+                          value={value || ''}
+                          onBlur={onBlur}
+                          label='Job name*'
+                          sx={{ height: '46px' }}
+                          inputProps={{
+                            style: {
+                              height: '46px',
+                              padding: '0 14px',
+                            },
+                          }}
+                          onChange={e => {
+                            const { value } = e.target
+                            if (value === '') {
+                              onChange('')
+                            } else {
+                              const filteredValue = value.slice(0, 100)
+                              e.target.value = filteredValue
+                              onChange(e.target.value)
+                            }
+                          }}
+                          error={showError && Boolean(errors.name)}
+                          helperText={
+                            showError &&
+                            Boolean(errors.name) &&
+                            FormErrors.required
+                          }
                         />
-                      )}
-                    />
-                  )}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormControl'>
-                <Controller
-                  control={control}
-                  name='dueAt'
-                  render={({ field: { onChange, value }, formState }) => {
-                    const showError = formState.isSubmitted
-                    return (
+                      )
+                    }}
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormControl'>
+                  <TextField
+                    disabled
+                    autoComplete='off'
+                    id='status'
+                    label='Status*'
+                    fullWidth
+                    sx={{ height: '46px' }}
+                    inputProps={{
+                      style: {
+                        height: '46px',
+                        padding: '0 14px',
+                      },
+                    }}
+                    defaultValue={
+                      statusList?.find(list => list.value === jobInfo.status)
+                        ?.label!
+                    }
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormSoloAutoComplete'>
+                  <Controller
+                    control={control}
+                    name='contactPerson'
+                    render={({ field: { onChange, value }, formState }) => {
+                      const showError = formState.isSubmitted
+                      return (
+                        <Autocomplete
+                          fullWidth
+                          onChange={(event, item) => {
+                            if (item) {
+                              onChange(item)
+                            } else {
+                              onChange(null)
+                            }
+                          }}
+                          value={value || null}
+                          options={contactPersonList}
+                          id='contactPerson'
+                          getOptionLabel={option => option.label || ''}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Contact person for job*'
+                              error={showError && Boolean(errors.contactPerson)}
+                              helperText={
+                                showError &&
+                                Boolean(errors.contactPerson) &&
+                                FormErrors.required
+                              }
+                            />
+                          )}
+                        />
+                      )
+                    }}
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormControl'>
+                  <TextField
+                    disabled
+                    autoComplete='off'
+                    id='serviceType'
+                    label='Service type*'
+                    fullWidth
+                    sx={{ height: '46px' }}
+                    inputProps={{
+                      style: {
+                        height: '46px',
+                        padding: '0 14px',
+                      },
+                    }}
+                    defaultValue={jobInfo.serviceType}
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormSoloAutoComplete'>
+                  {getValues('source') !== undefined &&
+                    getValues('target') !== undefined && (
+                      <Controller
+                        control={control}
+                        name='source'
+                        render={({ field: { onChange, value }, formState }) => {
+                          const showError = formState.isSubmitted
+                          return (
+                            <Autocomplete
+                              fullWidth
+                              disabled={Boolean(jobInfo.pro)}
+                              // isOptionEqualToValue={(option, newValue) => {
+                              //   return option.source === newValue.source
+                              // }}
+                              onChange={(event, item) => {
+                                if (item) {
+                                  setValue(
+                                    'source',
+                                    item?.source,
+                                    setValueOptions,
+                                  )
+                                  setValue(
+                                    'target',
+                                    item?.target,
+                                    setValueOptions,
+                                  )
+                                  trigger('source')
+                                  trigger('target')
+                                } else {
+                                  setValue('source', null, setValueOptions)
+                                  setValue('target', null, setValueOptions)
+                                  trigger('source')
+                                  trigger('target')
+                                }
+                                // onChange(item)
+                              }}
+                              value={
+                                value === null
+                                  ? null
+                                  : [
+                                      {
+                                        source: ' ',
+                                        target: ' ',
+                                      },
+                                      ...languagePair.map(data => ({
+                                        source: data.source,
+                                        target: data.target,
+                                      })),
+                                    ].find(
+                                      item =>
+                                        item.source === value &&
+                                        item.target === getValues(`target`),
+                                    )
+                              }
+                              defaultValue={{
+                                source: getValues('source'),
+                                target: getValues('target'),
+                              }}
+                              options={[
+                                {
+                                  source: ' ',
+                                  target: ' ',
+                                },
+                                ...languagePair
+                                  .map(value => ({
+                                    source: value.source,
+                                    target: value.target,
+                                  }))
+                                  .sort((a, b) =>
+                                    a.source.localeCompare(b.source),
+                                  ),
+                              ]}
+                              getOptionLabel={option => {
+                                if (
+                                  option.source === ' ' &&
+                                  option.target === ' '
+                                ) {
+                                  return 'Language-independent'
+                                } else {
+                                  return `${languageHelper(
+                                    option.source,
+                                  )} → ${languageHelper(option.target)}`
+                                }
+                              }}
+                              id='languagePair'
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  autoComplete='off'
+                                  label='Language pair*'
+                                  error={showError && Boolean(errors.source)}
+                                  helperText={
+                                    showError &&
+                                    Boolean(errors.source) &&
+                                    FormErrors.required
+                                  }
+                                />
+                              )}
+                            />
+                          )
+                        }}
+                      />
+                    )}
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormControl'>
+                  <Controller
+                    control={control}
+                    name='startedAt'
+                    render={({ field: { onChange, value } }) => (
                       <Box sx={{ width: '100%' }}>
                         <DatePicker
-                          autoComplete='off'
                           selected={value}
                           dateFormat='MM/dd/yyyy, hh:mm a'
                           showTimeSelect={true}
@@ -850,47 +783,44 @@ const InfoEditModal = ({
                           customInput={
                             <Box>
                               <CustomInput
-                                label='Job due date*'
-                                placeholder='MM/DD/YYYY, HH:MM'
-                                sx={{ height: '46px' }}
+                                label='Job start date'
                                 icon='calendar'
-                                value={value ? dateValue(value) : ''}
-                                error={showError && Boolean(errors.dueAt)}
+                                sx={{ height: '46px' }}
+                                placeholder='MM/DD/YYYY, HH:MM'
+                                // placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                 readOnly
+                                value={value ? dateValue(value) : ''}
                               />
                             </Box>
                           }
+                          disabled={Boolean(jobInfo.pro)}
                         />
                       </Box>
-                    )
-                  }}
-                />
-                {isSubmitted && errors.dueAt && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.dueAt?.message}
-                  </FormHelperText>
-                )}
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box className='filterFormSoloAutoComplete'>
-                <Controller
-                  name='dueTimezone'
-                  control={control}
-                  render={({
-                    field: { value, onChange, onBlur },
-                    formState,
-                  }) => {
-                    const showError = formState.isSubmitted
-                    return (
+                    )}
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormSoloAutoComplete'>
+                  <Controller
+                    name='startTimezone'
+                    control={control}
+                    render={({ field: { value, onChange, onBlur } }) => (
                       <Autocomplete
                         fullWidth
+                        disabled={Boolean(jobInfo.pro)}
                         value={value || null}
                         options={timeZoneList as CountryType[]}
                         onChange={(e, v) => {
-                          if (!v) onChange(null)
-                          else onChange(v)
+                          if (v) {
+                            onChange(v)
+                          } else {
+                            onChange(null)
+                          }
                         }}
+                        getOptionLabel={option =>
+                          timeZoneFormatter(option, timezone.getValue()) ?? ''
+                        }
                         renderOption={(props, option) => (
                           <Box component='li' {...props} key={uuidv4()}>
                             {timeZoneFormatter(option, timezone.getValue())}
@@ -900,179 +830,263 @@ const InfoEditModal = ({
                           <TextField
                             {...params}
                             autoComplete='off'
-                            label='Timezone*'
-                            error={showError && Boolean(errors.dueTimezone)}
-                            helperText={
-                              showError &&
-                              Boolean(errors.dueTimezone) &&
-                              FormErrors.required
-                            }
+                            label='Timezone'
+                            // error={Boolean(errors.startTimezone)}
                           />
                         )}
-                        getOptionLabel={option =>
-                          timeZoneFormatter(option, timezone.getValue()) ?? ''
-                        }
                       />
-                    )
-                  }}
-                />
-              </Box>
+                    )}
+                  />
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormControl'>
+                  <Controller
+                    control={control}
+                    name='dueAt'
+                    render={({ field: { onChange, value }, formState }) => {
+                      const showError = formState.isSubmitted
+                      return (
+                        <Box sx={{ width: '100%' }}>
+                          <DatePicker
+                            autoComplete='off'
+                            selected={value}
+                            dateFormat='MM/dd/yyyy, hh:mm a'
+                            showTimeSelect={true}
+                            shouldCloseOnSelect={false}
+                            id='date-range-picker-months'
+                            onChange={onChange}
+                            popperPlacement={popperPlacement}
+                            customInput={
+                              <Box>
+                                <CustomInput
+                                  label='Job due date*'
+                                  placeholder='MM/DD/YYYY, HH:MM'
+                                  sx={{ height: '46px' }}
+                                  icon='calendar'
+                                  value={value ? dateValue(value) : ''}
+                                  error={showError && Boolean(errors.dueAt)}
+                                  readOnly
+                                />
+                              </Box>
+                            }
+                          />
+                        </Box>
+                      )
+                    }}
+                  />
+                  {isSubmitted && errors.dueAt && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.dueAt?.message}
+                    </FormHelperText>
+                  )}
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box className='filterFormSoloAutoComplete'>
+                  <Controller
+                    name='dueTimezone'
+                    control={control}
+                    render={({
+                      field: { value, onChange, onBlur },
+                      formState,
+                    }) => {
+                      const showError = formState.isSubmitted
+                      return (
+                        <Autocomplete
+                          fullWidth
+                          value={value || null}
+                          options={timeZoneList as CountryType[]}
+                          onChange={(e, v) => {
+                            if (!v) onChange(null)
+                            else onChange(v)
+                          }}
+                          renderOption={(props, option) => (
+                            <Box component='li' {...props} key={uuidv4()}>
+                              {timeZoneFormatter(option, timezone.getValue())}
+                            </Box>
+                          )}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Timezone*'
+                              error={showError && Boolean(errors.dueTimezone)}
+                              helperText={
+                                showError &&
+                                Boolean(errors.dueTimezone) &&
+                                FormErrors.required
+                              }
+                            />
+                          )}
+                          getOptionLabel={option =>
+                            timeZoneFormatter(option, timezone.getValue()) ?? ''
+                          }
+                        />
+                      )
+                    }}
+                  />
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
-          <Box
-            sx={{
-              width: '100%',
-              padding: '20px',
-              borderBottom: '1px solid #E5E4E4',
-            }}
-          >
             <Box
               sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                width: '100%',
+                padding: '20px',
+                // borderBottom: '1px solid #E5E4E4',
               }}
             >
-              <Typography fontSize={14} fontWeight={600}>
-                Job description
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Controller
-                  name='isShowDescription'
-                  control={control}
-                  defaultValue={jobInfo.isShowDescription}
-                  render={({ field: { value, onChange } }) => (
-                    <Checkbox
-                      value={value}
-                      onChange={e => {
-                        onChange(e.target.checked)
-                      }}
-                      checked={value}
-                    />
-                  )}
-                />
-
-                <Typography fontSize={14} fontWeight={400}>
-                  Show job description to Pro
-                </Typography>
-              </Box>
-            </Box>
-            <Box sx={{ mt: '12px' }}>
-              <Controller
-                name='description'
-                control={control}
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <TextField
-                    multiline
-                    autoComplete='off'
-                    fullWidth
-                    rows={4}
-                    value={value}
-                    placeholder='Write down a job description.'
-                    onChange={onChange}
-                    id='textarea-standard-controlled'
-                  />
-                )}
-              />
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '12px',
-                  lineHeight: '25px',
-                  color: '#888888',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
-                {description?.length ?? 0}/500
+                <Typography fontSize={14} fontWeight={600}>
+                  Job description
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Controller
+                    name='isShowDescription'
+                    control={control}
+                    defaultValue={jobInfo.isShowDescription}
+                    render={({ field: { value, onChange } }) => (
+                      <Checkbox
+                        value={value}
+                        onChange={e => {
+                          onChange(e.target.checked)
+                        }}
+                        checked={value}
+                      />
+                    )}
+                  />
+
+                  <Typography fontSize={14} fontWeight={400}>
+                    Show job description to Pro
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-            <>
-              {!jobInfo.pro ? (
-                <Box>
-                  <Divider />
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap:
-                        uploadedFiles.length > 0 || fileList.length > 0
-                          ? '20px'
-                          : 0,
-                      padding: '20px 0',
-                    }}
-                  >
+              <Box sx={{ mt: '12px' }}>
+                <Controller
+                  name='description'
+                  control={control}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <TextField
+                      multiline
+                      autoComplete='off'
+                      fullWidth
+                      rows={4}
+                      value={value}
+                      placeholder='Write down a job description.'
+                      onChange={onChange}
+                      id='textarea-standard-controlled'
+                    />
+                  )}
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    fontSize: '12px',
+                    lineHeight: '25px',
+                    color: '#888888',
+                  }}
+                >
+                  {description?.length ?? 0}/500
+                </Box>
+              </Box>
+              <>
+                {!jobInfo.pro ? (
+                  <Box>
+                    <Divider />
                     <Box
                       sx={{
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
+                        flexDirection: 'column',
+                        gap:
+                          uploadedFiles.length > 0 || fileList.length > 0
+                            ? '20px'
+                            : 0,
+                        padding: '20px 0',
                       }}
                     >
-                      <Typography fontSize={14} fontWeight={600}>
-                        Sample files to Pro
-                      </Typography>
-                      <div {...getRootProps({ className: 'dropzone' })}>
-                        <Button variant='contained' sx={{ height: '30px' }}>
-                          <input {...getInputProps()} />
-                          Upload files
-                        </Button>
-                      </div>
-                    </Box>
-                    <Box
-                      sx={{
-                        maxHeight: '200px',
-                        overflowY: 'scroll',
-                      }}
-                    >
-                      {uploadedFiles && (
-                        <Box
-                          sx={{
-                            display: uploadedFiles.length > 0 ? 'grid' : 'none',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-
-                            width: '100%',
-                            gap: '20px',
-                          }}
-                        >
-                          {uploadedFileList(uploadedFiles, 'SAMPLE')}
-                        </Box>
-                      )}
-                      {fileList.length > 0 && (
-                        <Box
-                          sx={{
-                            display: fileList.length > 0 ? 'grid' : 'none',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-
-                            width: '100%',
-                            gap: '20px',
-                          }}
-                        >
-                          {fileList}
-                        </Box>
-                      )}
-                    </Box>
-
-                    <Box>
-                      <Typography
-                        fontSize={12}
-                        fontWeight={400}
-                        color='rgba(76, 78, 100, 0.60)'
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                        }}
                       >
-                        {formatFileSize(fileSize)}/{' '}
-                        {byteToGB(MAXIMUM_FILE_SIZE)}
-                      </Typography>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Sample files to Pro
+                        </Typography>
+                        <div {...getRootProps({ className: 'dropzone' })}>
+                          <Button variant='contained' sx={{ height: '30px' }}>
+                            <input {...getInputProps()} />
+                            Upload files
+                          </Button>
+                        </div>
+                      </Box>
+                      <Box
+                        sx={{
+                          maxHeight: '200px',
+                          overflowY: 'scroll',
+                        }}
+                      >
+                        {uploadedFiles && (
+                          <Box
+                            sx={{
+                              display:
+                                uploadedFiles.length > 0 ? 'grid' : 'none',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+
+                              width: '100%',
+                              gap: '20px',
+                            }}
+                          >
+                            {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                          </Box>
+                        )}
+                        {fileList.length > 0 && (
+                          <Box
+                            sx={{
+                              display: fileList.length > 0 ? 'grid' : 'none',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+
+                              width: '100%',
+                              gap: '20px',
+                            }}
+                          >
+                            {fileList}
+                          </Box>
+                        )}
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          fontSize={12}
+                          fontWeight={400}
+                          color='rgba(76, 78, 100, 0.60)'
+                        >
+                          {formatFileSize(fileSize)}/{' '}
+                          {byteToGB(MAXIMUM_FILE_SIZE)}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-              ) : null}
-            </>
+                ) : null}
+              </>
+            </Box>
           </Box>
+
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
               gap: '16px',
               padding: '32px 20px',
+              borderTop: '1px solid #E5E4E4',
             }}
           >
             <Button variant='outlined' onClick={onClickCancel}>
