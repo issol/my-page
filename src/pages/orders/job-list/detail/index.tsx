@@ -1841,132 +1841,125 @@ const JobDetail = () => {
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ padding: 0 }}>
-                        {jobDeliveriesFeedbacks?.deliveries &&
-                        jobDeliveriesFeedbacks?.deliveries.some(delivery =>
-                          delivery.files.some(files => files.type === 'TARGET'),
-                        ) ? (
-                          jobDeliveriesFeedbacks?.deliveries.map(delivery => (
-                            <Box key={delivery.id} sx={{}}>
-                              <Typography
-                                fontSize={12}
-                                fontWeight={400}
-                                color='rgba(76, 78, 100, 0.60)'
-                              >
-                                {formatFileSize(
-                                  jobDeliveriesFeedbacks.deliveries.flatMap(
-                                    delivery => delivery.files,
-                                  )
-                                    ? getFileSize(
-                                        jobDeliveriesFeedbacks.deliveries.flatMap(
-                                          delivery => delivery.files,
-                                        ),
-                                        'TARGET',
-                                      )
-                                    : 0,
-                                )}
-                                / {byteToGB(MAXIMUM_FILE_SIZE)}
-                              </Typography>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  gap: '10px',
-                                  marginBottom: '10px',
-                                }}
-                              >
-                                <Typography variant='body1' fontWeight={600}>
-                                  {delivery.deliveredDate
-                                    ? convertTimeToTimezone(
-                                        delivery.deliveredDate,
-                                        auth?.getValue().user?.timezone!,
-                                        timezone.getValue(),
-                                      )
-                                    : '-'}
-                                </Typography>
-
-                                {delivery.files.length ? (
-                                  <IconButton
+                        {jobDeliveriesFeedbacks?.deliveries && (
+                          <Box>
+                            <Typography
+                              fontSize={12}
+                              fontWeight={400}
+                              color='rgba(76, 78, 100, 0.60)'
+                            >
+                              {formatFileSize(
+                                jobDeliveriesFeedbacks.deliveries.flatMap(
+                                  delivery => delivery.files,
+                                )
+                                  ? getFileSize(
+                                      jobDeliveriesFeedbacks.deliveries.flatMap(
+                                        delivery => delivery.files,
+                                      ),
+                                      'TARGET',
+                                    )
+                                  : 0,
+                              )}
+                              / {byteToGB(MAXIMUM_FILE_SIZE)}
+                            </Typography>
+                            {jobDeliveriesFeedbacks?.deliveries.map(
+                              delivery => (
+                                <Box key={delivery.id}>
+                                  <Box
                                     sx={{
-                                      border: '1px solid #666CFF',
-                                      borderRadius: '10px',
-                                      background: '#FFF',
-                                      padding: '4px',
-                                    }}
-                                    onClick={() => {
-                                      DownloadAllFiles(
-                                        delivery.files,
-                                        S3FileType.JOB,
-                                      )
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between',
+                                      gap: '10px',
+                                      marginBottom: '10px',
                                     }}
                                   >
-                                    <Icon
-                                      icon='ic:sharp-download'
-                                      color='#666CFF'
-                                      fontSize={24}
-                                    />
-                                  </IconButton>
-                                ) : null}
-                              </Box>
+                                    <Typography
+                                      variant='body1'
+                                      fontWeight={600}
+                                    >
+                                      {delivery.deliveredDate
+                                        ? convertTimeToTimezone(
+                                            delivery.deliveredDate,
+                                            auth?.getValue().user?.timezone!,
+                                            timezone.getValue(),
+                                          )
+                                        : '-'}
+                                    </Typography>
 
-                              {/* <Box sx={{ marginBottom: '10px' }}>
-                                {delivery.files.length ? (
-                                  <Typography variant='subtitle2'>
-                                    {formatFileSize(
-                                      delivery.files
-                                        ? getFileSize(delivery?.files, 'TARGET')
-                                        : 0,
+                                    {delivery.files.length ? (
+                                      <IconButton
+                                        sx={{
+                                          border: '1px solid #666CFF',
+                                          borderRadius: '10px',
+                                          background: '#FFF',
+                                          padding: '4px',
+                                        }}
+                                        onClick={() => {
+                                          DownloadAllFiles(
+                                            delivery.files,
+                                            S3FileType.JOB,
+                                          )
+                                        }}
+                                      >
+                                        <Icon
+                                          icon='ic:sharp-download'
+                                          color='#666CFF'
+                                          fontSize={24}
+                                        />
+                                      </IconButton>
+                                    ) : null}
+                                  </Box>
+
+                                  <Box
+                                    sx={{
+                                      display: 'grid',
+                                      gridTemplateColumns: 'repeat(1, 1fr)',
+                                      width: '100%',
+                                      gap: '20px',
+                                    }}
+                                  >
+                                    {delivery.files.length ? (
+                                      fileList(delivery.files, 'TARGET')
+                                    ) : (
+                                      <Typography variant='subtitle2'>
+                                        No target files
+                                      </Typography>
                                     )}
-                                  </Typography>
-                                ) : null}
-                              </Box> */}
-                              <Box
-                                sx={{
-                                  display: 'grid',
-                                  gridTemplateColumns: 'repeat(1, 1fr)',
-                                  width: '100%',
-                                  gap: '20px',
-                                }}
-                              >
-                                {delivery.files.length
-                                  ? fileList(delivery.files, 'TARGET')
-                                  : 'No target files'}
-                              </Box>
+                                  </Box>
 
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '10px',
-                                  marginTop: '24px',
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={400}>
-                                  Notes from from Pro
-                                </Typography>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px',
+                                      marginTop: '24px',
+                                    }}
+                                  >
+                                    <Typography fontSize={14} fontWeight={400}>
+                                      Notes from from Pro
+                                    </Typography>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
 
-                                  marginTop: '8px',
-                                }}
-                              >
-                                <Typography
-                                  color='#8D8E9A'
-                                  fontWeight={400}
-                                  fontSize={14}
-                                >
-                                  {delivery.note ?? '-'}
-                                </Typography>
-                              </Box>
-                            </Box>
-                          ))
-                        ) : (
-                          <Typography variant='subtitle2'>
-                            There are no files delivered from Pro
-                          </Typography>
+                                      marginTop: '8px',
+                                    }}
+                                  >
+                                    <Typography
+                                      color='#8D8E9A'
+                                      fontWeight={400}
+                                      fontSize={14}
+                                    >
+                                      {delivery.note ?? '-'}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              ),
+                            )}
+                          </Box>
                         )}
                       </AccordionDetails>
                     </Accordion>
