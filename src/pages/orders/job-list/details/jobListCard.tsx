@@ -330,8 +330,8 @@ const JobListCard = ({
     if (changeStatus === 60600) {
       selectedAllItemJobs.map(jobId => {
         const job = info.jobs.find(row => row.id === jobId)
-        // partially delivered, delivered, invoiced 일때만 true
-        if (job && ![60400, 60500, 60700].includes(job.status)) {
+        // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
+        if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
           flag = false
           immutableCorporationId.push(job.corporationId)
         }
@@ -341,8 +341,8 @@ const JobListCard = ({
     else if (changeStatus === 60900) {
       selectedAllItemJobs.map(jobId => {
         const job = info.jobs.find(row => row.id === jobId)
-        // delivered, approved, invoiced 일때만 true
-        if (job && ![60500, 60600, 60700].includes(job.status)) {
+        // delivered, approved, invoiced, Redelivery requested 일때만 true
+        if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
           flag = false
           immutableCorporationId.push(job.corporationId)
         }
