@@ -578,27 +578,28 @@ const AddNewJobTemplate = () => {
                   horizontal: 'left',
                 }}
               >
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
-                  }}
+                <Tooltip
+                  title='Not authorized'
+                  disableHoverListener={isUpdatable}
                 >
-                  <Tooltip
-                    title='Not authorized'
-                    disableHoverListener={isUpdatable}
-                  >
-                    <Box>
+                  <Box>
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                      disabled={!isUpdatable}
+                    >
                       <Button
                         fullWidth
                         startIcon={<Icon icon='mdi:pencil-outline' />}
-                        disabled={!isUpdatable}
+                        // disabled={!isUpdatable}
                         onClick={() => {
                           handleClose()
 
@@ -615,30 +616,29 @@ const AddNewJobTemplate = () => {
                       >
                         Edit
                       </Button>
-                    </Box>
-                  </Tooltip>
-                </MenuItem>
-
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
-                  }}
+                    </MenuItem>
+                  </Box>
+                </Tooltip>
+                <Tooltip
+                  title='Not authorized'
+                  disableHoverListener={isDeletable}
                 >
-                  <Tooltip
-                    title='Not authorized'
-                    disableHoverListener={isDeletable}
-                  >
-                    <Box>
+                  <Box>
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                      disabled={!isDeletable}
+                    >
                       <Button
                         startIcon={<Icon icon='mdi:trash-outline' />}
-                        disabled={!isDeletable}
                         sx={{
                           justifyContent: 'flex-start',
                           padding: '6px 16px',
@@ -649,9 +649,9 @@ const AddNewJobTemplate = () => {
                       >
                         Delete
                       </Button>
-                    </Box>
-                  </Tooltip>
-                </MenuItem>
+                    </MenuItem>
+                  </Box>
+                </Tooltip>
               </Menu>
             </Box>
           ) : null}
