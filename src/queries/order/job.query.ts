@@ -39,7 +39,12 @@ export const useGetJobDetails = (orderId: number, enabled: boolean) => {
     select: data => {
       return {
         ...data,
-        items: data.items.sort((a, b) => a.sortingOrder - b.sortingOrder),
+        items: data.items
+          .sort((a, b) => a.sortingOrder - b.sortingOrder)
+          .map(value => ({
+            ...value,
+            jobs: value.jobs.sort((a, b) => a.sortingOrder - b.sortingOrder),
+          })),
       }
     },
   })

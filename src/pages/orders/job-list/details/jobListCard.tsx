@@ -129,31 +129,26 @@ const JobListCard = ({
 
   const [selected, setSelected] = useState<readonly number[]>([])
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatus | null>(null)
-  const [triggerGroups, setTriggerGroups] = useState<number[][]>([])
-  const [hoveredGroup, setHoveredGroup] = useState<number[]>([])
+
+  const [groupedJobs, setGroupedJobs] = useState<{ [key: number]: JobType[] }>(
+    {},
+  )
+  const [isHoverJobId, setIsHoverJobId] = useState<number | null>(null)
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
+    const jobId = row.templateId
+      ? groupedJobs[row.templateId].map(value => value.id)
+      : row.id
+
     router.push({
       pathname: '/orders/job-list/detail/',
       query: {
         orderId: orderId,
-        jobId: getTriggerGroup(Number(row.id!)),
+        jobId: jobId,
         selectedJobId: row.id,
       },
     })
-  }
-
-  const onHoverRow = (id: number, isHover: boolean) => {
-    if (isHover) {
-      triggerGroups.map(group => {
-        if (group.includes(id)) {
-          setHoveredGroup(group)
-        }
-      })
-    } else {
-      setHoveredGroup([])
-    }
   }
 
   const isTriggerJob = (jobId: number) => {
@@ -161,64 +156,6 @@ const JobListCard = ({
       info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId)
         .length > 0
     )
-  }
-
-  const getTriggerGroup = (jobId: number) => {
-    const findGroup = triggerGroups.find(group => group.includes(jobId))
-    if (findGroup) {
-      return findGroup
-    } else {
-      return jobId
-    }
-
-    // triggerGroups.map(group => {
-    //   if (group.includes(jobId)) {
-    //     return group
-    //   }
-    // })
-    // return jobId
-  }
-
-  useEffect(() => {
-    setTriggerGroups(getTriggerGroups())
-  }, [info.jobs])
-
-  console.log('triggerGroups', triggerGroups)
-  // TODO: 트리거 그룹일때 호버 백그라운드 색상 바꾸기(라인이 안보여짐)
-  const getTriggerGroups = (): number[][] => {
-    let groups: number[][] = []
-    let map: Map<number, JobType> = new Map()
-
-    const jobs = [...info.jobs].sort((a, b) => a.sortingOrder - b.sortingOrder)
-
-    jobs.forEach(job => {
-      map.set(job.id, job)
-    })
-
-    let visited = new Set<number>()
-
-    for (let job of jobs) {
-      if (!visited.has(job.id)) {
-        let group: number[] = []
-        let current = job
-
-        while (current != null && !visited.has(current.id)) {
-          group.push(current.id)
-          visited.add(current.id)
-          if (current.nextJobId != null) {
-            current = map.get(current.nextJobId)!
-          } else {
-            break
-          }
-        }
-
-        if (group.length > 0) {
-          groups.push(group)
-        }
-      }
-    }
-
-    return groups
   }
 
   const canUseRequestAssignButton = (job: JobType) => {
@@ -232,22 +169,42 @@ const JobListCard = ({
   }
 
   const isStatusChangeableJob = (status: number, contactPersonId: number) => {
-    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, 
+    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered,
     // Without invoice, Approved, Invoiced, Redelivery requested, Requested
     // 마스터, 매니저 이거나, 제너럴이면 contactPersonId 본인일때
-    return [
-      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900, 60250, 60100,
-    ].includes(status) && 
-    (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
-    contactPersonId === auth.getValue().user?.id)
+    return (
+      [
+        60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900, 60250,
+        60100,
+      ].includes(status) &&
+      (auth
+        .getValue()
+        .user?.roles?.some(
+          role =>
+            role.name === 'LPM' && ['Master', 'Manager'].includes(role.type),
+        ) ||
+        contactPersonId === auth.getValue().user?.id)
+    )
   }
 
-  const isDeletableJob = (status: number, isJobRequestPresent: boolean, contactPersonId: number) => {
+  const isDeletableJob = (
+    status: number,
+    isJobRequestPresent: boolean,
+    contactPersonId: number,
+  ) => {
     // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
     // 마스터, 매니저 이거나, 제너럴이면 contactPersonId 본인일때
-    return status === 60000 && !isJobRequestPresent &&
-    (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
-    contactPersonId === auth.getValue().user?.id)
+    return (
+      status === 60000 &&
+      !isJobRequestPresent &&
+      (auth
+        .getValue()
+        .user?.roles?.some(
+          role =>
+            role.name === 'LPM' && ['Master', 'Manager'].includes(role.type),
+        ) ||
+        contactPersonId === auth.getValue().user?.id)
+    )
   }
 
   const isSelected = (id: number) => selected.indexOf(id) !== -1
@@ -259,7 +216,11 @@ const JobListCard = ({
           mode === 'manageStatus'
             ? isStatusChangeableJob(row.status, row.contactPerson?.userId!)
             : mode === 'delete'
-              ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPerson?.userId!)
+              ? isDeletableJob(
+                  row.status,
+                  row.isJobRequestPresent,
+                  row.contactPerson?.userId!,
+                )
               : true,
         )
         .map(n => n.id)
@@ -315,7 +276,11 @@ const JobListCard = ({
       mode === 'manageStatus'
         ? isStatusChangeableJob(row.status, row.contactPerson?.userId!)
         : mode === 'delete'
-          ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPerson?.userId!)
+          ? isDeletableJob(
+              row.status,
+              row.isJobRequestPresent,
+              row.contactPerson?.userId!,
+            )
           : true,
     )
     return selected.length === filteredJobs.length && filteredJobs.length > 0
@@ -364,6 +329,25 @@ const JobListCard = ({
       immutableCorporationId: immutableCorporationId,
     }
   }
+
+  useEffect(() => {
+    const groupedJobs: { [key: number]: any[] } = info.jobs.reduce(
+      (groups: { [key: number]: any[] }, job) => {
+        const key = job.templateId
+        if (key === null) return groups
+        else {
+          if (!groups[key]) {
+            groups[key] = []
+          }
+          groups[key].push(job)
+          return groups
+        }
+      },
+      {},
+    )
+
+    setGroupedJobs(groupedJobs)
+  }, [info.jobs])
 
   return (
     <Card ref={ref}>
@@ -515,9 +499,15 @@ const JobListCard = ({
                         key={uuidv4()}
                         sx={{
                           '& > *': { borderBottom: 'unset' },
-                          background: hoveredGroup.includes(row.id)
-                            ? 'rgba(76, 78, 100, 0.05)'
-                            : '#fff',
+                          background:
+                            isHoverJobId &&
+                            row.templateId &&
+                            groupedJobs[row.templateId] &&
+                            groupedJobs[row.templateId].find(
+                              value => value.id === isHoverJobId,
+                            )
+                              ? 'rgba(76, 78, 100, 0.05)'
+                              : '#fff',
                           '&:hover': {
                             background: 'rgba(76, 78, 100, 0.05)',
                           },
@@ -528,8 +518,10 @@ const JobListCard = ({
                         }}
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
-                        onMouseEnter={() => onHoverRow(row.id, true)}
-                        onMouseLeave={() => onHoverRow(row.id, false)}
+                        onMouseEnter={() => setIsHoverJobId(row.id)}
+                        onMouseLeave={() => setIsHoverJobId(null)}
+                        // onMouseEnter={() => onHoverRow(row.templateId, true)}
+                        // onMouseLeave={() => onHoverRow(row.templateId, false)}
                       >
                         {viewState && (
                           <CustomTableCell padding='checkbox'>
@@ -537,7 +529,10 @@ const JobListCard = ({
                               disabled={
                                 // row.id === Number(jobId!) ||
                                 mode === 'manageStatus'
-                                  ? !isStatusChangeableJob(row.status, row.contactPerson?.userId!)
+                                  ? !isStatusChangeableJob(
+                                      row.status,
+                                      row.contactPerson?.userId!,
+                                    )
                                   : mode === 'delete'
                                     ? !isDeletableJob(
                                         row.status,
@@ -565,25 +560,25 @@ const JobListCard = ({
                           {row.corporationId}
                         </CustomTableCell>
 
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            <Box display='flex' alignItems='center' gap='8px'>
-                              <ServiceTypeChip
-                                size='small'
-                                label={row.serviceType}
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                        >
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <ServiceTypeChip
+                              size='small'
+                              label={row.serviceType}
+                            />
+                            {isTriggerJob(row.id) && (
+                              <Icon
+                                icon='ic:outline-people'
+                                fontSize={24}
+                                color='#8D8E9A'
                               />
-                              {isTriggerJob(row.id) && (
-                                <Icon
-                                  icon='ic:outline-people'
-                                  fontSize={24}
-                                  color='#8D8E9A'
-                                />
-                              )}
-                            </Box>
-                          </CustomTableCell>
+                            )}
+                          </Box>
+                        </CustomTableCell>
 
                         <CustomTableCell
                           size='small'

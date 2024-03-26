@@ -80,6 +80,7 @@ export type JobType = {
   order: { id: number }
   authorId: number
   corporationId: string
+  templateId: number | null
   name: string
   status: JobStatus
   contactPersonId: number
