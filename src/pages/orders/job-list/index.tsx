@@ -94,8 +94,6 @@ export default function JobList() {
     })
   }
 
-  console.log(statusList)
-
   return (
     // <Grid container spacing={6} className='match-height'>
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>

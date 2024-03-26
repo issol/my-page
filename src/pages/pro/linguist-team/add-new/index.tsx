@@ -125,6 +125,7 @@ const AddNew = () => {
   const onClickLinguistHelperIcon = () => {
     openModal({
       type: 'LinguistHelper',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -163,6 +164,7 @@ const AddNew = () => {
   const onClickSelectProsHelperIcon = () => {
     openModal({
       type: 'SelectProsHelper',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
