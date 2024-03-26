@@ -63,6 +63,7 @@ export const initialFilter: LinguistTeamProListFilterType = {
 
 const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
   const { openModal, closeModal } = useModal()
+  const [exposedModal, setExposedModal] = useState(false)
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     jobType: [],
     role: [],
@@ -136,12 +137,10 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       })
     } else {
       if (
-        (type === 'source' && getValues('sourceLanguage') !== value) ||
-        (type === 'target' && getValues('targetLanguage') !== value)
+        ((type === 'source' && getValues('sourceLanguage') !== value) ||
+          (type === 'target' && getValues('targetLanguage') !== value)) &&
+        !exposedModal
       ) {
-        console.log(getValues('sourceLanguage'))
-        console.log(value)
-
         openModal({
           type: 'LanguagePairInconsistencyModal',
           children: (
@@ -153,6 +152,7 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
               onClose={() => closeModal('LanguagePairInconsistencyModal')}
               onClick={() => {
                 closeModal('LanguagePairInconsistencyModal')
+                setExposedModal(true)
                 setFilter({
                   ...filter,
                   [type]: value ? [value] : [],

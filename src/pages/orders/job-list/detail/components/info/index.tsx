@@ -324,8 +324,6 @@ const JobInfo = ({
   }
 
   const onClickEdit = () => {
-    console.log(items, 'getValues')
-
     openModal({
       type: 'InfoEditModal',
       children: (
@@ -784,7 +782,10 @@ const JobInfo = ({
                         {languageHelper(jobInfo.targetLanguage)}
                       </>
                     ) : (
-                      'Language-independent'
+                      <>
+                        {languageHelper(items?.sourceLanguage)} &rarr;{' '}
+                        {languageHelper(items?.targetLanguage)}
+                      </>
                     )}
                   </Typography>
                 </Grid>
