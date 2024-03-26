@@ -1054,7 +1054,7 @@ const LinguistTeamDetail = () => {
                         {data.clientId
                           ? clientList?.find(
                               value => value.clientId === data.clientId,
-                            ).name ?? '-'
+                            )?.name ?? '-'
                           : '-'}
                       </Typography>
                     </Box>
