@@ -48,6 +48,8 @@ import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
 import useDialog from '@src/hooks/useDialog'
 import { Icon } from '@iconify/react'
 import { UseMutationResult } from 'react-query'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const HeadRowItemNames = [
   '',
@@ -111,6 +113,8 @@ const JobListCard = ({
   setSelectedAllItemJobs,
   selectedAllItemJobs,
 }: JobListCardProps) => {
+  const auth = useRecoilValueLoadable(authState)
+
   const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
 
@@ -227,16 +231,23 @@ const JobListCard = ({
     return false
   }
 
-  const isStatusChangeableJob = (status: number) => {
-    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, Without invoice, Approved, Invoiced
+  const isStatusChangeableJob = (status: number, contactPersonId: number) => {
+    // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, 
+    // Without invoice, Approved, Invoiced, Redelivery requested, Requested
+    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId가 본인일때
     return [
-      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900,
-    ].includes(status)
+      60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900, 60250, 60100,
+    ].includes(status) && 
+    (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
+      contactPersonId === auth.getValue().user?.id)
   }
 
-  const isDeletableJob = (status: number, isJobRequestPresent: boolean) => {
+  const isDeletableJob = (status: number, isJobRequestPresent: boolean, contactPersonId: number) => {
     // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
-    return status === 60000 && !isJobRequestPresent
+    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId가 본인일때
+    return status === 60000 && !isJobRequestPresent &&
+    (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
+    contactPersonId === auth.getValue().user?.id)
   }
 
   const isSelected = (id: number) => selected.indexOf(id) !== -1
@@ -246,9 +257,9 @@ const JobListCard = ({
       const newSelected = info.jobs
         .filter(row =>
           mode === 'manageStatus'
-            ? isStatusChangeableJob(row.status)
+            ? isStatusChangeableJob(row.status, row.contactPersonId)
             : mode === 'delete'
-              ? isDeletableJob(row.status, row.isJobRequestPresent)
+              ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPersonId)
               : true,
         )
         .map(n => n.id)
@@ -302,9 +313,9 @@ const JobListCard = ({
   const allChecked = useMemo(() => {
     const filteredJobs = info.jobs.filter(row =>
       mode === 'manageStatus'
-        ? isStatusChangeableJob(row.status)
+        ? isStatusChangeableJob(row.status, row.contactPersonId)
         : mode === 'delete'
-          ? isDeletableJob(row.status, row.isJobRequestPresent)
+          ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPersonId)
           : true,
     )
     return selected.length === filteredJobs.length && filteredJobs.length > 0
@@ -526,11 +537,12 @@ const JobListCard = ({
                               disabled={
                                 // row.id === Number(jobId!) ||
                                 mode === 'manageStatus'
-                                  ? !isStatusChangeableJob(row.status)
+                                  ? !isStatusChangeableJob(row.status, row.contactPersonId)
                                   : mode === 'delete'
                                     ? !isDeletableJob(
                                         row.status,
                                         row.isJobRequestPresent,
+                                        row.contactPersonId,
                                       )
                                     : false
                               }
