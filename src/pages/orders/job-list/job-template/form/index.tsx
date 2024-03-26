@@ -965,6 +965,15 @@ const AddNewJobTemplate = () => {
                                               `options.${index}.autoSharingFile`,
                                               '0',
                                             )
+                                          } else {
+                                            setValue(
+                                              `options.${index}.statusCodeForAutoNextJob`,
+                                              60500,
+                                            )
+                                            setValue(
+                                              `options.${index}.autoSharingFile`,
+                                              '1',
+                                            )
                                           }
                                           trigger('options')
                                         }}
