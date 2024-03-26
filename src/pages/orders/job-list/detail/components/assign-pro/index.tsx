@@ -1332,7 +1332,7 @@ const AssignPro = ({
                               <TextField
                                 {...params}
                                 autoComplete='off'
-                                label='Area of expertise'
+                                label='Genre'
                                 // placeholder='Area of expertise'
                               />
                             )}
