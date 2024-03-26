@@ -234,17 +234,17 @@ const JobListCard = ({
   const isStatusChangeableJob = (status: number, contactPersonId: number) => {
     // 변경 가능 기준 : job status가 In preparation, Assigned, In progress, Overdue, Partially delivered, Delivered, 
     // Without invoice, Approved, Invoiced, Redelivery requested, Requested
-    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId가 본인일때
+    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId 본인일때
     return [
       60000, 60110, 60200, 60300, 60400, 60500, 60600, 60700, 60900, 60250, 60100,
     ].includes(status) && 
     (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
-      contactPersonId === auth.getValue().user?.id)
+    contactPersonId === auth.getValue().user?.id)
   }
 
   const isDeletableJob = (status: number, isJobRequestPresent: boolean, contactPersonId: number) => {
     // 삭제 가능 기준 : job status가 In preparation일때(60000), 프로에게 request한 기록이 없을때
-    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId가 본인일때
+    // 마스터, 매니저 이거나, 제너럴이면 contactPersonId 본인일때
     return status === 60000 && !isJobRequestPresent &&
     (auth.getValue().user?.roles?.some(role => role.name === 'LPM' && ['Master','Manager'].includes(role.type)) || 
     contactPersonId === auth.getValue().user?.id)
@@ -257,9 +257,9 @@ const JobListCard = ({
       const newSelected = info.jobs
         .filter(row =>
           mode === 'manageStatus'
-            ? isStatusChangeableJob(row.status, row.contactPersonId)
+            ? isStatusChangeableJob(row.status, row.contactPerson?.userId!)
             : mode === 'delete'
-              ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPersonId)
+              ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPerson?.userId!)
               : true,
         )
         .map(n => n.id)
@@ -313,9 +313,9 @@ const JobListCard = ({
   const allChecked = useMemo(() => {
     const filteredJobs = info.jobs.filter(row =>
       mode === 'manageStatus'
-        ? isStatusChangeableJob(row.status, row.contactPersonId)
+        ? isStatusChangeableJob(row.status, row.contactPerson?.userId!)
         : mode === 'delete'
-          ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPersonId)
+          ? isDeletableJob(row.status, row.isJobRequestPresent, row.contactPerson?.userId!)
           : true,
     )
     return selected.length === filteredJobs.length && filteredJobs.length > 0
@@ -537,12 +537,12 @@ const JobListCard = ({
                               disabled={
                                 // row.id === Number(jobId!) ||
                                 mode === 'manageStatus'
-                                  ? !isStatusChangeableJob(row.status, row.contactPersonId)
+                                  ? !isStatusChangeableJob(row.status, row.contactPerson?.userId!)
                                   : mode === 'delete'
                                     ? !isDeletableJob(
                                         row.status,
                                         row.isJobRequestPresent,
-                                        row.contactPersonId,
+                                        row.contactPerson?.userId!,
                                       )
                                     : false
                               }
