@@ -236,6 +236,7 @@ const AssignPro = ({
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   } | null>(null)
 
   const [listAnchorEl, setListAnchorEl] = useState<HTMLButtonElement | null>(
@@ -277,6 +278,7 @@ const AssignPro = ({
       middleName?: string | null
       lastName: string
       assignmentStatus: number
+      jobReqId: number | null
     },
   ) => {
     setDetailAnchorEl({ id: row.userId, el: event.currentTarget })
@@ -302,13 +304,17 @@ const AssignPro = ({
       middleName?: string | null
       lastName: string
       assignmentStatus: number
+      jobReqId: number | null
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
     console.log(row.userId, 'getId')
 
     assignJobMutation.mutate({
-      jobId: jobInfo.id,
+      jobId:
+        requestType === 'bulkManualAssign' && row.assignmentStatus === 70100
+          ? row.jobReqId!
+          : jobInfo.id,
       proId: row.userId,
       status: 70300,
       type:
@@ -324,10 +330,11 @@ const AssignPro = ({
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => {
     closeModal('CancelRequestProModal')
     assignJobMutation.mutate({
-      jobId: jobInfo.id,
+      jobId: row.jobReqId!,
       proId: row.userId,
       status: 70500,
       type: 'normal',
@@ -348,6 +355,7 @@ const AssignPro = ({
       middleName?: string | null
       lastName: string
       assignmentStatus: number
+      jobReqId: number | null
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
@@ -388,6 +396,7 @@ const AssignPro = ({
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => {
     openModal({
       type: 'CancelRequestProModal',
@@ -415,6 +424,7 @@ const AssignPro = ({
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => {
     openModal({
       type: 'ReAssignProModal',
@@ -441,6 +451,7 @@ const AssignPro = ({
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => {
     openModal({
       type: 'AssignProMessageModal',

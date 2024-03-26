@@ -280,6 +280,7 @@ export const getProJobAssignColumnsForRequest = (
       middleName?: string | null
       lastName: string
       assignmentStatus: number
+      jobReqId: number | null
     },
   ) => void,
   handleDetailClose: () => void,
@@ -290,6 +291,7 @@ export const getProJobAssignColumnsForRequest = (
       middleName?: string | null
       lastName: string
       assignmentStatus: number
+      jobReqId: number | null
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => void,
@@ -299,6 +301,7 @@ export const getProJobAssignColumnsForRequest = (
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => void,
   onClickReAssign: (row: {
     userId: number
@@ -306,6 +309,7 @@ export const getProJobAssignColumnsForRequest = (
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => void,
   onClickMessage: (row: {
     userId: number
@@ -313,6 +317,7 @@ export const getProJobAssignColumnsForRequest = (
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   }) => void,
   requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   jobStatusList: {
@@ -325,6 +330,7 @@ export const getProJobAssignColumnsForRequest = (
     middleName?: string | null
     lastName: string
     assignmentStatus: number
+    jobReqId: number | null
   },
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
@@ -447,7 +453,16 @@ export const getProJobAssignColumnsForRequest = (
               <IconButton
                 sx={{ padding: 0 }}
                 disabled
-                onClick={() => onClickMessage(row)}
+                onClick={e =>
+                  onClickMessage({
+                    userId: row.userId,
+                    firstName: row.firstName,
+                    middleName: row.middleName,
+                    lastName: row.lastName,
+                    assignmentStatus: row.assignmentStatus,
+                    jobReqId: row.jobRequestId,
+                  })
+                }
               >
                 <Icon icon='mdi:message-text' />
               </IconButton>
@@ -499,6 +514,7 @@ export const getProJobAssignColumnsForRequest = (
                         middleName: row.middleName,
                         lastName: row.lastName,
                         assignmentStatus: row.assignmentStatus,
+                        jobReqId: row.jobRequestId,
                       })
                     }
                   >
@@ -649,6 +665,7 @@ export const getProJobAssignColumnsForRequest = (
                       middleName: row.middleName,
                       lastName: row.lastName,
                       assignmentStatus: row.assignmentStatus,
+                      jobReqId: row.jobRequestId,
                     })
                   }
                 >

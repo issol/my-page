@@ -238,7 +238,6 @@ export const handleJobAssignStatus = async (
     })
   } else if (role === 'lpm') {
     await axios.patch(`/api/enough/u/job/request/${jobId}/set-status`, {
-      proId: proId,
       status: status,
     })
   }
