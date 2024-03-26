@@ -22,6 +22,8 @@ import {
   GridRowsProp,
   GridSelectionModel,
 } from '@mui/x-data-grid'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import useModal from '@src/hooks/useModal'
 import NoList from '@src/pages/components/no-list'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetSimpleClientList } from '@src/queries/common.query'
@@ -60,6 +62,7 @@ export const initialFilter: LinguistTeamProListFilterType = {
 }
 
 const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
+  const { openModal, closeModal } = useModal()
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     jobType: [],
     role: [],
@@ -120,6 +123,51 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       skip: filter.skip * activeFilter.take,
       take: activeFilter.take,
     })
+  }
+
+  const setWarningLanguagePair = (
+    type: 'source' | 'target',
+    value: string | null,
+  ) => {
+    if (value === null) {
+      setFilter({
+        ...filter,
+        [type]: [],
+      })
+    } else {
+      if (
+        (type === 'source' && getValues('sourceLanguage') !== value) ||
+        (type === 'target' && getValues('targetLanguage') !== value)
+      ) {
+        console.log(getValues('sourceLanguage'))
+        console.log(value)
+
+        openModal({
+          type: 'LanguagePairInconsistencyModal',
+          children: (
+            <CustomModalV2
+              vary='error-alert'
+              title='Language pair inconsistency'
+              subtitle='The Linguist team information you have set does not match the language pair you are trying to change. Proceed?'
+              rightButtonText='Proceed'
+              onClose={() => closeModal('LanguagePairInconsistencyModal')}
+              onClick={() => {
+                closeModal('LanguagePairInconsistencyModal')
+                setFilter({
+                  ...filter,
+                  [type]: value ? [value] : [],
+                })
+              }}
+            />
+          ),
+        })
+      } else {
+        setFilter({
+          ...filter,
+          [type]: value ? [value] : [],
+        })
+      }
+    }
   }
 
   useEffect(() => {
@@ -240,10 +288,11 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
                 ) ?? null
               }
               onChange={(e, v) => {
-                setFilter({
-                  ...filter,
-                  source: v ? [v.value] : [],
-                })
+                // setFilter({
+                //   ...filter,
+                //   source: v ? [v.value] : [],
+                // })
+                setWarningLanguagePair('source', v ? v.value : null)
               }}
               renderInput={params => <TextField {...params} label='Source' />}
             />
@@ -262,10 +311,11 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
                 ) ?? null
               }
               onChange={(e, v) => {
-                setFilter({
-                  ...filter,
-                  target: v ? [v.value] : [],
-                })
+                // setFilter({
+                //   ...filter,
+                //   target: v ? [v.value] : [],
+                // })
+                setWarningLanguagePair('target', v ? v.value : null)
               }}
               renderInput={params => <TextField {...params} label='Target' />}
             />
