@@ -25,8 +25,8 @@ export type LinguistTeamProListFilterType = {
   role?: string[]
   jobType?: string[]
   search?: string
-  sourceLanguage?: string[]
-  targetLanguage?: string[]
+  source?: string[]
+  target?: string[]
   experience?: string[]
   sortId?: string
   sortDate?: string

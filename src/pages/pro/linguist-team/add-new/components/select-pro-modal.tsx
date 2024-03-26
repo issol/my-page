@@ -22,6 +22,8 @@ import {
   GridRowsProp,
   GridSelectionModel,
 } from '@mui/x-data-grid'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import useModal from '@src/hooks/useModal'
 import NoList from '@src/pages/components/no-list'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetSimpleClientList } from '@src/queries/common.query'
@@ -51,8 +53,8 @@ export const initialFilter: LinguistTeamProListFilterType = {
   clientId: [],
   jobType: [],
   role: [],
-  sourceLanguage: [],
-  targetLanguage: [],
+  source: [],
+  target: [],
   experience: [],
   search: '',
   skip: 0,
@@ -60,15 +62,12 @@ export const initialFilter: LinguistTeamProListFilterType = {
 }
 
 const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
+  const { openModal, closeModal } = useModal()
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     jobType: [],
     role: [],
-    sourceLanguage: getValues('sourceLanguage')
-      ? [getValues('sourceLanguage')]
-      : [],
-    targetLanguage: getValues('targetLanguage')
-      ? [getValues('targetLanguage')]
-      : [],
+    source: getValues('sourceLanguage') ? [getValues('sourceLanguage')] : [],
+    target: getValues('targetLanguage') ? [getValues('targetLanguage')] : [],
     experience: [],
     status: [],
     clientId: getValues('clientId') ? [getValues('clientId')] : [],
@@ -80,12 +79,8 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
     useState<LinguistTeamProListFilterType>({
       jobType: [],
       role: [],
-      sourceLanguage: getValues('sourceLanguage')
-        ? [getValues('sourceLanguage')]
-        : [],
-      targetLanguage: getValues('targetLanguage')
-        ? [getValues('targetLanguage')]
-        : [],
+      source: getValues('sourceLanguage') ? [getValues('sourceLanguage')] : [],
+      target: getValues('targetLanguage') ? [getValues('targetLanguage')] : [],
       experience: [],
       status: [],
       clientId: getValues('clientId') ? [getValues('clientId')] : [],
@@ -128,6 +123,51 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       skip: filter.skip * activeFilter.take,
       take: activeFilter.take,
     })
+  }
+
+  const setWarningLanguagePair = (
+    type: 'source' | 'target',
+    value: string | null,
+  ) => {
+    if (value === null) {
+      setFilter({
+        ...filter,
+        [type]: [],
+      })
+    } else {
+      if (
+        (type === 'source' && getValues('sourceLanguage') !== value) ||
+        (type === 'target' && getValues('targetLanguage') !== value)
+      ) {
+        console.log(getValues('sourceLanguage'))
+        console.log(value)
+
+        openModal({
+          type: 'LanguagePairInconsistencyModal',
+          children: (
+            <CustomModalV2
+              vary='error-alert'
+              title='Language pair inconsistency'
+              subtitle='The Linguist team information you have set does not match the language pair you are trying to change. Proceed?'
+              rightButtonText='Proceed'
+              onClose={() => closeModal('LanguagePairInconsistencyModal')}
+              onClick={() => {
+                closeModal('LanguagePairInconsistencyModal')
+                setFilter({
+                  ...filter,
+                  [type]: value ? [value] : [],
+                })
+              }}
+            />
+          ),
+        })
+      } else {
+        setFilter({
+          ...filter,
+          [type]: value ? [value] : [],
+        })
+      }
+    }
   }
 
   useEffect(() => {
@@ -244,22 +284,22 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
               value={
                 languageList.find(
                   (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.sourceLanguage &&
-                    filter.sourceLanguage[0] === item.value,
+                    filter.source && filter.source[0] === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
-                setFilter({
-                  ...filter,
-                  sourceLanguage: v ? [v.value] : [],
-                })
+                // setFilter({
+                //   ...filter,
+                //   source: v ? [v.value] : [],
+                // })
+                setWarningLanguagePair('source', v ? v.value : null)
               }}
               renderInput={params => <TextField {...params} label='Source' />}
             />
           </Box>
         </Grid>
         <Grid item xs={6} md={4} lg={3}>
-          <Box className='filterFormAutoComplete'>
+          <Box className='filterFormSoloAutoComplete'>
             <Autocomplete
               fullWidth
               options={_.uniqBy(languageList, 'value')}
@@ -267,15 +307,15 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
               value={
                 languageList.find(
                   (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.targetLanguage &&
-                    filter.targetLanguage[0] === item.value,
+                    filter.target && filter.target[0] === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
-                setFilter({
-                  ...filter,
-                  targetLanguage: v ? [v.value] : [],
-                })
+                // setFilter({
+                //   ...filter,
+                //   target: v ? [v.value] : [],
+                // })
+                setWarningLanguagePair('target', v ? v.value : null)
               }}
               renderInput={params => <TextField {...params} label='Target' />}
             />

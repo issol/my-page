@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from '@mui/material/Tooltip'
 import {
   useGetServiceType,
   useGetSimpleClientList,
@@ -28,7 +28,14 @@ import { timezoneSelector } from '@src/states/permission'
 import { LinguistTeamFormType } from '@src/types/pro/linguist-team'
 import { linguistTeamSchema } from '@src/types/schema/pro/linguist-team.schema'
 import { useRouter } from 'next/router'
-import { useState, MouseEvent, useEffect, useMemo, ChangeEvent, useContext } from 'react'
+import {
+  useState,
+  MouseEvent,
+  useEffect,
+  useMemo,
+  ChangeEvent,
+  useContext,
+} from 'react'
 import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
 import SelectPro from '../add-new/components/select-pro'
@@ -41,7 +48,10 @@ import { useGetClientList } from '@src/queries/client.query'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _ from 'lodash'
 import registDND from '../add-new/components/dnd'
-import { deleteLinguistTeam, updateLinguistTeam } from '@src/apis/pro/linguist-team'
+import {
+  deleteLinguistTeam,
+  updateLinguistTeam,
+} from '@src/apis/pro/linguist-team'
 import { useMutation, useQueryClient } from 'react-query'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { linguist_team } from '@src/shared/const/permission-class'
@@ -90,6 +100,7 @@ const LinguistTeamDetail = () => {
 
   const Writer = new linguist_team(data?.author?.userId!)
   const isUpdatable = ability.can('update', Writer)
+  const isDeletable = ability.can('delete', Writer)
 
   const updateMutation = useMutation(
     (
@@ -106,8 +117,7 @@ const LinguistTeamDetail = () => {
     },
   )
 
-  const deleteMutation = useMutation(
-    (id: number) => deleteLinguistTeam(id), {
+  const deleteMutation = useMutation((id: number) => deleteLinguistTeam(id), {
     onSuccess: () => {
       handleBack()
     },
@@ -135,7 +145,6 @@ const LinguistTeamDetail = () => {
     control: control,
     name: 'pros',
   })
-
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -336,7 +345,7 @@ const LinguistTeamDetail = () => {
       type: 'SaveLinguistTeam',
       children: (
         <CustomModal
-          vary='info'
+          vary='successful'
           title={
             <Box
               sx={{
@@ -447,42 +456,44 @@ const LinguistTeamDetail = () => {
             {editMode ? (
               data.isPrivate ? (
                 <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-end',
 
-                  gap: '4px',
-                  marginLeft: '-24px',
-                  maxWidth: '100%',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Controller
-                    name='isPrivate'
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <Checkbox
-                          sx={{ paddingRight: 0 }}
-                          checked={field.value === '1' ? true : false}
-                          onChange={e => {
-                            onChangePrivateTeamCheckBox(e)
-                          }}
-                        />
-                      )
-                    }}
-                  />
+                    gap: '4px',
+                    marginLeft: '-24px',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <Controller
+                      name='isPrivate'
+                      control={control}
+                      render={({ field }) => {
+                        return (
+                          <Checkbox
+                            sx={{ paddingRight: 0 }}
+                            checked={field.value === '1' ? true : false}
+                            onChange={e => {
+                              onChangePrivateTeamCheckBox(e)
+                            }}
+                          />
+                        )
+                      }}
+                    />
 
-                  <Typography fontSize={14} fontWeight={400}>
-                    Private team
+                    <Typography fontSize={14} fontWeight={400}>
+                      Private team
+                    </Typography>
+                    <Icon icon='mdi:lock' color='#8D8E9A' fontSize={20} />
+                  </Box>
+                  <Typography fontSize={12} fontWeight={400} color='#8D8E9A'>
+                    Only you will be able to see this team.
                   </Typography>
-                  <Icon icon='mdi:lock' color='#8D8E9A' fontSize={20} />
                 </Box>
-                <Typography fontSize={12} fontWeight={400} color='#8D8E9A'>
-                  Only you will be able to see this team.
-                </Typography>
-              </Box>
               ) : null
             ) : (
               <Box>
@@ -507,64 +518,74 @@ const LinguistTeamDetail = () => {
                     horizontal: 'left',
                   }}
                 >
-                  <Tooltip title="Not authorized" disableHoverListener={isUpdatable}>
+                  <Tooltip
+                    title='Not authorized'
+                    disableHoverListener={isUpdatable}
+                  >
                     <Box>
-                    <MenuItem
-                      sx={{
-                        gap: 2,
-                        '&:hover': {
-                          background: 'inherit',
-                          cursor: 'default',
-                        },
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start',
-                        padding: 0,
-                      }}
-                    >
-                      <Button
-                        fullWidth
-                        startIcon={<Icon icon='mdi:pencil-outline' />}
-                        onClick={() => {
-                          setEditMode(true)
-                          handleMenuClose()
-                        }}
+                      <MenuItem
                         sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
                           justifyContent: 'flex-start',
-                          padding: '6px 16px',
-                          color: 'rgba(76, 78, 100, 0.87)',
-                          borderRadius: 0,
+                          alignItems: 'flex-start',
+                          padding: 0,
                         }}
                         disabled={!isUpdatable}
                       >
-                        Edit
-                      </Button>
-                    </MenuItem>
-                    <MenuItem
-                      sx={{
-                        gap: 2,
-                        '&:hover': {
-                          background: 'inherit',
-                          cursor: 'default',
-                        },
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start',
-                        padding: 0,
-                      }}
-                    >
-                      <Button
-                        startIcon={<Icon icon='mdi:trash-outline' />}
+                        <Button
+                          fullWidth
+                          startIcon={<Icon icon='mdi:pencil-outline' />}
+                          onClick={() => {
+                            setEditMode(true)
+                            handleMenuClose()
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </MenuItem>
+                    </Box>
+                  </Tooltip>
+                  <Tooltip
+                    title='Not authorized'
+                    disableHoverListener={isDeletable}
+                  >
+                    <Box>
+                      <MenuItem
                         sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
                           justifyContent: 'flex-start',
-                          padding: '6px 16px',
-                          color: '#FF4D49',
-                          borderRadius: 0,
+                          alignItems: 'flex-start',
+                          padding: 0,
                         }}
-                        onClick={onClickDeleteButton}
-                        disabled={!isUpdatable}
+                        disabled={!isDeletable}
                       >
-                        Delete
-                      </Button>
-                    </MenuItem>
+                        <Button
+                          startIcon={<Icon icon='mdi:trash-outline' />}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            color: '#FF4D49',
+                            borderRadius: 0,
+                          }}
+                          onClick={onClickDeleteButton}
+                        >
+                          Delete
+                        </Button>
+                      </MenuItem>
                     </Box>
                   </Tooltip>
                 </Menu>

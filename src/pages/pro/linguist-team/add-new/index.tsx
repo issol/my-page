@@ -24,6 +24,8 @@ import registDND from './components/dnd'
 import { useMutation } from 'react-query'
 import { createLinguistTeam } from '@src/apis/pro/linguist-team'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { getValue } from '@mui/system'
 
 const steps = [
   {
@@ -70,13 +72,20 @@ const AddNew = () => {
     setError,
     watch,
     reset,
-    formState: { errors, isValid, isSubmitted, touchedFields, isDirty },
+    formState: {
+      errors,
+      isValid,
+      isSubmitted,
+      touchedFields,
+      isDirty,
+      dirtyFields,
+    },
   } = useForm<LinguistTeamFormType>({
     mode: 'onSubmit',
     defaultValues: {
-      isPrivate: '0',
-      isPrioritized: '0',
       pros: [],
+      isPrioritized: '0',
+      isPrivate: '0',
     },
     resolver: yupResolver(
       linguistTeamSchema,
@@ -116,6 +125,7 @@ const AddNew = () => {
   const onClickLinguistHelperIcon = () => {
     openModal({
       type: 'LinguistHelper',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -154,6 +164,7 @@ const AddNew = () => {
   const onClickSelectProsHelperIcon = () => {
     openModal({
       type: 'SelectProsHelper',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -206,6 +217,46 @@ const AddNew = () => {
     })
   }
 
+  const onClickBack = () => {
+    const {
+      clientId,
+      serviceTypeId,
+      sourceLanguage,
+      targetLanguage,
+      name,
+      description,
+    } = getValues()
+    console.log(getValues())
+
+    if (
+      clientId ||
+      serviceTypeId ||
+      sourceLanguage ||
+      targetLanguage ||
+      name ||
+      description
+    ) {
+      openModal({
+        type: 'BackConfirmModal',
+        children: (
+          <CustomModalV2
+            vary='error-alert'
+            title='Discard draft?'
+            subtitle='Are you sure you want to discard the draft?'
+            rightButtonText='Discard'
+            onClick={() => {
+              reset()
+              router.back()
+            }}
+            onClose={() => closeModal('Confirm')}
+          />
+        ),
+      })
+    } else {
+      router.back()
+    }
+  }
+
   // console.log(getValues())
 
   useEffect(() => {
@@ -228,7 +279,11 @@ const AddNew = () => {
       }}
     >
       <Box display='flex' alignItems='center' gap='8px'>
-        <IconButton onClick={() => router.back()}>
+        <IconButton
+          onClick={() => {
+            onClickBack()
+          }}
+        >
           <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
         </IconButton>
         <Typography variant='h5'>Create new linguist team</Typography>

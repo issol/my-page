@@ -94,8 +94,6 @@ export default function JobList() {
     })
   }
 
-  console.log(statusList)
-
   return (
     // <Grid container spacing={6} className='match-height'>
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
@@ -112,7 +110,7 @@ export default function JobList() {
           >
             <CustomTab value='list' label='List' />
             <CustomTab value='tracker' label='Job tracker' />
-            <CustomTab value='template' label='Job Template' />
+            <CustomTab value='template' label='Job template' />
           </TabList>
           <TabPanel value='list' sx={{ padding: 0 }}>
             <JobListView

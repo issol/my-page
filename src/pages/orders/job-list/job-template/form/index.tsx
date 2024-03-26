@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Icon } from '@iconify/react'
-import { MouseEvent, useContext, useEffect } from 'react'
+import { MouseEvent, useContext, useEffect, useRef } from 'react'
 import {
   Autocomplete,
   Box,
@@ -34,7 +34,14 @@ import { JobTemplateFormSchema } from '@src/types/schema/job-template.shema'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { Suspense, useState } from 'react'
-import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
+import {
+  Controller,
+  FieldError,
+  FieldErrors,
+  Resolver,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { useMutation, useQueryClient } from 'react-query'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
@@ -45,6 +52,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { job_template } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 const AddNewJobTemplate = () => {
   const router = useRouter()
@@ -62,6 +70,7 @@ const AddNewJobTemplate = () => {
     )
   const { openModal, closeModal } = useModal()
   const [formMode, setFormMode] = useState(mode)
+  const errorRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -76,6 +85,7 @@ const AddNewJobTemplate = () => {
     setValue,
     trigger,
     setError,
+    setFocus,
     watch,
     reset,
     formState: { errors, isValid, isSubmitted, touchedFields, isDirty },
@@ -177,7 +187,7 @@ const AddNewJobTemplate = () => {
             'name',
             {
               type: 'custom',
-              message: 'Same name exists.',
+              message: 'Same name exists',
             },
             { shouldFocus: true },
           )
@@ -309,6 +319,7 @@ const AddNewJobTemplate = () => {
   const onClickJobTemplateHelpIcon = () => {
     openModal({
       type: 'JobTemplateHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -343,6 +354,7 @@ const AddNewJobTemplate = () => {
   const onClickAutoTriggerHelpIcon = () => {
     openModal({
       type: 'AutoTriggerHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -378,6 +390,7 @@ const AddNewJobTemplate = () => {
   const onClickAutoFileShareHelpIcon = () => {
     openModal({
       type: 'AutoFileShareHelp',
+      isCloseable: true,
       children: (
         <CustomModal
           vary='info'
@@ -441,6 +454,29 @@ const AddNewJobTemplate = () => {
     })
   }
 
+  const onError = (errors: FieldErrors<JobTemplateFormType>) => {
+    if (Object.keys(errors).includes('options')) {
+      const firstErrorIndex = Object.keys(errors.options || {}).sort()[0]
+      errorRefs.current[Number(firstErrorIndex)]?.focus()
+      // setFocus('options')
+      // return
+    } else {
+      const firstErrorName: keyof JobTemplateFormType = Object.keys(
+        errors,
+      )[0] as keyof JobTemplateFormType
+      setFocus(firstErrorName)
+      // trigger(firstErrorName)
+    }
+
+    // const firstErrorName: keyof JobTemplateFormType = Object.keys(
+    //   errors,
+    // )[0] as keyof JobTemplateFormType
+    // console.log(firstErrorName)
+
+    // setFocus(firstErrorName)
+    // trigger(firstErrorName)
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     setFormMode(mode)
@@ -479,7 +515,6 @@ const AddNewJobTemplate = () => {
       }
     }
   }, [mode, templateInfo])
-  console.log(getValues())
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -543,81 +578,88 @@ const AddNewJobTemplate = () => {
                   horizontal: 'left',
                 }}
               >
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
-                  }}
+                <Tooltip
+                  title='Not authorized'
+                  disableHoverListener={isUpdatable}
                 >
-                  <Tooltip
-                    title='Not authorized'
-                    disableHoverListener={isUpdatable}
-                  >
-                    <Button
-                      fullWidth
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                  <Box>
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
                       disabled={!isUpdatable}
-                      onClick={() => {
-                        handleClose()
-
-                        router.replace(
-                          `/orders/job-list/job-template/form?mode=edit&id=${id}`,
-                        )
-                      }}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: 'rgba(76, 78, 100, 0.87)',
-                        borderRadius: 0,
-                      }}
                     >
-                      Edit
-                    </Button>
-                  </Tooltip>
-                </MenuItem>
+                      <Button
+                        fullWidth
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        // disabled={!isUpdatable}
+                        onClick={() => {
+                          handleClose()
 
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
-                  }}
+                          router.replace(
+                            `/orders/job-list/job-template/form?mode=edit&id=${id}`,
+                          )
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </MenuItem>
+                  </Box>
+                </Tooltip>
+                <Tooltip
+                  title='Not authorized'
+                  disableHoverListener={isDeletable}
                 >
-                  <Tooltip
-                    title='Not authorized'
-                    disableHoverListener={isDeletable}
-                  >
-                    <Button
-                      startIcon={<Icon icon='mdi:trash-outline' />}
-                      disabled={!isDeletable}
+                  <Box>
+                    <MenuItem
                       sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
                         justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: '#FF4D49',
-                        borderRadius: 0,
+                        alignItems: 'flex-start',
+                        padding: 0,
                       }}
-                      onClick={onClickDeleteJobTemplate}
+                      disabled={!isDeletable}
                     >
-                      Delete
-                    </Button>
-                  </Tooltip>
-                </MenuItem>
+                      <Button
+                        startIcon={<Icon icon='mdi:trash-outline' />}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: '#FF4D49',
+                          borderRadius: 0,
+                        }}
+                        onClick={onClickDeleteJobTemplate}
+                      >
+                        Delete
+                      </Button>
+                    </MenuItem>
+                  </Box>
+                </Tooltip>
               </Menu>
             </Box>
           ) : null}
         </Box>
-        <form onSubmit={handleSubmit(onClickSave)} style={{ height: '100%' }}>
+        <form
+          onSubmit={handleSubmit(onClickSave, onError)}
+          style={{ height: '100%' }}
+        >
           <Grid container xs={12} sx={{ height: '100%' }}>
             <Grid item xs={8}>
               <Box
@@ -733,6 +775,7 @@ const AddNewJobTemplate = () => {
                                 <Controller
                                   name={`options.${index}.serviceTypeId`}
                                   control={control}
+                                  rules={{ required: FormErrors.required }}
                                   render={({ field, formState }) => {
                                     const showError = formState.isSubmitted
 
@@ -761,6 +804,10 @@ const AddNewJobTemplate = () => {
                                             <TextField
                                               {...params}
                                               autoComplete='off'
+                                              // inputRef={field.ref}
+                                              inputRef={ref => {
+                                                errorRefs.current[index] = ref
+                                              }}
                                               // label='Service type'
                                               placeholder='Select service type'
                                               error={
@@ -917,6 +964,15 @@ const AddNewJobTemplate = () => {
                                             setValue(
                                               `options.${index}.autoSharingFile`,
                                               '0',
+                                            )
+                                          } else {
+                                            setValue(
+                                              `options.${index}.statusCodeForAutoNextJob`,
+                                              60500,
+                                            )
+                                            setValue(
+                                              `options.${index}.autoSharingFile`,
+                                              '1',
                                             )
                                           }
                                           trigger('options')
@@ -1177,6 +1233,7 @@ const AddNewJobTemplate = () => {
                       render={({ field, formState }) => {
                         return (
                           <TextField
+                            inputRef={field.ref}
                             value={field.value}
                             error={!!errors.name && formState.isSubmitted}
                             helperText={

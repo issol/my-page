@@ -58,6 +58,8 @@ export const getJobTemplateColumns = (
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
+      cellClassName: 'serviceType',
+
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
           Service type
@@ -65,7 +67,24 @@ export const getJobTemplateColumns = (
       ),
       renderCell: ({ row }: CellType) => {
         return (
-          <Box sx={{ display: 'flex', gap: '8px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '8px',
+              width: '100%',
+              height: '100%',
+
+              overflowX: 'scroll',
+              '&::-webkit-scrollbar': {
+                width: 4,
+                height: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                borderRadius: 10,
+                background: '#aaa',
+              },
+            }}
+          >
             {row.options.map((option, index) => {
               return (
                 <Box

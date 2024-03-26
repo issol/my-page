@@ -47,6 +47,8 @@ const JobTemplateView = () => {
     setActiveFilter({ ...initialFilter })
   }
 
+  console.log(activeFilter)
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Box sx={{ display: 'flex', width: '100%' }}>
@@ -83,9 +85,10 @@ const JobTemplateView = () => {
           <JobTemplateList
             list={data || { data: [], totalCount: 0 }}
             isLoading={isLoading}
-            skip={activeFilter.skip}
+            skip={filter.skip}
             pageSize={activeFilter.take}
             setSkip={(n: number) => {
+              setFilter({ ...filter, skip: n })
               setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
             }}
             setPageSize={(n: number) =>

@@ -125,6 +125,7 @@ const SelectPro = ({
             </>
           ) : (
             <>
+              <Typography fontSize={14}>Priority mode</Typography>
               <IconButton
                 sx={{ padding: 0 }}
                 onClick={onClickSelectProsHelperIcon}
@@ -135,28 +136,17 @@ const SelectPro = ({
                 name='isPrioritized'
                 control={control}
                 render={({ field }) => (
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={field.value === '1' ? true : false}
-                        value={field.value === '1' ? true : false}
-                        onChange={(e, v) => {
-                          field.onChange(v ? '1' : '0')
-                          trigger('isPrioritized')
-                        }}
-                      />
-                    }
-                    labelPlacement='start'
-                    label='Priority mode'
-                    sx={{
-                      '& .MuiTypography-body1': {
-                        fontSize: 14,
-                      },
-                      marginLeft: 0,
+                  <Switch
+                    checked={field.value === '1' ? true : false}
+                    value={field.value === '1' ? true : false}
+                    onChange={(e, v) => {
+                      field.onChange(v ? '1' : '0')
+                      trigger('isPrioritized')
                     }}
                   />
                 )}
               />
+
               {type === 'edit' ? (
                 <Tooltip title='Expand this section'>
                   <IconButton
@@ -297,6 +287,7 @@ const SelectPro = ({
                         //     ? 0
                         //     : '16px',
                         display: 'flex',
+                        overflow: 'hidden',
 
                         flex:
                           type === 'detail' &&

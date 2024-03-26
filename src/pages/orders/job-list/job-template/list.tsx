@@ -45,6 +45,9 @@ const JobTemplateList = ({
         sx={{
           overflowX: 'scroll',
           '& .MuiDataGrid-row': { cursor: 'pointer' },
+          '& .serviceType': {
+            padding: '0 !important',
+          },
         }}
         columns={getJobTemplateColumns(serviceTypeList)}
         rows={list.data ?? []}
