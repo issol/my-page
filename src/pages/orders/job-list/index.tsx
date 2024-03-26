@@ -112,7 +112,7 @@ export default function JobList() {
           >
             <CustomTab value='list' label='List' />
             <CustomTab value='tracker' label='Job tracker' />
-            <CustomTab value='template' label='Job Template' />
+            <CustomTab value='template' label='Job template' />
           </TabList>
           <TabPanel value='list' sx={{ padding: 0 }}>
             <JobListView
