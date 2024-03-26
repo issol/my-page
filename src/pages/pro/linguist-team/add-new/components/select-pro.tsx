@@ -287,6 +287,7 @@ const SelectPro = ({
                         //     ? 0
                         //     : '16px',
                         display: 'flex',
+                        overflow: 'hidden',
 
                         flex:
                           type === 'detail' &&

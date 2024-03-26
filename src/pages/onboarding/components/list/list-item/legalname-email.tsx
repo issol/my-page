@@ -2,6 +2,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
+import { Tooltip } from '@mui/material'
 
 interface LegalNameEmailProps {
   row: {
@@ -75,15 +76,17 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
             })}
           </Typography>
         )}
-        <Typography
-          variant='body2'
-          whiteSpace='nowrap'
-          overflow='hidden'
-          textOverflow='ellipsis'
-          fontWeight={400}
-        >
-          {row.email}
-        </Typography>
+        <Tooltip title={row.email}>
+          <Typography
+            variant='body2'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            fontWeight={400}
+          >
+            {row.email}
+          </Typography>
+        </Tooltip>
       </Box>
     </Box>
   )
