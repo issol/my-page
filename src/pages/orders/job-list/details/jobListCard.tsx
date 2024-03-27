@@ -156,7 +156,7 @@ const JobListCard = ({
 
   const isTriggerJob = (jobId: number) => {
     return (
-      info.jobs.filter(row => row.id === Number(jobId) && row.nextJobId)
+      info.jobs.filter(row => row.id === Number(jobId) && row.templateId)
         .length > 0
     )
   }
