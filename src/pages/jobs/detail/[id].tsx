@@ -49,9 +49,17 @@ const ProJobsDetail = () => {
   const [value, setValue] = useState<MenuType>('jobInfo')
   const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
-  const { data: jobDetailDots, refetch: jobDetailDotsRefetch, isFetched } = useGetProJobDots(Number(id))
+  const {
+    data: jobDetailDots,
+    refetch: jobDetailDotsRefetch,
+    isFetched,
+  } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
-  const { data: jobDetail, refetch: jobDetailRefetch, isLoading } = useGetProJobDetail(
+  const {
+    data: jobDetail,
+    refetch: jobDetailRefetch,
+    isLoading,
+  } = useGetProJobDetail(
     Number(id),
     !!(assigned && assigned === 'false'),
     isFetched,
@@ -62,7 +70,7 @@ const ProJobsDetail = () => {
     jobDetailDotsRefetch()
     jobDetailRefetch()
   }, [])
-  
+
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
       router.push(`/jobs/detail/${jobDetail?.id}/`)
@@ -104,6 +112,8 @@ const ProJobsDetail = () => {
     assignmentStatusListLoading,
   ])
 
+  console.log(statusList)
+
   return (
     <Box>
       <Box
@@ -140,7 +150,7 @@ const ProJobsDetail = () => {
           </Box>
         </Box>
       </Box>
-      {jobDetail && jobPrices && statusList && jobDetailDots && (
+      {jobDetail && jobPrices && statusList.length > 0 && jobDetailDots && (
         <TabContext value={value}>
           <TabList
             onChange={handleChange}
@@ -190,12 +200,14 @@ const ProJobsDetail = () => {
           </TabList>
           <TabPanel value='jobInfo' sx={{ p: 0, mt: '24px' }}>
             <Suspense>
-              <ProJobInfo
-                jobInfo={jobDetail}
-                jobPrices={jobPrices}
-                statusList={statusList}
-                jobDetailDots={jobDetailDots}
-              />
+              {jobDetail ? (
+                <ProJobInfo
+                  jobInfo={jobDetail}
+                  jobPrices={jobPrices}
+                  statusList={statusList}
+                  jobDetailDots={jobDetailDots}
+                />
+              ) : null}
             </Suspense>
           </TabPanel>
           <TabPanel value='feedback' sx={{ p: 0, mt: '24px' }}>
