@@ -92,7 +92,7 @@ const RequestSummaryModal = ({
                 accepts in their order.
               </Typography>
               <Typography fontSize={20} fontWeight={500} mt='16px'>
-                Bulk request (First come first served)
+                Mass request (First come first serve)
               </Typography>
               <Typography
                 fontSize={16}
@@ -105,7 +105,7 @@ const RequestSummaryModal = ({
                 accept.
               </Typography>
               <Typography fontSize={20} fontWeight={500} mt='16px'>
-                Bulk request (Manual assign)
+                Mass request (Manual assignment)
               </Typography>
               <Typography
                 fontSize={16}
@@ -154,7 +154,7 @@ const RequestSummaryModal = ({
             noButton
             closeButton
             title='Reminder time'
-            subtitle='When using the bulk request method, you can set the reminder time in minutes. If no one responds within the set period of time, a reminder notification is sent to the LPM.'
+            subtitle='When using the mass request method, you can set the reminder time in minutes. If no one responds within the set period of time, a reminder notification is sent to the LPM.'
             vary='info'
             onClose={() => closeModal('ReminderTimeModal')}
             onClick={() => closeModal('ReminderTimeModal')}
@@ -347,7 +347,7 @@ const RequestSummaryModal = ({
                           selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
                         }
                       >
-                        Bulk request
+                        Mass request
                       </Typography>
                       <Typography
                         fontSize={14}
@@ -356,7 +356,7 @@ const RequestSummaryModal = ({
                           selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
                         }
                       >
-                        (First come first served)
+                        (First come first serve)
                       </Typography>
                     </Box>
                   </Box>
@@ -412,7 +412,7 @@ const RequestSummaryModal = ({
                           selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
                         }
                       >
-                        Bulk request
+                        Mass request
                       </Typography>
                       <Typography
                         fontSize={14}
@@ -421,7 +421,7 @@ const RequestSummaryModal = ({
                           selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
                         }
                       >
-                        (Manual assign)
+                        (Manual assignment)
                       </Typography>
                     </Box>
                   </Box>

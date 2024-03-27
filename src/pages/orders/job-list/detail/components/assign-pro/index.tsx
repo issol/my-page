@@ -729,9 +729,9 @@ const AssignPro = ({
                 {selectedAssign?.type === 'relayRequest'
                   ? `Relay request (${selectedAssign?.pros.length ?? 0})`
                   : selectedAssign?.type === 'bulkAutoAssign'
-                    ? `Bulk request - First come first served (${selectedAssign?.pros.length ?? 0})`
+                    ? `Mass request (First come first serve) (${selectedAssign?.pros.length ?? 0})`
                     : selectedAssign?.type === 'bulkManualAssign'
-                      ? `Bulk request - Manual assign (${selectedAssign?.pros.length ?? 0})`
+                      ? `Mass request (Manual assignment) (${selectedAssign?.pros.length ?? 0})`
                       : ''}{' '}
               </Typography>
               <Box>

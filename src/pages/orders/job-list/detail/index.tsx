@@ -286,7 +286,7 @@ const JobDetail = () => {
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(Number(orderId))
-  const { data: jobDetails, refetch:jobDetailsRefetch } = useGetJobDetails(Number(orderId), true)
+  const { data: jobDetails, refetch: jobDetailsRefetch } = useGetJobDetails(Number(orderId), true)
   const { data: langItem, refetch: langItemRefetch } = useGetLangItem(Number(orderId))
   const {
     data: sourceFileList,
