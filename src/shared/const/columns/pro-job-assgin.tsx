@@ -271,7 +271,10 @@ export const getProJobAssignColumnsForRequest = (
   }>,
   timezoneList: TimeZoneType[],
   requestCompleted: boolean,
-  detailAnchorEl: { el: HTMLElement | null; id: number | null },
+  isAssigned: boolean,
+  detailAnchorEls: {
+    [key: number]: HTMLButtonElement | null
+  },
   handleDetailClick: (
     event: React.MouseEvent<HTMLButtonElement>,
     row: {
@@ -283,7 +286,7 @@ export const getProJobAssignColumnsForRequest = (
       jobReqId: number | null
     },
   ) => void,
-  handleDetailClose: () => void,
+  handleDetailClose: (userId: number) => void,
   onClickAssign: (
     row: {
       userId: number
@@ -325,12 +328,14 @@ export const getProJobAssignColumnsForRequest = (
     label: string
   }[],
   selectedUser: {
-    userId: number
-    firstName: string
-    middleName?: string | null
-    lastName: string
-    assignmentStatus: number
-    jobReqId: number | null
+    [key: number]: {
+      userId: number
+      firstName: string
+      middleName?: string | null | undefined
+      lastName: string
+      assignmentStatus: number
+      jobReqId: number | null
+    } | null
   },
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
@@ -485,20 +490,221 @@ export const getProJobAssignColumnsForRequest = (
 
         return (
           <>
-            {requestType === 'bulkManualAssign' ? (
-              row.assignmentStatus === 70100 && !requestCompleted ? (
+            {isAssigned ? (
+              row.assignmentStatus === 70300 ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    // onClick={handleClick}
+                    onClick={e =>
+                      handleDetailClick(e, {
+                        userId: row.userId,
+                        firstName: row.firstName,
+                        middleName: row.middleName,
+                        lastName: row.lastName,
+                        assignmentStatus: row.assignmentStatus,
+                        jobReqId: row.jobRequestId,
+                      })
+                    }
+                  >
+                    <Icon icon='mdi:dots-horizontal' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={detailAnchorEls[row.userId]}
+                    id={`customized-menu-${row.userId}`}
+                    onClose={() => handleDetailClose(row.userId)}
+                    open={Boolean(detailAnchorEls[row.userId])}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                  >
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        fullWidth
+                        onClick={() => {
+                          onClickReAssign(selectedUser[row.userId]!)
+                          handleDetailClose(row.userId)
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Re-assign
+                      </Button>
+                    </MenuItem>
+                  </Menu>
+                </Box>
+              ) : null
+            ) : requestType === 'bulkManualAssign' &&
+              row.assignmentStatus === 70100 ? (
+              <Button
+                variant='contained'
+                onClick={() => {
+                  onClickAssign(
+                    {
+                      ...row,
+                      jobReqId: row.jobRequestId,
+                    },
+                    requestType,
+                  )
+                  handleDetailClose(row.userId)
+                }}
+              >
+                Assign
+              </Button>
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '100%',
+                }}
+              >
+                <IconButton
+                  sx={{ width: '24px', height: '24px', padding: 0 }}
+                  // onClick={handleClick}
+                  onClick={e =>
+                    handleDetailClick(e, {
+                      userId: row.userId,
+                      firstName: row.firstName,
+                      middleName: row.middleName,
+                      lastName: row.lastName,
+                      assignmentStatus: row.assignmentStatus,
+                      jobReqId: row.jobRequestId,
+                    })
+                  }
+                >
+                  <Icon icon='mdi:dots-horizontal' />
+                </IconButton>
+                <Menu
+                  elevation={8}
+                  anchorEl={detailAnchorEls[row.userId]}
+                  id={`customized-menu-${row.userId}`}
+                  onClose={() => handleDetailClose(row.userId)}
+                  open={Boolean(detailAnchorEls[row.userId])}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
+                >
+                  <MenuItem
+                    sx={{
+                      gap: 2,
+                      '&:hover': {
+                        background: 'inherit',
+                        cursor: 'default',
+                      },
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start',
+                      padding: 0,
+                    }}
+                  >
+                    <Button
+                      fullWidth
+                      onClick={() => {
+                        onClickAssign(selectedUser[row.userId]!, requestType)
+                        handleDetailClose(row.userId)
+                      }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        padding: '6px 16px',
+                        fontSize: 16,
+                        fontWeight: 400,
+                        color: 'rgba(76, 78, 100, 0.87)',
+                        borderRadius: 0,
+                      }}
+                    >
+                      Assign
+                    </Button>
+                  </MenuItem>
+                  {((requestType === 'bulkManualAssign' ||
+                    requestType === 'bulkAutoAssign') &&
+                    row.assignmentStatus === 70000) ||
+                  requestType === 'relayRequest' ? (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: '#FF4D49',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          borderRadius: 0,
+                        }}
+                        onClick={() => {
+                          onClickCancel(selectedUser[row.userId]!)
+                          handleDetailClose(row.userId)
+                        }}
+                        // onClick={onClickDeleteButton}
+                      >
+                        Cancel
+                      </Button>
+                    </MenuItem>
+                  ) : null}
+                </Menu>
+              </Box>
+            )}
+            {/* {requestType === 'bulkManualAssign' ? (
+              row.assignmentStatus === 70100 && !isAssigned ? (
                 <Button
                   variant='contained'
                   onClick={() => {
-                    onClickAssign({
-                      ...row, jobReqId: row.jobRequestId,
-                    }, requestType)
+                    onClickAssign(
+                      {
+                        ...row,
+                        jobReqId: row.jobRequestId,
+                      },
+                      requestType,
+                    )
                     handleDetailClose()
                   }}
                 >
                   Assign
                 </Button>
-              ) : requestCompleted ? null : (
+              ) : isAssigned ? null : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -582,7 +788,7 @@ export const getProJobAssignColumnsForRequest = (
 
                     {row.assignmentStatus === 70000 ||
                     row.assignmentStatus === null ||
-                    !requestCompleted ? (
+                    !isAssigned ? (
                       <MenuItem
                         sx={{
                           gap: 2,
@@ -696,7 +902,7 @@ export const getProJobAssignColumnsForRequest = (
                     horizontal: 'left',
                   }}
                 >
-                  {requestCompleted ? null : (
+                  {isAssigned ? null : (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -731,7 +937,7 @@ export const getProJobAssignColumnsForRequest = (
 
                   {row.assignmentStatus === 70000 ||
                   row.assignmentStatus === null ||
-                  !requestCompleted ? (
+                  !isAssigned ? (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -797,7 +1003,7 @@ export const getProJobAssignColumnsForRequest = (
                   ) : null}
                 </Menu>
               </Box>
-            )}
+            )} */}
           </>
         )
       },
