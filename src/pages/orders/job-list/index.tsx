@@ -42,7 +42,7 @@ type tabMenu = 'list' | 'tracker' | 'template'
 export default function JobList() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
-  const { data: statusList } = useGetStatusList('Job')
+  const { data: statusList, refetch: statusListRefetch } = useGetStatusList('Job')
   const tabQuery = router.query.tab as tabMenu
 
   const [value, setValue] = useState<tabMenu>('list')
@@ -51,8 +51,14 @@ export default function JobList() {
     router.push({ pathname: '/orders/job-list/', query: { tab: newValue } })
   }
 
-  const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
+  const { data: clients, refetch: clientsRefetch } = useGetClientList({ take: 1000, skip: 0 })
 
+  // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
+  useEffect(() => {
+    statusListRefetch()
+    clientsRefetch()
+  }, [])
+  
   // const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   //   marginBottom: '24px',
   //   '& .MuiTabs-indicator': {

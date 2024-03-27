@@ -282,12 +282,12 @@ const JobDetail = () => {
     activeFilter,
     false,
   )
-  const { data: prices, isSuccess } = useGetProPriceList({})
+  const { data: prices, refetch: pricesRefetch, isSuccess } = useGetProPriceList({})
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(Number(orderId))
-  const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId), true)
-  const { data: langItem } = useGetLangItem(Number(orderId))
+  const { data: jobDetails, refetch:jobDetailsRefetch } = useGetJobDetails(Number(orderId), true)
+  const { data: langItem, refetch: langItemRefetch } = useGetLangItem(Number(orderId))
   const {
     data: sourceFileList,
     isLoading,
@@ -303,11 +303,19 @@ const JobDetail = () => {
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
     useGetJobPriceHistory(selectedJobInfo?.jobId!)
 
-  const { data: linguistTeam, isLoading: linguistTeamLoading } =
+  const { data: linguistTeam, refetch: linguistTeamRefetch, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
       take: 1000,
       skip: 0,
     })
+
+  // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
+  useEffect(() => {
+    pricesRefetch()
+    langItemRefetch()
+    jobDetailsRefetch()
+    linguistTeamRefetch()
+  }, [])
 
   const linguistTeamList = useMemo(
     () =>
@@ -516,7 +524,7 @@ const JobDetail = () => {
         if (data.job.id === variables.jobId) {
           queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
           queryClient.invalidateQueries(['proJobDeliveries', variables.jobId])
-          refetch && refetch()
+          jobDetailsRefetch && jobDetailsRefetch()
         } else {
           setJobId(prev =>
             prev.map(id => (id === variables.jobId ? data.job.id : id)),
@@ -797,7 +805,7 @@ const JobDetail = () => {
                 item.jobs.some(job => job.id === selectedJobInfo?.jobId),
               )!
             }
-            refetch={refetch!}
+            refetch={jobDetailsRefetch!}
             statusList={jobStatusList!}
           />
         ),

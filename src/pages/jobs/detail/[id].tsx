@@ -49,14 +49,20 @@ const ProJobsDetail = () => {
   const [value, setValue] = useState<MenuType>('jobInfo')
   const [statusList, setStatusList] = useState<Array<StatusItem>>([])
 
-  const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
+  const { data: jobDetailDots, refetch: jobDetailDotsRefetch, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
-  const { data: jobDetail, isLoading } = useGetProJobDetail(
+  const { data: jobDetail, refetch: jobDetailRefetch, isLoading } = useGetProJobDetail(
     Number(id),
     !!(assigned && assigned === 'false'),
     isFetched,
   )
 
+  // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
+  useEffect(() => {
+    jobDetailDotsRefetch()
+    jobDetailRefetch()
+  }, [])
+  
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
       router.push(`/jobs/detail/${jobDetail?.id}/`)
