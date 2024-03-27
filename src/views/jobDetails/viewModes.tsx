@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { Dispatch, useState, SyntheticEvent } from 'react'
+import React, { Dispatch, useState } from 'react'
 import { JobStatus } from '@src/types/common/status.type'
 import { JobsStatusChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
