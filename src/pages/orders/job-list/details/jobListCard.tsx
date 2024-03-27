@@ -485,7 +485,7 @@ const JobListCard = ({
             </TableHead>
             <TableBody>
               {info.jobs.length > 0
-                ? info.jobs.map((row, index) => {
+                && info.jobs.map((row, index) => {
                     const isItemSelected = isSelected(row.id)
                     return (
                       <TableRow
