@@ -486,11 +486,13 @@ export const getProJobAssignColumnsForRequest = (
         return (
           <>
             {requestType === 'bulkManualAssign' ? (
-              row.assignmentStatus === 70100 ? (
+              row.assignmentStatus === 70100 && !requestCompleted ? (
                 <Button
                   variant='contained'
                   onClick={() => {
-                    onClickAssign(selectedUser, requestType)
+                    onClickAssign({
+                      ...row, jobReqId: row.jobRequestId,
+                    }, requestType)
                     handleDetailClose()
                   }}
                 >

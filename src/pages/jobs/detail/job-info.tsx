@@ -110,7 +110,7 @@ const ProJobInfo = ({
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['proJobDetail'])
+        queryClient.invalidateQueries(['proJobDetail', jobInfo.id])
       },
     },
   )
@@ -119,8 +119,7 @@ const ProJobInfo = ({
     (fileIds: number[]) => patchProJobSourceFileDownload(jobInfo.id, fileIds),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['proJobDetail'])
-        queryClient.invalidateQueries(['proJobDots'])
+        queryClient.invalidateQueries(['proJobDetail', jobInfo.id])
       },
     },
   )
@@ -280,7 +279,8 @@ const ProJobInfo = ({
         status: response === 'Decline' ? 70200 : 70100,
       },
       {
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
+          queryClient.invalidateQueries(['proJobDetail', variables.jobId])
           if (response === 'Decline') {
             closeModal('DeclineModal')
           } else {
