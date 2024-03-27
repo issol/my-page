@@ -282,12 +282,21 @@ const JobDetail = () => {
     activeFilter,
     false,
   )
-  const { data: prices, refetch: pricesRefetch, isSuccess } = useGetProPriceList({})
+  const {
+    data: prices,
+    refetch: pricesRefetch,
+    isSuccess,
+  } = useGetProPriceList({})
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(Number(orderId))
-  const { data: jobDetails, refetch: jobDetailsRefetch } = useGetJobDetails(Number(orderId), true)
-  const { data: langItem, refetch: langItemRefetch } = useGetLangItem(Number(orderId))
+  const { data: jobDetails, refetch: jobDetailsRefetch } = useGetJobDetails(
+    Number(orderId),
+    true,
+  )
+  const { data: langItem, refetch: langItemRefetch } = useGetLangItem(
+    Number(orderId),
+  )
   const {
     data: sourceFileList,
     isLoading,
@@ -303,11 +312,14 @@ const JobDetail = () => {
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
     useGetJobPriceHistory(selectedJobInfo?.jobId!)
 
-  const { data: linguistTeam, refetch: linguistTeamRefetch, isLoading: linguistTeamLoading } =
-    useGetLinguistTeam({
-      take: 1000,
-      skip: 0,
-    })
+  const {
+    data: linguistTeam,
+    refetch: linguistTeamRefetch,
+    isLoading: linguistTeamLoading,
+  } = useGetLinguistTeam({
+    take: 1000,
+    skip: 0,
+  })
 
   // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
   useEffect(() => {
@@ -448,9 +460,9 @@ const JobDetail = () => {
         closeModal('AssignProModal')
         setAssignProMode(false)
         displayCustomToast('Assigned successfully', 'success')
-        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
-        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
-        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+        queryClient.invalidateQueries('jobAssignProRequests')
+        queryClient.invalidateQueries('jobInfo')
+        queryClient.invalidateQueries('jobPrices')
       },
     },
   )
@@ -460,12 +472,9 @@ const JobDetail = () => {
     {
       onSuccess: (data, variables) => {
         if (data.id === variables.jobId) {
-          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
-          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
-          queryClient.invalidateQueries([
-            'jobAssignProRequests',
-            variables.jobId,
-          ])
+          queryClient.invalidateQueries('jobAssignProRequests')
+          queryClient.invalidateQueries('jobInfo')
+          queryClient.invalidateQueries('jobPrices')
         } else {
           const path = router.asPath
           const newPath = path
@@ -477,6 +486,7 @@ const JobDetail = () => {
           router.push(newPath, undefined, {
             shallow: true,
           })
+
           setJobId(prev =>
             prev.map(id => (id === variables.jobId ? data.id : id)),
           )
@@ -1011,10 +1021,23 @@ const JobDetail = () => {
         const selectedJob = combinedList.find(
           value => value.jobId === selectedJobInfo.jobInfo.id,
         )
+        console.log(selectedJob, 'hihi')
 
         if (selectedJob) {
           setSelectedJobInfo(selectedJob)
           const defaultRound = selectedJob.jobAssignDefaultRound ?? 1
+          setSelectedAssign(
+            selectedJob.jobAssign.find(value => value.round === defaultRound) ??
+              null,
+          )
+        } else {
+          const selectedJob =
+            combinedList.find(value => value.jobId === Number(selectedJobId)) ??
+            combinedList[0]
+          setJobDetail(combinedList)
+          setSelectedJobInfo(selectedJob)
+          const defaultRound = selectedJob?.jobAssignDefaultRound ?? 1
+
           setSelectedAssign(
             selectedJob.jobAssign.find(value => value.round === defaultRound) ??
               null,
@@ -1035,7 +1058,14 @@ const JobDetail = () => {
         )
       }
     }
-  }, [jobInfoList, jobPriceList, jobAssignList, selectedJobInfo, jobDetail])
+  }, [
+    jobInfoList,
+    jobPriceList,
+    jobAssignList,
+    selectedJobInfo,
+    jobDetail,
+    selectedJobId,
+  ])
 
   useEffect(() => {
     if (roundQuery && selectedJobInfo) {

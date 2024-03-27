@@ -106,6 +106,8 @@ const ProJobInfo = ({
     [statusList],
   )
 
+  console.log(statusLabel)
+
   const updateJob = useMutation(
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
@@ -129,7 +131,8 @@ const ProJobInfo = ({
       handleJobAssignStatus(data.jobId, data.proId, data.status, 'pro'),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(['proJobDetail', variables.jobId])
+        queryClient.invalidateQueries('proJobDetail')
+        // router.reload()
       },
     },
   )
@@ -627,7 +630,11 @@ const ProJobInfo = ({
                 label='Status'
                 isBadge={jobDetailDots.includes('status')}
               >
-                {ProJobStatusChip(statusLabel, jobInfo.status as JobStatus)}
+                {ProJobStatusChip(
+                  statusList?.find(i => i.value === jobInfo.status)?.label ||
+                    '',
+                  jobInfo.status as JobStatus,
+                )}
 
                 {/* TODO status 체크해야함 */}
                 {jobInfo.status === 60900 ||
