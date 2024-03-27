@@ -1975,7 +1975,7 @@ const JobDetail = () => {
                                     }}
                                   >
                                     <Typography fontSize={14} fontWeight={400}>
-                                      Notes from from Pro
+                                      Notes from Pro
                                     </Typography>
                                   </Box>
                                   <Box
