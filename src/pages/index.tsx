@@ -20,6 +20,7 @@ const Home = () => {
   const router = useRouter()
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
+  console.log(role, 'role name')
 
   useEffect(() => {
     //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'

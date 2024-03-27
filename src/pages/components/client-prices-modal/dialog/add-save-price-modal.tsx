@@ -25,10 +25,7 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
-import {
-  CurrencyType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
@@ -37,12 +34,13 @@ import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import Icon from '@src/@core/components/icon'
 
 import CopyPriceModal from './copy-price-modal'
+import { Currency } from '@src/types/common/currency.type'
 
 const defaultValue = {
   priceName: '',
   category: undefined,
   serviceType: undefined,
-  currency: { label: '$ USD', value: 'USD' as CurrencyType },
+  currency: { label: '$ USD', value: 'USD' as Currency },
   catBasis: { label: 'Words', value: 'Words' },
   decimalPlace: 2,
   roundingProcedure: undefined,
@@ -464,7 +462,11 @@ const AddSavePriceModal = ({
                     id='CAT Basis'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='CAT calculation basis' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='CAT calculation basis'
+                      />
                     )}
                   />
                 )}

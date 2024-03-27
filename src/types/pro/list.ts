@@ -63,4 +63,9 @@ export type ProListType = {
   onboardedAt: string
   experience: string
   jobInfo: Array<ProListJobInfoType>
+  order?: number | undefined
+  responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600 // statusCode
+  ongoingJobCount: number
+  avgResponseTime: number // 분단위 표시
+  ongoingJobList: string[]
 }

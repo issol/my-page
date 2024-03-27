@@ -1,34 +1,32 @@
-import { CurrentGuidelineType } from '@src/apis/client-guideline.api'
 import { FileType } from '../common/file.type'
 import { ItemDetailType } from '../common/item.type'
-import { CurrencyType } from '../common/standard-price'
-import { statusType } from '../common/status.type'
-import { AssignProListType } from '../orders/job-detail'
-import { OrderDetailType } from '../orders/order-detail'
+
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
-import { ProJobStatusType } from './common.type'
-import { PriceType } from '../common/orders-and-quotes.type'
-// import { JobStatusType } from './common.type'
 
+import { PriceType } from '../common/orders-and-quotes.type'
+import { JobStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 export type JobStatusType =
-  | 60000
-  | 60100
-  | 60200
-  | 60300
-  | 60400
-  | 60500
-  | 60600
-  | 60700
-  | 60800
-  | 60900
-  | 601000
-  | 601100
+  | 60000 // In preparation
+  | 60100 //Requested
+  | 60110 //Assigned
+  | 60200 // In progress
+  | 60250 // Redelivery requested
+  | 60300 // Overdue
+  | 60400 // Partially delivered
+  | 60500 // Delivered
+  | 60600 // Approved
+  | 60700 // Invoiced
+  | 60800 // Paid
+  | 60900 // Without invoice
+  | 601000 // Canceled
+  | 601100 // Payment cancled
 
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
-  status: JobStatusType
+  status: JobStatus
   name: string
   jobName?: string
   category: string // order의 category
@@ -36,7 +34,7 @@ export type JobsListType = {
   startedAt: string
   dueAt: string
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   // order: OrderDetailType
   orderId: number
   client: {
@@ -57,7 +55,7 @@ export type JobsTrackerListType = {
   name: string //work name
   category: string
   serviceType: string[]
-  currency: CurrencyType
+  currency: Currency
   totalPrice: number //해당 Currency를 기준으로 환율 계산 Order date 날짜의 환율을 기준으로 함
 }
 
@@ -90,29 +88,6 @@ export type JobHistoryType = {
   requestedAt: string
 }
 
-export type JobInfoDetailType = {
-  id: number
-  corporationId: string
-  name: string
-  status: Array<statusType>
-  contactPersonId: number
-  serviceType: string
-  sourceLanguage: string
-  targetLanguage: string
-  startedAt: string
-  dueAt: string
-  startTimezone: CountryType
-  dueTimezone: CountryType
-  description: string
-  isShowDescription: boolean
-  files: Array<{
-    name: string
-    size: number
-    file: string // s3 key
-    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-  }>
-}
-
 export type JobPricesDetailType = {
   id: number
   source: string
@@ -121,7 +96,7 @@ export type JobPricesDetailType = {
   targetLanguage?: string
   priceId: number | null
   totalPrice: number
-  currency: CurrencyType
+  currency: Currency
   priceName: string
   isUsedCAT: boolean
   datas?: Array<{
@@ -160,6 +135,20 @@ export type CreateJobParamsType = {
   index?: number
 }
 
+export type CreateWithJobTemplateParamsType = {
+  orderId: number
+  itemId: number
+  serviceType: string[]
+  index?: number
+}
+
+export type autoCreateJobParamsType = {
+  orderId: number
+  itemId: number
+  serviceType: string[]
+  index?: number
+}
+
 export type ProJobListType = {
   id: number
   jobId: number
@@ -167,8 +156,8 @@ export type ProJobListType = {
   serviceType: string
   name: string
   dueAt: string
-  status: ProJobStatusType
-  currency: CurrencyType
+  status: JobStatus
+  currency: Currency
   lightUpDot: boolean
   totalPrice: string
   message: {
@@ -187,6 +176,8 @@ export type ProJobListType = {
       | null
   }
   finalProDeliveredAt: string
+  autoNextJob?: boolean // 트리거가 존재하는지 유무
+  isPreviousAndNextJob?: boolean // 다음 아이템이 존재하는지 여부
 }
 
 export type JobsFileType = {
@@ -205,7 +196,8 @@ export type ProJobDetailType = {
   id: number
   corporationId: string
   name: string
-  status: ProJobStatusType
+  status: JobStatus
+  jobRequestId: number
 
   order: {
     client: {
@@ -290,4 +282,72 @@ export type ProJobFeedbackType = {
   email: string
   createdAt: string
   feedback: string
+}
+
+export type JobRequestsProType = {
+  userId: number
+  firstName: string
+  middleName?: string
+  lastName: string
+  email: string
+  assignmentStatus: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
+  isOnboarded: boolean
+  isActive: boolean
+  assignmentStatusUpdatedAt: string
+  responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
+  ongoingJobCount: number
+  ongoingJobList: string[]
+  order: number
+  jobRequestId: number
+}
+
+export type JobRequestFormType = {
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  round: number
+  interval?: number
+  jobId: number
+  pros: Array<{
+    userId: number
+    order: number
+  }>
+}
+
+export type JobBulkRequestFormType = {
+  jobId: number
+  proIds: number[]
+  requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  remindTime?: number
+  requestIntervalSec?: number
+}
+
+export type JobAddProsFormType = {
+  jobId: number
+  round: number
+  pros: Array<{
+    userId: number
+    order: number
+  }>
+}
+
+export type JobAssignProRequestsType = {
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  round: number
+  requestCompleted: boolean
+  pros: Array<JobRequestsProType>
+  interval: number
+}
+
+export type JobPrevNextItem = {
+  pro: {
+    userId: number
+    firstName: string
+    middleName: string
+    lastName: string
+    email: string
+    isActive: boolean
+    isOnboarded: boolean
+  }
+  serviceType: string
+  dueAt: Date
+  dueTimezone: CountryType
 }

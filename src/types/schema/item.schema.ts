@@ -1,7 +1,8 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { CurrencyType } from '../common/standard-price'
+
 import { ItemType } from '../common/item.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export const itemDefaultValue: { items: ItemType[] } = {
   items: [
@@ -38,7 +39,7 @@ export const itemSchema = yup.object().shape({
           unit: yup.string().required(FormErrors.required),
           currency: yup
             .string()
-            .oneOf<CurrencyType>(['USD', 'KRW', 'SGD', 'JPY'])
+            .oneOf<Currency>(['USD', 'KRW', 'SGD', 'JPY'])
             .nullable(),
         }),
       ),
@@ -71,7 +72,7 @@ export const jobItemSchema = yup.object().shape({
           unit: yup.string().required(FormErrors.required),
           currency: yup
             .string()
-            .oneOf<CurrencyType>(['USD', 'KRW', 'SGD', 'JPY'])
+            .oneOf<Currency>(['USD', 'KRW', 'SGD', 'JPY'])
             // .required(FormErrors.required),
             .when('$priceId', ([priceId], schema) => {
               console.log(priceId)
@@ -107,7 +108,7 @@ export const quoteItemSchema = yup.object().shape({
           unit: yup.string().required(FormErrors.required),
           currency: yup
             .string()
-            .oneOf<CurrencyType>(['USD', 'KRW', 'SGD', 'JPY'])
+            .oneOf<Currency>(['USD', 'KRW', 'SGD', 'JPY'])
             .nullable(),
         }),
       ),

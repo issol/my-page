@@ -1,10 +1,6 @@
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
-  CurrencyType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
@@ -14,10 +10,10 @@ import {
   Controller,
   FieldArrayWithId,
   FieldErrors,
+  useFieldArray,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  useFieldArray,
 } from 'react-hook-form'
 import { onCopyAnalysisParamType } from './items-form'
 import { languageType } from '@src/pages/quotes/add-new'
@@ -48,6 +44,7 @@ import { MemberType } from '@src/types/schema/project-team.schema'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { FormErrors } from '@src/shared/const/formErrors'
+import { Currency } from '@src/types/common/currency.type'
 
 type Props = {
   idx: number
@@ -173,7 +170,7 @@ const Row = ({
 
   const openMinimumPriceModal = (value: {
     minimumPrice: number
-    currency: CurrencyType
+    currency: Currency
   }) => {
     const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
 
@@ -522,7 +519,7 @@ const Row = ({
   }
 
   const onChangeCurrency = (
-    currency: CurrencyType,
+    currency: Currency,
     index: number,
     detail: Array<ItemDetailType>,
     // detail: FieldArrayWithId<

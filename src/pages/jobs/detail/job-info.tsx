@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Divider,
-  Grid,
   IconButton,
   Tooltip,
   Typography,
@@ -25,11 +24,7 @@ import {
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import {
-  byteToGB,
-  byteToMB,
-  formatFileSize,
-} from '@src/shared/helpers/file-size.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
@@ -39,31 +34,33 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useMemo, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
-import { v4 as uuidv4 } from 'uuid'
 
 import InformationModal from '@src/@core/components/common-modal/information-modal'
-import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
 
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
 import CustomChip from '@src/@core/components/mui/chip'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   handleJobAssignStatus,
   patchProJobDetail,
   patchProJobSourceFileDownload,
-} from '@src/apis/job-detail.api'
-import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+} from '@src/apis/jobs/job-detail.api'
 import { timezoneSelector } from '@src/states/permission'
+import { JobStatus } from '@src/types/common/status.type'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import styled from '@emotion/styled'
+
+import { v4 as uuidv4 } from 'uuid'
+import InfoDialogButton from '@src/views/pro/infoDialog'
+import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
+import { useRouter } from 'next/router'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -77,23 +74,40 @@ const ClientGuidelineView = dynamic(
   { ssr: false },
 )
 
+const excludedStatusCodes = [60100, 70000, 70100, 70200, 70400, 70500]
+
 const ProJobInfo = ({
   jobInfo,
   jobPrices,
   statusList,
   jobDetailDots,
 }: Props) => {
-  const auth = useRecoilValueLoadable(authState)
-  const timezone = useRecoilValueLoadable(timezoneSelector)
-  const queryClient = useQueryClient()
-  const statusLabel =
-    statusList?.find(i => i.value === jobInfo.status)?.label || ''
-  const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
+  const router = useRouter()
+
+  const { isNextJob } = router.query
+  const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
+
+  const sideBoxRef = useRef<HTMLDivElement>(null)
+
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const queryClient = useQueryClient()
+  const { data } = useGetProPreviousAndNextJob(jobInfo.id)
+
+  const { openModal, closeModal } = useModal()
+
+  const [rightBoxWidth, setRightBoxWidth] = useState(0)
+
+  const statusLabel = useMemo(
+    () => statusList?.find(i => i.value === jobInfo.status)?.label || '',
+    [statusList],
+  )
+
   const updateJob = useMutation(
-    (status: ProJobStatusType) =>
-      patchProJobDetail(jobInfo.id, { status: status }),
+    (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
@@ -113,27 +127,21 @@ const ProJobInfo = ({
 
   const selectAssignMutation = useMutation(
     (data: { jobId: number; proId: number; status: number }) =>
-      handleJobAssignStatus(data.jobId, data.proId, data.status),
+      handleJobAssignStatus(data.jobId, data.proId, data.status, 'pro'),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['proJobDetail'])
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['proJobDetail', variables.jobId])
       },
     },
   )
 
   const fileSize = useMemo(() => {
+    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 60100]
+
     if (jobInfo?.files?.length > 0) {
       return jobInfo.files
         ?.filter(value => {
-          if (
-            jobInfo.status !== 70000 &&
-            jobInfo.status !== 70100 &&
-            jobInfo.status !== 70200 &&
-            jobInfo.status !== 70300 &&
-            jobInfo.status !== 70400 &&
-            jobInfo.status !== 70500 &&
-            jobInfo.status !== 60100
-          ) {
+          if (!excludeStatus.includes(jobInfo.status)) {
             return value.type === 'SOURCE'
           } else {
             return value.type === 'SAMPLE'
@@ -144,7 +152,7 @@ const ProJobInfo = ({
     return 0
   }, [jobInfo])
 
-  function fetchFile(file: JobsFileType | FileType) {
+  const fetchFile = (file: JobsFileType | FileType) => {
     getDownloadUrlforCommon(S3FileType.JOB, file.file!).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
@@ -174,13 +182,13 @@ const ProJobInfo = ({
     })
   }
 
-  function downloadOneFile(file: JobsFileType | FileType) {
+  const downloadOneFile = (file: JobsFileType | FileType) => {
     fetchFile(file)
   }
 
-  function downloadAllFiles(
+  const downloadAllFiles = (
     files: Array<JobsFileType> | [] | undefined | Array<FileType>,
-  ) {
+  ) => {
     if (!files || !files.length) return
 
     files.forEach(file => {
@@ -204,8 +212,8 @@ const ProJobInfo = ({
         return value.type === 'SAMPLE'
       }
     })
-    .map((file: JobsFileType) => (
-      <Box key={uuidv4()}>
+    .map((file: JobsFileType, index) => (
+      <Box key={`${file.id}-${index}`}>
         <Box
           sx={{ display: 'flex', gap: '10px', alignItems: 'center', mb: '5px' }}
         >
@@ -267,7 +275,7 @@ const ProJobInfo = ({
     // TODO API 연결
     selectAssignMutation.mutate(
       {
-        jobId: jobInfo.id,
+        jobId: jobInfo.jobRequestId,
         proId: auth.getValue().user?.id!,
         status: response === 'Decline' ? 70200 : 70100,
       },
@@ -360,8 +368,8 @@ const ProJobInfo = ({
     })
   }
 
-  const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
-    console.log("status", status)
+  const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
+    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -499,10 +507,21 @@ const ProJobInfo = ({
     }
   }
 
-  const getJobDateDiff = (jobDueDate: string , deliveredDate?: string) => {
-    const now = deliveredDate
-      ? dayjs(deliveredDate)
-      : dayjs()
+  useEffect(() => {
+    if (sideBoxRef.current) {
+      const height = sideBoxRef.current.offsetHeight
+
+      if (height === 0) {
+        setRightBoxWidth(0)
+        return
+      }
+
+      setRightBoxWidth(266)
+    }
+  }, [])
+
+  const getJobDateDiff = (jobDueDate: string, deliveredDate?: string) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
     const dueDate = dayjs(jobDueDate)
     const diff = dueDate.diff(now, 'second')
     const isPast = diff < 0
@@ -540,631 +559,248 @@ const ProJobInfo = ({
       )
     }
   }
-
   // status가 Overdue일 때, onClickOnClickStatusMoreInfo를 호출하여 디테일 페이지 진입시 모달을 띄워준다.
   useEffect(() => {
     if (jobInfo) {
       if (jobInfo.status === 60300) {
-        onClickOnClickStatusMoreInfo(jobInfo.status as ProJobStatusType)
+        onClickOnClickStatusMoreInfo(jobInfo.status as JobStatus)
       }
     }
   }, [jobInfo])
 
   return (
-    <Grid container xs={12} spacing={4}>
-      {patchProJobSourceFileDownloadMutation.isLoading ||
-      selectAssignMutation.isLoading ? (
-        <OverlaySpinner />
-      ) : null}
-      <Grid item xs={9.25}>
-        <Card sx={{ padding: '24px' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                // justifyContent: 'space-between',
-                gap: '10px',
-                alignItems: 'center',
-              }}
-            >
-              {jobDetailDots.includes('name') ? (
+    <Box display='flex' width='100%' gap={4} flex={1}>
+      <Box width='100%'>
+        <Card
+          sx={{
+            display: isPrevAndNextJob ? 'block' : 'none',
+            padding: '20px',
+            marginBottom: '24px',
+          }}
+        >
+          <Box display='flex' flexWrap='wrap' gap='10px '>
+            {data?.previousJob && (
+              <NextPrevItemCard
+                title='Previous job'
+                userInfo={data?.previousJob?.pro}
+                serviceType={data?.previousJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.previousJob?.dueAt,
+                  data?.previousJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
+
+            {data?.nextJob && (
+              <NextPrevItemCard
+                title='Next job'
+                userInfo={data?.nextJob?.pro}
+                serviceType={data?.nextJob?.serviceType}
+                date={convertTimeToTimezone(
+                  data?.nextJob?.dueAt,
+                  data?.nextJob?.dueTimezone?.code ||
+                    auth.getValue()?.user?.timezone,
+                  timezone.getValue(),
+                )}
+              />
+            )}
+          </Box>
+        </Card>
+
+        <Card sx={{ padding: '20px' }}>
+          <Box display='flex' flexDirection='column' gap='36px'>
+            <Box display='flex' alignItems='center' gap='10px'>
+              {jobDetailDots.includes('name') && (
                 <Badge
                   variant='dot'
                   color='primary'
                   sx={{ marginLeft: '4px' }}
-                ></Badge>
-              ) : null}
+                />
+              )}
               <Typography variant='h6'>{jobInfo.name}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: '10px',
-                    alignItems: 'center',
-                    width: '38.5%',
-                  }}
+
+            <Box display='flex' flexDirection='column' gap='20px'>
+              <RowItem
+                label='Status'
+                isBadge={jobDetailDots.includes('status')}
+              >
+                {ProJobStatusChip(statusLabel, jobInfo.status as JobStatus)}
+
+                {/* TODO status 체크해야함 */}
+                {jobInfo.status === 60900 ||
+                  jobInfo.status === 70400 ||
+                  (jobInfo.status === 60300 && (
+                    <IconButton
+                      sx={{ padding: 0 }}
+                      onClick={() =>
+                        onClickOnClickStatusMoreInfo(
+                          jobInfo.status as JobStatus,
+                        )
+                      }
+                    >
+                      <Icon icon='fe:question' fontSize={18}></Icon>
+                    </IconButton>
+                  ))}
+              </RowItem>
+              <Rows>
+                <RowItem
+                  label='Contact person'
+                  isBadge={jobDetailDots.includes('contactPersonId')}
                 >
-                  {jobDetailDots.includes('status') ? (
-                    <Badge
-                      variant='dot'
-                      color='primary'
-                      sx={{ marginLeft: '4px' }}
-                    ></Badge>
-                  ) : null}
-                  <Typography
-                    variant='subtitle1'
-                    sx={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      width: '100%',
-                    }}
-                  >
-                    Status
+                  <Typography variant='body2'>
+                    {getLegalName({
+                      firstName: jobInfo.contactPerson?.firstName,
+                      lastName: jobInfo.contactPerson?.lastName,
+                      middleName: jobInfo.contactPerson?.middleName,
+                    })}
+                    &nbsp;({jobInfo.contactPerson?.email})
                   </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: '8px',
-                    alignItems: 'center',
-                    width: '59.73%',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {ProJobStatusChip(
-                      statusLabel,
-                      jobInfo.status as ProJobStatusType,
+                </RowItem>
+                <RowItem label='Client'>
+                  <Typography variant='body2'>
+                    {jobInfo.order?.client?.name}
+                  </Typography>
+                </RowItem>
+              </Rows>
+              <Rows>
+                <RowItem label='Category / Service type'>
+                  {jobInfo.category ? (
+                    <JobTypeChip
+                      size='small'
+                      label={jobInfo.category}
+                      type={jobInfo.category}
+                    />
+                  ) : (
+                    '-'
+                  )}
+                  {jobInfo.serviceType ? (
+                    <ServiceTypeChip size='small' label={jobInfo.serviceType} />
+                  ) : (
+                    '-'
+                  )}
+                </RowItem>
+                <RowItem label='Language pair'>
+                  <Typography variant='body2'>
+                    {languageHelper(jobInfo.sourceLanguage)} &rarr;&nbsp;
+                    {languageHelper(jobInfo.targetLanguage)}
+                  </Typography>
+                </RowItem>
+              </Rows>
+              <Divider sx={{ margin: '0 !important' }} />
+              <Rows>
+                <RowItem label='Requested date'>
+                  <Typography variant='body2'>
+                    {convertTimeToTimezone(
+                      jobInfo.requestedAt,
+                      auth.getValue()?.user?.timezone,
+                      timezone.getValue(),
                     )}
-                    {/* TODO status 체크해야함 */}
-                    {jobInfo.status === 60900 ||
-                    jobInfo.status === 70400 ||
-                    jobInfo.status === 60300 ? (
-                      <IconButton
-                        sx={{ padding: 0 }}
-                        onClick={() =>
-                          onClickOnClickStatusMoreInfo(
-                            jobInfo.status as ProJobStatusType,
-                          )
-                        }
-                      >
-                        <Icon icon='fe:question' fontSize={18}></Icon>
-                      </IconButton>
-                    ) : null}
-                  </Box>
-                </Box>
-              </Box>
-              <Box sx={{ display: 'flex' }}>
-                <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '10px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    {jobDetailDots.includes('contactPersonId') ? (
-                      <Badge
-                        variant='dot'
-                        color='primary'
-                        sx={{ marginLeft: '4px' }}
-                      ></Badge>
-                    ) : null}
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Contact person
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='body2'>
-                        {getLegalName({
-                          firstName: jobInfo.contactPerson?.firstName,
-                          lastName: jobInfo.contactPerson?.lastName,
-                          middleName: jobInfo.contactPerson?.middleName,
-                        })}
-                        &nbsp;({jobInfo.contactPerson?.email})
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flex: 1 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Client
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='body2'>
-                        {jobInfo.order?.client?.name}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-              <Box sx={{ display: 'flex' }}>
-                <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Category / Service type
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {jobInfo.category ? (
-                        <JobTypeChip
-                          label={jobInfo.category}
-                          type={jobInfo.category}
-                        />
-                      ) : (
-                        '-'
-                      )}
-                      {jobInfo.serviceType ? (
-                        <ServiceTypeChip label={jobInfo.serviceType} />
-                      ) : (
-                        '-'
+                  </Typography>
+                </RowItem>
+                <RowItem
+                  label={
+                    !excludedStatusCodes.includes(jobInfo.status)
+                      ? 'Job start date'
+                      : 'Job due date'
+                  }
+                >
+                  <Typography variant='body2'>
+                    {convertTimeToTimezone(
+                      !excludedStatusCodes.includes(jobInfo.status)
+                        ? jobInfo.startedAt
+                        : jobInfo.dueAt,
+                      auth.getValue()?.user?.timezone,
+                      timezone.getValue(),
+                    )}
+                  </Typography>
+                </RowItem>
+              </Rows>
+              {!excludedStatusCodes.includes(jobInfo.status) && (
+                <RowItem label='Job due date'>
+                  {[60300, 60500].includes(jobInfo.status) ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      {getJobDateDiff(
+                        jobInfo.dueAt,
+                        jobInfo.finalProDeliveredAt,
                       )}
                     </Box>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flex: 1 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Language pair
+                  ) : (
+                    <Typography variant='body2'>
+                      {convertTimeToTimezone(
+                        jobInfo.dueAt,
+                        auth.getValue()?.user?.timezone,
+                        timezone.getValue(),
+                      )}
                     </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='body2'>
-                        {languageHelper(jobInfo.sourceLanguage)} &rarr;&nbsp;
-                        {languageHelper(jobInfo.targetLanguage)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-              <Divider />
-              <Box sx={{ display: 'flex' }}>
-                <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Requested date
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='body2'>
-                        {convertTimeToTimezone(
-                          jobInfo.requestedAt,
-                          auth.getValue()?.user?.timezone,
-                          timezone.getValue(),
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flex: 1 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '38.5%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      {jobInfo.status !== 60100 &&
-                      jobInfo.status !== 70000 &&
-                      jobInfo.status !== 70100 &&
-                      jobInfo.status !== 70200 &&
-                      jobInfo.status !== 70400 &&
-                      jobInfo.status !== 70500
-                        ? 'Job start date'
-                        : 'Job due date'}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='body2'>
-                        {convertTimeToTimezone(
-                          jobInfo.status !== 60100 &&
-                            jobInfo.status !== 70000 &&
-                            jobInfo.status !== 70100 &&
-                            jobInfo.status !== 70200 &&
-                            jobInfo.status !== 70400 &&
-                            jobInfo.status !== 70500
-                            ? jobInfo.startedAt
-                            : jobInfo.dueAt,
-                          auth.getValue()?.user?.timezone,
-                          timezone.getValue(),
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-              {jobInfo.status !== 60100 &&
-              jobInfo.status !== 70000 &&
-              jobInfo.status !== 70100 &&
-              jobInfo.status !== 70200 &&
-              jobInfo.status !== 70400 &&
-              jobInfo.status !== 70500 ? (
-                <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '10px',
+                  )}
+                </RowItem>
+              )}
 
-                      width: '38.5%',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {jobDetailDots.includes('dueAt') ||
-                    jobDetailDots.includes('dueAtTimezone') ? (
-                      <Badge
-                        variant='dot'
-                        color='primary'
-                        sx={{ marginLeft: '4px' }}
-                      ></Badge>
-                    ) : null}
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Job due date
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
+              <Divider sx={{ margin: '0 !important' }} />
 
-                      alignItems: 'center',
-                      width: '59.73%',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {[60300, 60500].includes(jobInfo.status) ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {getJobDateDiff(jobInfo.dueAt, jobInfo.finalProDeliveredAt)}
-                        </Box>
-                      ) : (
-                        <Typography variant='body2'>
-                          {convertTimeToTimezone(
-                            jobInfo.dueAt,
-                            auth.getValue()?.user?.timezone,
-                            timezone.getValue(),
-                          )}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-              ) : null}
-              <Divider />
               {jobInfo.status === 70200 ||
               jobInfo.status === 70400 ||
               jobInfo.status === 70500 ? null : (
                 <>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      width: '50%',
-                      gap: '8px',
-                    }}
+                  <RowItem
+                    label='Quantity / price unit'
+                    alignItems='flex-start'
+                    infoButton={
+                      <InfoDialogButton
+                        title='Quantity / Price unit Guidelines'
+                        contents={<InfoDialogContent />}
+                      />
+                    }
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '10px',
-                        alignItems: 'start',
-                        width: '38.5%',
-                      }}
-                    >
-                      {jobDetailDots.includes('prices') ? (
-                        <Badge
-                          variant='dot'
-                          color='primary'
-                          sx={{ marginLeft: '4px' }}
-                        ></Badge>
-                      ) : null}
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                        }}
-                      >
-                        Quantity / price unit
-                      </Typography>
-                      <IconButton
-                        sx={{ padding: '2px 0 0 0' }}
-                        onClick={onClickQuantityPriceUnitMoreInfo}
-                      >
-                        <Icon
-                          icon='streamline:interface-alert-information-circle-information-frame-info-more-help-point-circle'
-                          fontSize={18}
-                        />
-                      </IconButton>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '59.73%',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '5px',
-                            'li::marker': {
-                              color: 'rgba(76, 78, 100, 0.60)',
-                            },
-                          }}
-                        >
-                          {jobPrices?.isUsedCAT ? (
-                            <>
-                              <CustomChip
-                                label='Involves CAT tool'
-                                size='small'
-                                sx={{ width: '130px' }}
-                              />
-                            </>
-                          ) : null}
+                    <Box>
+                      {jobPrices?.isUsedCAT && (
+                        <>
+                          <CustomChip
+                            label='Involves CAT tool'
+                            size='small'
+                            sx={{ width: '130px' }}
+                          />
+                        </>
+                      )}
 
-                          {jobPrices.detail?.map(value => {
-                            if (jobPrices.detail?.length === 1) {
-                              return (
-                                <Typography variant='body2' key={uuidv4()}>
-                                  {value.quantity} {value.unit}
-                                </Typography>
-                              )
-                            } else {
-                              return (
-                                <li key={uuidv4()}>
-                                  <Typography
-                                    variant='body2'
-                                    component={'span'}
-                                  >
-                                    {value.quantity} {value.unit} /{' '}
-                                    {formatCurrency(
-                                      value?.unitPrice ?? 0,
-                                      jobPrices.initialPrice?.currency ?? 'KRW',
-                                      2,
-                                    )}{' '}
-                                    per {value.title}
-                                  </Typography>
-                                </li>
-                              )
-                            }
-                          })}
-                        </Box>
-                      </Box>
+                      {jobPrices.detail?.map(value => {
+                        if (jobPrices.detail?.length === 1) {
+                          return (
+                            <Typography variant='body2' key={uuidv4()}>
+                              {value.quantity} {value.unit}
+                            </Typography>
+                          )
+                        } else {
+                          return (
+                            <li key={uuidv4()}>
+                              <Typography variant='body2' component={'span'}>
+                                {value.quantity} {value.unit} /{' '}
+                                {formatCurrency(
+                                  value?.unitPrice ?? 0,
+                                  jobPrices.initialPrice?.currency ?? 'KRW',
+                                  2,
+                                )}{' '}
+                                per {value.title}
+                              </Typography>
+                            </li>
+                          )
+                        }
+                      })}
                     </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '38.5%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Total
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '59.73%',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Typography variant='body2'>
-                          {/* ${jobPrices.totalPrice} */}
-                          {formatCurrency(
-                            jobPrices.totalPrice,
-                            jobPrices.initialPrice?.currency ?? 'KRW',
-                          )}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-
-                  <Divider />
+                  </RowItem>
+                  <RowItem label='Total'>
+                    <Typography variant='body2'>
+                      {/* ${jobPrices.totalPrice} */}
+                      {formatCurrency(
+                        jobPrices.totalPrice,
+                        jobPrices.initialPrice?.currency ?? 'KRW',
+                      )}
+                    </Typography>
+                  </RowItem>
+                  <Divider sx={{ margin: '0 !important' }} />
                 </>
               )}
 
@@ -1224,9 +860,12 @@ const ProJobInfo = ({
             </Box>
           </Box>
         </Card>
-      </Grid>
-      <Grid item xs={2.75}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      </Box>
+      <Box minWidth={rightBoxWidth}>
+        <Box
+          ref={sideBoxRef}
+          sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+        >
           {(fileList && fileList.length === 0) ||
           [70200, 70300, 70400, 70500, 601000].includes(
             jobInfo.status,
@@ -1342,8 +981,191 @@ const ProJobInfo = ({
             </Card>
           ) : null}
         </Box>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
+  )
+}
+
+interface NextPrevItemCardProps {
+  title: string
+  date?: string
+  userInfo?: {
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    email: string
+  }
+  serviceType?: string
+  link?: string
+}
+
+const NextPrevItemCard = ({
+  title,
+  userInfo,
+  link,
+  serviceType,
+  date,
+}: NextPrevItemCardProps) => {
+  return (
+    <Box minWidth={320} flex={1}>
+      <Typography variant='body2' fontWeight={500} color='#8D8E9A'>
+        {title}
+      </Typography>
+      <Box
+        width='100%'
+        display='flex'
+        alignItems='center'
+        height={86}
+        padding='8px 20px'
+        border='1px solid #D8D8DD'
+        borderRadius='10px'
+        marginTop='8px'
+      >
+        {(!userInfo && (
+          <Box width='100%' display='flex' justifyContent='space-between'>
+            <Typography variant='body2'>-</Typography>
+            <ServiceTypeChip size='small' label='Approved' />
+          </Box>
+        )) ||
+          ''}
+        {userInfo && (
+          <Box display='flex' width='100%' flexWrap='wrap'>
+            <Box display='flex' alignItems='center' gap='20px'>
+              <LegalNameEmail row={{ ...userInfo }} link={link} />
+              <ServiceTypeChip size='small' label={serviceType} />
+            </Box>
+            <Typography
+              width='100%'
+              variant='body2'
+              fontWeight={400}
+              color='#8D8E9A'
+              sx={{ mt: '8px', display: date ? 'block' : 'none' }}
+            >
+              <span style={{ fontWeight: 600 }}>Start date</span>:{date}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    </Box>
+  )
+}
+
+const Rows = styled(Box)`
+  display: flex;
+`
+
+interface RowItemProps {
+  label: string
+  isBadge?: boolean
+  alignItems?: string
+  infoButton?: React.ReactNode
+  children: React.ReactNode
+}
+
+const RowItem = ({
+  label,
+  isBadge,
+  alignItems = 'center',
+  infoButton,
+  children,
+}: RowItemProps) => {
+  return (
+    <Box display='flex' width='50%' gap='8px'>
+      <Box display='flex' alignItems={alignItems} gap='10px' width='38.5%'>
+        {isBadge && (
+          <Badge variant='dot' color='primary' sx={{ marginLeft: '4px' }} />
+        )}
+        <Typography
+          variant='subtitle1'
+          fontSize='14px'
+          fontWeight={600}
+          sx={{ position: 'relative' }}
+        >
+          {label}
+          <Box position='absolute' right={-24} top={0}>
+            {infoButton}
+          </Box>
+        </Typography>
+      </Box>
+      <Box display='flex' gap='8px' alignItems='center'>
+        <Box display='flex' gap='8px' alignItems='center'>
+          {children}
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+const InfoDialogContent = () => {
+  return (
+    <div>
+      <p>
+        Please note that a single task might incorporate multiple quantity and
+        price unit.
+      </p>
+      <ul
+        style={{
+          width: '100%',
+          listStyle: 'none',
+          margin: 0,
+          padding: '20px',
+          border: '1px solid rgba(76, 78, 100, 0.22)',
+          borderRadius: '10px',
+        }}
+      >
+        <li
+          style={{
+            width: '100%',
+            display: 'flex',
+            textAlign: 'left',
+            marginBottom: '8px',
+          }}
+        >
+          <Typography
+            variant='body2'
+            fontWeight={600}
+            color='rgba(76, 78, 100, 0.87)'
+            sx={{ width: '82px' }}
+          >
+            Quantity:
+          </Typography>
+          <Typography variant='body2' sx={{ width: '195px' }}>
+            The amount of the work(words, minutes, etc.).
+          </Typography>
+        </li>
+        <li
+          style={{
+            width: '100%',
+            display: 'flex',
+            textAlign: 'left',
+          }}
+        >
+          <Typography
+            variant='body2'
+            whiteSpace='nowrap'
+            fontWeight={600}
+            color='rgba(76, 78, 100, 0.87)'
+            sx={{ width: '82px' }}
+          >
+            Price unit:
+          </Typography>
+          <Typography variant='body2' sx={{ width: '195px' }}>
+            The standard for calculating translation rates. Rates are applied
+            based on the price unit.
+          </Typography>
+        </li>
+      </ul>
+      <p
+        style={{
+          color: 'rgba(76, 78, 100, 0.87)',
+          fontWeight: 600,
+        }}
+      >
+        The total equals to the product of the quantity and the price unit.
+      </p>
+    </div>
   )
 }
 

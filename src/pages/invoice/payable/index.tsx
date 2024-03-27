@@ -25,7 +25,6 @@ import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 // ** components
 import Filter from './components/list/filter'
 import PayableList from './components/list/list'
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import CalendarContainer from './components/calendar'
 
 // ** apis
@@ -38,7 +37,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+
 import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment-timezone'
 import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-payable'
@@ -151,10 +150,15 @@ export default function Payable() {
 
   const updateInvoicePaidStatusMutation = useMutation(
     (data: {
-      payableId: number;
-      paidAt: string;
-      paidDateTimezone: CountryType;
-    }) => updateInvoicePaidStatus(data.payableId, data.paidAt, data.paidDateTimezone),
+      payableId: number
+      paidAt: string
+      paidDateTimezone: CountryType
+    }) =>
+      updateInvoicePaidStatus(
+        data.payableId,
+        data.paidAt,
+        data.paidDateTimezone,
+      ),
     {
       onSuccess: () => {
         setStatuses([])
@@ -184,7 +188,7 @@ export default function Payable() {
             paymentTimezone: CountryType
           }) => {
             statuses.forEach(st => {
-              updateInvoicePaidStatusMutation.mutateAsync({ 
+              updateInvoicePaidStatusMutation.mutateAsync({
                 payableId: st,
                 paidAt: paymentAt.toISOString(),
                 paidDateTimezone: paymentTimezone,

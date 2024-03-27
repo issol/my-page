@@ -3,67 +3,10 @@ import { RevenueFormType } from '../common/orders.type'
 import { ClientType, LanguagePairTypeInItem } from '../orders/order-detail'
 
 import { CountryType } from '../sign/personalInfoTypes'
-
-export type InvoiceProStatusType =
-  // | 'Invoiced'
-  // | 'Under revision'
-  // | 'Revised'
-  // | 'Paid'
-  40000 | 40100 | 40200 | 40300 | 40400
-
-export type InvoicePayableStatusType =
-  // | 'Invoice created'
-  // | 'Invoice accepted'
-  // | 'Paid'
-  // | 'Overdue'
-  // | 'Canceled'
-  40000 | 40100 | 40200 | 40300 | 40400
-
-export type InvoiceReceivableStatusType =
-  | 30000 //'New'
-  | 30100 //'In preparation'
-  | 30200 //'Internal review'
-  | 30300 //'Invoice sent'
-  | 30400 //'Client review'
-  | 30500 //'Under revision'
-  | 30600 //'Revised'
-  | 30700 //'Invoice confirmed'
-  | 30800 //'Tax invoice issued'
-  | 30900 //'Paid'
-  | 301000 //'Overdue'
-  | 301100 //'Overdue (Reminder sent)'
-  | 301200 //'Canceled'
-
-export type InvoiceReceivableStatusCodeLabelMixType =
-  | 30000
-  | 'New'
-  | 30100
-  | 'In preparation'
-  | 30200
-  | 'Internal review'
-  | 30300
-  | 'Invoice sent'
-  | 30400
-  | 'Client review'
-  | 30500
-  | 'Under revision'
-  | 30600
-  | 'Revised'
-  | 30700
-  | 'Invoice confirmed'
-  | 30800
-  | 'Tax invoice issued'
-  | 30900
-  | 'Paid'
-  | 301000
-  | 'Overdue'
-  | 301100
-  | 'Overdue (Reminder sent)'
-  | 301200
-  | 'Canceled'
+import { InvoiceReceivableStatus } from '@src/types/common/status.type'
 
 export type InvoiceProjectInfoFormType = {
-  status?: InvoiceReceivableStatusType
+  status?: InvoiceReceivableStatus
   showDescription: boolean
   workName?: string
   projectName: string
@@ -94,7 +37,7 @@ export type ProInvoiceListType = {
   corporationId: string
   createdAt: string
 
-  status: InvoiceReceivableStatusType
+  status: InvoiceReceivableStatus
 
   invoicedAt: string | null
   payDueAt: string | null

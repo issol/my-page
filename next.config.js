@@ -9,6 +9,7 @@ const nextConfig = {
     esmExternals: false,
   },
   images: {
+    unoptimized: true,
     loader: 'akamai',
     path: '/',
     domains: ['profile-dev.gloground.com', 'localhost', '*', 'i.ytimg.com'],

@@ -1,12 +1,12 @@
-import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
-import { Row } from '@src/pages/orders/order-list/detail/components/rows'
-import { OrderStatusType, RevenueFormType } from '../common/orders.type'
+import { RevenueFormType } from '../common/orders.type'
 import { ItemType } from '../common/item.type'
-import { CurrencyType } from '../common/standard-price'
+
 import { ReasonType } from '../quotes/quote'
+import { OrderLabel, OrderStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type PositionType = 'supervisor' | 'projectManager' | 'member'
 
@@ -41,7 +41,7 @@ export type ProjectInfoType = {
   corporationId: string
   orderedAt: string
   orderTimezone: CountryType
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   previousStatus: number
   workName: string
   category: string
@@ -158,7 +158,7 @@ export type LanguagePairTypeInItem = {
     isStandard: boolean
     category: string
     serviceType: Array<string>
-    currency: CurrencyType
+    currency: Currency
     calculationBasis: string
     rounding: number
     numberPlace: number

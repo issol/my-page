@@ -1,22 +1,16 @@
-import { Box, Tooltip, Typography } from '@mui/material'
+import { Tooltip, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
-import {
-  InvoiceProChip,
-  InvoiceReceivableChip,
-  invoicePayableStatusChip,
-} from '@src/@core/components/chips/chips'
+import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import {
-  formatCurrency,
-  getCurrencyMark,
-} from '@src/shared/helpers/price.helper'
-import { InvoiceProStatusType } from '@src/types/invoice/common.type'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
+
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 
 import { Loadable } from 'recoil'
+import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -73,7 +67,7 @@ export const getInvoiceProListColumns = (
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
             {invoicePayableStatusChip(
-              row.invoiceStatus as InvoiceProStatusType,
+              row.invoiceStatus as InvoicePayableStatus,
               statusList,
             )}
           </>

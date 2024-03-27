@@ -1,10 +1,10 @@
-import { OrderStatusType } from '@src/types/common/orders.type'
-import { RoleType, UserType } from '@src/context/types'
-import { QuoteStatusType } from '@src/types/common/quotes.type'
-import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
-import { JobItemType, JobType } from '@src/types/common/item.type'
+import { UserType } from '@src/context/types'
 import { Dispatch } from 'react'
-import { getExpectedIncome } from '@src/apis/dashboard.api'
+import {
+  InvoiceReceivableStatus,
+  OrderLabel,
+  OrderStatus,
+} from '@src/types/common/status.type'
 
 export type ViewMode = 'company' | 'personal'
 
@@ -66,6 +66,7 @@ export interface DashboardOngoingCountQuery extends DashboardQuery {
   filter?: string
   countType: 'job' | 'order' | 'application'
 }
+
 export type ReportItem = {
   requests: number
   quotes: number
@@ -114,7 +115,7 @@ export type OrderItem = {
   projectName: string
   category: string
   serviceType: Array<string>
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   client: {
     id: number
     name: string
@@ -127,7 +128,7 @@ export type JobItem = {
   orderId?: number
   jobName: string
   jobType: string
-  status: OrderStatusType
+  status: OrderStatus & OrderLabel
   pro: Partial<MemberItem>
 }
 
@@ -207,6 +208,7 @@ export interface ServiceRatioItem extends RatioItem {
 export interface ExpertiseRatioItem extends RatioItem {
   expertise: string
 }
+
 export interface RatioResponse<T> {
   totalCount?: number
   totalPrice?: number
@@ -259,7 +261,7 @@ export interface CountQuery
 export type LongStandingReceivableItem = {
   id: number
   corporationId: string
-  status: InvoiceReceivableStatusType
+  status: InvoiceReceivableStatus
   projectName: string
   category: string
   serviceType: Array<string>
@@ -297,15 +299,17 @@ export type LongStandingPayablesItem = {
     middleName: string
     lastName: 'Last'
   }
-  status: InvoiceReceivableStatusType
+  status: InvoiceReceivableStatus
 }
 
 export type LongStandingDataType = 'receivable' | 'payable'
+
 export interface LongStandingQuery extends DashboardPaginationQuery {
   dataType: LongStandingDataType
 }
 
 export type ExpectedIncomeSort = 'requestDate' | 'dueDate'
+
 export interface ExpectedIncomeQuery {
   year: number
   month: number

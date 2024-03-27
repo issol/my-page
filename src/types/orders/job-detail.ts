@@ -1,7 +1,7 @@
 import { ItemDetailType } from '../common/item.type'
-import { CurrencyType } from '../common/standard-price'
-import { ContactPersonType } from '../schema/client-contact-person.schema'
+
 import { CountryType } from '../sign/personalInfoTypes'
+import { Currency } from '@src/types/common/currency.type'
 
 export type AddJobInfoType = {
   jobName: string
@@ -66,32 +66,16 @@ export type AssignProListType = {
   middleName: string | null
   lastName: string
   email: string
-  status: number
+  isOnboarded: boolean
+  isActive: boolean
+  status: string
   responseRate: number | null
-  assignmentStatus: number | null
+  assignmentStatus: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600 | null
   assignmentDate: string | null
-  files?: Array<{
-    name: string
-    size: number
-    file: string // s3 key
-    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-  }>
-  message?: {
-    id: number
-    unReadCount: number
-    contents:
-      | {
-          id: number
-          content: string
-          createdAt: string
-          firstName: string
-          middleName: string | null
-          lastName: string
-          email: string
-          role: string
-        }[]
-      | null
-  }
+  responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600 // statusCode
+  ongoingJobCount: number
+  avgResponseTime: number // 분단위 표시
+  ongoingJobList: string[]
 }
 
 export type SaveJobInfoParamsType = {
@@ -106,13 +90,13 @@ export type SaveJobInfoParamsType = {
   sourceLanguage?: string | null
   targetLanguage?: string | null
   name?: string
-  isShowDescription?: boolean
+  isShowDescription?: string
 }
 
 export type SaveJobPricesParamsType = {
   jobId: number
   priceId: number
   totalPrice: number
-  currency: CurrencyType | null
+  currency: Currency | null
   detail: ItemDetailType[]
 }

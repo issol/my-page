@@ -173,3 +173,23 @@ export class invoice_receivable_accounting_info {
     )
   }
 }
+
+export class linguist_team {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(linguist_team.prototype.constructor, 'name', {
+      value: 'linguist_team',
+    })
+  }
+}
+
+export class job_template {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(job_template.prototype.constructor, 'name', {
+      value: 'job_template',
+    })
+  }
+}

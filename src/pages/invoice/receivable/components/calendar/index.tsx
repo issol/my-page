@@ -31,12 +31,15 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 // import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
-import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { timezoneSelector } from '@src/states/permission'
+import {
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+} from '@src/types/common/status.type'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -60,7 +63,9 @@ const CalendarContainer = () => {
   const statuses = statusList?.map(i => ({
     value: i.value,
     label: i.label,
-    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+    color: getReceivableStatusColor(
+      i.value as InvoiceReceivableStatusLabel & InvoiceReceivableStatus,
+    ),
   }))
 
   const [skip, setSkip] = useState(0)

@@ -11,8 +11,8 @@ import {
   ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
-  ProUserResumeInfoType,
   ProUserSpecialtiesInfoType,
+  ProUserResumeInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 

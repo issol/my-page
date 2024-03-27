@@ -1,6 +1,9 @@
 // TODO : 서버로부터 오브젝트로 상태값 상태라벨 모두 받아야함
-import { statusType } from '@src/types/common/status.type'
-import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import {
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel,
+  StatusItem,
+} from '@src/types/common/status.type'
 
 export const OrderChipLabel: Record<number, string> = {
   10000: 'New',
@@ -20,7 +23,7 @@ export const OrderChipLabel: Record<number, string> = {
 }
 
 // TODO : 서버로부터 오브젝트로 상태값 상태라벨 모두 받아야함
-export const JobStatusList: statusType[] = [
+export const JobStatusList: StatusItem[] = [
   { label: 'In preparation', value: 60000 },
   { label: 'Requested', value: 60100 },
   { label: 'In progress', value: 60200 },
@@ -36,7 +39,7 @@ export const JobStatusList: statusType[] = [
 ]
 
 // TODO : 서버로부터 오브젝트로 상태값 상태라벨 모두 받아야함
-export const InvoiceStatusList: statusType[] = [
+export const InvoiceStatusList: StatusItem[] = [
   { label: 'Invoiced', value: 40000 },
   { label: 'Under revision', value: 40100 },
   { label: 'Revised', value: 40200 },
@@ -44,7 +47,10 @@ export const InvoiceStatusList: statusType[] = [
   { label: '-', value: 40400 },
 ]
 
-export const InvoiceReceivable: Record<InvoiceReceivableStatusType, string> = {
+export const InvoiceReceivable: Record<
+  InvoiceReceivableStatus,
+  InvoiceReceivableStatusLabel
+> = {
   30000: 'New',
   30100: 'In preparation',
   30200: 'Internal review',

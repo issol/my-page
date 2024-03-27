@@ -1,5 +1,5 @@
 import { Box, Button, Card, Typography } from '@mui/material'
-import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
+import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid'
 import NoList from '@src/pages/components/no-list'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { Dispatch, SetStateAction } from 'react'
@@ -39,12 +39,10 @@ const JobList = ({
   return (
     <Card>
       <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '24px',
-        }}
+        display='flex'
+        justifyContent='space-between'
+        alignItems='center'
+        padding='20px'
       >
         <Typography variant='h6'>Jobs ({listCount ?? 0})</Typography>
         {type === 'delivered' && (
@@ -76,7 +74,6 @@ const JobList = ({
             cursor: 'pointer',
 
             [`& .${gridClasses.row}.overdue`]: {
-              // background: 'rgba(255, 77, 73, .1)',
               background: '#FFE1E0',
             },
           }}
@@ -85,10 +82,29 @@ const JobList = ({
           rowCount={listCount ?? 0}
           loading={isLoading}
           onCellClick={(params, event) => {
-            event.stopPropagation(),
-            [70000,70100,70200,70300,70400].includes(params.row.status as number)
-              ? router.push(`/jobs/detail/${params.row.id}?assigned=false&tab=${type === 'requested' ? 'requested' : 'completed'}`)
-              : router.push(`/jobs/detail/${params.row.jobId}?tab=${type === 'requested' ? 'requested' : 'completed'}`)
+            event.stopPropagation()
+
+            if (params.field === 'status') return
+
+            const isChangeRouter = [70000, 70100, 70200, 70300, 70400].includes(
+              params.row.status as number,
+            )
+
+            const paramsObj = {
+              tab: type === 'requested' ? 'requested' : 'completed',
+              hasNext: params.row.autoNextJob || false,
+              isNextJob: params.row.isPreviousAndNextJob || false,
+            }
+
+            const searchParams = new URLSearchParams(paramsObj)
+
+            isChangeRouter
+              ? router.push(
+                  `/jobs/detail/${params.row.id}?assigned=false&${searchParams.toString()}`,
+                )
+              : router.push(
+                  `/jobs/detail/${params.row.jobId}?${searchParams.toString()}`,
+                )
           }}
           rowsPerPageOptions={[10, 25, 50]}
           pagination

@@ -45,7 +45,7 @@ export default function FilePreviewDownloadModal({ onClose, docs }: Props) {
     )
   }
 
-  console.log(docs)
+  console.log(docs, 'docs')
 
   const downloadFile = (file: {
     url: string
@@ -132,7 +132,7 @@ export default function FilePreviewDownloadModal({ onClose, docs }: Props) {
               <DocViewer
                 documents={docs.map(value => ({
                   uri: value.url,
-                  fileType: value.fileExtension,
+                  fileType: value.fileExtension.split('.').pop(),
                   fileName: value.fileName,
                 }))}
                 pluginRenderers={[

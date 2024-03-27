@@ -2,62 +2,77 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import {
-  Badge,
-  Box,
-  Card,
-  Grid,
-  IconButton,
-  Tab,
-  Typography,
-} from '@mui/material'
+import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import {
-  SyntheticEvent,
-  useState,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
+  useState,
 } from 'react'
-import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { statusType } from '@src/types/common/status.type'
-import { JobListFilterType } from '../requested-ongoing-list'
+import { StatusItem } from '@src/types/common/status.type'
+import InfoDialogButton from '@src/views/pro/infoDialog'
+
 type MenuType = 'jobInfo' | 'feedback'
+
+const keysJobDetailDots = [
+  'download',
+  'name',
+  'status',
+  'contactPersonId',
+  'dueAt',
+  'dueAtTimezone',
+  'prices',
+  'description',
+]
+const excludedStatuses = [
+  60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500,
+]
 
 const ProJobsDetail = () => {
   const router = useRouter()
-  const queryClient = useQueryClient()
-  const { id, assigned, tab } = router.query
+
+  const { id, assigned, tab, hasNext } = router.query
+  const nextJob = JSON.parse((hasNext as string) || 'false')
+
   const [value, setValue] = useState<MenuType>('jobInfo')
-  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setValue(newValue)
-  }
-  const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
+  const [statusList, setStatusList] = useState<Array<StatusItem>>([])
+
+  const { data: jobDetailDots, refetch: jobDetailDotsRefetch, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
-  const { data: jobDetail, isLoading } = useGetProJobDetail(
+  const { data: jobDetail, refetch: jobDetailRefetch, isLoading } = useGetProJobDetail(
     Number(id),
-    assigned && assigned === 'false' ? true : false,
+    !!(assigned && assigned === 'false'),
     isFetched,
   )
+
+  // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
+  useEffect(() => {
+    jobDetailDotsRefetch()
+    jobDetailRefetch()
+  }, [])
+  
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
       router.push(`/jobs/detail/${jobDetail?.id}/`)
     }
   }, [jobDetail, isLoading, id])
 
+  // @ts-ignore
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
-    assigned && assigned === 'false' ? true : false,
+    !!(assigned && assigned === 'false'),
   )
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
@@ -66,8 +81,9 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
-
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    setValue(newValue)
+  }
   const onClickBack = () => {
     router.push(`/jobs?tab=${tab}`)
   }
@@ -91,24 +107,37 @@ const ProJobsDetail = () => {
   return (
     <Box>
       <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          background: '#ffffff',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px',
-        }}
+        width='100%'
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        gap='8px'
+        padding='20px'
+        marginBottom='24px'
+        bgcolor='#fff'
       >
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <IconButton
             sx={{ padding: '0 !important', height: '24px' }}
             onClick={() => onClickBack()}
           >
-            <Icon icon='mdi:chevron-left' width={24} height={24} />
+            <Icon icon='ic:sharp-arrow-back-ios' fontSize={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Typography
+            variant='h5'
+            fontWeight={500}
+          >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Box display={nextJob ? 'flex' : 'none'} position='relative'>
+            <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
+            <div style={{ position: 'absolute', top: 0, left: 36 }}>
+              <InfoDialogButton
+                title='Connected jobs'
+                style={{ position: 'absolute', top: 0, left: 0 }}
+                contents='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
+              />
+            </div>
+          </Box>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (
@@ -123,19 +152,14 @@ const ProJobsDetail = () => {
               label={
                 <>
                   Job info
-                  {jobDetailDots.includes('download') ||
-                  jobDetailDots.includes('name') ||
-                  jobDetailDots.includes('status') ||
-                  jobDetailDots.includes('contactPersonId') ||
-                  jobDetailDots.includes('dueAt') ||
-                  jobDetailDots.includes('dueAtTimezone') ||
-                  jobDetailDots.includes('prices') ||
-                  jobDetailDots.includes('description') ? (
+                  {keysJobDetailDots.some(key =>
+                    jobDetailDots.includes(key),
+                  ) ? (
                     <Badge
                       variant='dot'
                       color='primary'
                       sx={{ marginLeft: '8px' }}
-                    ></Badge>
+                    />
                   ) : null}
                 </>
               }
@@ -143,14 +167,7 @@ const ProJobsDetail = () => {
               icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            {jobDetail.status !== 60100 &&
-            jobDetail.status !== 601000 &&
-            jobDetail.status !== 70000 &&
-            jobDetail.status !== 70100 &&
-            jobDetail.status !== 70200 &&
-            // jobDetail.status !== 70300 &&
-            jobDetail.status !== 70400 &&
-            jobDetail.status !== 70500 ? (
+            {!excludedStatuses.includes(jobDetail.status) ? (
               <CustomTab
                 value='feedback'
                 label={
@@ -161,7 +178,7 @@ const ProJobsDetail = () => {
                         variant='dot'
                         color='primary'
                         sx={{ marginLeft: '8px' }}
-                      ></Badge>
+                      />
                     ) : null}
                   </>
                 }
@@ -171,7 +188,7 @@ const ProJobsDetail = () => {
               />
             ) : null}
           </TabList>
-          <TabPanel value='jobInfo' sx={{ pt: '24px' }}>
+          <TabPanel value='jobInfo' sx={{ p: 0, mt: '24px' }}>
             <Suspense>
               <ProJobInfo
                 jobInfo={jobDetail}
@@ -181,7 +198,7 @@ const ProJobsDetail = () => {
               />
             </Suspense>
           </TabPanel>
-          <TabPanel value='feedback' sx={{ pt: '24px' }}>
+          <TabPanel value='feedback' sx={{ p: 0, mt: '24px' }}>
             <Suspense>
               <DeliveriesFeedback
                 jobInfo={jobDetail}

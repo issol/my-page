@@ -1,7 +1,7 @@
-import { CurrencyType } from '@src/types/common/standard-price'
+import { Currency } from '@src/types/common/currency.type'
 
 export type LocaleType = {
-  [key in CurrencyType]: string
+  [key in Currency]: string
 }
 
 export const locale: LocaleType = {

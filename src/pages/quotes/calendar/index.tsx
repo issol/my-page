@@ -5,8 +5,6 @@ import { Suspense, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Typography } from '@mui/material'
 
 // ** components
 import Calendar from './calendar'
@@ -20,13 +18,15 @@ import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 
 import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import { QuoteStatusType, QuotesListType } from '@src/types/common/quotes.type'
+import { QuotesListType } from '@src/types/common/quotes.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { useGetStatusList } from '@src/queries/common.query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import dayjs from 'dayjs'
+import { getColorQuoteStatusLabelName } from '@src/shared/helpers/colors.helper'
+import { QuotesStatusLabel } from '@src/types/common/status.type'
 
 interface DataItem {
   updatedAt: string
@@ -92,38 +92,6 @@ const CalendarContainer = () => {
     Array<CalendarEventType<QuotesListType>>
   >([])
 
-  function getColor(status: QuoteStatusType) {
-    return status === 'New'
-      ? '#666CFF'
-      : status === 'In preparation'
-        ? `#F572D8`
-        : status === 'Internal review'
-          ? `#D8AF1D`
-          : status === 'Client review'
-            ? `#FDB528`
-            : status === 'Expired'
-              ? '#FF4D49'
-              : status === 'Rejected'
-                ? '#FF4D49'
-                : status === 'Accepted'
-                  ? '#64C623'
-                  : status === 'Changed into order'
-                    ? '#1A6BBA'
-                    : status === 'Canceled'
-                      ? '#FF4D49'
-                      : status === 'Under review'
-                        ? '#FDB528'
-                        : status === 'Revised'
-                          ? '#AD7028'
-                          : status === 'Revision requested'
-                            ? '#A81988'
-                            : status === 'Under revision'
-                              ? '#26C6F9'
-                              : status === 'Quote sent'
-                                ? '#2B6603'
-                                : ''
-  }
-
   useEffect(() => {
     if (currentListId && data?.data?.length) {
       setCurrentList(data?.data.filter(item => item.id === currentListId))
@@ -186,7 +154,7 @@ const CalendarContainer = () => {
     if (statusList) {
       const res = statusList.map(value => ({
         ...value,
-        color: getColor(value.label as QuoteStatusType),
+        color: getColorQuoteStatusLabelName(value.label as QuotesStatusLabel),
       }))
       setStatuses(res)
     }

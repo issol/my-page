@@ -15,7 +15,6 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { v4 as uuidv4 } from 'uuid'
-import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
@@ -23,21 +22,19 @@ import { styled } from '@mui/system'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { StyledNextLink } from '@src/@core/components/customLink'
-import { RequestStatusType } from '@src/types/requests/common.type'
+
 import { UserDataType, UserRoleType } from '@src/context/types'
-import {
-  convertLanguageCodeToPair,
-  convertLanguageCodeToPairMultipleTarget,
-} from 'src/shared/helpers/language.helper'
+import { convertLanguageCodeToPairMultipleTarget } from 'src/shared/helpers/language.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
+import { RequestStatus } from '@src/types/common/status.type'
 
 type Props = {
   data: RequestDetailType
   user: UserDataType | null
   currentRole: UserRoleType | null
   openReasonModal: () => void
-  onStatusChange: (status: RequestStatusType) => void
+  onStatusChange: (status: RequestStatus) => void
   statusList: {
     value: number
     label: string
@@ -96,7 +93,7 @@ export default function RequestDetailCard({
                 }
                 limitTags={1}
                 onChange={(e, v) => {
-                  if (v) onStatusChange(v.value as RequestStatusType)
+                  if (v) onStatusChange(v.value as RequestStatus)
                 }}
                 id='status'
                 renderInput={params => (

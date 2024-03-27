@@ -1,15 +1,16 @@
 import {
   getAssignableProList,
+  getJobAssignProRequests,
   getJobDetails,
   getJobInfo,
   getJobPriceHistory,
   getJobPrices,
   getMessageList,
   getSourceFileToPro,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 
 export const useGetAssignableProList = (
   jobId: number,
@@ -21,7 +22,7 @@ export const useGetAssignableProList = (
     () => getAssignableProList(jobId, filter, isHistory),
     {
       staleTime: 0,
-
+      enabled: !!jobId,
       suspense: false,
       keepPreviousData: false,
     },
@@ -35,37 +36,102 @@ export const useGetJobDetails = (orderId: number, enabled: boolean) => {
     suspense: false,
     keepPreviousData: true,
     enabled: !!orderId && enabled,
+    select: data => {
+      return {
+        ...data,
+        items: data.items
+          .sort((a, b) => a.sortingOrder - b.sortingOrder)
+          .map(value => ({
+            ...value,
+            jobs: value.jobs.sort((a, b) => a.sortingOrder - b.sortingOrder),
+          })),
+      }
+    },
   })
 }
 
-export const useGetJobInfo = (jobId: number, isHistory: boolean) => {
-  return useQuery(
-    ['jobInfo', jobId, isHistory],
-    () => getJobInfo(jobId, isHistory),
-    {
-      staleTime: 10 * 1000, // 1
+export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobInfo', jobId, isHistory],
+      () => getJobInfo(jobId, isHistory),
+      {
+        staleTime: 10 * 1000, // 1
 
-      suspense: false,
-    },
-  )
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobInfo', id, isHistory],
+          queryFn: () => getJobInfo(id, isHistory),
+
+          staleTime: 10 * 1000, // 1
+
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
-export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
-  return useQuery(
-    ['jobPrices', jobId, isHistory],
-    () => getJobPrices(jobId, isHistory),
-    {
-      staleTime: 10 * 1000, // 1
+export const useGetJobPrices = (
+  jobId: number[] | number,
+  isHistory: boolean,
+) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobPrices', jobId, isHistory],
+      () => getJobPrices(jobId, isHistory),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobPrices', id, isHistory],
+          queryFn: () => getJobPrices(id, isHistory),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+        }
+      }),
+    )
+  }
+}
 
-      suspense: false,
-    },
-  )
+export const useGetJobAssignProRequests = (jobId: number[] | number) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobAssignProRequests', jobId],
+      () => getJobAssignProRequests(jobId),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobAssignProRequests', id],
+          queryFn: () => getJobAssignProRequests(id),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
 export const useGetJobPriceHistory = (jobId: number) => {
   return useQuery(['jobPriceHistory', jobId], () => getJobPriceHistory(jobId), {
     staleTime: 10 * 1000, // 1
-
+    enabled: !!jobId,
     suspense: false,
   })
 }
@@ -82,5 +148,6 @@ export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
     staleTime: 10 * 1000,
     suspense: false,
+    enabled: !!jobId,
   })
 }

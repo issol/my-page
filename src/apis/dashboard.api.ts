@@ -101,6 +101,7 @@ interface PaidThisMonthQuery extends ViewModeQuery {
   type: 'payable' | 'receivable'
   currency: Currency
 }
+
 export const getPaidThisMonth = async ({
   type,
   currency,
@@ -205,7 +206,7 @@ export const getProJobCalendar = async (
     params,
   })
 
-  return data
+  return data.data
 }
 
 export const getAccountData = async (path: string, params: DashboardQuery) => {

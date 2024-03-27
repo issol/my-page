@@ -4,7 +4,6 @@ import {
   Autocomplete,
   Box,
   Button,
-  Card,
   Checkbox,
   Divider,
   Grid,
@@ -12,41 +11,34 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { JobTypeChip } from '@src/@core/components/chips/chips'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  JobTypeChip,
+  QuoteStatusChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import { styled } from '@mui/system'
 import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
 
 // ** values
-import { QuotesStatus } from '@src/shared/const/status/statuses'
-import { ProjectInfoType, QuoteStatusType } from '@src/types/common/quotes.type'
+import { ProjectInfoType } from '@src/types/common/quotes.type'
 import { Fragment, useEffect, useState } from 'react'
-import {
-  FullDateHelper,
-  convertTimeToTimezone,
-} from '@src/shared/helpers/date.helper'
-import { QuoteStatusChip } from '@src/@core/components/chips/chips'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserRoleType } from '@src/context/types'
 import { ClientType } from '@src/types/orders/order-detail'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useGetClientList } from '@src/queries/client.query'
 import { getClientDetail } from '@src/apis/client.api'
 import { ClientDetailType } from '@src/types/client/client'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import useModal from '@src/hooks/useModal'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 import { UseMutationResult } from 'react-query'
 import { updateProjectInfoType } from '../[id]'
-import { update } from 'lodash'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
-
-import _ from 'lodash'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { timezoneSelector } from '@src/states/permission'
+import { QuotesStatusLabel } from '@src/types/common/status.type'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -142,9 +134,10 @@ export default function QuotesProjectInfoDetail({
     return statusList!
   }
 
-  const getStatusNameFromCode = (code: number): QuoteStatusType => {
-    // @ts-ignore
-    return statusList?.find(status => status.value === code)?.label ?? 'New'
+  const getStatusNameFromCode = (code: number): QuotesStatusLabel => {
+    const status =
+      statusList?.find(status => status.value === code)?.label ?? 'New'
+    return status as QuotesStatusLabel
   }
 
   const onClickShowDescription = (value: boolean) => {

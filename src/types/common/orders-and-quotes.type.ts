@@ -1,3 +1,5 @@
+import { Currency } from '@src/types/common/currency.type'
+
 export type ProjectTeamFormType = {
   supervisorId?: number | null
   projectManagerId: number | null
@@ -46,7 +48,7 @@ export type PriceType = {
   calculationBasis: string | null
   category: string | null
   createdAt: string
-  currency: 'USD' | 'KRW' | 'SGD' | 'JPY'
+  currency: Currency
   deletedAt: string | null
   id: number
   isStandard: boolean

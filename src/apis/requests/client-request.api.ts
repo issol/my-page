@@ -1,19 +1,14 @@
 import axios from '@src/configs/axios'
 
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { ClientRequestListType } from '@src/types/options.type'
 import {
   RequestFormPayloadType,
   RequestFormType,
-  RequestItemFormPayloadType,
-  RequestStatusType,
 } from '@src/types/requests/common.type'
-import {
-  CancelReasonType,
-  RequestDetailType,
-} from '@src/types/requests/detail.type'
+import { RequestDetailType } from '@src/types/requests/detail.type'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 import { RequestListType } from '@src/types/requests/list.type'
+import { getColorClientRequestCalendar } from '@src/shared/helpers/colors.helper'
 
 export const getRequestStatusList = async (): Promise<
   Array<{ value: number; label: string }>
@@ -55,20 +50,6 @@ export const getClientRequestList = async (
   }
 }
 
-function getColor(status: RequestStatusType) {
-  return status === 50001
-    ? '#A81988'
-    : status === 50002
-      ? '#FDB528'
-      : status === 50003
-        ? '#64C623'
-        : status === 50004
-          ? '#1A6BBA'
-          : status === 50005
-            ? '#FF4D49'
-            : ''
-}
-
 export const getClientRequestCalendarData = async (
   year: number,
   month: number,
@@ -86,7 +67,7 @@ export const getClientRequestCalendarData = async (
         return {
           ...item,
           extendedProps: {
-            calendar: getColor(item.status),
+            calendar: getColorClientRequestCalendar(item.status),
           },
           allDay: true,
         }
@@ -98,7 +79,7 @@ export const getClientRequestCalendarData = async (
         return {
           ...item,
           extendedProps: {
-            calendar: getColor(item.status),
+            calendar: getColorClientRequestCalendar(item.status),
           },
           allDay: true,
         }

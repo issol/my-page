@@ -1,8 +1,9 @@
 import {
+  getPreviousAndNextJob,
   getProJobDeliveriesFeedbacks,
   getProJobDetail,
   getProJobDetailDots,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import {
   getJobHistory,
   getJobsList,
@@ -10,18 +11,14 @@ import {
   getJobsTrackerList,
   getProJobClientList,
   getProJobList,
-} from '@src/apis/jobs.api'
+} from '@src/apis/jobs/jobs.api'
 import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
 import {
   FilterPostType,
   FilterType as ListFilterType,
 } from '@src/pages/orders/job-list/list-view/list-view'
-import {
-  DetailFilterResponseType,
-  DetailFilterType,
-} from '@src/pages/orders/job-list/tracker-view/[id]'
-import toast from 'react-hot-toast'
+import { DetailFilterResponseType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import { useQuery } from 'react-query'
 
 export const useGetJobsList = (filter: FilterPostType) => {
@@ -108,6 +105,18 @@ export const useGetProJobDots = (id: number) => {
   })
 }
 
+export const useGetProPreviousAndNextJob = (jobId: number) => {
+  return useQuery(
+    ['proJobNextPreItem', jobId],
+    () => getPreviousAndNextJob(jobId),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      keepPreviousData: true,
+    },
+  )
+}
+
 export const useGetProJobDeliveriesFeedbacks = (id: number) => {
   return useQuery(
     ['proJobDeliveries', id],
@@ -116,6 +125,7 @@ export const useGetProJobDeliveriesFeedbacks = (id: number) => {
       staleTime: 60 * 1000, // 1
       suspense: true,
       keepPreviousData: true,
+      enabled: !!id,
     },
   )
 }

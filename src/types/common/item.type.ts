@@ -1,10 +1,11 @@
-import { ProJobStatusType } from '../jobs/common.type'
-import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
+import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { PriceType, PriceUnitType } from './orders-and-quotes.type'
-import { CurrencyType } from './standard-price'
-import { MemSourceType, MemoQType } from './tm-analysis.type'
+
+import { MemoQType, MemSourceType } from './tm-analysis.type'
+import { JobStatus } from '@src/types/common/status.type'
+import { Currency } from '@src/types/common/currency.type'
 
 export type ItemType = Omit<
   PostItemType,
@@ -21,7 +22,7 @@ export type ItemType = Omit<
   orderId?: number
   idx?: number
   indexing?: number
-  currency: CurrencyType | null
+  currency: Currency | null
 }
 
 export type AnalysisFileType = {
@@ -57,7 +58,7 @@ export type ItemDetailType = {
   unitPrice: number | null
   prices: number | string
   unit: string
-  currency: CurrencyType | null
+  currency: Currency | null
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
   title?: string
@@ -70,15 +71,18 @@ export type JobItemType = {
   sourceLanguage: string
   targetLanguage: string
   contactPersonId: number
+  sortingOrder: number
   jobs: Array<JobType>
 }
 
 export type JobType = {
   id: number
   order: { id: number }
+  authorId: number
   corporationId: string
+  templateId: number | null
   name: string
-  status: JobStatusType | ProJobStatusType
+  status: JobStatus
   contactPersonId: number
   serviceType: string
   sourceLanguage: string
@@ -90,6 +94,7 @@ export type JobType = {
   description: string
   isShowDescription: boolean
   totalPrice: number
+  clientId: number
   contactPerson: {
     userId: number
     firstName: string
@@ -123,4 +128,18 @@ export type JobType = {
   } | null
   historyAt: string | null // job assign이 된 날짜, 보여줄때는 로그인한 사용자의 타임존으로 보여준다.
   currency?: 'KRW' | 'JPY' | 'USD' | 'SGD'
+
+  // trigger 정보 추가
+  autoNextJob: boolean
+  nextJobId: number | null
+  statusCodeForAutoNextJob: number | null
+  autoSharingFile: boolean
+  sortingOrder: number
+  isJobRequestPresent: boolean
+  redeliveryHistory?: {
+    jobId: number
+    deleteReason: string[]
+    message: string
+    id: number
+  }
 }

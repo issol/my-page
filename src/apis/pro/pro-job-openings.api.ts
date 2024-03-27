@@ -14,6 +14,8 @@ export const getJobOpenings = async (
   data: JobOpeningListType[]
   totalCount: number
 }> => {
+  console.log(makeQuery(filters))
+
   const { data } = await axios.get(
     `/api/enough/recruiting/job-opening?${makeQuery(filters)}`,
   )

@@ -1,12 +1,10 @@
 import { Icon } from '@iconify/react'
-import { CheckBox } from '@mui/icons-material'
 import {
   Badge,
   Box,
   Button,
   Card,
   Checkbox,
-  Divider,
   FormControlLabel,
   Grid,
   IconButton,
@@ -43,15 +41,18 @@ import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
-import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   patchProJobFeedbackCheck,
-  patchProJobSourceFileDownload,
   postProJobDeliveries,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+
+// NOTE : 리딜리버리 코드 필요
+const NOT_FILE_UPLOAD_JOB_STATUS = [
+  60500, 60600, 60700, 60800, 60900, 601000, 601100,
+]
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -176,7 +177,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
     })
   }
 
-  function fetchFile(file: JobsFileType) {
+  const fetchFile = (file: JobsFileType) => {
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, file.file).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
@@ -205,11 +206,11 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
     })
   }
 
-  function downloadOneFile(file: JobsFileType) {
+  const downloadOneFile = (file: JobsFileType) => {
     fetchFile(file)
   }
 
-  function downloadAllFiles(files: Array<JobsFileType> | [] | undefined) {
+  const downloadAllFiles = (files: Array<JobsFileType> | [] | undefined) => {
     if (!files || !files.length) return
 
     files.forEach(file => {
@@ -296,22 +297,16 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         size: number
         type: 'SAMPLE' | 'TARGET' | 'SOURCE'
       }> = []
-      const paths: string[] = files.map(
-        file => {
-          // return `project/${jobInfo.id}/delivery/${file.name}`
-          //TODO: 경로에 delivery가 들어가는게 맞는지 확인 필요
-          return `project/${jobInfo.id}/${file.name}`
-        },
-        // getFilePath(['delivery', jobInfo.id.toString()], file.name),
-      )
+      const paths: string[] = files.map(file => {
+        return `project/${jobInfo.id}/${file.name}`
+      })
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.ORDER_DELIVERY, url).then(
           res => {
             fileInfo.push({
               name: files[idx].name,
               size: files[idx]?.size,
-              // filePath: url,
-              // fileExtension: splitFileNameAndExtension(files[idx].name)[1],
+
               type: 'TARGET',
             })
             return uploadFileToS3(res.url, files[idx])
@@ -321,9 +316,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       Promise.all(promiseArr)
         .then(res => {
           setIsFileUploading(false)
-          // logger.debug('upload client guideline file success :', res)
 
-          // updateProject.mutate({ deliveries: fileInfo })
           updateDeliveries.mutate({
             jobId: jobInfo.id,
             deliveryType: deliveryType,
@@ -331,8 +324,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
             isWithoutFile: withoutFiles,
             files: fileInfo.length > 0 ? fileInfo : undefined,
           })
-
-          // setImportedFiles([])
         })
         .catch(err => {
           setIsFileUploading(false)
@@ -350,7 +341,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         note: note ?? undefined,
         isWithoutFile: withoutFiles,
         files: [],
-        // files: fileInfo.length > 0 ? fileInfo : undefined,
       })
     }
   }
@@ -383,16 +373,6 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
             onClick={() => handleRemoveFile(file)}
           />
         </IconButton>
-        {/* {jobInfo.status === 'Declined' ||
-        jobInfo.status === 'Canceled' ? null : (
-          <IconButton
-            onClick={() => downloadOneFile(file)}
-            // disabled={jobInfo.status === 'Declined'}
-            // disabled={isFileUploading || !isUserInTeamMember}
-          >
-            <Icon icon='mdi:download' fontSize={24} />
-          </IconButton>
-        )} */}
       </FileBox>
     </Box>
   ))
@@ -423,7 +403,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
+              {!NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -435,11 +415,18 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     <Button
                       variant='contained'
                       size='small'
-                      sx={{ height: '30px' }}
+                      sx={{ display: 'flex', gap: '8px', height: '30px' }}
                       disabled={withoutFiles || jobInfo.status === 601000}
                     >
                       <input {...getInputProps()} />
-                      Upload
+                      <Icon
+                        fontSize={18}
+                        icon='ic:outline-upload-file'
+                        color='#fff'
+                      />
+                      <Typography fontSize={11} color='#fff' fontWeight={500}>
+                        Upload
+                      </Typography>
                     </Button>
                   </div>
 
@@ -455,6 +442,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     }}
                     control={
                       <Checkbox
+                        size='small'
                         checked={withoutFiles}
                         sx={{ padding: '4px 9px 9px 9px' }}
                         onChange={handleChange}
@@ -466,14 +454,13 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Box>
               )}
             </Box>
-            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
                     sx={{
                       display: 'grid',
                       gridTemplateColumns: 'repeat(3, 1fr)',
-
                       width: '100%',
                       gap: '20px',
                     }}
@@ -481,11 +468,8 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     {fileList}
                   </Box>
                 )}
-                <Divider />
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-                >
-                  <Typography variant='body1' fontWeight={600}>
+                <Box display='flex' flexDirection='column'>
+                  <Typography variant='h6' sx={{ marginBottom: '12px' }}>
                     Notes to LPM
                   </Typography>
                   <TextField
@@ -502,7 +486,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                       } else setNote(e.target.value)
                     }}
                   />
-                  <Typography variant='body2' mt='12px' textAlign='right'>
+                  <Typography variant='body2' textAlign='right'>
                     {note?.length ?? 0}/200
                   </Typography>
                 </Box>
@@ -534,7 +518,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       <Grid item xs={3.25}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
-            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? (
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? (
               <Box
                 sx={{
                   height: '38px',

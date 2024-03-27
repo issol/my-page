@@ -10,7 +10,6 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import { StyledNextLink } from '@src/@core/components/customLink'
 
 // ** types
 import Filters from './filter'
@@ -24,15 +23,15 @@ import {
 } from '@src/shared/const/service-type/service-types'
 
 // ** apis
-
 // ** components
 import JobsList from './list'
-import { statusType } from '@src/types/common/status.type'
+
 import { useGetJobsList } from '@src/queries/jobs/jobs.query'
 import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { StatusItem } from '@src/types/common/status.type'
 
 export type FilterType = {
   status?: number[]
@@ -79,7 +78,7 @@ export const initialFilter: FilterType = {
 type Props = {
   clients: Array<ClientRowType>
   onCreateNewJob: () => void
-  statusList: Array<statusType>
+  statusList: Array<StatusItem>
 }
 
 export default function JobListView({
@@ -155,8 +154,8 @@ export default function JobListView({
   }
 
   return (
-    <Fragment>
-      <Grid item xs={12}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Box sx={{ display: 'flex', width: '100%' }}>
         <Filters
           filter={filter}
           clients={clients}
@@ -165,14 +164,13 @@ export default function JobListView({
           setFilter={setFilter}
           serviceTypeOptions={serviceTypeOptions}
         />
-      </Grid>
-      <Grid
-        item
-        xs={12}
+      </Box>
+      <Box
         display='flex'
         gap='10px'
         alignItems='center'
         justifyContent='flex-end'
+        width='100%'
       >
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
@@ -198,9 +196,9 @@ export default function JobListView({
             }
           />
         </Box>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12}>
+      <Box width='100%'>
         <Card>
           <CardHeader
             title={
@@ -230,7 +228,7 @@ export default function JobListView({
             statusList={statusList!}
           />
         </Card>
-      </Grid>
-    </Fragment>
+      </Box>
+    </Box>
   )
 }

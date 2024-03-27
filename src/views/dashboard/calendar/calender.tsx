@@ -7,7 +7,6 @@ import FullCalendar from '@fullcalendar/react'
 import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
-import dayGridPlugin from '@fullcalendar/daygrid'
 import Box from '@mui/material/Box'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { ProJobCalendarResult } from '@src/queries/dashnaord.query'
@@ -29,6 +28,7 @@ const Calendar = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
 
+  console.log('DATA', event)
   const finalEvent = event.map(item => {
     return {
       ...item,

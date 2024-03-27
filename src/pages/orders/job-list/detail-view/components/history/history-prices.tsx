@@ -1,42 +1,15 @@
-import { Icon } from '@iconify/react'
-import { Box, Button, Card, Divider, Typography } from '@mui/material'
-import useModal from '@src/hooks/useModal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
-import { defaultOption } from '@src/pages/orders/add-new'
-import { useGetClientPriceList } from '@src/queries/company/standard-price'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemType, JobType } from '@src/types/common/item.type'
-import {
-  PriceUnitListType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState, useEffect } from 'react'
-import {
-  Control,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFormGetValues,
-  UseFormReset,
-  UseFormSetValue,
-  UseFormTrigger,
-  useFieldArray,
-} from 'react-hook-form'
-import PriceHistoryRow from '../prices/price-history-row'
+import { Box, Card, Divider, Typography } from '@mui/material'
+import { JobType } from '@src/types/common/item.type'
+import { useEffect, useState } from 'react'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { boolean } from 'yup'
-import {
-  JobPricesDetailType,
-  jobPriceHistoryType,
-} from '@src/types/jobs/jobs.type'
-import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
+import { jobPriceHistoryType } from '@src/types/jobs/jobs.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { statusType } from '@src/types/common/status.type'
 import { timezoneSelector } from '@src/states/permission'
+import PriceHistoryRow from '../../../detail/components/prices/price-history-row'
 
 type Props = {
   jobInfo: JobType

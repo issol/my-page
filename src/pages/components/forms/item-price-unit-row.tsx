@@ -3,7 +3,6 @@ import {
   Box,
   IconButton,
   TableCell,
-  TableRow,
   TextField,
   Typography,
 } from '@mui/material'
@@ -31,11 +30,9 @@ import {
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
-import {
-  CurrencyType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { Currency } from '@src/types/common/currency.type'
 
 interface Props {
   idx: number
@@ -75,7 +72,7 @@ interface Props {
   showCurrency?: boolean
   initialPriceName: `items.${number}.initialPrice`
   onChangeCurrency: (
-    currency: CurrencyType,
+    currency: Currency,
     index: number,
     detail: Array<ItemDetailType>,
     // detail: FieldArrayWithId<
@@ -705,19 +702,18 @@ const Row = ({
           <Typography fontSize={14}>
             {isNotApplicable
               ? formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                    savedValue?.currency === 'USD' ||
-                      savedValue.currency === 'SGD'
-                      ? 2
-                      : savedValue?.currency === 'KRW'
-                        ? 10
-                        : 0,
-                    0,
-                    savedValue?.currency ?? 'KRW',
-                  ),
-                  savedValue?.currency ?? null,
-                )
+                formatByRoundingProcedure(
+                  Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                  savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
+                    ? 2
+                    : savedValue?.currency === 'KRW'
+                      ? 10
+                      : 0,
+                  0,
+                  savedValue?.currency ?? 'KRW',
+                ),
+                savedValue?.currency ?? null,
+              )
               : formatCurrency(
                   formatByRoundingProcedure(
                     Number(getValues(`${detailName}.${idx}.prices`)),
@@ -727,7 +723,8 @@ const Row = ({
                     getValues(`${initialPriceName}.currency`) || 'KRW',
                   ),
                   getValues(`${initialPriceName}.currency`) || 'KRW',
-                )}
+                )
+            }
           </Typography>
         ) : (
           <Box
@@ -743,8 +740,7 @@ const Row = ({
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' ||
-                        savedValue.currency === 'SGD'
+                      savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
                         ? 2
                         : savedValue?.currency === 'KRW'
                           ? 10
@@ -757,8 +753,7 @@ const Row = ({
                 : formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' ||
-                        getValues(`${initialPriceName}.currency`) === 'SGD'
+                      getValues(`${initialPriceName}.currency`) === 'USD' || getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
                         : getValues(`${initialPriceName}.currency`) === 'KRW'
                           ? 10
