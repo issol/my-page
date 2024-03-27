@@ -553,10 +553,11 @@ const JobDetail = () => {
         //   position: 'bottom-left',
         // })
 
+        queryClient.invalidateQueries('jobInfo')
+        queryClient.invalidateQueries('jobPrices')
+        queryClient.invalidateQueries('jobDetails')
         if (data.id === variables.jobId) {
           displayCustomToast('Saved successfully', 'success')
-          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
-          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         } else {
           const path = router.asPath
           const newPath = path
