@@ -87,6 +87,7 @@ export const getJobInfo = async (
       id: 0,
       authorId: 0,
       templateId: 0,
+      triggerOrder: 0,
       order: { id: -1 },
       corporationId: '',
       clientId: 0,
