@@ -133,6 +133,11 @@ const JobListCard = ({
   )
   const [isHoverJobId, setIsHoverJobId] = useState<number | null>(null)
 
+  const jobList = useMemo(
+    () => (info?.jobs || []).sort((a, b) => a.sortingOrder - b.sortingOrder),
+    [info.jobs],
+  )
+
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
     const jobId = row.templateId
@@ -326,23 +331,32 @@ const JobListCard = ({
   }
 
   useEffect(() => {
-    const groupedJobs: { [key: number]: JobType[] } = info.jobs.reduce(
-      (groups: { [key: number]: JobType[] }, job) => {
-        const key = job.templateId
-        if (key === null) return groups
-        else {
-          if (!groups[key]) {
-            groups[key] = []
-          }
-          groups[key].push(job)
-          return groups
-        }
-      },
-      {},
-    )
+    const groupedJobs = new Map<number, JobType[]>()
 
-    setGroupedJobs(groupedJobs)
-  }, [info.jobs])
+    jobList.forEach(job => {
+      const key = job.templateId
+      if (key !== null) {
+        if (!groupedJobs.has(key)) {
+          groupedJobs.set(key, [])
+        }
+        const currentGroup = groupedJobs.get(key)
+        currentGroup?.push(job)
+      }
+    })
+
+    groupedJobs.forEach((group, key) => {
+      groupedJobs.set(
+        key,
+        group.sort((a, b) => {
+          return (a?.triggerOrder || 0) - (b?.triggerOrder || 0)
+        }),
+      )
+    })
+
+    console.log('AAA', groupedJobs)
+
+    setGroupedJobs(Object.fromEntries(groupedJobs))
+  }, [jobList])
 
   return (
     <Card ref={ref}>
@@ -484,25 +498,25 @@ const JobListCard = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {info.jobs.length > 0
-                ? info.jobs.map((row, index) => {
+              {jobList.length > 0
+                ? jobList.map((row, index) => {
                     const isItemSelected = isSelected(row.id)
+
+                    let isHighlighted = false
+                    if (row.templateId && isHoverJobId) {
+                      isHighlighted = groupedJobs[row.templateId]?.some(
+                        value => value.id === isHoverJobId,
+                      )
+                    }
+
                     return (
                       <TableRow
                         component='tr'
-                        // ref={row.id === Number(jobId!) ? tableRowRef : null}
                         key={uuidv4()}
                         sx={{
-                          '& > *': { borderBottom: 'unset' },
-                          background:
-                            isHoverJobId &&
-                            row.templateId &&
-                            groupedJobs[row.templateId] &&
-                            groupedJobs[row.templateId].find(
-                              value => value.id === isHoverJobId,
-                            )
-                              ? 'rgba(76, 78, 100, 0.05)'
-                              : '#fff',
+                          background: isHighlighted
+                            ? 'rgba(76, 78, 100, 0.05)'
+                            : '#fff',
                           '&:hover': {
                             background: 'rgba(76, 78, 100, 0.05)',
                           },
@@ -515,8 +529,6 @@ const JobListCard = ({
                         aria-checked={isItemSelected}
                         onMouseEnter={() => setIsHoverJobId(row.id)}
                         onMouseLeave={() => setIsHoverJobId(null)}
-                        // onMouseEnter={() => onHoverRow(row.templateId, true)}
-                        // onMouseLeave={() => onHoverRow(row.templateId, false)}
                       >
                         {viewState && (
                           <CustomTableCell padding='checkbox'>
@@ -555,119 +567,136 @@ const JobListCard = ({
                           {row.corporationId}
                         </CustomTableCell>
 
-                      <CustomTableCell size='small' component='th' scope='row'>
-                        <Box display='flex' alignItems='center' gap='8px'>
-                          <ServiceTypeChip
-                            size='small'
-                            label={row.serviceType}
-                          />
-                          {isTriggerJob(row.id) && (
-                            <Icon
-                              icon='ic:outline-people'
-                              fontSize={24}
-                              color='#8D8E9A'
-                            />
-                          )}
-                        </Box>
-                      </CustomTableCell>
-
-                      <CustomTableCell size='small' component='th' scope='row'>
-                        {JobsStatusChip(row.status as JobStatus, statusList!)}
-                      </CustomTableCell>
-
-                      <CustomTableCell size='small' component='th' scope='row'>
-                        {row?.totalPrice
-                          ? formatCurrency(
-                              // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
-                              // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
-                              Number(row?.totalPrice) < 1000 &&
-                                row?.currency === 'KRW'
-                                ? 0
-                                : Number(row?.totalPrice),
-                              row?.currency!,
-                            )
-                          : '-'}
-                      </CustomTableCell>
-                      <CustomTableCell size='small' component='th' scope='row'>
-                        <Box>
-                          {row.assignedPro ? (
-                            <LegalName
-                              row={{
-                                isOnboarded: true,
-                                isActive: true,
-                                firstName: row.assignedPro.firstName,
-                                middleName: row.assignedPro.middleName,
-                                lastName: row.assignedPro.lastName,
-                                email: row.assignedPro.email,
-                              }}
-                            />
-                          ) : isUserInTeamMember || isMasterManagerUser ? (
-                            <Button
-                              variant='outlined'
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                        >
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <ServiceTypeChip
                               size='small'
-                              onClick={() => {}}
-                              disabled={
-                                mode !== 'view' ||
-                                !canUseRequestAssignButton(row)
-                              }
-                            >
-                              Request/Assign
-                            </Button>
-                          ) : (
-                            '-'
-                          )}
-                        </Box>
-                      </CustomTableCell>
-                      <CustomTableCell
-                        size='small'
-                        component='th'
-                        scope='row'
-                        align='right'
-                      >
-                        <Tooltip
-                          title={`${row.nextJobId ? 'On' : 'Off'}
+                              label={row.serviceType}
+                            />
+                            {isTriggerJob(row.id) && (
+                              <Icon
+                                icon='ic:outline-people'
+                                fontSize={24}
+                                color='#8D8E9A'
+                              />
+                            )}
+                          </Box>
+                        </CustomTableCell>
+
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                        >
+                          {JobsStatusChip(row.status as JobStatus, statusList!)}
+                        </CustomTableCell>
+
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                        >
+                          {row?.totalPrice
+                            ? formatCurrency(
+                                // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                                // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                                Number(row?.totalPrice) < 1000 &&
+                                  row?.currency === 'KRW'
+                                  ? 0
+                                  : Number(row?.totalPrice),
+                                row?.currency!,
+                              )
+                            : '-'}
+                        </CustomTableCell>
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                        >
+                          <Box>
+                            {row.assignedPro ? (
+                              <LegalName
+                                row={{
+                                  isOnboarded: true,
+                                  isActive: true,
+                                  firstName: row.assignedPro.firstName,
+                                  middleName: row.assignedPro.middleName,
+                                  lastName: row.assignedPro.lastName,
+                                  email: row.assignedPro.email,
+                                }}
+                              />
+                            ) : isUserInTeamMember || isMasterManagerUser ? (
+                              <Button
+                                variant='outlined'
+                                size='small'
+                                onClick={() => {}}
+                                disabled={
+                                  mode !== 'view' ||
+                                  !canUseRequestAssignButton(row)
+                                }
+                              >
+                                Request/Assign
+                              </Button>
+                            ) : (
+                              '-'
+                            )}
+                          </Box>
+                        </CustomTableCell>
+                        <CustomTableCell
+                          size='small'
+                          component='th'
+                          scope='row'
+                          align='right'
+                        >
+                          <Tooltip
+                            title={`${row.nextJobId ? 'On' : 'Off'}
                               [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
-                          placement='top'
-                        >
-                          <Box
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='flex-end'
-                            gap='8px'
-                            visibility={
-                              isTriggerJob(row.id) ? 'visible' : 'hidden'
-                            }
+                            placement='top'
                           >
                             <Box
+                              display='flex'
+                              alignItems='center'
+                              justifyContent='flex-end'
+                              gap='8px'
                               visibility={
-                                row.autoNextJob ? 'visible' : 'hidden'
+                                isTriggerJob(row.id) ? 'visible' : 'hidden'
                               }
-                              margin={0}
                             >
-                              <TriggerIcon />
-                            </Box>
-                            <Box
-                              visibility={
-                                row.autoSharingFile ? 'visible' : 'hidden'
-                              }
-                              margin={0}
-                            >
-                              <TriggerSwitchStatus
-                                variant='body2'
-                                color={theme.palette.success.main}
-                                bgcolor='#EEFBE5'
+                              <Box
+                                visibility={
+                                  row.autoNextJob ? 'visible' : 'hidden'
+                                }
+                                margin={0}
                               >
-                                On
-                              </TriggerSwitchStatus>
+                                <TriggerIcon />
+                              </Box>
+                              <Box
+                                visibility={
+                                  row.autoSharingFile ? 'visible' : 'hidden'
+                                }
+                                margin={0}
+                              >
+                                <TriggerSwitchStatus
+                                  variant='body2'
+                                  color={theme.palette.success.main}
+                                  bgcolor='#EEFBE5'
+                                >
+                                  On
+                                </TriggerSwitchStatus>
+                              </Box>
                             </Box>
-                          </Box>
-                        </Tooltip>
-                      </CustomTableCell>
-                    </TableRow>
-                  )
-                })}
+                          </Tooltip>
+                        </CustomTableCell>
+                      </TableRow>
+                    )
+                  })
+                : null}
             </TableBody>
           </Table>
         </TableContainer>
