@@ -647,7 +647,6 @@ const JobDetail = () => {
             }
           }),
         }
-        console.log(addResult)
 
         addProCurrentRequestMutation.mutate(addResult)
       }
