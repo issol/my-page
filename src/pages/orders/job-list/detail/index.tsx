@@ -705,13 +705,21 @@ const JobDetail = () => {
         children: (
           <CustomModalV2
             onClick={() => {
-              assignJobMutation.mutate({
-                jobId: selectedJobInfo?.jobInfo.id!,
-                proId: pro.userId,
-                status: 70300,
-                type: 'force',
-              })
-              closeModal('AssignModal')
+              assignJobMutation.mutate(
+                {
+                  jobId: selectedJobInfo?.jobInfo.id!,
+                  proId: pro.userId,
+                  status: 70300,
+                  type: 'force',
+                },
+                {
+                  onSuccess: () => {
+                    setAddRoundMode(false)
+                    setAssignProMode(false)
+                    closeModal('AssignModal')
+                  },
+                },
+              )
             }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
@@ -739,13 +747,21 @@ const JobDetail = () => {
         children: (
           <CustomModalV2
             onClick={() => {
-              assignJobMutation.mutate({
-                jobId: selectedJobInfo?.jobInfo.id!,
-                proId: pro.userId,
-                status: 70300,
-                type: 'force',
-              })
-              closeModal('AssignModal')
+              assignJobMutation.mutate(
+                {
+                  jobId: selectedJobInfo?.jobInfo.id!,
+                  proId: pro.userId,
+                  status: 70300,
+                  type: 'force',
+                },
+                {
+                  onSuccess: () => {
+                    setAddRoundMode(false)
+                    setAssignProMode(false)
+                    closeModal('AssignModal')
+                  },
+                },
+              )
             }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
