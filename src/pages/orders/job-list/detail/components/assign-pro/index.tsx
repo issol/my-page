@@ -655,8 +655,6 @@ const AssignPro = ({
     }
   }, [proId])
 
-  console.log(selectedAssign, 'rows')
-
   return (
     <>
       {jobAssign &&
@@ -744,29 +742,29 @@ const AssignPro = ({
                       ? `Mass request (Manual assignment) (${selectedAssign?.pros.length ?? 0})`
                       : ''}{' '}
               </Typography>
-              <Box>
-                <IconButton
-                  sx={{ width: '24px', height: '24px', padding: 0 }}
-                  onClick={handleListClick}
-                >
-                  <Icon icon='mdi:dots-horizontal' />
-                </IconButton>
-                <Menu
-                  elevation={8}
-                  anchorEl={listAnchorEl}
-                  id='customized-menu'
-                  onClose={handleListClose}
-                  open={Boolean(listAnchorEl)}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                >
-                  {selectedAssign.requestCompleted ? null : (
+              {selectedAssign.requestCompleted ? null : (
+                <Box>
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    onClick={handleListClick}
+                  >
+                    <Icon icon='mdi:dots-horizontal' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={listAnchorEl}
+                    id='customized-menu'
+                    onClose={handleListClose}
+                    open={Boolean(listAnchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                  >
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -804,8 +802,7 @@ const AssignPro = ({
                         Add Pros to this request
                       </Button>
                     </MenuItem>
-                  )}
-                  {selectedAssign.requestCompleted ? null : (
+
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -846,45 +843,46 @@ const AssignPro = ({
                         Assign other Pro
                       </Button>
                     </MenuItem>
-                  )}
-                  {selectedAssign.type === 'relayRequest' ? (
-                    <Tooltip title='In preparation'>
-                      <MenuItem
-                        sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
-                          justifyContent: 'flex-start',
-                          alignItems: 'flex-start',
-                          padding: 0,
-                        }}
-                        // disabled
-                      >
-                        <Button
-                          startIcon={<Icon icon='ic:outline-low-priority' />}
-                          fullWidth
-                          disabled
-                          onClick={() => {
-                            handleListClose()
-                          }}
+
+                    {selectedAssign.type === 'relayRequest' ? (
+                      <Tooltip title='In preparation'>
+                        <MenuItem
                           sx={{
+                            gap: 2,
+                            '&:hover': {
+                              background: 'inherit',
+                              cursor: 'default',
+                            },
                             justifyContent: 'flex-start',
-                            padding: '6px 16px',
-                            fontSize: 16,
-                            fontWeight: 400,
-                            color: 'rgba(76, 78, 100, 0.87)',
-                            borderRadius: 0,
+                            alignItems: 'flex-start',
+                            padding: 0,
                           }}
+                          // disabled
                         >
-                          Edit priority
-                        </Button>
-                      </MenuItem>
-                    </Tooltip>
-                  ) : null}
-                </Menu>
-              </Box>
+                          <Button
+                            startIcon={<Icon icon='ic:outline-low-priority' />}
+                            fullWidth
+                            disabled
+                            onClick={() => {
+                              handleListClose()
+                            }}
+                            sx={{
+                              justifyContent: 'flex-start',
+                              padding: '6px 16px',
+                              fontSize: 16,
+                              fontWeight: 400,
+                              color: 'rgba(76, 78, 100, 0.87)',
+                              borderRadius: 0,
+                            }}
+                          >
+                            Edit priority
+                          </Button>
+                        </MenuItem>
+                      </Tooltip>
+                    ) : null}
+                  </Menu>
+                </Box>
+              )}
             </Box>
           ) : null}
           {selectedAssign ? (
@@ -1522,9 +1520,7 @@ const AssignPro = ({
                       .flat()
                       .includes(row.row.userId) &&
                     !jobAssign
-                      .filter(job =>
-                        job.pros.every(pro => pro.assignmentStatus !== 70300),
-                      )
+                      .filter(value => value.requestCompleted === false)
                       .flatMap(job => job.pros.map(pro => pro.userId))
                       .includes(row.row.userId)
                   )
@@ -1588,9 +1584,7 @@ const AssignPro = ({
                       .flat()
                       .includes(row.row.userId) &&
                     !jobAssign
-                      .filter(job =>
-                        job.pros.every(pro => pro.assignmentStatus !== 70300),
-                      )
+                      .filter(value => value.requestCompleted === false)
                       .flatMap(job => job.pros.map(pro => pro.userId))
                       .includes(row.row.userId)
                   )
