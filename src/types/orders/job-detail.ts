@@ -3,6 +3,13 @@ import { ItemDetailType } from '../common/item.type'
 import { CountryType } from '../sign/personalInfoTypes'
 import { Currency } from '@src/types/common/currency.type'
 
+export enum ProListForJobBySortEnum {
+  LEGAL_NAME = 'LegalName',
+  STATUS = 'status',
+  AVG_RESPONSE = 'AvgResponse',
+  ONGOING_JOBS = 'ongoingJobs',
+}
+
 export type AddJobInfoType = {
   jobName: string
   status: number
@@ -58,6 +65,8 @@ export type AssignProFilterPostType = {
   sortId?: string
   sortDate?: string
   isOffBoard: '0' | '1'
+  sort?: ProListForJobBySortEnum
+  ordering?: 'DESC' | 'ASC'
 }
 
 export type AssignProListType = {
