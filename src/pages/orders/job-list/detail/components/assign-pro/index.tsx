@@ -260,6 +260,7 @@ const AssignPro = ({
   const [serviceTypeFormList, setServiceTypeFormList] =
     useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
+  const [headerHover, setHeaderHover] = useState<{ [key: string]: boolean }>({})
 
   const [proIdQuery, setProIdQuery] = useState<number | null>(null)
 
@@ -1554,6 +1555,12 @@ const AssignPro = ({
                 // autoHeight
                 sx={{
                   height: 'calc(75vh - 100px)',
+                  '& .MuiDataGrid-columnHeader': {
+                    width: '100%',
+                  },
+                  '& .MuiDataGrid-columnHeaderTitleContainerContent': {
+                    width: '100%',
+                  },
                 }}
                 rows={rows[selectedLinguistTeam?.label || ''] ?? []}
                 components={{
@@ -1575,6 +1582,10 @@ const AssignPro = ({
                   setSelectedRows,
                   // detail?.pros,
                   rows[selectedLinguistTeam?.label || ''] ?? [],
+                  activeFilter,
+                  setActiveFilter,
+                  headerHover,
+                  setHeaderHover,
                 )}
                 checkboxSelection={!assignProMode}
                 selectionModel={

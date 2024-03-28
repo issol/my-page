@@ -25,7 +25,7 @@ const defaultValues: ProFilterType = {
   target: [],
   experience: [],
   status: [],
-  clients: [],
+  clientId: [],
   search: '',
 }
 
@@ -57,7 +57,7 @@ const ProsList = () => {
     target: [],
     experience: [],
     status: [],
-    clients: [],
+    clientId: [],
     take: proListPageSize,
     skip: proListPage * proListPageSize,
     sortId: 'DESC',
@@ -81,7 +81,7 @@ const ProsList = () => {
       target: [],
       experience: [],
       status: [],
-      clients: [],
+      clientId: [],
       search: '',
     })
 
@@ -92,7 +92,7 @@ const ProsList = () => {
       target: [],
       experience: [],
       status: [],
-      clients: [],
+      clientId: [],
       take: proListPageSize,
       skip: proListPageSize * proListPage,
     })
@@ -105,7 +105,7 @@ const ProsList = () => {
         target: [],
         experience: [],
         status: [],
-        clients: [],
+        clientId: [],
         take: proListPageSize,
         skip: proListPageSize * proListPage,
       },
@@ -125,7 +125,7 @@ const ProsList = () => {
       target,
       experience,
       status,
-      clients,
+      clientId,
       search,
     } = data
 
@@ -136,7 +136,7 @@ const ProsList = () => {
       target: target.map(value => value.value),
       status: status.map(value => value.value),
       experience: experience.map(value => value.value),
-      clients: clients.map(value => value.value),
+      clientId: clientId.map(value => value.clientId),
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
