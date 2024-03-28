@@ -24,7 +24,11 @@ import { ClientUserType, UserDataType } from '@src/context/types'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobRequestsProType } from '@src/types/jobs/jobs.type'
-import { AssignProListType } from '@src/types/orders/job-detail'
+import {
+  AssignProFilterPostType,
+  AssignProListType,
+  ProListForJobBySortEnum,
+} from '@src/types/orders/job-detail'
 import { ProListCellType, ProListType } from '@src/types/pro/list'
 import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
@@ -65,6 +69,10 @@ export const getProJobAssignColumns = (
     }>
   >,
   proList?: Array<ProListType | AssignProListType>,
+  activeFilter?: AssignProFilterPostType,
+  setActiveFilter?: Dispatch<SetStateAction<AssignProFilterPostType>>,
+  headerHover?: { [key: string]: boolean },
+  setHeaderHover?: Dispatch<SetStateAction<{ [key: string]: boolean }>>,
 ) => {
   const columns: GridColumns<ProListType | AssignProListType> = [
     {
@@ -121,11 +129,14 @@ export const getProJobAssignColumns = (
       // disableColumnMenu: true,
       hide: !isPrioritized || searchPro,
       renderHeader: () => (
-        // <Icon
-        //   icon='mdi:arrow-up'
-        //   color='rgba(76, 78, 100, 0.54)'
-        //   fontSize={20}
-        // />
+        // <IconButton>
+        //   <Icon
+        //     icon='mdi:arrow-up'
+        //     color='rgba(76, 78, 100, 0.54)'
+        //     fontSize={20}
+        //   />
+        // </IconButton>
+
         <></>
       ),
 
@@ -143,10 +154,59 @@ export const getProJobAssignColumns = (
       flex: requestPro ? 0.3974 : 0.4025,
       headerName: 'Legal name / Email',
       disableColumnMenu: true,
+      sortable: false,
       renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Legal name / Email
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            gap: '4px',
+          }}
+          onMouseEnter={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['LegalName']: true }))
+          }
+          onMouseLeave={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['LegalName']: false }))
+          }
+        >
+          <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+            Legal name / Email
+          </Typography>
+          {headerHover && headerHover['LegalName'] ? (
+            <IconButton
+              sx={{ padding: 0 }}
+              onClick={() => {
+                setActiveFilter &&
+                  activeFilter &&
+                  setActiveFilter({
+                    ...activeFilter,
+                    sort: ProListForJobBySortEnum.LEGAL_NAME,
+                    ordering: activeFilter.ordering === 'ASC' ? 'DESC' : 'ASC',
+                  })
+              }}
+            >
+              <Icon
+                icon={
+                  activeFilter &&
+                  activeFilter.sort === undefined &&
+                  activeFilter.ordering === undefined
+                    ? 'mdi:arrow-up'
+                    : activeFilter &&
+                        activeFilter.sort === ProListForJobBySortEnum.LEGAL_NAME
+                      ? activeFilter && activeFilter.ordering === 'ASC'
+                        ? 'mdi:arrow-up'
+                        : 'mdi:arrow-down'
+                      : 'mdi:arrow-up'
+                }
+                color='rgba(76, 78, 100, 0.54)'
+                fontSize={20}
+              />
+            </IconButton>
+          ) : null}
+        </Box>
       ),
       renderCell: ({ row }: CellType) => {
         return (
@@ -198,9 +258,57 @@ export const getProJobAssignColumns = (
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Status
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            gap: '4px',
+          }}
+          onMouseEnter={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['Status']: true }))
+          }
+          onMouseLeave={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['Status']: false }))
+          }
+        >
+          <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+            Status
+          </Typography>
+          {headerHover && headerHover['Status'] ? (
+            <IconButton
+              sx={{ padding: 0 }}
+              onClick={() => {
+                setActiveFilter &&
+                  activeFilter &&
+                  setActiveFilter({
+                    ...activeFilter,
+                    sort: ProListForJobBySortEnum.STATUS,
+                    ordering: activeFilter.ordering === 'ASC' ? 'DESC' : 'ASC',
+                  })
+              }}
+            >
+              <Icon
+                icon={
+                  activeFilter &&
+                  activeFilter.sort === undefined &&
+                  activeFilter.ordering === undefined
+                    ? 'mdi:arrow-up'
+                    : activeFilter &&
+                        activeFilter.sort === ProListForJobBySortEnum.STATUS
+                      ? activeFilter && activeFilter.ordering === 'ASC'
+                        ? 'mdi:arrow-up'
+                        : 'mdi:arrow-down'
+                      : 'mdi:arrow-up'
+                }
+                color='rgba(76, 78, 100, 0.54)'
+                fontSize={20}
+              />
+            </IconButton>
+          ) : null}
+        </Box>
       ),
       renderCell: ({ row }: CellType) => {
         return <ProStatusChip status={row.status} label={row.status} />
@@ -215,9 +323,71 @@ export const getProJobAssignColumns = (
       align: 'center',
       hide: !searchPro && !assignPro && !addRound,
       renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Avg. response time
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            gap: '4px',
+          }}
+          onMouseEnter={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['AvgResponse']: true }))
+          }
+          onMouseLeave={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['AvgResponse']: false }))
+          }
+        >
+          <Tooltip title='Avg. response time'>
+            <Typography
+              variant='subtitle1'
+              fontWeight={500}
+              fontSize={14}
+              sx={{
+                maxWidth: '72%',
+                height: 'auto',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Avg. response time
+            </Typography>
+          </Tooltip>
+
+          {headerHover && headerHover['AvgResponse'] ? (
+            <IconButton
+              sx={{ padding: 0 }}
+              onClick={() => {
+                setActiveFilter &&
+                  activeFilter &&
+                  setActiveFilter({
+                    ...activeFilter,
+                    sort: ProListForJobBySortEnum.AVG_RESPONSE,
+                    ordering: activeFilter.ordering === 'ASC' ? 'DESC' : 'ASC',
+                  })
+              }}
+            >
+              <Icon
+                icon={
+                  activeFilter &&
+                  activeFilter.sort === undefined &&
+                  activeFilter.ordering === undefined
+                    ? 'mdi:arrow-up'
+                    : activeFilter &&
+                        activeFilter.sort ===
+                          ProListForJobBySortEnum.AVG_RESPONSE
+                      ? activeFilter && activeFilter.ordering === 'ASC'
+                        ? 'mdi:arrow-up'
+                        : 'mdi:arrow-down'
+                      : 'mdi:arrow-up'
+                }
+                color='rgba(76, 78, 100, 0.54)'
+                fontSize={20}
+              />
+            </IconButton>
+          ) : null}
+        </Box>
       ),
       renderCell: ({ row }: CellType) => {
         return <Typography> 10 min(s)</Typography>
@@ -230,9 +400,58 @@ export const getProJobAssignColumns = (
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Ongoing jobs
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: '100%',
+            gap: '4px',
+          }}
+          onMouseEnter={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['OngoingJobs']: true }))
+          }
+          onMouseLeave={() =>
+            setHeaderHover &&
+            setHeaderHover(prev => ({ ...prev, ['OngoingJobs']: false }))
+          }
+        >
+          <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+            Ongoing jobs
+          </Typography>
+          {headerHover && headerHover['OngoingJobs'] ? (
+            <IconButton
+              sx={{ padding: 0 }}
+              onClick={() => {
+                setActiveFilter &&
+                  activeFilter &&
+                  setActiveFilter({
+                    ...activeFilter,
+                    sort: ProListForJobBySortEnum.ONGOING_JOBS,
+                    ordering: activeFilter.ordering === 'ASC' ? 'DESC' : 'ASC',
+                  })
+              }}
+            >
+              <Icon
+                icon={
+                  activeFilter &&
+                  activeFilter.sort === undefined &&
+                  activeFilter.ordering === undefined
+                    ? 'mdi:arrow-up'
+                    : activeFilter &&
+                        activeFilter.sort ===
+                          ProListForJobBySortEnum.ONGOING_JOBS
+                      ? activeFilter && activeFilter.ordering === 'ASC'
+                        ? 'mdi:arrow-up'
+                        : 'mdi:arrow-down'
+                      : 'mdi:arrow-up'
+                }
+                color='rgba(76, 78, 100, 0.54)'
+                fontSize={20}
+              />
+            </IconButton>
+          ) : null}
+        </Box>
       ),
       renderCell: ({ row }: CellType) => {
         return (

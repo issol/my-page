@@ -7,7 +7,7 @@ export type ProFilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   status: { label: string; value: string }[]
-  clients: { label: string; value: string }[]
+  clientId: { name: string; clientId: number }[]
   search: string
 }
 
@@ -15,7 +15,7 @@ export type ProListFilterType = {
   take: number
   skip: number
   status?: string[]
-  clients?: string[]
+  clientId?: number[]
   role?: string[]
   jobType?: string[]
   search?: string
