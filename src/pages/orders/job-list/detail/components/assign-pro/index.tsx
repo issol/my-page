@@ -742,7 +742,7 @@ const AssignPro = ({
                       ? `Mass request (Manual assignment) (${selectedAssign?.pros.length ?? 0})`
                       : ''}{' '}
               </Typography>
-              {selectedAssign.requestCompleted ? null : (
+              {selectedAssign.requestCompleted && jobInfo.pro ? null : (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -765,84 +765,87 @@ const AssignPro = ({
                       horizontal: 'right',
                     }}
                   >
-                    <MenuItem
-                      sx={{
-                        gap: 2,
-                        '&:hover': {
-                          background: 'inherit',
-                          cursor: 'default',
-                        },
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start',
-                        padding: 0,
-                      }}
-                    >
-                      <Button
-                        startIcon={
-                          <Icon icon='ic:sharp-add' color='#4C4E648A' />
-                        }
-                        fullWidth
-                        onClick={() => {
-                          handleListClose()
-                          setMenu('linguistTeam')
-                          setAddProsMode(true)
-                          setRows({})
-                          setSelectionModel({})
-                          setSelectedRows({})
-                        }}
+                    {selectedAssign.requestCompleted ? null : (
+                      <MenuItem
                         sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
                           justifyContent: 'flex-start',
-                          padding: '6px 16px',
-                          fontSize: 16,
-                          fontWeight: 400,
-                          color: 'rgba(76, 78, 100, 0.87)',
-                          borderRadius: 0,
+                          alignItems: 'flex-start',
+                          padding: 0,
                         }}
                       >
-                        Add Pros to this request
-                      </Button>
-                    </MenuItem>
-
-                    <MenuItem
-                      sx={{
-                        gap: 2,
-                        '&:hover': {
-                          background: 'inherit',
-                          cursor: 'default',
-                        },
-                        justifyContent: 'flex-start',
-                        alignItems: 'flex-start',
-                        padding: 0,
-                      }}
-                    >
-                      <Button
-                        startIcon={
-                          <Icon
-                            icon='tdesign:assignment-user'
-                            color='#4C4E648A'
-                          />
-                        }
-                        fullWidth
-                        onClick={() => {
-                          setAssignProMode(true)
-                          handleListClose()
-                          setMenu('linguistTeam')
-                          setRows({})
-                          setSelectionModel({})
-                          setSelectedRows({})
-                        }}
+                        <Button
+                          startIcon={
+                            <Icon icon='ic:sharp-add' color='#4C4E648A' />
+                          }
+                          fullWidth
+                          onClick={() => {
+                            handleListClose()
+                            setMenu('linguistTeam')
+                            setAddProsMode(true)
+                            setRows({})
+                            setSelectionModel({})
+                            setSelectedRows({})
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Add Pros to this request
+                        </Button>
+                      </MenuItem>
+                    )}
+                    {jobInfo.pro ? null : (
+                      <MenuItem
                         sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
                           justifyContent: 'flex-start',
-                          padding: '6px 16px',
-                          fontSize: 16,
-                          fontWeight: 400,
-                          color: 'rgba(76, 78, 100, 0.87)',
-                          borderRadius: 0,
+                          alignItems: 'flex-start',
+                          padding: 0,
                         }}
                       >
-                        Assign other Pro
-                      </Button>
-                    </MenuItem>
+                        <Button
+                          startIcon={
+                            <Icon
+                              icon='tdesign:assignment-user'
+                              color='#4C4E648A'
+                            />
+                          }
+                          fullWidth
+                          onClick={() => {
+                            setAssignProMode(true)
+                            handleListClose()
+                            setMenu('linguistTeam')
+                            setRows({})
+                            setSelectionModel({})
+                            setSelectedRows({})
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Assign other Pro
+                        </Button>
+                      </MenuItem>
+                    )}
 
                     {selectedAssign.type === 'relayRequest' ? (
                       <Tooltip title='In preparation'>
