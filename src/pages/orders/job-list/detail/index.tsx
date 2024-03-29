@@ -1162,17 +1162,17 @@ const JobDetail = () => {
 
   return (
     <Card sx={{ height: '100%' }}>
-      {assignJobMutation.isLoading || 
-        createRequestMutation.isLoading ||
-        createBulkRequestMutation.isLoading ||
-        assignJobMutation.isLoading ||
-        reAssignJobMutation.isLoading ||
-        addProCurrentRequestMutation.isLoading ||
-        requestRedeliveryMutation.isLoading ||
-        addJobFeedbackMutation.isLoading ||
-        saveJobPricesMutation.isLoading ||
-        setJobStatusMutation.isLoading ||
-        linguistTeamLoading ? (
+      {assignJobMutation.isLoading ||
+      createRequestMutation.isLoading ||
+      createBulkRequestMutation.isLoading ||
+      assignJobMutation.isLoading ||
+      reAssignJobMutation.isLoading ||
+      addProCurrentRequestMutation.isLoading ||
+      requestRedeliveryMutation.isLoading ||
+      addJobFeedbackMutation.isLoading ||
+      saveJobPricesMutation.isLoading ||
+      setJobStatusMutation.isLoading ||
+      linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid container sx={{ height: '100%' }}>
@@ -1687,21 +1687,24 @@ const JobDetail = () => {
                         borderRadius: '0 !important',
                         boxShadow: 'none !important',
                         background: expanded === 'panel1' ? '#F7F8FF' : '#FFF',
-                        padding: '20px',
+
                         margin: '0 !important',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '20px' }}
                       >
                         <Typography fontSize={16} fontWeight={600}>
                           Source files to Pro
                         </Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={{ padding: 0 }}>
+                      <AccordionDetails sx={{ padding: '20px' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography
                             fontSize={12}
@@ -1809,13 +1812,18 @@ const JobDetail = () => {
                         background: expanded === 'panel2' ? '#F7F8FF' : '#FFF',
                         // padding: '20px',
                         margin: '0 !important',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: '20px' }}
+                        sx={{
+                          padding: '20px',
+                        }}
                       >
                         <Box
                           sx={{
@@ -2053,22 +2061,25 @@ const JobDetail = () => {
                         borderRadius: '0 !important',
                         boxShadow: 'none !important',
                         background: expanded === 'panel3' ? '#F7F8FF' : '#FFF',
-                        padding: '20px',
+
                         margin: '0 !important',
                         borderBottom: '1px solid #E9EAEC',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '20px' }}
                       >
                         <Typography fontSize={16} fontWeight={600}>
                           Job feedback
                         </Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={{ padding: 0 }}>
+                      <AccordionDetails sx={{ padding: '20px' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
