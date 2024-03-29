@@ -378,6 +378,48 @@ const JobDetails = () => {
     return count > 0
   }
 
+  const isStatusUpdatable = (changeStatus: number, jobIds: number[]) => {
+    let flag = true
+    let immutableCorporationId: string[] = []
+    // approved
+    if (changeStatus === 60600) {
+      jobIds.map(jobId => {
+        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
+        if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    // without invoice
+    else if (changeStatus === 60900) {
+      jobIds.map(jobId => {
+        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        // delivered, approved, invoiced, Redelivery requested 일때만 true
+        if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    // canceled
+    else if (changeStatus === 601000) {
+      jobIds.map(jobId => {
+        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        // canceled, paid가 아닐때만 true
+        if (job && [60800, 601000].includes(job.status)) {
+          flag = false
+          immutableCorporationId.push(job.corporationId)
+        }
+      })
+    }
+    return {
+      isUpdatable: flag,
+      immutableCorporationId: immutableCorporationId,
+    }
+  }
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
@@ -486,6 +528,7 @@ const JobDetails = () => {
                 changeStatusMutation={changeStatusMutation}
                 setSelectedAllItemJobs={setSelectedAllItemJobs}
                 selectedAllItemJobs={selectedAllItemJobs}
+                isStatusUpdatable={isStatusUpdatable}
               />
             )
           })}
