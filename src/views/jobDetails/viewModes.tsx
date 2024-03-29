@@ -126,7 +126,7 @@ interface ManageStatusModeProps extends ModeProps {
   statusList?: Array<{ value: number; label: string }>
   setChangeJobStatus: Dispatch<JobStatus | null>
   selected: readonly number[]
-  isStatusUpdatable: (changeStatus: number) => {
+  isStatusUpdatable: (changeStatus: number, jobIds: number[]) => {
     isUpdatable: boolean
     immutableCorporationId: string[]
   }
@@ -175,7 +175,7 @@ export const ManageStatusMode = ({
   }
 
   const onClickSave = (changeStatus: number) => {
-    const isUpdatable = isStatusUpdatable(changeStatus)
+    const isUpdatable = isStatusUpdatable(changeStatus, [...selected])
     if (isUpdatable.isUpdatable) {
       openModal({
         type: 'StatusChangeAlert',
