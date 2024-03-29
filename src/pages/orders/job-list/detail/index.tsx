@@ -446,16 +446,21 @@ const JobDetail = () => {
       jobId: number
       proId: number
       status: number
-      type: 'force' | 'normal'
+      type: 'force' | 'normal' | 'cancel'
     }) =>
-      data.type === 'normal'
+      data.type === 'normal' || data.type === 'cancel'
         ? handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm')
         : forceAssign(data.jobId, data.proId),
     {
       onSuccess: (data, variables) => {
         closeModal('AssignProModal')
         setAssignProMode(false)
-        displayCustomToast('Assigned successfully', 'success')
+        displayCustomToast(
+          variables.type === 'cancel'
+            ? 'Canceled successfully'
+            : 'Assigned successfully',
+          'success',
+        )
         queryClient.invalidateQueries('jobAssignProRequests')
         queryClient.invalidateQueries('jobInfo')
         queryClient.invalidateQueries('jobPrices')
