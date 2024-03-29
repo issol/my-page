@@ -1162,17 +1162,17 @@ const JobDetail = () => {
 
   return (
     <Card sx={{ height: '100%' }}>
-      {assignJobMutation.isLoading || 
-        createRequestMutation.isLoading ||
-        createBulkRequestMutation.isLoading ||
-        assignJobMutation.isLoading ||
-        reAssignJobMutation.isLoading ||
-        addProCurrentRequestMutation.isLoading ||
-        requestRedeliveryMutation.isLoading ||
-        addJobFeedbackMutation.isLoading ||
-        saveJobPricesMutation.isLoading ||
-        setJobStatusMutation.isLoading ||
-        linguistTeamLoading ? (
+      {assignJobMutation.isLoading ||
+      createRequestMutation.isLoading ||
+      createBulkRequestMutation.isLoading ||
+      assignJobMutation.isLoading ||
+      reAssignJobMutation.isLoading ||
+      addProCurrentRequestMutation.isLoading ||
+      requestRedeliveryMutation.isLoading ||
+      addJobFeedbackMutation.isLoading ||
+      saveJobPricesMutation.isLoading ||
+      setJobStatusMutation.isLoading ||
+      linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid container sx={{ height: '100%' }}>
@@ -1283,7 +1283,41 @@ const JobDetail = () => {
                         jobAssign: value.jobAssign!,
                         jobAssignDefaultRound: value.jobAssignDefaultRound,
                       })
+                      setSelectedAssign(
+                        value.jobAssign.find(
+                          assign =>
+                            assign.round === value.jobAssignDefaultRound,
+                        ) ?? null,
+                      )
                       setValue('info')
+                      setMenu('linguistTeam')
+                      setSelectedLinguistTeam(null)
+                      setSelectedRows({})
+                      setSelectionModel({})
+                      setActiveFilter({
+                        source: [],
+                        target: [],
+
+                        client: [],
+                        take: 10,
+                        skip: 0,
+                        genre: [],
+                        serviceType: [],
+                        category: [],
+                        isOffBoard: '1',
+                      })
+                      setFilter({
+                        source: [],
+                        target: [],
+
+                        client: [],
+                        take: 10,
+                        skip: 0,
+                        genre: [],
+                        serviceType: [],
+                        category: [],
+                        isOffBoard: '1',
+                      })
                       const path = router.asPath
                       const newPath = path.replace(
                         `selectedJobId=${selectedJobInfo?.jobId}`,

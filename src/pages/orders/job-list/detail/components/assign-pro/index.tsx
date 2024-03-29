@@ -222,6 +222,8 @@ const AssignPro = ({
   assignJobMutation,
   reAssignJobMutation,
 }: Props) => {
+  console.log(jobAssign, 'Assign Job Pro')
+
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
@@ -283,8 +285,6 @@ const AssignPro = ({
       jobReqId: number | null
     },
   ) => {
-    console.log(event.currentTarget)
-
     setDetailAnchorEls(prev => ({
       ...prev,
       [row.userId]: event.currentTarget,
@@ -316,8 +316,6 @@ const AssignPro = ({
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
-    console.log(row.userId, 'getId')
-
     assignJobMutation.mutate({
       jobId:
         requestType === 'bulkManualAssign' && row.assignmentStatus === 70100
@@ -367,8 +365,6 @@ const AssignPro = ({
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
-    console.log(row, 'row')
-
     openModal({
       type: 'AssignProModal',
       children: (
@@ -588,7 +584,7 @@ const AssignPro = ({
       const result = {
         [selectedLinguistTeam?.label || '']: selectionModel,
       }
-      console.log('result', result)
+
       setSelectionModel(prev => ({ ...prev, ...result }))
     }
   }
@@ -623,7 +619,6 @@ const AssignPro = ({
   useEffect(() => {
     if (proList && proList.data && menu === 'pro') {
       setLoading(true)
-      console.log(proList.data)
 
       setRows(prev => {
         return {
@@ -1227,8 +1222,6 @@ const AssignPro = ({
                               return option.value === newValue.value
                             }}
                             onChange={(event, item) => {
-                              console.log(item)
-
                               if (item.length > 0) {
                                 const arr: {
                                   label: Category
@@ -1520,7 +1513,6 @@ const AssignPro = ({
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  console.log(selectionModel)
                   return (
                     !Object.entries(selectionModel)
                       .filter(([key]) => key !== selectedLinguistTeam?.label)
