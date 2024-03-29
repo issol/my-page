@@ -622,6 +622,7 @@ const AssignPro = ({
 
   useEffect(() => {
     if (proList && proList.data && menu === 'pro') {
+      setLoading(true)
       console.log(proList.data)
 
       setRows(prev => {
@@ -631,6 +632,7 @@ const AssignPro = ({
             proList.data as AssignProListType[],
         }
       })
+      setLoading(false)
     }
   }, [proList, filter.take, filter.skip, menu])
 
@@ -640,6 +642,7 @@ const AssignPro = ({
         pro => pro.userId,
       )
     ) {
+      setLoading(true)
       setSelectionModel(prev => ({
         ...prev,
         [selectedLinguistTeam?.label || '']:
@@ -647,6 +650,7 @@ const AssignPro = ({
             pro => pro.userId,
           ) || [],
       }))
+      setLoading(false)
     }
   }, [selectedLinguistTeam])
 

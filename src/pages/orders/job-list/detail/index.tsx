@@ -136,6 +136,7 @@ import { useGetProPriceList } from '@src/queries/company/standard-price'
 import toast from 'react-hot-toast'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -1161,6 +1162,19 @@ const JobDetail = () => {
 
   return (
     <Card sx={{ height: '100%' }}>
+      {assignJobMutation.isLoading || 
+        createRequestMutation.isLoading ||
+        createBulkRequestMutation.isLoading ||
+        assignJobMutation.isLoading ||
+        reAssignJobMutation.isLoading ||
+        addProCurrentRequestMutation.isLoading ||
+        requestRedeliveryMutation.isLoading ||
+        addJobFeedbackMutation.isLoading ||
+        saveJobPricesMutation.isLoading ||
+        setJobStatusMutation.isLoading ||
+        linguistTeamLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid container sx={{ height: '100%' }}>
         <Grid item xs={1.584} sx={{ height: '100%' }}>
           <Box
