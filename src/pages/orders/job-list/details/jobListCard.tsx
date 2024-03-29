@@ -355,9 +355,11 @@ const JobListCard = ({
               }}
             >
               {String(index + 1).padStart(2, '0')}. &nbsp;
+              {'['}
               {languageHelper(info.sourceLanguage)}
               &nbsp;&rarr;&nbsp;
-              {languageHelper(info.targetLanguage)}&nbsp;
+              {languageHelper(info.targetLanguage)}
+              {']'}&nbsp;
               {info.itemName}
             </Typography>
           </Box>
