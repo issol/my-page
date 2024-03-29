@@ -621,7 +621,16 @@ export const getProJobAssignColumnsForRequest = (
             {row.assignmentStatus === null ? (
               '-'
             ) : (
-              <>{assignmentStatusChip(row.assignmentStatus, jobStatusList)}</>
+              <>
+                {assignmentStatusChip(
+                  row.assignmentStatus === 70150
+                    ? 70100
+                    : row.assignmentStatus === 70450
+                      ? 70400
+                      : row.assignmentStatus,
+                  jobStatusList,
+                )}
+              </>
             )}
           </>
         )
