@@ -188,6 +188,8 @@ const LanguageAndItem = ({
   const [subtotal, setSubTotal] = useState(0)
   function sumTotalPrice() {
     const subtotal = langItemsEdit ? getItem()?.items! : items
+    console.log(subtotal, 'subtotal')
+
     if (subtotal) {
       const total = subtotal.reduce((accumulator, item) => {
         return accumulator + item.totalPrice
