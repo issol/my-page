@@ -72,12 +72,6 @@ export const getJobInfo = async (
 
     const result: JobType = {
       ...data,
-      redeliveryHistory: {
-        deleteReason: ['Did not follow the guidelines', 'Typo', 'Time code'],
-        message: 'Please redeliver the file with the following reasons',
-        jobId: data.id,
-        id: 1,
-      },
     }
 
     // return data
