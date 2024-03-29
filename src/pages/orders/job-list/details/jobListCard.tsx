@@ -395,6 +395,7 @@ const JobListCard = ({
               {languageHelper(info.sourceLanguage)}
               &nbsp;&rarr;&nbsp;
               {languageHelper(info.targetLanguage)}&nbsp;
+              {info.itemName}
             </Typography>
           </Box>
           {(isUserInTeamMember || isMasterManagerUser) && (
