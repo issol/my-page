@@ -38,6 +38,7 @@ import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import { ProFilterType } from '@src/types/pro/list'
 import { useGetClientList } from '@src/queries/client.query'
+import { useGetSimpleClientList } from '@src/queries/common.query'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -110,11 +111,7 @@ const ProListFilters = ({
     setOnFocused(true)
   }
 
-  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
-  const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
-    [clientData],
-  )
+  const { data: clientList } = useGetSimpleClientList()
 
   return (
     <Card sx={{ padding: '24px' }}>
@@ -163,7 +160,7 @@ const ProListFilters = ({
             <Box className='filterFormAutoComplete'>
               <Controller
                 control={control}
-                name='clients'
+                name='clientId'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     multiple
@@ -179,13 +176,13 @@ const ProListFilters = ({
                     }}
                     value={value}
                     isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
+                      return option.clientId === newValue.clientId
                     }}
                     disableCloseOnSelect
                     limitTags={1}
-                    options={clientList}
+                    options={clientList || []}
                     id='clients'
-                    getOptionLabel={option => option.label}
+                    getOptionLabel={option => option.name}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -196,7 +193,7 @@ const ProListFilters = ({
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
                         <Checkbox checked={selected} sx={{ mr: 2 }} />
-                        {option.label}
+                        {option.name}
                       </li>
                     )}
                   />

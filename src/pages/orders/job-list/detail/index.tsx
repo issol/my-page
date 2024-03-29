@@ -179,8 +179,6 @@ const JobDetail = () => {
       selectedJobInfo?.jobAssign[0] ?? null,
     )
 
-  console.log(selectedAssign, 'selectedAssign')
-
   const [menu, setMenu] = useState<TabType>('linguistTeam')
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
@@ -400,8 +398,6 @@ const JobDetail = () => {
     return null
   }
 
-  console.log(router.asPath)
-
   const [selectedLinguistTeam, setSelectedLinguistTeam] = useState<{
     value: number
     label: string
@@ -499,8 +495,6 @@ const JobDetail = () => {
     (data: JobAddProsFormType) => addProCurrentRequest(data),
     {
       onSuccess: (data, variables) => {
-        console.log(variables)
-
         setAddProsMode(false)
         displayCustomToast('Requested successfully', 'success')
         setSelectionModel({})
@@ -647,7 +641,6 @@ const JobDetail = () => {
             }
           }),
         }
-        console.log(addResult)
 
         addProCurrentRequestMutation.mutate(addResult)
       }
@@ -712,13 +705,21 @@ const JobDetail = () => {
         children: (
           <CustomModalV2
             onClick={() => {
-              assignJobMutation.mutate({
-                jobId: selectedJobInfo?.jobInfo.id!,
-                proId: pro.userId,
-                status: 70300,
-                type: 'force',
-              })
-              closeModal('AssignModal')
+              assignJobMutation.mutate(
+                {
+                  jobId: selectedJobInfo?.jobInfo.id!,
+                  proId: pro.userId,
+                  status: 70300,
+                  type: 'force',
+                },
+                {
+                  onSuccess: () => {
+                    setAddRoundMode(false)
+                    setAssignProMode(false)
+                    closeModal('AssignModal')
+                  },
+                },
+              )
             }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
@@ -746,13 +747,21 @@ const JobDetail = () => {
         children: (
           <CustomModalV2
             onClick={() => {
-              assignJobMutation.mutate({
-                jobId: selectedJobInfo?.jobInfo.id!,
-                proId: pro.userId,
-                status: 70300,
-                type: 'force',
-              })
-              closeModal('AssignModal')
+              assignJobMutation.mutate(
+                {
+                  jobId: selectedJobInfo?.jobInfo.id!,
+                  proId: pro.userId,
+                  status: 70300,
+                  type: 'force',
+                },
+                {
+                  onSuccess: () => {
+                    setAddRoundMode(false)
+                    setAssignProMode(false)
+                    closeModal('AssignModal')
+                  },
+                },
+              )
             }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
@@ -795,9 +804,10 @@ const JobDetail = () => {
 
   const getFileSize = (file: FileType[], type: string) => {
     const files = file.filter((file: FileType) => file.type === type)
+
     let size = 0
     files.forEach((file: FileType) => {
-      size += file.size
+      size += Number(file.size)
     })
 
     return size
@@ -918,8 +928,6 @@ const JobDetail = () => {
     saveJobPricesMutation.mutate({ jobId: res.jobId, prices: res })
   }
 
-  console.log(selectedJobInfo, 'selectedJob')
-
   const onClickUpdatePrice = () => {
     openModal({
       type: 'UpdatePriceModal',
@@ -972,7 +980,6 @@ const JobDetail = () => {
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
-    console.log(ids)
 
     if (!ids) return
     if (typeof ids === 'string') {
@@ -1022,7 +1029,6 @@ const JobDetail = () => {
         const selectedJob = combinedList.find(
           value => value.jobId === selectedJobInfo.jobInfo.id,
         )
-        console.log(selectedJob, 'hihi')
 
         if (selectedJob) {
           setSelectedJobInfo(selectedJob)
@@ -1782,7 +1788,7 @@ const JobDetail = () => {
                         borderRadius: '0 !important',
                         boxShadow: 'none !important',
                         background: expanded === 'panel2' ? '#F7F8FF' : '#FFF',
-                        padding: '20px',
+                        // padding: '20px',
                         margin: '0 !important',
                       }}
                     >
@@ -1790,7 +1796,7 @@ const JobDetail = () => {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '20px' }}
                       >
                         <Box
                           sx={{
@@ -1807,7 +1813,6 @@ const JobDetail = () => {
                             selectedJobInfo.jobInfo.status === 60500) &&
                           selectedJobUpdatable() ? (
                             <>
-                              {' '}
                               <IconButton
                                 onClick={e => {
                                   e.stopPropagation()
@@ -1886,6 +1891,9 @@ const JobDetail = () => {
                               fontSize={12}
                               fontWeight={400}
                               color='rgba(76, 78, 100, 0.60)'
+                              sx={{
+                                padding: '0 20px 16px 20px',
+                              }}
                             >
                               {formatFileSize(
                                 jobDeliveriesFeedbacks.deliveries.flatMap(
@@ -1901,103 +1909,120 @@ const JobDetail = () => {
                               )}
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
-                            {jobDeliveriesFeedbacks?.deliveries.map(
-                              delivery => (
-                                <Box key={delivery.id}>
+                            <Box>
+                              {jobDeliveriesFeedbacks?.deliveries
+                                .sort((a, b) => {
+                                  const dateA = new Date(a.deliveredDate)
+                                  const dateB = new Date(b.deliveredDate)
+                                  return dateB.getTime() - dateA.getTime()
+                                })
+                                .map((delivery, index) => (
                                   <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'space-between',
-                                      gap: '10px',
-                                      marginBottom: '10px',
-                                    }}
+                                    key={delivery.id}
+                                    sx={{ borderBottom: '1px solid #E9EAEC' }}
                                   >
-                                    <Typography
-                                      variant='body1'
-                                      fontWeight={600}
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: '10px',
+                                        padding:
+                                          index !== 0
+                                            ? '20px'
+                                            : '0 20px 20px 20px',
+                                      }}
                                     >
-                                      {delivery.deliveredDate
-                                        ? convertTimeToTimezone(
-                                            delivery.deliveredDate,
-                                            auth?.getValue().user?.timezone!,
-                                            timezone.getValue(),
-                                          )
-                                        : '-'}
-                                    </Typography>
-
-                                    {delivery.files.length ? (
-                                      <IconButton
-                                        sx={{
-                                          border: '1px solid #666CFF',
-                                          borderRadius: '10px',
-                                          background: '#FFF',
-                                          padding: '4px',
-                                        }}
-                                        onClick={() => {
-                                          DownloadAllFiles(
-                                            delivery.files,
-                                            S3FileType.JOB,
-                                          )
-                                        }}
+                                      <Typography
+                                        variant='body1'
+                                        fontWeight={600}
                                       >
-                                        <Icon
-                                          icon='ic:sharp-download'
-                                          color='#666CFF'
-                                          fontSize={24}
-                                        />
-                                      </IconButton>
-                                    ) : null}
-                                  </Box>
-
-                                  <Box
-                                    sx={{
-                                      display: 'grid',
-                                      gridTemplateColumns: 'repeat(1, 1fr)',
-                                      width: '100%',
-                                      gap: '20px',
-                                    }}
-                                  >
-                                    {delivery.files.length ? (
-                                      fileList(delivery.files, 'TARGET')
-                                    ) : (
-                                      <Typography variant='subtitle2'>
-                                        No target files
+                                        {delivery.deliveredDate
+                                          ? convertTimeToTimezone(
+                                              delivery.deliveredDate,
+                                              auth?.getValue().user?.timezone!,
+                                              timezone.getValue(),
+                                            )
+                                          : '-'}
                                       </Typography>
-                                    )}
-                                  </Box>
 
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '10px',
-                                      marginTop: '24px',
-                                    }}
-                                  >
-                                    <Typography fontSize={14} fontWeight={400}>
-                                      Notes from Pro
-                                    </Typography>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
+                                      {delivery.files.length ? (
+                                        <IconButton
+                                          sx={{
+                                            border: '1px solid #666CFF',
+                                            borderRadius: '10px',
+                                            background: '#FFF',
+                                            padding: '4px',
+                                          }}
+                                          onClick={() => {
+                                            DownloadAllFiles(
+                                              delivery.files,
+                                              S3FileType.JOB,
+                                            )
+                                          }}
+                                        >
+                                          <Icon
+                                            icon='ic:sharp-download'
+                                            color='#666CFF'
+                                            fontSize={24}
+                                          />
+                                        </IconButton>
+                                      ) : null}
+                                    </Box>
 
-                                      marginTop: '8px',
-                                    }}
-                                  >
-                                    <Typography
-                                      color='#8D8E9A'
-                                      fontWeight={400}
-                                      fontSize={14}
+                                    <Box
+                                      sx={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(1, 1fr)',
+                                        width: '100%',
+                                        gap: '8px',
+                                        padding: '0 20px 20px 20px',
+                                      }}
                                     >
-                                      {delivery.note ?? '-'}
-                                    </Typography>
+                                      {delivery.files.length ? (
+                                        fileList(delivery.files, 'TARGET')
+                                      ) : (
+                                        <Typography variant='subtitle2'>
+                                          No target files
+                                        </Typography>
+                                      )}
+                                    </Box>
+
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        padding: '0 20px 0 20px',
+                                      }}
+                                    >
+                                      <Typography
+                                        fontSize={14}
+                                        fontWeight={400}
+                                        color='#4C4E64'
+                                      >
+                                        Notes from Pro
+                                      </Typography>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+
+                                        padding: '8px 20px 20px 20px',
+                                      }}
+                                    >
+                                      <Typography
+                                        color='#8D8E9A'
+                                        fontWeight={400}
+                                        fontSize={14}
+                                      >
+                                        {delivery.note ?? '-'}
+                                      </Typography>
+                                    </Box>
                                   </Box>
-                                </Box>
-                              ),
-                            )}
+                                ))}
+                            </Box>
                           </Box>
                         )}
                       </AccordionDetails>
@@ -2536,7 +2561,6 @@ const JobDetail = () => {
                                       if (newState[key]?.length === 0) {
                                         delete newState[key]
                                       }
-                                      console.log(newState, 'new')
 
                                       return newState
                                     })

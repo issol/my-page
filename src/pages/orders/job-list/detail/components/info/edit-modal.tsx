@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   Divider,
   FormHelperText,
   Grid,
@@ -55,6 +56,7 @@ import toast from 'react-hot-toast'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type Props = {
   onClose: () => void
@@ -327,14 +329,7 @@ const InfoEditModal = ({
                 isShowDescription: data.isShowDescription ? '1' : '0',
               }
 
-              saveJobInfoMutation.mutate(
-                { jobId: jobInfo.id, data: jobResult },
-                {
-                  onSuccess: () => {
-                    onClose()
-                  },
-                },
-              )
+              saveJobInfoMutation.mutate({ jobId: jobInfo.id, data: jobResult })
 
               // res.map((value, idx) => {
               //   uploadFileMutation.mutate(fileInfo[idx])
@@ -1028,40 +1023,53 @@ const InfoEditModal = ({
                           </Button>
                         </div>
                       </Box>
-                      <Box
-                        sx={{
-                          maxHeight: '200px',
-                          overflowY: 'scroll',
-                        }}
-                      >
-                        {uploadedFiles && (
-                          <Box
-                            sx={{
-                              display:
-                                uploadedFiles.length > 0 ? 'grid' : 'none',
-                              gridTemplateColumns: 'repeat(2, 1fr)',
+                      {isFileUploading ? (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            height: '200px',
+                          }}
+                        >
+                          <CircularProgress disableShrink sx={{ mt: 6 }} />
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            maxHeight: '200px',
+                            overflowY: 'scroll',
+                          }}
+                        >
+                          {uploadedFiles && (
+                            <Box
+                              sx={{
+                                display:
+                                  uploadedFiles.length > 0 ? 'grid' : 'none',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
 
-                              width: '100%',
-                              gap: '20px',
-                            }}
-                          >
-                            {uploadedFileList(uploadedFiles, 'SAMPLE')}
-                          </Box>
-                        )}
-                        {fileList.length > 0 && (
-                          <Box
-                            sx={{
-                              display: fileList.length > 0 ? 'grid' : 'none',
-                              gridTemplateColumns: 'repeat(2, 1fr)',
+                                width: '100%',
+                                gap: '20px',
+                              }}
+                            >
+                              {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                            </Box>
+                          )}
+                          {fileList.length > 0 && (
+                            <Box
+                              sx={{
+                                display: fileList.length > 0 ? 'grid' : 'none',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
 
-                              width: '100%',
-                              gap: '20px',
-                            }}
-                          >
-                            {fileList}
-                          </Box>
-                        )}
-                      </Box>
+                                width: '100%',
+                                gap: '20px',
+                              }}
+                            >
+                              {fileList}
+                            </Box>
+                          )}
+                        </Box>
+                      )}
 
                       <Box>
                         <Typography
@@ -1092,7 +1100,11 @@ const InfoEditModal = ({
             <Button variant='outlined' onClick={onClickCancel}>
               Cancel
             </Button>
-            <Button variant='contained' type='submit'>
+            <Button
+              variant='contained'
+              type='submit'
+              disabled={isFileUploading}
+            >
               {jobInfo.pro === null ? 'Save' : 'Save changes'}
             </Button>
           </Box>

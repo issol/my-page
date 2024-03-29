@@ -127,6 +127,7 @@ const JobInfo = ({
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: (data, variables) => {
+        closeModal('InfoEditModal')
         displayCustomToast('Saved successfully', 'success')
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
@@ -141,6 +142,10 @@ const JobInfo = ({
           )
         }
         // setSuccess && setSuccess(true)
+      },
+      onError: error => {
+        closeModal('InfoEditModal')
+        displayCustomToast('Failed to save', 'error')
       },
     },
   )
