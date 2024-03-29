@@ -1721,21 +1721,24 @@ const JobDetail = () => {
                         borderRadius: '0 !important',
                         boxShadow: 'none !important',
                         background: expanded === 'panel1' ? '#F7F8FF' : '#FFF',
-                        padding: '20px',
+
                         margin: '0 !important',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '20px' }}
                       >
                         <Typography fontSize={16} fontWeight={600}>
                           Source files to Pro
                         </Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={{ padding: 0 }}>
+                      <AccordionDetails sx={{ padding: '20px' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           <Typography
                             fontSize={12}
@@ -1843,13 +1846,18 @@ const JobDetail = () => {
                         background: expanded === 'panel2' ? '#F7F8FF' : '#FFF',
                         // padding: '20px',
                         margin: '0 !important',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: '20px' }}
+                        sx={{
+                          padding: '20px',
+                        }}
                       >
                         <Box
                           sx={{
@@ -2087,22 +2095,25 @@ const JobDetail = () => {
                         borderRadius: '0 !important',
                         boxShadow: 'none !important',
                         background: expanded === 'panel3' ? '#F7F8FF' : '#FFF',
-                        padding: '20px',
+
                         margin: '0 !important',
                         borderBottom: '1px solid #E9EAEC',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '0 !important',
+                        },
                       }}
                     >
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls='panel1bh-content'
                         id='panel1bh-header'
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '20px' }}
                       >
                         <Typography fontSize={16} fontWeight={600}>
                           Job feedback
                         </Typography>
                       </AccordionSummary>
-                      <AccordionDetails sx={{ padding: 0 }}>
+                      <AccordionDetails sx={{ padding: '20px' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
@@ -2246,63 +2257,67 @@ const JobDetail = () => {
                               </Box>
                             </>
                           ) : null}
-                          <Divider
-                            sx={{
-                              my: '20px !important',
-                            }}
-                          />
+
                           {jobDeliveriesFeedbacks?.feedbacks &&
                           jobDeliveriesFeedbacks.feedbacks.length > 0
                             ? jobDeliveriesFeedbacks.feedbacks.map(value => {
                                 return (
-                                  <Box
-                                    key={uuidv4()}
-                                    sx={{
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                    }}
-                                  >
+                                  <>
+                                    <Divider
+                                      sx={{
+                                        my: '20px !important',
+                                      }}
+                                    />
                                     <Box
+                                      key={uuidv4()}
                                       sx={{
                                         display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
+                                        flexDirection: 'column',
                                       }}
                                     >
-                                      <Box sx={{ display: 'flex', gap: '8px' }}>
-                                        <Chip
-                                          size='small'
-                                          skin='light'
-                                          label={'Writer'}
-                                          color='error'
-                                          sx={{
-                                            textTransform: 'capitalize',
-                                            '& .MuiChip-label': {
-                                              lineHeight: '18px',
-                                            },
-                                            mr: 1,
-                                          }}
-                                        />
-                                        <Typography
-                                          variant='body1'
-                                          sx={{
-                                            fontSize: '14px',
-                                            fontWeight: 500,
-                                            lineHeight: '21px',
-                                            letterSpacing: '0.1px',
-                                            color:
-                                              value.email ===
-                                              auth?.getValue().user?.email
-                                                ? '#666CFF'
-                                                : 'rgba(76, 78, 100, 0.87)',
-                                          }}
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{ display: 'flex', gap: '8px' }}
                                         >
-                                          {value.name}
-                                        </Typography>
-                                      </Box>
+                                          <Chip
+                                            size='small'
+                                            skin='light'
+                                            label={'Writer'}
+                                            color='error'
+                                            sx={{
+                                              textTransform: 'capitalize',
+                                              '& .MuiChip-label': {
+                                                lineHeight: '18px',
+                                              },
+                                              mr: 1,
+                                            }}
+                                          />
+                                          <Typography
+                                            variant='body1'
+                                            sx={{
+                                              fontSize: '14px',
+                                              fontWeight: 500,
+                                              lineHeight: '21px',
+                                              letterSpacing: '0.1px',
+                                              color:
+                                                value.email ===
+                                                auth?.getValue().user?.email
+                                                  ? '#666CFF'
+                                                  : 'rgba(76, 78, 100, 0.87)',
+                                            }}
+                                          >
+                                            {value.name}
+                                          </Typography>
+                                        </Box>
 
-                                      {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
-                                      {/* <Box sx={{ display: 'flex' }}>
+                                        {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                                        {/* <Box sx={{ display: 'flex' }}>
                                   {selectedComment && selectedComment?.id === value.id ? (
                                     <></>
                                   ) : (
@@ -2332,47 +2347,47 @@ const JobDetail = () => {
                                     </>
                                   )}
                                 </Box> */}
-                                    </Box>
-
-                                    <Typography
-                                      variant='body2'
-                                      fontSize={12}
-                                      sx={{ mt: '4px' }}
-                                    >
-                                      {convertTimeToTimezone(
-                                        value.createdAt,
-                                        auth?.getValue().user?.timezone,
-                                        timezone.getValue(),
-                                      )}
-                                    </Typography>
-                                    {value.isChecked ? (
-                                      <Box
-                                        display='flex'
-                                        justifyContent='flex-end'
-                                      >
-                                        <Image
-                                          src='/images/icons/job-icons/icon-check.svg'
-                                          alt='logo'
-                                          width={44}
-                                          height={24}
-                                        />
-                                        <Typography
-                                          variant='body1'
-                                          sx={{
-                                            color: 'rgba(76, 78, 100, 0.6)',
-                                            fontWeight: 600,
-                                            fontSize: '14px',
-                                            lineHeight: '21px',
-                                            letterSpacing: '0.15px',
-                                          }}
-                                        >
-                                          {'Read by Pro'}
-                                        </Typography>
                                       </Box>
-                                    ) : null}
 
-                                    {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
-                                    {/* {selectedComment && selectedComment?.id === value.id ? (
+                                      <Typography
+                                        variant='body2'
+                                        fontSize={12}
+                                        sx={{ mt: '4px' }}
+                                      >
+                                        {convertTimeToTimezone(
+                                          value.createdAt,
+                                          auth?.getValue().user?.timezone,
+                                          timezone.getValue(),
+                                        )}
+                                      </Typography>
+                                      {value.isChecked ? (
+                                        <Box
+                                          display='flex'
+                                          justifyContent='flex-end'
+                                        >
+                                          <Image
+                                            src='/images/icons/job-icons/icon-check.svg'
+                                            alt='logo'
+                                            width={44}
+                                            height={24}
+                                          />
+                                          <Typography
+                                            variant='body1'
+                                            sx={{
+                                              color: 'rgba(76, 78, 100, 0.6)',
+                                              fontWeight: 600,
+                                              fontSize: '14px',
+                                              lineHeight: '21px',
+                                              letterSpacing: '0.15px',
+                                            }}
+                                          >
+                                            {'Read by Pro'}
+                                          </Typography>
+                                        </Box>
+                                      ) : null}
+
+                                      {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                                      {/* {selectedComment && selectedComment?.id === value.id ? (
                                 <Box
                                   sx={{
                                     display: 'flex',
@@ -2414,14 +2429,15 @@ const JobDetail = () => {
                               ) : (
                                 <Box>{value.comment}</Box>
                               )} */}
-                                    <Typography
-                                      fontSize={14}
-                                      fontWeight={400}
-                                      sx={{ mt: '16px' }}
-                                    >
-                                      {value.feedback}
-                                    </Typography>
-                                  </Box>
+                                      <Typography
+                                        fontSize={14}
+                                        fontWeight={400}
+                                        sx={{ mt: '16px' }}
+                                      >
+                                        {value.feedback}
+                                      </Typography>
+                                    </Box>
+                                  </>
                                 )
                               })
                             : null}
