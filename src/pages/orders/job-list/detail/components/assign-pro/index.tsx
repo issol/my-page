@@ -155,7 +155,7 @@ type Props = {
       jobId: number
       proId: number
       status: number
-      type: 'force' | 'normal'
+      type: 'force' | 'normal' | 'cancel'
     },
     unknown
   >
@@ -345,7 +345,7 @@ const AssignPro = ({
       jobId: row.jobReqId!,
       proId: row.userId,
       status: 70500,
-      type: 'normal',
+      type: 'cancel',
     })
   }
 
