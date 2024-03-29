@@ -93,6 +93,10 @@ interface JobListCardProps extends ModeProps {
   >
   setSelectedAllItemJobs: (selected: number[]) => void
   selectedAllItemJobs: number[]
+  isStatusUpdatable: (status: number, jobIds: number[]) => {
+    isUpdatable: boolean
+    immutableCorporationId: string[]
+  } 
 }
 
 const JobListCard = ({
@@ -111,6 +115,7 @@ const JobListCard = ({
   changeStatusMutation,
   setSelectedAllItemJobs,
   selectedAllItemJobs,
+  isStatusUpdatable,
 }: JobListCardProps) => {
   const auth = useRecoilValueLoadable(authState)
 
@@ -288,48 +293,6 @@ const JobListCard = ({
 
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
 
-  const isStatusUpdatable = (changeStatus: number) => {
-    let flag = true
-    let immutableCorporationId: string[] = []
-    // approved
-    if (changeStatus === 60600) {
-      selectedAllItemJobs.map(jobId => {
-        const job = info.jobs.find(row => row.id === jobId)
-        // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
-        if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
-          flag = false
-          immutableCorporationId.push(job.corporationId)
-        }
-      })
-    }
-    // without invoice
-    else if (changeStatus === 60900) {
-      selectedAllItemJobs.map(jobId => {
-        const job = info.jobs.find(row => row.id === jobId)
-        // delivered, approved, invoiced, Redelivery requested 일때만 true
-        if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
-          flag = false
-          immutableCorporationId.push(job.corporationId)
-        }
-      })
-    }
-    // canceled
-    else if (changeStatus === 601000) {
-      selectedAllItemJobs.map(jobId => {
-        const job = info.jobs.find(row => row.id === jobId)
-        // canceled, paid가 아닐때만 true
-        if (job && [60800, 601000].includes(job.status)) {
-          flag = false
-          immutableCorporationId.push(job.corporationId)
-        }
-      })
-    }
-    return {
-      isUpdatable: flag,
-      immutableCorporationId: immutableCorporationId,
-    }
-  }
-
   useEffect(() => {
     const groupedJobs = new Map<number, JobType[]>()
 
@@ -392,9 +355,11 @@ const JobListCard = ({
               }}
             >
               {String(index + 1).padStart(2, '0')}. &nbsp;
+              {'['}
               {languageHelper(info.sourceLanguage)}
               &nbsp;&rarr;&nbsp;
-              {languageHelper(info.targetLanguage)}&nbsp;
+              {languageHelper(info.targetLanguage)}
+              {']'}&nbsp;
               {info.itemName}
             </Typography>
           </Box>

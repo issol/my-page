@@ -290,7 +290,16 @@ export type JobRequestsProType = {
   middleName?: string
   lastName: string
   email: string
-  assignmentStatus: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
+  assignmentStatus:
+    | 70000
+    | 70100
+    | 70200
+    | 70300
+    | 70400
+    | 70500
+    | 70600
+    | 70450
+    | 70150
   isOnboarded: boolean
   isActive: boolean
   assignmentStatusUpdatedAt: string

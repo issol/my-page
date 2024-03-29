@@ -1056,28 +1056,33 @@ const OrderDetail = () => {
   )
 
   const onSubmitItems = () => {
-    const items: PostItemType[] = getItem().items.map((item, idx) => {
-      const {
-        contactPerson,
-        minimumPrice,
-        priceFactor,
-        source,
-        target,
-        ...filterItem
-      } = item
-      return {
-        ...filterItem,
-        // contactPersonId: Number(item.contactPerson?.userId!),
-        contactPersonId: Number(item.contactPersonId!),
-        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-        showItemDescription: item.showItemDescription ? '1' : '0',
-        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        // name: item.itemName,
-        sourceLanguage: item.source,
-        targetLanguage: item.target,
-        sortingOrder: idx + 1,
-      }
-    })
+    const items: PostItemType[] = getItem()
+      .items.filter(
+        value => value.itemName !== '' && value.itemName !== undefined,
+      )
+      .map((item, idx) => {
+        const {
+          contactPerson,
+          minimumPrice,
+          priceFactor,
+          source,
+          target,
+          ...filterItem
+        } = item
+        return {
+          ...filterItem,
+          // contactPersonId: Number(item.contactPerson?.userId!),
+          contactPersonId: Number(item.contactPersonId!),
+          analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+          showItemDescription: item.showItemDescription ? '1' : '0',
+          minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+          // name: item.itemName,
+          sourceLanguage: item.source,
+          targetLanguage: item.target,
+          sortingOrder: idx + 1,
+        }
+      })
+
     const langs: LanguagePairsPostType[] = getItem('languagePairs').map(
       item => {
         if (item?.price?.id) {
@@ -1118,36 +1123,6 @@ const OrderDetail = () => {
             },
           },
         )
-        // patchLanguagePairs.mutate(
-        //   { id: Number(id!), langPair: langs },
-        //   {
-        //     onSuccess: () => {
-        //       patchItems.mutate(
-        //         { id: Number(id!), items: items },
-        //         {
-        //           onSuccess: () => {
-        //             updateProject.mutate(
-        //               {
-        //                 isTaxable: taxable ? '1' : '0',
-        //                 tax,
-        //                 subtotal: subtotal,
-        //               },
-        //               {
-        //                 onSuccess: () => {
-        //                   setLangItemsEdit(false)
-        //                   queryClient.invalidateQueries(
-        //                     `LangItem-${Number(id!)}`,
-        //                   )
-        //                   closeModal('LanguageAndItemEditModal')
-        //                 },
-        //               },
-        //             )
-        //           },
-        //         },
-        //       )
-        //     },
-        //   },
-        // )
       } catch (e: any) {
         onMutationError()
       }
@@ -1748,7 +1723,10 @@ const OrderDetail = () => {
                           >
                             <Link
                               href={`/orders/job-list/details/?orderId=${projectInfo.id}`}
-                              style={{ color: 'rgba(76, 78, 100, 0.87)', textDecoration: 'none' }}
+                              style={{
+                                color: 'rgba(76, 78, 100, 0.87)',
+                                textDecoration: 'none',
+                              }}
                             >
                               {'Linked jobs >'}
                             </Link>
