@@ -619,6 +619,7 @@ const AssignPro = ({
   useEffect(() => {
     if (proList && proList.data && menu === 'pro') {
       setLoading(true)
+      console.log(proList.data)
 
       setRows(prev => {
         return {

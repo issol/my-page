@@ -1162,17 +1162,17 @@ const JobDetail = () => {
 
   return (
     <Card sx={{ height: '100%' }}>
-      {assignJobMutation.isLoading ||
-      createRequestMutation.isLoading ||
-      createBulkRequestMutation.isLoading ||
-      assignJobMutation.isLoading ||
-      reAssignJobMutation.isLoading ||
-      addProCurrentRequestMutation.isLoading ||
-      requestRedeliveryMutation.isLoading ||
-      addJobFeedbackMutation.isLoading ||
-      saveJobPricesMutation.isLoading ||
-      setJobStatusMutation.isLoading ||
-      linguistTeamLoading ? (
+      {assignJobMutation.isLoading || 
+        createRequestMutation.isLoading ||
+        createBulkRequestMutation.isLoading ||
+        assignJobMutation.isLoading ||
+        reAssignJobMutation.isLoading ||
+        addProCurrentRequestMutation.isLoading ||
+        requestRedeliveryMutation.isLoading ||
+        addJobFeedbackMutation.isLoading ||
+        saveJobPricesMutation.isLoading ||
+        setJobStatusMutation.isLoading ||
+        linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid container sx={{ height: '100%' }}>
