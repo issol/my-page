@@ -1726,9 +1726,17 @@ const OrderDetail = () => {
                               style={{
                                 color: 'rgba(76, 78, 100, 0.87)',
                                 textDecoration: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
                               }}
                             >
-                              {'Linked jobs >'}
+                              <span>{'Linked jobs'}</span>
+                              <Icon
+                                icon='mdi:chevron-right'
+                                fontSize={20}
+                                color='#8D8E9A'
+                              />
                             </Link>
                           </MenuItem>
                         ) : null}
