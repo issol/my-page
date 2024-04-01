@@ -57,6 +57,7 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { changeTimeZoneOffset, convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 type Props = {
   onClose: () => void
@@ -317,10 +318,18 @@ const InfoEditModal = ({
               const jobResult: SaveJobInfoParamsType = {
                 contactPersonId: data.contactPerson.userId,
                 description: data.description ?? null,
-                startDate: data.startedAt ? data.startedAt.toString() : null,
+                startDate: data.startedAt && data.startTimezone
+                  ? changeTimeZoneOffset(
+                      data.startedAt.toString(),
+                      data.startTimezone,
+                    )
+                  : null,
                 startTimezone: data.startTimezone ?? null,
 
-                dueDate: data.dueAt.toString(),
+                dueDate: changeTimeZoneOffset(
+                  data.dueAt.toString(),
+                  data.dueTimezone,
+                )!,
                 dueTimezone: data.dueTimezone,
                 status: data.status,
                 sourceLanguage: data.source !== ' ' ? data.source : null,
@@ -350,10 +359,18 @@ const InfoEditModal = ({
         const jobResult: SaveJobInfoParamsType = {
           contactPersonId: data.contactPerson.userId,
           description: data.description ?? null,
-          startDate: data.startedAt ? data.startedAt.toString() : null,
+          startDate: data.startedAt && data.startTimezone
+            ? changeTimeZoneOffset(
+                data.startedAt.toISOString(),
+                data.startTimezone,
+              )
+            : null,
           startTimezone: data.startTimezone ?? null,
 
-          dueDate: data.dueAt.toString(),
+          dueDate: changeTimeZoneOffset(
+            data.dueAt.toISOString(),
+            data.dueTimezone,
+          )!,
           dueTimezone: data.dueTimezone,
           status: data.status,
           sourceLanguage: data.source !== ' ' ? data.source : null,
@@ -408,11 +425,7 @@ const InfoEditModal = ({
     setTimeZoneList(filteredTimezone)
   }, [timezone])
 
-  console.log(getValues(), 'getValues')
-
   useEffect(() => {
-    console.log(items, 'getValues')
-
     if (contactPersonList.length > 0 && items) {
       setValue('name', jobInfo.name ?? '')
       setValue('description', jobInfo.description ?? '')
@@ -458,13 +471,33 @@ const InfoEditModal = ({
               userId: items.contactPersonId ?? null,
             },
       )
+      
+      const convertStartedAt = () => {
+        return convertTimeToTimezone(
+          jobInfo.startedAt,
+          jobInfo.startTimezone,
+          timezone.getValue(),
+        )
+      }
 
-      jobInfo.startedAt && setValue('startedAt', new Date(jobInfo.startedAt))
+      const convertDueAt = () => {
+          return convertTimeToTimezone(
+          jobInfo.dueAt,
+          jobInfo.dueTimezone,
+          timezone.getValue(),
+        )
+      }
+
+      if (convertStartedAt && convertStartedAt() !== '-') {
+        setValue('startedAt', new Date(convertStartedAt()))
+      }
 
       jobInfo.startTimezone &&
         setValue('startTimezone', jobInfo.startTimezone ?? null)
-      jobInfo.dueAt && setValue('dueAt', new Date(jobInfo.dueAt))
-      console.log(jobInfo.dueTimezone, 'getValues')
+
+      if (convertDueAt && convertDueAt() !== '-') {
+        setValue('dueAt', new Date(convertDueAt()))
+      }
 
       jobInfo.dueTimezone &&
         setValue('dueTimezone', jobInfo.dueTimezone ?? null)

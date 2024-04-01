@@ -189,8 +189,8 @@ export default function ProjectTeamForm({
                 }
               }}
               disableClearable={
-                getValue('teams')[idx].name === '' ||
-                !getValue('teams')[idx].name
+                getValue('teams')[idx]?.name === '' ||
+                !getValue('teams')[idx]?.name
               }
               value={findMemberValue(value)}
               onClickCapture={() => handleFocusChange(idx, true)}
