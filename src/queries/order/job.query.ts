@@ -112,6 +112,7 @@ export const useGetJobAssignProRequests = (jobId: number[] | number) => {
       {
         staleTime: 10 * 1000, // 1
         suspense: false,
+        refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
       },
     )
   } else {
@@ -122,6 +123,7 @@ export const useGetJobAssignProRequests = (jobId: number[] | number) => {
           queryFn: () => getJobAssignProRequests(id),
           staleTime: 10 * 1000, // 1
           suspense: false,
+          refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
         }
       }),
     )
