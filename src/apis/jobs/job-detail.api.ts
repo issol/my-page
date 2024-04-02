@@ -113,6 +113,8 @@ export const getJobInfo = async (
       statusCodeForAutoNextJob: null,
       autoSharingFile: false,
       sortingOrder: 0,
+      createdAt: '',
+      templateGroup: 0,
     }
   }
 }
