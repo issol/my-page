@@ -87,6 +87,7 @@ export type JobType = {
   serviceType: string
   sourceLanguage: string
   targetLanguage: string
+  createdAt: string
   startedAt: string
   dueAt: string
   startTimezone: CountryType
@@ -143,4 +144,6 @@ export type JobType = {
     message: string
     id: number
   }
+  // 동일한 templateId를 가진 job들이 있을때 구분하기 위한 추가 키 값
+  templateGroup: number | null
 }
