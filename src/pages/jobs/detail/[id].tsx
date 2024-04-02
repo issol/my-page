@@ -43,8 +43,8 @@ const excludedStatuses = [
 const ProJobsDetail = () => {
   const router = useRouter()
 
-  const { id, assigned, tab, hasNext } = router.query
-  const nextJob = JSON.parse((hasNext as string) || 'false')
+  const { id, assigned, tab, isNextJob } = router.query
+  const nextJob = JSON.parse((isNextJob as string) || 'false')
 
   const [value, setValue] = useState<MenuType>('jobInfo')
   const [statusList, setStatusList] = useState<Array<StatusItem>>([])
