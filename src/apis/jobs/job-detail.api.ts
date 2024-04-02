@@ -114,7 +114,7 @@ export const getJobInfo = async (
       autoSharingFile: false,
       sortingOrder: 0,
       createdAt: '',
-      templateGroup: 0,
+      triggerGroup: 0,
     }
   }
 }
