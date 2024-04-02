@@ -133,7 +133,7 @@ const JobListCard = ({
   const [selected, setSelected] = useState<readonly number[]>([])
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatus | null>(null)
 
-  const [groupedJobs, setGroupedJobs] = useState<{ [key: number]: JobType[] }>(
+  const [groupedJobs, setGroupedJobs] = useState<{ [key: string]: JobType[] }>(
     {},
   )
   const [isHoverJobId, setIsHoverJobId] = useState<number | null>(null)
@@ -145,8 +145,8 @@ const JobListCard = ({
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
-    const jobId = row.templateId
-      ? groupedJobs[row.templateId].map(value => value.id)
+    const jobId = row.templateId && row.templateGroup
+      ? groupedJobs[`${row.templateId}-${row.templateGroup}`].map(value => value.id)
       : row.id
 
     router.push({
@@ -294,10 +294,12 @@ const JobListCard = ({
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
 
   useEffect(() => {
-    const groupedJobs = new Map<number, JobType[]>()
+    const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key = job.templateId
+      const key = job.templateId && job.templateGroup
+        ? `${job.templateId}-${job.templateGroup}`
+        : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -315,9 +317,6 @@ const JobListCard = ({
         }),
       )
     })
-
-    console.log('AAA', groupedJobs)
-
     setGroupedJobs(Object.fromEntries(groupedJobs))
   }, [jobList])
 
@@ -469,8 +468,8 @@ const JobListCard = ({
                     const isItemSelected = isSelected(row.id)
 
                     let isHighlighted = false
-                    if (row.templateId && isHoverJobId) {
-                      isHighlighted = groupedJobs[row.templateId]?.some(
+                    if (row.templateId && row.templateGroup && isHoverJobId) {
+                      isHighlighted = groupedJobs[`${row.templateId}-${row.templateGroup}`]?.some(
                         value => value.id === isHoverJobId,
                       )
                     }
