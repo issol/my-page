@@ -145,5 +145,5 @@ export type JobType = {
     id: number
   }
   // 동일한 templateId를 가진 job들이 있을때 구분하기 위한 추가 키 값
-  templateGroup: number | null
+  triggerGroup: number | null
 }
