@@ -977,7 +977,7 @@ const JobDetail = () => {
     if (selectedJobInfo) {
       const isTeamMember = auth.getValue().user?.userId === selectedJobInfo?.jobInfo?.contactPerson?.userId
       const isMasterManager = auth.getValue().user?.roles?.some(role => ['Master','Manager'].includes(role.type) && role.name === 'LPM')  
-      return Boolean(isTeamMember && isMasterManager)
+      return Boolean(isTeamMember || isMasterManager)
     } else {
       return false
     }
