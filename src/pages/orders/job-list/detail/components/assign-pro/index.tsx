@@ -1568,7 +1568,7 @@ const AssignPro = ({
                 }}
                 columns={getProJobAssignColumns(
                   false,
-                  false,
+                  true,
                   false,
                   assignProMode,
                   addRoundMode,
