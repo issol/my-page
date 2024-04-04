@@ -82,6 +82,7 @@ export const getJobInfo = async (
       authorId: 0,
       templateId: 0,
       triggerOrder: 0,
+      isTriggered: false,
       order: { id: -1 },
       corporationId: '',
       clientId: 0,
@@ -576,4 +577,23 @@ export const setMoveToNextJob = async (params: {
       autoSharingFile: params.autoSharingFile,
     },
   )
+}
+
+export const saveTriggerOptions = async (params: any) => {
+  //TODO API endpoint 추가 필요
+
+  return true
+}
+
+export const addTriggerBetweenJobs = async (
+  params: {
+    jobId: number
+    sortingOrder: number
+    triggerOrder?: number
+  }[],
+) => {
+  //TODO API endpoint 추가 필요
+  await axios.patch(`/api/enough/u/job/add-trigger`, {
+    data: params,
+  })
 }
