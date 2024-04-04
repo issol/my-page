@@ -84,6 +84,7 @@ type Props = {
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
   jobPriceHistory?: Array<jobPriceHistoryType>
+  selectedJobUpdatable: boolean
 }
 const ViewPrices = ({
   row,
@@ -100,6 +101,7 @@ const ViewPrices = ({
   setEditPrices,
   type,
   jobPriceHistory,
+  selectedJobUpdatable
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -237,7 +239,7 @@ const ViewPrices = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {type === 'history' ? null : ![60800, 601000].includes(row.status) ? (
+      {type === 'history' || !selectedJobUpdatable ? null : ![60800, 601000].includes(row.status) ? (
         <Box
           sx={{
             display: 'flex',

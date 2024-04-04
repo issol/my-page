@@ -975,9 +975,9 @@ const JobDetail = () => {
 
   const selectedJobUpdatable = () => {
     if (selectedJobInfo) {
-      const Writer = new job_list(selectedJobInfo?.jobInfo.authorId)
-      const isUpdatable = ability.can('update', Writer)
-      return isUpdatable
+      const isTeamMember = auth.getValue().user?.userId === selectedJobInfo?.jobInfo?.contactPerson?.userId
+      const isMasterManager = auth.getValue().user?.roles?.some(role => ['Master','Manager'].includes(role.type) && role.name === 'LPM')  
+      return Boolean(isTeamMember && isMasterManager)
     } else {
       return false
     }
@@ -1350,11 +1350,13 @@ const JobDetail = () => {
                   selectedJobInfo?.jobAssign.length > 0 &&
                   !addRoundMode &&
                   !addProsMode &&
-                  !assignProMode)
+                  !assignProMode) ||
+                  !selectedJobUpdatable()
                 ? 10.416
                 : 7.632
               : value === 'info'
-                ? selectedJobInfo?.jobInfo.pro === null
+                ? (selectedJobInfo?.jobInfo.pro === null ||
+                  !selectedJobUpdatable())
                   ? 10.416
                   : 7.632
                 : value === 'prices'
@@ -1478,6 +1480,7 @@ const JobDetail = () => {
                       languagePair={langItem.languagePairs || []}
                       setJobId={setJobId}
                       setJobStatusMutation={setJobStatusMutation}
+                      selectedJobUpdatable={selectedJobUpdatable()}
                     />
                   ) : null}
                 </TabPanel>
@@ -1564,73 +1567,92 @@ const JobDetail = () => {
                       setEditPrices={setEditPrices}
                       jobPriceHistory={jobPriceHistory!}
                       type='view'
+                      selectedJobUpdatable={selectedJobUpdatable()}
                     />
                   )}
                 </TabPanel>
                 <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
                   {selectedJobInfo &&
-                  (selectedJobInfo.jobInfo.name === null ||
-                    selectedJobInfo.jobPrices.priceId === null) ? (
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Image
-                          src='/images/icons/job-icons/required-lock.png'
-                          alt='lock'
-                          width={150}
-                          height={150}
-                          quality={100}
-                        />
+                  (selectedJobInfo?.jobInfo?.name === null ||
+                    selectedJobInfo?.jobPrices?.priceId === null ||
+                    selectedJobInfo?.jobAssign === null) ||
+                    (selectedJobInfo?.jobAssign.length === 0 && !selectedJobUpdatable()) ? 
+                      selectedJobUpdatable() ? (
                         <Box
                           sx={{
+                            width: '100%',
+                            height: '100%',
                             display: 'flex',
-                            flexDirection: 'column',
-                            gap: '4px',
-                            mt: '10px',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                           }}
                         >
-                          <Typography fontSize={20} fontWeight={500}>
-                            Unfilled required field exists
-                          </Typography>
-                          <Typography fontSize={16} color='#8D8E9A'>
-                            Please enter all required fields first
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Image
+                              src='/images/icons/job-icons/required-lock.png'
+                              alt='lock'
+                              width={150}
+                              height={150}
+                              quality={100}
+                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '4px',
+                                mt: '10px',
+                              }}
+                            >
+                              <Typography fontSize={20} fontWeight={500}>
+                                Unfilled required field exists
+                              </Typography>
+                              <Typography fontSize={16} color='#8D8E9A'>
+                                Please enter all required fields first
+                              </Typography>
+                            </Box>
+                            <Button
+                              variant='contained'
+                              sx={{ mt: '32px' }}
+                              onClick={() => {
+                                if (!selectedJobInfo.jobInfo.name) {
+                                  setValue('info')
+                                } else if (!selectedJobInfo.jobPrices.priceId) {
+                                  setValue('prices')
+                                } else {
+                                  setValue('info')
+                                }
+                              }}
+                            >
+                              {!selectedJobInfo.jobInfo.name
+                                ? 'Fill out job info'
+                                : !selectedJobInfo.jobPrices.priceId
+                                  ? 'Fill out prices'
+                                  : 'Fill out job info'}
+                            </Button>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography fontSize={14} color='#8D8E9A'>
+                            There are no requests or assigned Pro yet
                           </Typography>
                         </Box>
-                        <Button
-                          variant='contained'
-                          sx={{ mt: '32px' }}
-                          onClick={() => {
-                            if (!selectedJobInfo.jobInfo.name) {
-                              setValue('info')
-                            } else if (!selectedJobInfo.jobPrices.priceId) {
-                              setValue('prices')
-                            } else {
-                              setValue('info')
-                            }
-                          }}
-                        >
-                          {!selectedJobInfo.jobInfo.name
-                            ? 'Fill out job info'
-                            : !selectedJobInfo.jobPrices.priceId
-                              ? 'Fill out prices'
-                              : 'Fill out job info'}
-                        </Button>
-                      </Box>
-                    </Box>
-                  ) : (
+                      )
+                    : (
                     <AssignPro
                       jobInfo={selectedJobInfo?.jobInfo!}
                       jobAssign={selectedJobInfo?.jobAssign!}
@@ -1668,6 +1690,7 @@ const JobDetail = () => {
                       setSelectedAssign={setSelectedAssign}
                       assignJobMutation={assignJobMutation}
                       reAssignJobMutation={reAssignJobMutation}
+                      selectedJobUpdatable={selectedJobUpdatable()}
                     />
                   )}
                 </TabPanel>
@@ -1678,7 +1701,10 @@ const JobDetail = () => {
         </Grid>
         {selectedJobInfo &&
         (selectedJobInfo.jobInfo.name === null ||
-          selectedJobInfo.jobPrices.priceId === null) ? null : (
+          selectedJobInfo.jobPrices.priceId === null ||
+          selectedJobInfo.jobAssign === null ||
+          !selectedJobUpdatable()
+          ) ? null : (
           <Grid item xs={2.784}>
             <Box
               sx={{
@@ -1686,7 +1712,6 @@ const JobDetail = () => {
                 flexDirection: 'column',
                 height: '100%',
                 position: 'relative',
-
                 paddingBottom: '156px',
               }}
             >

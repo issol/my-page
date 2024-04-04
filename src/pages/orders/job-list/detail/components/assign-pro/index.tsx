@@ -169,6 +169,7 @@ type Props = {
     },
     unknown
   >
+  selectedJobUpdatable: boolean
 }
 
 function loadServerRows(
@@ -221,6 +222,7 @@ const AssignPro = ({
   setSelectedAssign,
   assignJobMutation,
   reAssignJobMutation,
+  selectedJobUpdatable,
 }: Props) => {
   console.log(jobAssign, 'Assign Job Pro')
 
@@ -700,8 +702,8 @@ const AssignPro = ({
               job =>
                 job.pros &&
                 Array.isArray(job.pros) &&
-                job.pros.some(pro => pro.assignmentStatus === 70300),
-            ) ? null : (
+                job.pros.some(pro => pro.assignmentStatus === 70300)
+            ) || !selectedJobUpdatable ? null : (
               <Button
                 variant='outlined'
                 color='secondary'
@@ -743,7 +745,7 @@ const AssignPro = ({
                       ? `Mass request (Manual assignment) (${selectedAssign?.pros.length ?? 0})`
                       : ''}{' '}
               </Typography>
-              {selectedAssign.requestCompleted && jobInfo.pro ? null : (
+              {(selectedAssign.requestCompleted && jobInfo.pro) || !selectedJobUpdatable ? null : (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -919,6 +921,7 @@ const AssignPro = ({
                   selectedAssign.type,
                   jobStatusList || [],
                   selectedUsers,
+                  selectedJobUpdatable,
                 )}
                 keepNonExistentRowsSelected
                 getRowId={row => row.userId}
