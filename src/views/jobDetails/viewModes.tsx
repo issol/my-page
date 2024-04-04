@@ -627,15 +627,31 @@ export const EditMode = ({
                         )
                         tmpSelected.splice(firstSelectedJobs, 1, ...selected)
                         tmpSelected.splice(secondSelectedJobs, 1)
+                        const firstIndex = tmpSelected.findIndex(
+                          value => value.id === selected[0].id,
+                        )
+                        const secondIndex = tmpSelected.findIndex(
+                          value => value.id === selected[1].id,
+                        )
 
                         let tmpResult: Array<{
                           jobId: number
                           sortingOrder: number
                           triggerOrder?: number
-                        }> = tmpSelected.map((value, index) => ({
-                          jobId: value.id,
-                          sortingOrder: index + 1,
-                        }))
+                        }> = tmpSelected.map((value, index) => {
+                          if (index === firstIndex || index === secondIndex) {
+                            return {
+                              jobId: value.id,
+                              sortingOrder: index + 1,
+                              triggerOrder: index === firstIndex ? 1 : 2,
+                            }
+                          } else {
+                            return {
+                              jobId: value.id,
+                              sortingOrder: index + 1,
+                            }
+                          }
+                        })
 
                         result = tmpResult
                       }
