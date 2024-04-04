@@ -139,7 +139,7 @@ export type JobType = {
   sortingOrder: number
   triggerOrder: number
   isJobRequestPresent: boolean
-  isTriggered: boolean
+  triggerExecutedAt: string | null
   redeliveryHistory?: {
     jobId: number
     deleteReason: string[]

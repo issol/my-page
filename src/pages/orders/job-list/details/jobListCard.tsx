@@ -1048,7 +1048,7 @@ const JobListCard = ({
                                               value={field.value}
                                               control={<Radio />}
                                               disabled={
-                                                row.isTriggered ||
+                                                !!row.triggerExecutedAt ||
                                                 selectedAllItemJobs.length > 0
                                               }
                                               onChange={(e, v) =>
@@ -1060,7 +1060,7 @@ const JobListCard = ({
                                             <FormControlLabel
                                               value={field.value}
                                               disabled={
-                                                row.isTriggered ||
+                                                !!row.triggerExecutedAt ||
                                                 selectedAllItemJobs.length > 0
                                               }
                                               onChange={(e, v) =>
@@ -1113,7 +1113,7 @@ const JobListCard = ({
                                         </IconButton>
                                       </Box>
                                       <Box>
-                                        {row.isTriggered ? (
+                                        {!!row.triggerExecutedAt ? (
                                           <Box
                                             sx={{
                                               padding: '3px 4px',
@@ -1159,7 +1159,7 @@ const JobListCard = ({
                                       </Box>
                                     </Box>
                                   </Box>
-                                  {row.isTriggered ? null : (
+                                  {!!row.triggerExecutedAt ? null : (
                                     <IconButton
                                       disabled={selectedAllItemJobs.length > 0}
                                       sx={{
