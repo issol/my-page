@@ -540,21 +540,12 @@ const JobListCard = ({
       setDeleteJobId(prev => [...prev, jobId])
     }
   }
-  console.log(
-    selectedAllItemJobs
-      .map(selectedJobId => allJobs.find(job => job.id === selectedJobId))
-      .filter(Boolean),
-    'hihihi',
-  )
 
   useEffect(() => {
     const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key =
-        job.templateId && job.triggerGroup
-          ? `${job.templateId}-${job.triggerGroup}`
-          : null
+      const key = job.triggerGroup ? `${job.triggerGroup}` : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -572,6 +563,8 @@ const JobListCard = ({
         }),
       )
     })
+    console.log(groupedJobs)
+
     setGroupedJobs(Object.fromEntries(groupedJobs))
   }, [jobList])
 
@@ -726,10 +719,10 @@ const JobListCard = ({
                     const isItemSelected = isSelected(row.id)
 
                     let isHighlighted = false
-                    if (row.templateId && row.triggerGroup && isHoverJobId) {
-                      isHighlighted = groupedJobs[
-                        `${row.templateId}-${row.triggerGroup}`
-                      ]?.some(value => value.id === isHoverJobId)
+                    if (row.triggerGroup && isHoverJobId) {
+                      isHighlighted = groupedJobs[`${row.triggerGroup}`]?.some(
+                        value => value.id === isHoverJobId,
+                      )
                     }
 
                     return (
