@@ -83,6 +83,7 @@ type Props = {
     },
     unknown
   >
+  selectedJobUpdatable: boolean
 }
 
 const JobInfo = ({
@@ -94,6 +95,7 @@ const JobInfo = ({
   languagePair,
   setJobId,
   setJobStatusMutation,
+  selectedJobUpdatable,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -542,7 +544,7 @@ const JobInfo = ({
                 jobInfo.status !== 60100 &&
                 jobInfo.status !== 60110 &&
                 jobInfo.status !== 60200 &&
-                isUpdatable ? (
+                selectedJobUpdatable ? (
                   <Button
                     startIcon={<Icon icon='ic:sharp-read-more' fontSize={24} />}
                     fullWidth
@@ -555,7 +557,7 @@ const JobInfo = ({
                   </Button>
                 ) : null
               ) : null}
-              {isUpdatable ? (
+              {selectedJobUpdatable ? (
                 <Box>
                   <IconButton sx={{ padding: 0 }} onClick={handleMenuClick}>
                     <Icon icon='mdi:dots-vertical' />
@@ -623,7 +625,7 @@ const JobInfo = ({
                       jobInfo.status !== 60100 &&
                       jobInfo.status !== 60110 &&
                       jobInfo.status !== 60200 &&
-                      isUpdatable ? (
+                      selectedJobUpdatable ? (
                         <MenuItem
                           sx={{
                             gap: 2,
@@ -696,7 +698,7 @@ const JobInfo = ({
                   </Typography>
                 </Grid>
                 <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
-                  {isUpdatable ? (
+                  {selectedJobUpdatable ? (
                     <Box
                       sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >

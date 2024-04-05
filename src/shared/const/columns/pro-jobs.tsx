@@ -259,7 +259,7 @@ export const getProJobColumns = (
         return (
           <Box display='flex' gap='8px'>
             <ServiceTypeChip size='small' label={row.serviceType} />
-            {row.autoNextJob && (
+            {row.isPreviousAndNextJob && (
               <Icon icon='ic:outline-people' fontSize={24} color='#8D8E9A' />
             )}
           </Box>
