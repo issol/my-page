@@ -1,4 +1,12 @@
-import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import {
   Box,
@@ -174,11 +182,16 @@ interface JobListCardProps extends ModeProps {
     boolean,
     unknown,
     {
-      jobId: number
-      statusCodeForAutoNextJob: number | null
-      autoNextJob: '0' | '1'
-      autoSharingFile: '0' | '1'
-    }[],
+      updateData: {
+        jobId: number
+        statusCodeForAutoNextJob: number | null
+        autoNextJob: '0' | '1'
+        autoSharingFile: '0' | '1'
+      }[]
+      deleteData: {
+        jobId: number[]
+      }
+    },
     unknown
   >
   addTriggerBetweenJobsMutation: UseMutationResult<
@@ -192,6 +205,8 @@ interface JobListCardProps extends ModeProps {
     unknown
   >
   dirtyFields: any
+  deleteJobId: number[]
+  setDeleteJobId: Dispatch<SetStateAction<number[]>>
 }
 
 const JobListCard = ({
@@ -224,6 +239,8 @@ const JobListCard = ({
   saveTriggerOptionsMutation,
   addTriggerBetweenJobsMutation,
   dirtyFields,
+  deleteJobId,
+  setDeleteJobId,
 }: JobListCardProps) => {
   const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
@@ -492,7 +509,7 @@ const JobListCard = ({
 
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
 
-  const onClickDeleteTrigger = (assigned: boolean) => {
+  const onClickDeleteTrigger = (assigned: boolean, jobId: number) => {
     if (assigned) {
       openModal({
         type: 'DeleteTrigger',
@@ -513,14 +530,14 @@ const JobListCard = ({
             onClose={() => closeModal('DeleteTrigger')}
             onClick={() => {
               closeModal('DeleteTrigger')
-              //delete
+              setDeleteJobId(prev => [...prev, jobId])
             }}
             rightButtonText='Delete'
           />
         ),
       })
     } else {
-      //delete
+      setDeleteJobId(prev => [...prev, jobId])
     }
   }
   console.log(
@@ -799,13 +816,14 @@ const JobListCard = ({
                                 size='small'
                                 label={row.serviceType}
                               />
-                              {isTriggerJob(row.id) && (
-                                <Icon
-                                  icon='ic:outline-people'
-                                  fontSize={24}
-                                  color='#8D8E9A'
-                                />
-                              )}
+                              {isTriggerJob(row.id) &&
+                                !deleteJobId.includes(row.id) && (
+                                  <Icon
+                                    icon='ic:outline-people'
+                                    fontSize={24}
+                                    color='#8D8E9A'
+                                  />
+                                )}
                             </Box>
                           </CustomTableCell>
 
@@ -927,7 +945,8 @@ const JobListCard = ({
                         </TableRow>
                         {isTriggerJob(row.id) &&
                         mode === 'edit' &&
-                        row.nextJobId ? (
+                        row.nextJobId &&
+                        !deleteJobId.includes(row.id) ? (
                           <TableRow component='tr' sx={{ width: '100%' }}>
                             <TableCell
                               colSpan={7}
@@ -1186,7 +1205,7 @@ const JobListCard = ({
                                         if (nextJob) {
                                           const assigned = !!nextJob.pro
 
-                                          onClickDeleteTrigger(assigned)
+                                          onClickDeleteTrigger(assigned, row.id)
                                         }
                                       }}
                                     >
@@ -1270,6 +1289,8 @@ const JobListCard = ({
                   )[0].jobs
                 : []
             }
+            setDeleteJobId={setDeleteJobId}
+            deleteJobId={deleteJobId}
           />
         </Card>
       )}
