@@ -237,7 +237,7 @@ const JobDetails = () => {
         onChangeViewMode()
         setSelectedAllItemJobs([])
         setSelectedJobs({})
-        displayCustomToast('Saved successfully.', 'success')
+        displayCustomToast('Added successfully.', 'success')
       },
     },
   )
