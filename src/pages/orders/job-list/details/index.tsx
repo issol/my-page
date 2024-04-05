@@ -216,6 +216,8 @@ const JobDetails = () => {
         refetch()
         onChangeViewMode()
         setDeleteJobId([])
+        setSelectedAllItemJobs([])
+        setSelectedJobs({})
         displayCustomToast('Saved successfully.', 'success')
       },
     },
@@ -233,7 +235,9 @@ const JobDetails = () => {
       onSuccess: () => {
         refetch()
         onChangeViewMode()
-        displayCustomToast('Saved successfully.', 'success')
+        setSelectedAllItemJobs([])
+        setSelectedJobs({})
+        displayCustomToast('Added successfully.', 'success')
       },
     },
   )
