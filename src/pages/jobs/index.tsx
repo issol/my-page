@@ -26,6 +26,7 @@ import {
 import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { useRouter } from 'next/router'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { getProJobList } from '@src/apis/jobs/jobs.api'
 
 type MenuType = 'requested' | 'completed'
 
@@ -41,9 +42,9 @@ const Jobs = () => {
   const router = useRouter()
   const tabQuery = router.query.tab as MenuType
 
-  const { data: completedJob } = useGetProJobList(completedDefaultFilters)
+  // const { data: completedJob } = useGetProJobList(completedDefaultFilters)
 
-  const { data: ongoingJob } = useGetProJobList(ongoingDefaultFilters)
+  // const { data: ongoingJob } = useGetProJobList(ongoingDefaultFilters)
 
   const [completedDot, setCompletedDot] = useState(false)
   const [ongoingDot, setOngoingDot] = useState(false)
@@ -54,18 +55,30 @@ const Jobs = () => {
     router.push({ pathname: '/jobs/', query: { tab: newValue } })
   }
 
-  useEffect(() => {
-    if (completedJob && ongoingJob) {
-      const completedDot = completedJob?.data?.some(job => job?.lightUpDot)
-      const ongoingDot = ongoingJob?.data?.some(job => job?.lightUpDot)
+  // useEffect(() => {
+  //   if (completedJob && ongoingJob) {
+  //     const completedDot = completedJob?.data?.some(job => job?.lightUpDot)
+  //     const ongoingDot = ongoingJob?.data?.some(job => job?.lightUpDot)
 
-      setCompletedDot(completedDot)
+  //     setCompletedDot(completedDot)
+  //     setOngoingDot(ongoingDot)
+  //   }
+  // }, [completedJob, ongoingJob])
+
+  useEffect(() => {
+    getProJobList(ongoingDefaultFilters).then(res => {
+      const ongoingDot = res.data.some(job => job.lightUpDot)
       setOngoingDot(ongoingDot)
-    }
-  }, [completedJob, ongoingJob])
+    })
+    getProJobList(completedDefaultFilters).then(res => {
+      const completedDot = res.data.some(job => job.lightUpDot)
+      setCompletedDot(completedDot)
+    })
+  }, [])
 
   useEffect(() => {
-    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed')) setValue(tabQuery)
+    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed'))
+      setValue(tabQuery)
   }, [tabQuery])
 
   return (

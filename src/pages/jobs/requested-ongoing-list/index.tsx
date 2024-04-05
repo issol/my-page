@@ -122,7 +122,7 @@ const RequestedOngoingList = () => {
   }
 
   useEffect(() => {
-    queryClient.invalidateQueries(['proJobList', filters])
+    queryClient.invalidateQueries(['proJobList', { type: 'list' }, filters])
   }, [])
 
   return (
