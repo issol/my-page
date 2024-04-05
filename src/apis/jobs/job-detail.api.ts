@@ -82,7 +82,7 @@ export const getJobInfo = async (
       authorId: 0,
       templateId: 0,
       triggerOrder: 0,
-      isTriggered: false,
+      triggerExecutedAt: null,
       order: { id: -1 },
       corporationId: '',
       clientId: 0,
@@ -579,8 +579,18 @@ export const setMoveToNextJob = async (params: {
   )
 }
 
-export const saveTriggerOptions = async (params: any) => {
+export const saveTriggerOptions = async (
+  params: {
+    jobId: number
+    statusCodeForAutoNextJob: number | null
+    autoNextJob: '0' | '1'
+    autoSharingFile: '0' | '1'
+  }[],
+) => {
   //TODO API endpoint 추가 필요
+  await axios.patch(`/api/enough/u/job/edit-trigger-option`, {
+    data: params,
+  })
 
   return true
 }

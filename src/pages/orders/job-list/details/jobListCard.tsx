@@ -170,7 +170,17 @@ interface JobListCardProps extends ModeProps {
   }>
   isDirty: boolean
   refetch: any
-  saveTriggerOptionsMutation: UseMutationResult<boolean, unknown, void, unknown>
+  saveTriggerOptionsMutation: UseMutationResult<
+    boolean,
+    unknown,
+    {
+      jobId: number
+      statusCodeForAutoNextJob: number | null
+      autoNextJob: '0' | '1'
+      autoSharingFile: '0' | '1'
+    }[],
+    unknown
+  >
   addTriggerBetweenJobsMutation: UseMutationResult<
     void,
     unknown,
@@ -181,6 +191,7 @@ interface JobListCardProps extends ModeProps {
     }[],
     unknown
   >
+  dirtyFields: any
 }
 
 const JobListCard = ({
@@ -212,6 +223,7 @@ const JobListCard = ({
   refetch,
   saveTriggerOptionsMutation,
   addTriggerBetweenJobsMutation,
+  dirtyFields,
 }: JobListCardProps) => {
   const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
@@ -1243,6 +1255,8 @@ const JobListCard = ({
             resetSelected={resetSelected}
             isDirty={isDirty}
             refetch={refetch}
+            getValues={getValues}
+            dirtyFields={dirtyFields}
             saveTriggerOptionsMutation={saveTriggerOptionsMutation}
             addTriggerBetweenJobsMutation={addTriggerBetweenJobsMutation}
             selectedItemJobs={

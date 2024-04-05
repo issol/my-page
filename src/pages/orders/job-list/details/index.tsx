@@ -55,6 +55,18 @@ import { displayCustomToast } from '@src/shared/utils/toast'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { JobType } from '@src/types/common/item.type'
 
+export type ItemOptionType = {
+  items: {
+    jobs: JobType[]
+    id: number
+    itemName: string
+    sourceLanguage: string
+    targetLanguage: string
+    contactPersonId: number
+    sortingOrder: number
+  }[]
+}
+
 const JobDetails = () => {
   const router = useRouter()
   const { orderId, jobId } = router.query
@@ -99,18 +111,8 @@ const JobDetails = () => {
     watch,
     reset,
     trigger,
-    formState: { errors, isValid, isDirty },
-  } = useForm<{
-    items: {
-      jobs: JobType[]
-      id: number
-      itemName: string
-      sourceLanguage: string
-      targetLanguage: string
-      contactPersonId: number
-      sortingOrder: number
-    }[]
-  }>({
+    formState: { errors, isValid, isDirty, dirtyFields },
+  } = useForm<ItemOptionType>({
     mode: 'onSubmit',
 
     // resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
@@ -198,12 +200,23 @@ const JobDetails = () => {
     },
   )
 
-  const saveTriggerOptionsMutation = useMutation(() => saveTriggerOptions(1), {
-    onSuccess: () => {
-      refetch()
-      displayCustomToast('Saved successfully.', 'success')
+  const saveTriggerOptionsMutation = useMutation(
+    (
+      data: {
+        jobId: number
+        statusCodeForAutoNextJob: number | null
+        autoNextJob: '0' | '1'
+        autoSharingFile: '0' | '1'
+      }[],
+    ) => saveTriggerOptions(data),
+    {
+      onSuccess: () => {
+        refetch()
+        onChangeViewMode()
+        displayCustomToast('Saved successfully.', 'success')
+      },
     },
-  })
+  )
 
   const addTriggerBetweenJobsMutation = useMutation(
     (
@@ -215,6 +228,8 @@ const JobDetails = () => {
     ) => addTriggerBetweenJobs(data),
     {
       onSuccess: () => {
+        refetch()
+        onChangeViewMode()
         displayCustomToast('Saved successfully.', 'success')
       },
     },
@@ -652,6 +667,7 @@ const JobDetails = () => {
                 trigger={trigger}
                 isDirty={isDirty}
                 refetch={refetch}
+                dirtyFields={dirtyFields}
                 saveTriggerOptionsMutation={saveTriggerOptionsMutation}
                 addTriggerBetweenJobsMutation={addTriggerBetweenJobsMutation}
               />

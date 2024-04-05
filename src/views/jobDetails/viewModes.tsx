@@ -26,10 +26,12 @@ import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import { UseMutationResult } from 'react-query'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '@iconify/react'
 import _ from 'lodash'
+import { UseFormGetValues } from 'react-hook-form'
+import { ItemOptionType } from '@src/pages/orders/job-list/details'
 
 export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 
@@ -49,7 +51,17 @@ interface EditModeProps extends ModeProps {
   selected: JobType[]
   refetch: any
   isDirty: boolean
-  saveTriggerOptionsMutation: UseMutationResult<boolean, unknown, void, unknown>
+  saveTriggerOptionsMutation: UseMutationResult<
+    boolean,
+    unknown,
+    {
+      jobId: number
+      statusCodeForAutoNextJob: number | null
+      autoNextJob: '0' | '1'
+      autoSharingFile: '0' | '1'
+    }[],
+    unknown
+  >
   addTriggerBetweenJobsMutation: UseMutationResult<
     void,
     unknown,
@@ -61,6 +73,18 @@ interface EditModeProps extends ModeProps {
     unknown
   >
   selectedItemJobs: JobType[]
+  getValues: UseFormGetValues<{
+    items: {
+      jobs: JobType[]
+      id: number
+      itemName: string
+      sourceLanguage: string
+      targetLanguage: string
+      contactPersonId: number
+      sortingOrder: number
+    }[]
+  }>
+  dirtyFields: any
 }
 
 export const DeleteMode = ({
@@ -434,12 +458,44 @@ export const EditMode = ({
   selected,
   isDirty,
   refetch,
+  getValues,
   saveTriggerOptionsMutation,
   addTriggerBetweenJobsMutation,
   selectedItemJobs,
+  dirtyFields,
 }: EditModeProps) => {
   const { openModal, closeModal } = useModal()
+
+  console.log()
+
+  type keyType =
+    | `items.${number}.jobs.${number}`
+    | 'items'
+    | `items.${number}`
+    | `items.${number}.jobs`
+    | ''
   console.log(selected, 'jobjob')
+  function flattenKeys(obj: any, path: string = ''): string[] {
+    return Object.keys(obj).reduce((acc: string[], key: string) => {
+      const newPath = path ? `${path}.${key}` : key
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        acc.push(...flattenKeys(obj[key], newPath))
+      } else {
+        acc.push(newPath)
+      }
+      return acc
+    }, [])
+  }
+
+  const extractNumbers = (str: string) => {
+    const numbers = str.match(/[0-9]+/g)
+    if (numbers && numbers.length >= 2) {
+      const itemIndex = parseInt(numbers[0], 10)
+      const rowIndex = parseInt(numbers[1], 10)
+      return { itemIndex, rowIndex }
+    }
+    return { itemIndex: -1, rowIndex: -1 }
+  }
 
   if (mode !== 'edit') return null
 
@@ -549,16 +605,6 @@ export const EditMode = ({
                     closeModal('SaveChangesModal')
                     // TODO : API 연결필요, 성공시 Toast
                     if (selected.length > 1) {
-                      console.log(selectedItemJobs, 'selectedItemJobs')
-
-                      // const selectedJobs = selected.map((value, index) => ({
-                      //   jobId: value.id,
-                      //   sortingOrder:
-                      //     index === 0
-                      //       ? selected[0].sortingOrder
-                      //       : selected[0].sortingOrder + 1,
-                      //   triggerOrder: index + 1,
-                      // }))
                       let tmpSelected = [...selectedItemJobs]
                       let triggerGroup = !!selected[0].triggerGroup
                         ? selectedItemJobs.filter(
@@ -657,8 +703,40 @@ export const EditMode = ({
                       }
 
                       addTriggerBetweenJobsMutation.mutate(result)
+                    } else {
+                      const flattenedDirtyFields = flattenKeys(dirtyFields).map(
+                        value => {
+                          const lastDotIndex = value.lastIndexOf('.')
+                          const str =
+                            lastDotIndex >= 0
+                              ? value.substring(0, lastDotIndex)
+                              : value
+                          const { itemIndex, rowIndex } = extractNumbers(str)
+                          return { str, itemIndex, rowIndex }
+                        },
+                      )
+                      const changedJob = flattenedDirtyFields.map(value => {
+                        const result = getValues(
+                          `items.${value.itemIndex}.jobs.${value.rowIndex}`,
+                        )
+                        return result
+                      })
+
+                      const result: {
+                        jobId: number
+                        statusCodeForAutoNextJob: number | null
+                        autoNextJob: '0' | '1'
+                        autoSharingFile: '0' | '1'
+                      }[] = changedJob.map((value, index) => ({
+                        jobId: value.id,
+                        statusCodeForAutoNextJob:
+                          value.statusCodeForAutoNextJob,
+                        autoNextJob: value.autoNextJob ? '1' : '0',
+                        autoSharingFile: value.autoSharingFile ? '1' : '0',
+                      }))
+
+                      saveTriggerOptionsMutation.mutate(result)
                     }
-                    // onChangeViewMode()
                   }}
                   onClose={() => closeModal('SaveChangesModal')}
                   title='Save changes?'
