@@ -96,6 +96,7 @@ export type JobType = {
   isShowDescription: boolean
   totalPrice: number
   clientId: number
+
   contactPerson: {
     userId: number
     firstName: string
@@ -138,6 +139,7 @@ export type JobType = {
   sortingOrder: number
   triggerOrder: number
   isJobRequestPresent: boolean
+  triggerExecutedAt: string | null
   redeliveryHistory?: {
     jobId: number
     deleteReason: string[]

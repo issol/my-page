@@ -30,7 +30,12 @@ import {
   createJob,
   createWithJobTemplate,
 } from '@src/apis/jobs/jobs.api'
-import { deleteJob, setJobStatus } from '@src/apis/jobs/job-detail.api'
+import {
+  addTriggerBetweenJobs,
+  deleteJob,
+  saveTriggerOptions,
+  setJobStatus,
+} from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
@@ -47,6 +52,20 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 import { JobListMode } from '@src/views/jobDetails/viewModes'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { JobType } from '@src/types/common/item.type'
+
+export type ItemOptionType = {
+  items: {
+    jobs: JobType[]
+    id: number
+    itemName: string
+    sourceLanguage: string
+    targetLanguage: string
+    contactPersonId: number
+    sortingOrder: number
+  }[]
+}
 
 const JobDetails = () => {
   const router = useRouter()
@@ -72,6 +91,9 @@ const JobDetails = () => {
   const [mode, setMode] = useState<JobListMode>('view')
 
   const [selectedAllItemJobs, setSelectedAllItemJobs] = useState<number[]>([])
+  const [selectedJobs, setSelectedJobs] = useState<{ [key: number]: number[] }>(
+    {},
+  )
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
@@ -81,6 +103,30 @@ const JobDetails = () => {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  const {
+    control,
+    getValues,
+    setValue,
+    watch,
+    reset,
+    trigger,
+    formState: { errors, isValid, isDirty, dirtyFields },
+  } = useForm<ItemOptionType>({
+    mode: 'onSubmit',
+
+    // resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
+  })
+
+  // const {
+  //   fields: members,
+  //   append: appendMember,
+  //   remove: removeMember,
+  //   update: updateMember,
+  // } = useFieldArray({
+  //   control: teamControl,
+  //   name: 'teams',
+  // })
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
@@ -150,6 +196,41 @@ const JobDetails = () => {
     {
       onSuccess: () => {
         refetch()
+      },
+    },
+  )
+
+  const saveTriggerOptionsMutation = useMutation(
+    (
+      data: {
+        jobId: number
+        statusCodeForAutoNextJob: number | null
+        autoNextJob: '0' | '1'
+        autoSharingFile: '0' | '1'
+      }[],
+    ) => saveTriggerOptions(data),
+    {
+      onSuccess: () => {
+        refetch()
+        onChangeViewMode()
+        displayCustomToast('Saved successfully.', 'success')
+      },
+    },
+  )
+
+  const addTriggerBetweenJobsMutation = useMutation(
+    (
+      data: {
+        jobId: number
+        sortingOrder: number
+        triggerOrder?: number
+      }[],
+    ) => addTriggerBetweenJobs(data),
+    {
+      onSuccess: () => {
+        refetch()
+        onChangeViewMode()
+        displayCustomToast('Saved successfully.', 'success')
       },
     },
   )
@@ -384,7 +465,10 @@ const JobDetails = () => {
     // approved
     if (changeStatus === 60600) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
         if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
           flag = false
@@ -395,7 +479,10 @@ const JobDetails = () => {
     // without invoice
     else if (changeStatus === 60900) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // delivered, approved, invoiced, Redelivery requested 일때만 true
         if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
           flag = false
@@ -406,7 +493,10 @@ const JobDetails = () => {
     // canceled
     else if (changeStatus === 601000) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // canceled, paid가 아닐때만 true
         if (job && [60800, 601000].includes(job.status)) {
           flag = false
@@ -420,6 +510,16 @@ const JobDetails = () => {
     }
   }
 
+  useEffect(() => {
+    if (jobDetails) {
+      reset({
+        items: jobDetails.items,
+      })
+    }
+  }, [jobDetails])
+
+  console.log(isDirty, 'dirty')
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
@@ -429,7 +529,14 @@ const JobDetails = () => {
       isLoadingDeleteState ? (
         <OverlaySpinner />
       ) : null}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+          position: 'relative',
+        }}
+      >
         <JobTitleSection
           width='100%'
           display='flex'
@@ -439,6 +546,13 @@ const JobDetails = () => {
           gap='12px'
           borderRadius='6px'
           bgcolor='#fff'
+          // sx={{
+          //   position: 'sticky',
+          //   top: 128,
+          //   zIndex: 1000,
+          //   left: 0,
+          //   border: '2px solid #e0e0e0',
+          // }}
         >
           <Box display='flex' alignItems='center' gap='8px'>
             <IconButton
@@ -491,8 +605,8 @@ const JobDetails = () => {
               <JobButton
                 label='Edit trigger'
                 onClick={onEditTrigger}
-                // disabled={mode !== 'view'}
-                disabled={true} // 에딧 모드는 추후 개발
+                disabled={mode !== 'view'}
+                // disabled={true} // 에딧 모드는 추후 개발
               >
                 {/* <TriggerIcon disabled={mode !== 'view'} /> */}
                 <TriggerIcon disabled={true} />
@@ -508,16 +622,34 @@ const JobDetails = () => {
           )}
         </JobTitleSection>
 
-        <CardListSection display='flex' flexDirection='column' gap='24px'>
+        <CardListSection
+          display='flex'
+          flexDirection='column'
+          gap='24px'
+          // sx={{ marginTop: '100px' }}
+        >
           {jobDetails?.items.map((value, index) => {
             return (
               <JobListCard
                 tableRowRef={tableRowRef}
                 key={`${value.id}-${index}`}
+                selected={selectedJobs[index] ?? []}
+                setSelected={(selected: number[]) => {
+                  if (selected.length === 0) {
+                    setSelectedJobs({})
+                  } else {
+                    setSelectedJobs(prev => ({
+                      ...prev,
+                      [index]: selected,
+                    }))
+                  }
+                }}
                 index={index}
                 mode={mode}
                 info={value}
                 statusList={statusList}
+                allJobs={jobDetails.items.map(item => item.jobs).flat()}
+                allItems={jobDetails.items}
                 isUserInTeamMember={isUserInTeamMember}
                 isMasterManagerUser={isMasterManagerUser}
                 onClickAddJob={onClickAddJob}
@@ -529,6 +661,15 @@ const JobDetails = () => {
                 setSelectedAllItemJobs={setSelectedAllItemJobs}
                 selectedAllItemJobs={selectedAllItemJobs}
                 isStatusUpdatable={isStatusUpdatable}
+                control={control}
+                setValue={setValue}
+                getValues={getValues}
+                trigger={trigger}
+                isDirty={isDirty}
+                refetch={refetch}
+                dirtyFields={dirtyFields}
+                saveTriggerOptionsMutation={saveTriggerOptionsMutation}
+                addTriggerBetweenJobsMutation={addTriggerBetweenJobsMutation}
               />
             )
           })}
