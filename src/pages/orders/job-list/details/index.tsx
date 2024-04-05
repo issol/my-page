@@ -72,6 +72,7 @@ const JobDetails = () => {
   const { orderId, jobId } = router.query
 
   const tableRowRef = useRef<HTMLTableRowElement>(null)
+  const [deleteJobId, setDeleteJobId] = useState<number[]>([])
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -201,18 +202,20 @@ const JobDetails = () => {
   )
 
   const saveTriggerOptionsMutation = useMutation(
-    (
-      data: {
+    (data: {
+      updateData: {
         jobId: number
         statusCodeForAutoNextJob: number | null
         autoNextJob: '0' | '1'
         autoSharingFile: '0' | '1'
-      }[],
-    ) => saveTriggerOptions(data),
+      }[]
+      deleteData: { jobId: number[] }
+    }) => saveTriggerOptions(data),
     {
       onSuccess: () => {
         refetch()
         onChangeViewMode()
+        setDeleteJobId([])
         displayCustomToast('Saved successfully.', 'success')
       },
     },
@@ -670,6 +673,8 @@ const JobDetails = () => {
                 dirtyFields={dirtyFields}
                 saveTriggerOptionsMutation={saveTriggerOptionsMutation}
                 addTriggerBetweenJobsMutation={addTriggerBetweenJobsMutation}
+                deleteJobId={deleteJobId}
+                setDeleteJobId={setDeleteJobId}
               />
             )
           })}

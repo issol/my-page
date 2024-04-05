@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import React, { Dispatch, useState } from 'react'
+import React, { Dispatch, SetStateAction, useState } from 'react'
 import { JobStatus } from '@src/types/common/status.type'
 import {
   JobsStatusChip,
@@ -55,11 +55,16 @@ interface EditModeProps extends ModeProps {
     boolean,
     unknown,
     {
-      jobId: number
-      statusCodeForAutoNextJob: number | null
-      autoNextJob: '0' | '1'
-      autoSharingFile: '0' | '1'
-    }[],
+      updateData: {
+        jobId: number
+        statusCodeForAutoNextJob: number | null
+        autoNextJob: '0' | '1'
+        autoSharingFile: '0' | '1'
+      }[]
+      deleteData: {
+        jobId: number[]
+      }
+    },
     unknown
   >
   addTriggerBetweenJobsMutation: UseMutationResult<
@@ -85,6 +90,8 @@ interface EditModeProps extends ModeProps {
     }[]
   }>
   dirtyFields: any
+  setDeleteJobId: Dispatch<SetStateAction<number[]>>
+  deleteJobId: number[]
 }
 
 export const DeleteMode = ({
@@ -463,6 +470,8 @@ export const EditMode = ({
   addTriggerBetweenJobsMutation,
   selectedItemJobs,
   dirtyFields,
+  setDeleteJobId,
+  deleteJobId,
 }: EditModeProps) => {
   const { openModal, closeModal } = useModal()
 
@@ -581,6 +590,7 @@ export const EditMode = ({
                 })
               } else {
                 resetSelected && resetSelected()
+                setDeleteJobId([])
                 onChangeViewMode()
                 refetch()
               }
@@ -721,21 +731,35 @@ export const EditMode = ({
                         )
                         return result
                       })
+                      const uniqueChangedJob = changedJob.reduce(
+                        (acc: { [key: number]: any }, cur) => {
+                          acc[cur.id] = cur
+                          return acc
+                        },
+                        {},
+                      )
+
+                      const finalChangedJob = Object.values(uniqueChangedJob)
 
                       const result: {
                         jobId: number
                         statusCodeForAutoNextJob: number | null
                         autoNextJob: '0' | '1'
                         autoSharingFile: '0' | '1'
-                      }[] = changedJob.map((value, index) => ({
-                        jobId: value.id,
-                        statusCodeForAutoNextJob:
-                          value.statusCodeForAutoNextJob,
-                        autoNextJob: value.autoNextJob ? '1' : '0',
-                        autoSharingFile: value.autoSharingFile ? '1' : '0',
-                      }))
+                      }[] = finalChangedJob
+                        .filter(value => !deleteJobId.includes(value.id))
+                        .map((value, index) => ({
+                          jobId: value.id,
+                          statusCodeForAutoNextJob:
+                            value.statusCodeForAutoNextJob,
+                          autoNextJob: value.autoNextJob ? '1' : '0',
+                          autoSharingFile: value.autoSharingFile ? '1' : '0',
+                        }))
 
-                      saveTriggerOptionsMutation.mutate(result)
+                      saveTriggerOptionsMutation.mutate({
+                        updateData: result,
+                        deleteData: { jobId: deleteJobId },
+                      })
                     }
                   }}
                   onClose={() => closeModal('SaveChangesModal')}
@@ -747,7 +771,6 @@ export const EditMode = ({
               ),
             })
           }}
-          // onClick={() => changeJobStatus && onClickSave(changeJobStatus)}
         >
           {selected.length > 0
             ? selected.length === 1
