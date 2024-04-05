@@ -363,7 +363,7 @@ const JobListCard = ({
 
   const isTriggerJob = (jobId: number) => {
     return (
-      info.jobs.filter(row => row.id === Number(jobId) && row.templateId)
+      info.jobs.filter(row => row.id === Number(jobId) && row.triggerGroup)
         .length > 0
     )
   }
@@ -780,11 +780,14 @@ const JobListCard = ({
                                           (selectedAllItemJobs.length > 1 &&
                                             !isItemSelected) ||
                                           (selectedAllItemJobs.length === 1 &&
-                                            !!!info.jobs.find(
+                                            (!!!info.jobs.find(
                                               value =>
                                                 value.id ===
                                                 selectedAllItemJobs[0],
-                                            ))
+                                            ) ||
+                                              (row.triggerGroup !== null &&
+                                                row.id !==
+                                                  selectedAllItemJobs[0])))
                                         : false
                                 }
                                 color='primary'
