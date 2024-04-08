@@ -87,8 +87,12 @@ const ProJobInfo = ({
   const router = useRouter()
 
   const { isNextJob } = router.query
-  const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
-
+  // const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
+  const [ isPrevAndNextJob, setIsPrevAndNextJob ] = useState({
+    previousJob: false,
+    nextJob: false
+  })
+  
   const sideBoxRef = useRef<HTMLDivElement>(null)
 
   const auth = useRecoilValueLoadable(authState)
@@ -106,7 +110,14 @@ const ProJobInfo = ({
     [statusList],
   )
 
-  console.log(statusLabel)
+  useEffect(() => {
+    if (data) {
+      setIsPrevAndNextJob({
+        previousJob: data.previousJob ? true : false,
+        nextJob: data.nextJob ? true : false
+      })
+    }
+  }, [data])
 
   const updateJob = useMutation(
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
@@ -372,7 +383,6 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
-    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -576,13 +586,13 @@ const ProJobInfo = ({
       <Box width='100%'>
         <Card
           sx={{
-            display: isPrevAndNextJob ? 'block' : 'none',
+            display: isPrevAndNextJob.nextJob || isPrevAndNextJob.previousJob ? 'block' : 'none',
             padding: '20px',
             marginBottom: '24px',
           }}
         >
           <Box display='flex' flexWrap='wrap' gap='10px '>
-            {data?.previousJob && (
+            {isPrevAndNextJob.previousJob && (
               <NextPrevItemCard
                 title='Previous job'
                 userInfo={data?.previousJob?.pro}
@@ -596,7 +606,7 @@ const ProJobInfo = ({
               />
             )}
 
-            {data?.nextJob && (
+            {isPrevAndNextJob.nextJob && (
               <NextPrevItemCard
                 title='Next job'
                 userInfo={data?.nextJob?.pro}
