@@ -170,6 +170,7 @@ export const getProJobStatusColor = (status: JobStatus) => {
     60800: '#1B8332', // 'Paid'
     60900: '#0D0D0D', // 'Without invoice'
     70500: '#6D788D', // 'Unassigned'
+    70600: '#6D788D', // 'Unassigned'
     601000: '#FF4D49', // 'Canceled'
     601100: '#FF4D49', // 'Payment canceled'
     70200: '#FF4D49', // 'Declined'

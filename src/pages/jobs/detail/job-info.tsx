@@ -74,7 +74,7 @@ const ClientGuidelineView = dynamic(
   { ssr: false },
 )
 
-const excludedStatusCodes = [60100, 70000, 70100, 70200, 70400, 70500]
+const excludedStatusCodes = [60100, 70000, 70100, 70200, 70400, 70500, 70600]
 
 const ProJobInfo = ({
   jobInfo,
@@ -149,7 +149,7 @@ const ProJobInfo = ({
   )
 
   const fileSize = useMemo(() => {
-    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 60100]
+    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 70600, 60100]
 
     if (jobInfo?.files?.length > 0) {
       return jobInfo.files
@@ -218,6 +218,7 @@ const ProJobInfo = ({
         jobInfo.status !== 70300 &&
         jobInfo.status !== 70400 &&
         jobInfo.status !== 70500 &&
+        jobInfo.status !== 70600 &&
         jobInfo.status !== 60100
       ) {
         return value.type === 'SOURCE'
@@ -760,7 +761,8 @@ const ProJobInfo = ({
 
               {jobInfo.status === 70200 ||
               jobInfo.status === 70400 ||
-              jobInfo.status === 70500 ? null : (
+              jobInfo.status === 70500 ||
+              jobInfo.status === 70600 ? null : (
                 <>
                   <RowItem
                     label='Quantity / price unit'
@@ -884,7 +886,7 @@ const ProJobInfo = ({
           sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
         >
           {(fileList && fileList.length === 0) ||
-          [70200, 70300, 70400, 70500, 601000].includes(
+          [70200, 70300, 70400, 70500, 70600, 601000].includes(
             jobInfo.status,
           ) ? null : (
             <Card>
@@ -904,6 +906,7 @@ const ProJobInfo = ({
                     jobInfo.status !== 70300 &&
                     jobInfo.status !== 70400 &&
                     jobInfo.status !== 70500 &&
+                    jobInfo.status !== 70600 &&
                     jobInfo.status !== 60100
                       ? 'Source files'
                       : 'Sample files'}
@@ -915,7 +918,8 @@ const ProJobInfo = ({
                 {fileList?.length === 0 &&
                 jobInfo.status !== 70200 &&
                 jobInfo.status !== 70400 &&
-                jobInfo.status !== 70500 ? null : fileList?.length > 0 ? (
+                jobInfo.status !== 70500 &&
+                jobInfo.status !== 70600 ? null : fileList?.length > 0 ? (
                   <Button
                     variant='outlined'
                     fullWidth
@@ -926,6 +930,7 @@ const ProJobInfo = ({
                       jobInfo.status === 70200 ||
                       jobInfo.status === 70400 ||
                       jobInfo.status === 70500 ||
+                      jobInfo.status === 70600 ||
                       jobInfo.status === 601000
                     }
                   >
