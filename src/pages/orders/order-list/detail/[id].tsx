@@ -1672,7 +1672,7 @@ const OrderDetail = () => {
                             </Link>
                           </MenuItem>
                         ) : null}
-                        {projectInfo.linkedQuote ? (
+                        {projectInfo?.linkedQuote ? (
                           <MenuItem
                             sx={{
                               gap: 2,
@@ -1684,14 +1684,14 @@ const OrderDetail = () => {
                           >
                             Linked quote :
                             <Link
-                              href={`/quotes/detail/${projectInfo.linkedQuote.id}`}
+                              href={`/quotes/detail/${projectInfo?.linkedQuote.id}`}
                               style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                             >
                               {projectInfo?.linkedQuote.corporationId ?? '-'}
                             </Link>
                           </MenuItem>
                         ) : null}
-                        {projectInfo.linkedInvoiceReceivable ? (
+                        {projectInfo?.linkedInvoiceReceivable ? (
                           <MenuItem
                             sx={{
                               gap: 2,
@@ -1703,7 +1703,7 @@ const OrderDetail = () => {
                           >
                             Linked invoice :
                             <Link
-                              href={`/invoice/receivable/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                              href={`/invoice/receivable/detail/${projectInfo?.linkedInvoiceReceivable.id}`}
                               style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                             >
                               {projectInfo?.linkedInvoiceReceivable
@@ -1711,7 +1711,7 @@ const OrderDetail = () => {
                             </Link>
                           </MenuItem>
                         ) : null}
-                        {projectInfo.linkedJobs ? (
+                        {projectInfo?.linkedJobs ? (
                           <MenuItem
                             sx={{
                               gap: 2,
@@ -1722,7 +1722,7 @@ const OrderDetail = () => {
                             }}
                           >
                             <Link
-                              href={`/orders/job-list/details/?orderId=${projectInfo.id}`}
+                              href={`/orders/job-list/details/?orderId=${projectInfo?.id}`}
                               style={{
                                 color: 'rgba(76, 78, 100, 0.87)',
                                 textDecoration: 'none',
