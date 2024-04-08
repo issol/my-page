@@ -721,7 +721,7 @@ export const getProJobAssignColumnsForRequest = (
           <>
             {selectedJobUpdatable ?
               isAssigned ? (
-                row.assignmentStatus === 70300 ? (
+                [70300, 70350].includes(row.assignmentStatus) ? (
                   <Box
                     sx={{
                       display: 'flex',

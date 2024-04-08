@@ -702,7 +702,7 @@ const AssignPro = ({
               job =>
                 job.pros &&
                 Array.isArray(job.pros) &&
-                job.pros.some(pro => pro.assignmentStatus === 70300)
+                job.pros.some(pro => [70300, 70350].includes(pro.assignmentStatus))
             ) || !selectedJobUpdatable ? null : (
               <Button
                 variant='outlined'
