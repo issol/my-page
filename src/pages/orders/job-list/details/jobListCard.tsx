@@ -271,12 +271,9 @@ const JobListCard = ({
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
-    const jobId =
-      row.templateId && row.triggerGroup
-        ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(
-            value => value.id,
-          )
-        : row.id
+    const jobId = row.templateId && row.triggerGroup
+      ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(value => value.id)
+      : row.id
 
     router.push({
       pathname: '/orders/job-list/detail/',
@@ -545,7 +542,9 @@ const JobListCard = ({
     const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key = job.triggerGroup ? `${job.triggerGroup}` : null
+      const key = job.templateId && job.triggerGroup
+        ? `${job.templateId}-${job.triggerGroup}`
+        : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -563,8 +562,6 @@ const JobListCard = ({
         }),
       )
     })
-    console.log(groupedJobs)
-
     setGroupedJobs(Object.fromEntries(groupedJobs))
   }, [jobList])
 
@@ -719,8 +716,8 @@ const JobListCard = ({
                     const isItemSelected = isSelected(row.id)
 
                     let isHighlighted = false
-                    if (row.triggerGroup && isHoverJobId) {
-                      isHighlighted = groupedJobs[`${row.triggerGroup}`]?.some(
+                    if (row.templateId && row.triggerGroup && isHoverJobId) {
+                      isHighlighted = groupedJobs[`${row.templateId}-${row.triggerGroup}`]?.some(
                         value => value.id === isHoverJobId,
                       )
                     }
