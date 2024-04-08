@@ -6,6 +6,7 @@ import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
+  useGetProPreviousAndNextJob,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import {
@@ -64,6 +65,7 @@ const ProJobsDetail = () => {
     !!(assigned && assigned === 'false'),
     isFetched,
   )
+  const { data: proPrevAndNextJob } = useGetProPreviousAndNextJob(Number(id))
 
   // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
   useEffect(() => {
@@ -138,7 +140,7 @@ const ProJobsDetail = () => {
             variant='h5'
             fontWeight={500}
           >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
-          <Box display={nextJob ? 'flex' : 'none'} position='relative'>
+          <Box display={proPrevAndNextJob?.nextJob || proPrevAndNextJob?.previousJob ? 'flex' : 'none'} position='relative'>
             <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
             <div style={{ position: 'absolute', top: 0, left: 36 }}>
               <InfoDialogButton
@@ -206,6 +208,7 @@ const ProJobsDetail = () => {
                   jobPrices={jobPrices}
                   statusList={statusList}
                   jobDetailDots={jobDetailDots}
+                  proPrevAndNextJob={proPrevAndNextJob}
                 />
               ) : null}
             </Suspense>

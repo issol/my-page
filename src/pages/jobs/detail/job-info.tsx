@@ -30,6 +30,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
 import { FileType } from '@src/types/common/file.type'
 import {
+  JobPrevNextItem,
   JobPricesDetailType,
   JobsFileType,
   ProJobDetailType,
@@ -67,6 +68,10 @@ type Props = {
   jobPrices: JobPricesDetailType
   statusList: { label: string; value: number }[]
   jobDetailDots: string[]
+  proPrevAndNextJob: {
+    previousJob: JobPrevNextItem | null
+    nextJob: JobPrevNextItem | null
+  } | undefined
 }
 
 const ClientGuidelineView = dynamic(
@@ -81,17 +86,11 @@ const ProJobInfo = ({
   jobPrices,
   statusList,
   jobDetailDots,
+  proPrevAndNextJob,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const router = useRouter()
-
-  const { isNextJob } = router.query
-  // const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
-  const [ isPrevAndNextJob, setIsPrevAndNextJob ] = useState({
-    previousJob: false,
-    nextJob: false
-  })
   
   const sideBoxRef = useRef<HTMLDivElement>(null)
 
@@ -109,15 +108,6 @@ const ProJobInfo = ({
     () => statusList?.find(i => i.value === jobInfo.status)?.label || '',
     [statusList],
   )
-
-  useEffect(() => {
-    if (data) {
-      setIsPrevAndNextJob({
-        previousJob: data.previousJob ? true : false,
-        nextJob: data.nextJob ? true : false
-      })
-    }
-  }, [data])
 
   const updateJob = useMutation(
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
@@ -586,34 +576,34 @@ const ProJobInfo = ({
       <Box width='100%'>
         <Card
           sx={{
-            display: isPrevAndNextJob.nextJob || isPrevAndNextJob.previousJob ? 'block' : 'none',
+            display: proPrevAndNextJob?.nextJob || proPrevAndNextJob?.previousJob ? 'block' : 'none',
             padding: '20px',
             marginBottom: '24px',
           }}
         >
           <Box display='flex' flexWrap='wrap' gap='10px '>
-            {isPrevAndNextJob.previousJob && (
+            {proPrevAndNextJob?.previousJob && (
               <NextPrevItemCard
                 title='Previous job'
-                userInfo={data?.previousJob?.pro}
-                serviceType={data?.previousJob?.serviceType}
+                userInfo={proPrevAndNextJob?.previousJob?.pro}
+                serviceType={proPrevAndNextJob?.previousJob?.serviceType}
                 date={convertTimeToTimezone(
-                  data?.previousJob?.dueAt,
-                  data?.previousJob?.dueTimezone?.code ||
+                  proPrevAndNextJob?.previousJob?.dueAt,
+                  proPrevAndNextJob?.previousJob?.dueTimezone?.code ||
                     auth.getValue()?.user?.timezone,
                   timezone.getValue(),
                 )}
               />
             )}
 
-            {isPrevAndNextJob.nextJob && (
+            {proPrevAndNextJob?.nextJob && (
               <NextPrevItemCard
                 title='Next job'
-                userInfo={data?.nextJob?.pro}
-                serviceType={data?.nextJob?.serviceType}
+                userInfo={proPrevAndNextJob?.nextJob?.pro}
+                serviceType={proPrevAndNextJob?.nextJob?.serviceType}
                 date={convertTimeToTimezone(
-                  data?.nextJob?.dueAt,
-                  data?.nextJob?.dueTimezone?.code ||
+                  proPrevAndNextJob?.nextJob?.dueAt,
+                  proPrevAndNextJob?.nextJob?.dueTimezone?.code ||
                     auth.getValue()?.user?.timezone,
                   timezone.getValue(),
                 )}
