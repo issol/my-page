@@ -24,6 +24,7 @@ export type JobStatusLabel =
   | 'Declined (Request rejected)' // 70200
   | 'In progress (Assigned)' // 70300
   | 'Unassigned' // 70500
+  | 'Unassigned' // 70600
 
 //NOTE : ProJob status는 job의 assign 진행상태 및 job 자체의 status 변화 모두를 보여주므로, 60000 / 70000 코드가 혼용된다.
 export type JobStatus =
@@ -47,6 +48,7 @@ export type JobStatus =
   | 70300 // In progress (Assigned)
   | 70400 // Canceled
   | 70500 // Unassigned
+  | 70600 // Unassigned
 
 /** ✅ Invoice Status **/
 

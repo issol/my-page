@@ -354,6 +354,7 @@ export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
     70300: '#6D788D', // 'In progress (Assigned)'
     70400: '#6D788D', // 'Canceled'
     70500: '#6D788D', // 'Unassigned'
+    70600: '#6D788D', // 'Unassigned'
   }
 
   const statusLabel = statusList.find(list => list.value === status)?.label!

@@ -37,7 +37,7 @@ const keysJobDetailDots = [
   'description',
 ]
 const excludedStatuses = [
-  60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500,
+  60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500, 70600,
 ]
 
 const ProJobsDetail = () => {
