@@ -424,7 +424,7 @@ export const getProJobDetailDots = async (id: number): Promise<string[]> => {
 
 export const getPreviousAndNextJob = async (
   jobId: number,
-): Promise<{ previousJob: JobPrevNextItem; nextJob: JobPrevNextItem }> => {
+): Promise<{ previousJob: JobPrevNextItem | null; nextJob: JobPrevNextItem | null }> => {
   const { data } = await axios.get(`/api/enough/u/job/${jobId}/previous-next`)
   return data
 }
