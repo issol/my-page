@@ -390,26 +390,51 @@ const InfoEditModal = ({
     })
   }
 
+  console.log("jobInfo",jobInfo)
   const onSubmit = () => {
     if (!isDirty && deletedFiles.length === 0 && files.length === 0) {
       onClose()
     } else {
-      openModal({
-        type: 'SaveInfoModal',
-        children: (
-          <CustomModalV2
-            title='Save changes?'
-            subtitle='Are you sure you want to save all changes?'
-            rightButtonText='Save'
-            vary='successful'
-            onClose={() => closeModal('SaveInfoModal')}
-            onClick={() => {
-              closeModal('SaveInfoModal')
-              handleSave()
-            }}
-          />
-        ),
-      })
+      if (jobInfo?.pro) {
+        openModal({
+          type: 'ReviseInfoModal',
+          children: (
+            <CustomModalV2
+              title='Revise job information?'
+              subtitle={
+                <>
+                  Are you sure you want to revise the job information?<br/><br/>
+                  It will directly impact the Pro, and the updated job information will be communicated to the Pro.
+                </>
+              }
+              rightButtonText='Revise'
+              vary='error-alert'
+              onClose={() => closeModal('ReviseInfoModal')}
+              onClick={() => {
+                closeModal('ReviseInfoModal')
+                handleSave()
+              }}
+            />
+          ),
+        })
+      } else {
+        openModal({
+          type: 'SaveInfoModal',
+          children: (
+            <CustomModalV2
+              title='Save changes?'
+              subtitle='Are you sure you want to save all changes?'
+              rightButtonText='Save'
+              vary='successful'
+              onClose={() => closeModal('SaveInfoModal')}
+              onClick={() => {
+                closeModal('SaveInfoModal')
+                handleSave()
+              }}
+            />
+          ),
+        })
+      }
     }
   }
 
