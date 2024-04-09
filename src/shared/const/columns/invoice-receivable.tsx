@@ -170,7 +170,7 @@ export const getInvoiceReceivableListColumns = (
               '-'
             )}
 
-            {row.orders.length === 1 && row.orders[0].serviceType.length ? (
+            {row.orders.length === 1 && row.orders[0].serviceType?.length ? (
               <>
                 <ServiceTypeChip
                   size='small'
