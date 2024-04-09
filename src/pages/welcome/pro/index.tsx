@@ -196,7 +196,7 @@ const PersonalInfoPro = () => {
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.cvs'],
+      'text/csv': ['.csv'],
       'application/pdf': ['.pdf'],
       'application/msword': ['.doc'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
