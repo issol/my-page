@@ -37,7 +37,7 @@ const ProDetail = () => {
   const router = useRouter()
 
   const { id } = router.query
-  const [value, setValue] = useState<string>('projects')
+  const [value, setValue] = useState<string>('overview')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -55,6 +55,14 @@ const ProDetail = () => {
           style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
         >
           <CustomTap
+            value='overview'
+            label='Overview'
+            iconPosition='start'
+            icon={<Icon icon='material-symbols:person-outline' />}
+            onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+          />
+
+          <CustomTap
             value='projects'
             label='Projects'
             iconPosition='start'
@@ -71,14 +79,6 @@ const ProDetail = () => {
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           )}
-
-          <CustomTap
-            value='overview'
-            label='Overview'
-            iconPosition='start'
-            icon={<Icon icon='material-symbols:person-outline' />}
-            onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-          />
 
           <CustomTap
             value='paymentInfo'
