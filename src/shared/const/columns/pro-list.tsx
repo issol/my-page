@@ -83,10 +83,13 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setIdOrder(!idOrder)
-                  setFilters(prevState => ({
-                    ...prevState,
-                    sortId: idOrder ? 'ASC' : 'DESC',
-                  }))
+                  setFilters(prevState => {
+                    const { sortDate, ...filteredState } = prevState;
+                    return {
+                      ...filteredState,
+                      sortId: idOrder ? 'ASC' : 'DESC',
+                    }
+                  })
                 }}
               />
             </IconButton>
@@ -343,10 +346,13 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setDateOrder(!dateOrder)
-                  setFilters(prevState => ({
-                    ...prevState,
-                    sortDate: dateOrder ? 'ASC' : 'DESC',
-                  }))
+                  setFilters(prevState => {
+                    const { sortId, ...filteredState } = prevState;
+                    return {
+                      ...filteredState,
+                      sortDate: dateOrder ? 'ASC' : 'DESC',
+                    }
+                  })
                 }}
               />
             </IconButton>
