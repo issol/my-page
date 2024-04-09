@@ -1321,8 +1321,7 @@ const JobDetail = () => {
                 ? 10.416
                 : 7.632
               : value === 'info'
-                ? (selectedJobInfo?.jobInfo.pro === null ||
-                  !selectedJobUpdatable())
+                ? selectedJobInfo?.jobInfo.pro === null
                   ? 10.416
                   : 7.632
                 : value === 'prices'
@@ -1668,8 +1667,7 @@ const JobDetail = () => {
         {selectedJobInfo &&
         (selectedJobInfo.jobInfo.name === null ||
           selectedJobInfo.jobPrices.priceId === null ||
-          selectedJobInfo.jobAssign === null ||
-          !selectedJobUpdatable()
+          selectedJobInfo.jobAssign === null
           ) ? null : (
           <Grid item xs={2.784}>
             <Box
@@ -1740,14 +1738,14 @@ const JobDetail = () => {
                             )}
                             / {byteToGB(MAXIMUM_FILE_SIZE)}
                           </Typography>
-                          <Button
+                          {selectedJobUpdatable() && <Button
                             fullWidth
                             variant='contained'
                             sx={{ mt: '8px' }}
                             onClick={() => onClickUploadSourceFile()}
                           >
                             Upload files
-                          </Button>
+                          </Button>}
                           {sourceFileList && sourceFileList.length > 0
                             ? Object.entries(
                                 sourceFileList.reduce(
@@ -1855,6 +1853,7 @@ const JobDetail = () => {
                           {(selectedJobInfo.jobInfo.status === 60300 ||
                             selectedJobInfo.jobInfo.status === 60400 ||
                             selectedJobInfo.jobInfo.status === 60500) &&
+                            (jobDeliveriesFeedbacks?.deliveries && jobDeliveriesFeedbacks?.deliveries?.length > 0) &&
                           selectedJobUpdatable() ? (
                             <>
                               <IconButton
@@ -2098,7 +2097,7 @@ const JobDetail = () => {
                           {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
                           selectedJobInfo.jobInfo.status === 60250 ? ( */}
-                          <>
+                          {selectedJobUpdatable() && <>
                             <Button
                               fullWidth
                               variant='contained'
@@ -2108,7 +2107,7 @@ const JobDetail = () => {
                               Add feedback
                             </Button>
                             {/* <Divider /> */}
-                          </>
+                          </>}
                           {/* ) : null} */}
 
                           {useJobFeedbackForm ? (

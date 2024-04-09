@@ -126,7 +126,7 @@ const ProjectInfo = ({
   })
 
   const onClickDelete = () => {
-    if (!project.linkedInvoiceReceivable && project.linkedJobs.length === 0) {
+    if (!project?.linkedInvoiceReceivable && project?.linkedJobs?.length === 0) {
       openModal({
         type: 'DeleteOrderModal',
         children: (
@@ -151,7 +151,7 @@ const ProjectInfo = ({
           />
         ),
       })
-    } else if (project.linkedJobs.length > 0) {
+    } else if (project?.linkedJobs?.length > 0) {
       openModal({
         type: 'DisableDeleteOrderModal',
         children: (
@@ -353,7 +353,7 @@ const ProjectInfo = ({
       const filteredJob = jobInfo.filter(job => job.isProAssigned)
 
       // 포함된 job중에서 pro가 assign된 job이 없는 경우 => cancel 가능 + 경고모달
-      if (!filteredJob || filteredJob.length === 0) {
+      if (!filteredJob || filteredJob?.length === 0) {
         const jobTitle = jobInfo.map(job => job.jobName)
         openModal({
           type: `CancelJobInfoModal`,
@@ -880,7 +880,7 @@ const ProjectInfo = ({
                       flexWrap: 'wrap',
                     }}
                   >
-                    {project.serviceType && project.serviceType.length > 0
+                    {project?.serviceType && project?.serviceType?.length > 0
                       ? project.serviceType.map(value => {
                           return (
                             <ServiceTypeChip label={value} key={uuidv4()} />
@@ -917,7 +917,7 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {project.genre && project.genre.length > 0
+                    {project?.genre && project?.genre?.length > 0
                       ? project.genre.map((value, idx) => {
                           return (
                             <Typography key={uuidv4()} variant='subtitle2'>

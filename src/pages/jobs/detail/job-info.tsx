@@ -30,6 +30,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
 import { FileType } from '@src/types/common/file.type'
 import {
+  JobPrevNextItem,
   JobPricesDetailType,
   JobsFileType,
   ProJobDetailType,
@@ -67,6 +68,10 @@ type Props = {
   jobPrices: JobPricesDetailType
   statusList: { label: string; value: number }[]
   jobDetailDots: string[]
+  proPrevAndNextJob: {
+    previousJob: JobPrevNextItem | null
+    nextJob: JobPrevNextItem | null
+  } | undefined
 }
 
 const ClientGuidelineView = dynamic(
@@ -74,21 +79,19 @@ const ClientGuidelineView = dynamic(
   { ssr: false },
 )
 
-const excludedStatusCodes = [60100, 70000, 70100, 70200, 70400, 70500]
+const excludedStatusCodes = [60100, 70000, 70100, 70200, 70400, 70500, 70600]
 
 const ProJobInfo = ({
   jobInfo,
   jobPrices,
   statusList,
   jobDetailDots,
+  proPrevAndNextJob,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const router = useRouter()
-
-  const { isNextJob } = router.query
-  const isPrevAndNextJob = JSON.parse((isNextJob as string) || 'false')
-
+  
   const sideBoxRef = useRef<HTMLDivElement>(null)
 
   const auth = useRecoilValueLoadable(authState)
@@ -105,8 +108,6 @@ const ProJobInfo = ({
     () => statusList?.find(i => i.value === jobInfo.status)?.label || '',
     [statusList],
   )
-
-  console.log(statusLabel)
 
   const updateJob = useMutation(
     (status: JobStatus) => patchProJobDetail(jobInfo.id, { status: status }),
@@ -138,7 +139,7 @@ const ProJobInfo = ({
   )
 
   const fileSize = useMemo(() => {
-    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 60100]
+    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 70600, 60100]
 
     if (jobInfo?.files?.length > 0) {
       return jobInfo.files
@@ -207,6 +208,7 @@ const ProJobInfo = ({
         jobInfo.status !== 70300 &&
         jobInfo.status !== 70400 &&
         jobInfo.status !== 70500 &&
+        jobInfo.status !== 70600 &&
         jobInfo.status !== 60100
       ) {
         return value.type === 'SOURCE'
@@ -372,7 +374,6 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: JobStatus) => {
-    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -576,34 +577,34 @@ const ProJobInfo = ({
       <Box width='100%'>
         <Card
           sx={{
-            display: isPrevAndNextJob ? 'block' : 'none',
+            display: proPrevAndNextJob?.nextJob || proPrevAndNextJob?.previousJob ? 'block' : 'none',
             padding: '20px',
             marginBottom: '24px',
           }}
         >
           <Box display='flex' flexWrap='wrap' gap='10px '>
-            {data?.previousJob && (
+            {proPrevAndNextJob?.previousJob && (
               <NextPrevItemCard
                 title='Previous job'
-                userInfo={data?.previousJob?.pro}
-                serviceType={data?.previousJob?.serviceType}
+                userInfo={proPrevAndNextJob?.previousJob?.pro}
+                serviceType={proPrevAndNextJob?.previousJob?.serviceType}
                 date={convertTimeToTimezone(
-                  data?.previousJob?.dueAt,
-                  data?.previousJob?.dueTimezone?.code ||
+                  proPrevAndNextJob?.previousJob?.dueAt,
+                  proPrevAndNextJob?.previousJob?.dueTimezone?.code ||
                     auth.getValue()?.user?.timezone,
                   timezone.getValue(),
                 )}
               />
             )}
 
-            {data?.nextJob && (
+            {proPrevAndNextJob?.nextJob && (
               <NextPrevItemCard
                 title='Next job'
-                userInfo={data?.nextJob?.pro}
-                serviceType={data?.nextJob?.serviceType}
+                userInfo={proPrevAndNextJob?.nextJob?.pro}
+                serviceType={proPrevAndNextJob?.nextJob?.serviceType}
                 date={convertTimeToTimezone(
-                  data?.nextJob?.dueAt,
-                  data?.nextJob?.dueTimezone?.code ||
+                  proPrevAndNextJob?.nextJob?.dueAt,
+                  proPrevAndNextJob?.nextJob?.dueTimezone?.code ||
                     auth.getValue()?.user?.timezone,
                   timezone.getValue(),
                 )}
@@ -750,7 +751,8 @@ const ProJobInfo = ({
 
               {jobInfo.status === 70200 ||
               jobInfo.status === 70400 ||
-              jobInfo.status === 70500 ? null : (
+              jobInfo.status === 70500 ||
+              jobInfo.status === 70600 ? null : (
                 <>
                   <RowItem
                     label='Quantity / price unit'
@@ -874,7 +876,7 @@ const ProJobInfo = ({
           sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
         >
           {(fileList && fileList.length === 0) ||
-          [70200, 70300, 70400, 70500, 601000].includes(
+          [70200, 70300, 70400, 70500, 70600, 601000].includes(
             jobInfo.status,
           ) ? null : (
             <Card>
@@ -894,6 +896,7 @@ const ProJobInfo = ({
                     jobInfo.status !== 70300 &&
                     jobInfo.status !== 70400 &&
                     jobInfo.status !== 70500 &&
+                    jobInfo.status !== 70600 &&
                     jobInfo.status !== 60100
                       ? 'Source files'
                       : 'Sample files'}
@@ -905,7 +908,8 @@ const ProJobInfo = ({
                 {fileList?.length === 0 &&
                 jobInfo.status !== 70200 &&
                 jobInfo.status !== 70400 &&
-                jobInfo.status !== 70500 ? null : fileList?.length > 0 ? (
+                jobInfo.status !== 70500 &&
+                jobInfo.status !== 70600 ? null : fileList?.length > 0 ? (
                   <Button
                     variant='outlined'
                     fullWidth
@@ -916,6 +920,7 @@ const ProJobInfo = ({
                       jobInfo.status === 70200 ||
                       jobInfo.status === 70400 ||
                       jobInfo.status === 70500 ||
+                      jobInfo.status === 70600 ||
                       jobInfo.status === 601000
                     }
                   >

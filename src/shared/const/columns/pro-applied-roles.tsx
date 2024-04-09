@@ -132,26 +132,28 @@ export const getProAppliedRolesColumns = (
               >
                 -
               </Typography>
-            ) : (
+            ) : row.status === 'Certified' &&
+                row.basicTest === null &&
+                row.skillTest === null ? null : (
               <>
                 <Typography
                   // component={'span'}
                   variant='body1'
-                  fontWeight={row.basicTest.isPassed !== null ? 600 : 400}
+                  fontWeight={row.basicTest?.isPassed !== null ? 600 : 400}
                   color={
-                    row.basicTest.isPassed === null
+                    row.basicTest?.isPassed === null
                       ? 'rgba(76, 78, 100, 0.38)'
-                      : row.basicTest.isPassed
+                      : row.basicTest?.isPassed
                         ? '#72E128'
                         : '#FF4D49'
                   }
                 >
                   Basic:{' '}
-                  {row.basicTest.isPassed === null
-                    ? row.basicTest.isSkipped
+                  {row.basicTest?.isPassed === null
+                    ? row.basicTest?.isSkipped
                       ? '→'
                       : '-'
-                    : row.basicTest.isPassed
+                    : row.basicTest?.isPassed
                       ? 'P'
                       : 'F'}
                 </Typography>{' '}
@@ -164,20 +166,20 @@ export const getProAppliedRolesColumns = (
                 </Typography>
                 <Typography
                   variant='body2'
-                  fontWeight={row.skillTest.isPassed !== null ? 600 : 400}
+                  fontWeight={row.skillTest?.isPassed !== null ? 600 : 400}
                   fontSize={16}
                   color={
-                    row.skillTest.isPassed === null
+                    row.skillTest?.isPassed === null
                       ? 'rgba(76, 78, 100, 0.38)'
-                      : row.skillTest.isPassed
+                      : row.skillTest?.isPassed
                         ? '#72E128'
                         : '#FF4D49'
                   }
                 >
                   Skill:{' '}
-                  {row.skillTest.isPassed === null
+                  {row.skillTest?.isPassed === null
                     ? '-'
-                    : row.skillTest.isPassed
+                    : row.skillTest?.isPassed
                       ? 'P'
                       : 'F'}
                 </Typography>
@@ -339,9 +341,9 @@ export const getProAppliedRolesColumns = (
           <Box>
             {FullDateTimezoneHelper(
               row.status === 'Basic in progress'
-                ? row.basicTest.testStartedAt
+                ? row.basicTest?.testStartedAt
                 : row.status === 'Skill in progress'
-                  ? row.skillTest.testStartedAt
+                  ? row.skillTest?.testStartedAt
                   : null,
               auth.getValue().user?.timezone!,
             )}
