@@ -1253,7 +1253,7 @@ export const handlers = [
           'Travel',
           'Science/Engineering',
         ],
-        notesFromUser: 'hi',
+        noteFromUser: 'hi',
         resume: [],
         contracts: [],
         commentsOnPro: [
@@ -1795,7 +1795,7 @@ export const handlers = [
           'Travel',
           'Science/Engineering',
         ],
-        notesFromUser: 'hi',
+        noteFromUser: 'hi',
         resume: [],
         contracts: [],
         commentsOnPro: [
