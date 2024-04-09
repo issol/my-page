@@ -135,50 +135,19 @@ export const getProListColumns = (
       },
     },
     {
-      minWidth: 260,
-      field: 'clients',
-      headerName: 'Clients',
+      minWidth: 160,
+      field: 'resume',
+      headerName: 'Resume',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Clients</Box>,
+      renderHeader: () => <Box>Resume</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {!row.clients?.length
-              ? '-'
-              : row.clients?.map(
-                  (item, idx) =>
-                    idx < 2 && (
-                      <Box
-                        key={uuidv4()}
-                        sx={{
-                          display: 'flex',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            maxWidth: '150px',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {item.client}{' '}
-                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
-                        </Box>
-                      </Box>
-                    ),
-                )}
-            {row.clients?.length > 1 ? (
-              <Box>+{row.clients?.length - 1}</Box>
-            ) : null}
-          </Box>
+          <ListResume
+            resume={row.resume}
+            onClickFile={onClickFile}
+          ></ListResume>
         )
       },
     },
@@ -288,23 +257,53 @@ export const getProListColumns = (
       },
     },
     {
-      minWidth: 160,
-      field: 'resume',
-      headerName: 'Resume',
+      minWidth: 260,
+      field: 'clients',
+      headerName: 'Clients',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Resume</Box>,
+      renderHeader: () => <Box>Clients</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <ListResume
-            resume={row.resume}
-            onClickFile={onClickFile}
-          ></ListResume>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {!row.clients?.length
+              ? '-'
+              : row.clients?.map(
+                  (item, idx) =>
+                    idx < 2 && (
+                      <Box
+                        key={uuidv4()}
+                        sx={{
+                          display: 'flex',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            maxWidth: '150px',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {item.client}{' '}
+                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
+                        </Box>
+                      </Box>
+                    ),
+                )}
+            {row.clients?.length > 1 ? (
+              <Box>+{row.clients?.length - 1}</Box>
+            ) : null}
+          </Box>
         )
       },
     },
-
     {
       minWidth: 190,
       field: 'experience',
