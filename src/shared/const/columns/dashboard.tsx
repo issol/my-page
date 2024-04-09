@@ -159,7 +159,7 @@ export const RequestColumns: GridColumns = [
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       let color = '#7F889B'
-      const timeZone = row.desiredDueTimezone.label
+      const timeZone = row.desiredDueTimezone?.label
 
       if (!timeZone) {
         return (

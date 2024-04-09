@@ -61,7 +61,7 @@ const ProsList = () => {
     take: proListPageSize,
     skip: proListPage * proListPageSize,
     sortId: 'DESC',
-    sortDate: 'DESC',
+    // sortDate: 'DESC',
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
@@ -141,7 +141,7 @@ const ProsList = () => {
       take: proListPageSize,
       skip: proListPageSize * proListPage,
       sortId: 'DESC',
-      sortDate: 'DESC',
+      // sortDate: 'DESC',
     }
 
     setFilters(filter)
