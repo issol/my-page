@@ -381,7 +381,7 @@ const PersonalInfoPro = () => {
   }
 
   function addJobInfo() {
-    if (jobInfoFields.length >= 10) {
+    if (jobInfoFields?.length >= 10) {
       openModal({
         type: 'MaximumError',
         children: (
@@ -417,12 +417,14 @@ const PersonalInfoPro = () => {
     value: any,
     item: 'jobType' | 'role' | 'source' | 'target',
   ) {
+    console.log("onChangeJobInfo",id,value,item)
     const filtered = jobInfoFields.filter(f => f.id! === id)[0]
     const index = jobInfoFields.findIndex(f => f.id! === id)
     let newVal = { ...filtered, [item]: value }
     if (item === 'jobType' && value === 'DTP') {
       newVal = { ...filtered, [item]: value, source: '', target: '' }
     }
+    console.log("onChangeJobInfo2",filtered,index,newVal)
     update(index, newVal)
     trigger('jobInfo')
   }
@@ -958,7 +960,7 @@ const PersonalInfoPro = () => {
                             {idx < 9 ? 0 : null}
                             {idx + 1}.
                           </Typography>
-                          {jobInfoFields.length > 1 && (
+                          {jobInfoFields?.length > 1 && (
                             <IconButton onClick={() => removeJobInfo(item)}>
                               <img
                                 src='/images/signup/delete-info.png'
@@ -1018,7 +1020,7 @@ const PersonalInfoPro = () => {
                                   options={
                                     item.role && item.role !== ''
                                       ? /* @ts-ignore */
-                                        ProJobPair[item.role]
+                                        ProJobPair[item.role] ?? JobList
                                       : JobList
                                   }
                                   getOptionLabel={option => option.label}
@@ -1436,7 +1438,7 @@ const PersonalInfoPro = () => {
                         {errors.resume.message}
                       </FormHelperText>
                     )}
-                    {files.length ? (
+                    {files?.length ? (
                       <Fragment>
                         <List>{fileList}</List>
                       </Fragment>
