@@ -12,12 +12,13 @@ type Props = {
 }
 
 export default function NoteFromPro({ userInfo }: Props) {
+  console.log("userInfo", userInfo)
   return (
     <Card sx={{ padding: '20px' }}>
       <CardHeader title='Notes from Pro' sx={{ padding: 0 }}></CardHeader>
       <Divider sx={{ my: theme => `${theme.spacing(7)} !important` }} />
       <CardContent sx={{ padding: 0 }}>
-        {userInfo.notesFromUser ?? '-'}
+        {userInfo.noteFromUser ?? '-'}
       </CardContent>
     </Card>
   )

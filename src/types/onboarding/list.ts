@@ -79,7 +79,7 @@ export type OnboardingUserType = {
   experience: string
   jobInfo: Array<OnboardingJobInfoType>
   isOnboarded: boolean
-  notesFromUser?: string | null
+  noteFromUser?: string | null
   isActive: boolean
   legalNamePronunciation?: string | null
   pronounce?: PronounceType | null
