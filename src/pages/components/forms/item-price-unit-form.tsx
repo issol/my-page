@@ -161,8 +161,6 @@ export default function ItemPriceUnitForm({
   setDarkMode,
   remove,
 }: Props) {
-  console.log(details)
-
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -248,10 +246,6 @@ export default function ItemPriceUnitForm({
   const updateTotalPrice = () => {
     checkPriceId()
     getTotalPrice()
-    // const newTotalPrice = getValues(`items.${index}.totalPrice`)
-    // setTotalPrice(newTotalPrice)
-
-    // sumTotalPrice()
   }
 
   return (

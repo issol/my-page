@@ -1,5 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Autocomplete, Box, Button, Card, Grid, TextField } from '@mui/material'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  TextField,
+  Typography,
+} from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
@@ -100,6 +109,7 @@ type Props = {
   prices?: StandardPriceListType[]
   orderItems: ItemType[]
   setPriceId: Dispatch<SetStateAction<number | null>>
+  setIsNotApplicable: Dispatch<SetStateAction<boolean>>
 }
 
 const EditPrices = ({
@@ -120,6 +130,7 @@ const EditPrices = ({
   prices,
   orderItems,
   setPriceId,
+  setIsNotApplicable,
 }: Props) => {
   const queryClient = useQueryClient()
 
@@ -287,92 +298,105 @@ const EditPrices = ({
           Saved successfully123
         </Box>
       )} */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <Box sx={{ display: 'flex', gap: '20px' }}>
-          <Box sx={{ flex: 1 }}>
-            <Autocomplete
-              fullWidth
-              isOptionEqualToValue={(option, newValue) => {
-                return option.value === newValue.value
-              }}
-              value={
-                // jobPrices.source && jobPrices.target
-                //   ? {
-                //       value: `${languageHelper(
-                //         jobPrices.source,
-                //       )} -> ${languageHelper(jobPrices.target)}`,
-                //       label: `${languageHelper(
-                //         jobPrices.source,
-                //       )} -> ${languageHelper(jobPrices.target)}`,
-                //     }
-                //   : { value: '', label: '' }
-                {
-                  value: `${languageHelper(
-                    languagePair.sourceLanguage,
-                  )} → ${languageHelper(languagePair.targetLanguage)}`,
-                  label: `${languageHelper(
-                    languagePair.sourceLanguage,
-                  )} → ${languageHelper(languagePair.targetLanguage)}`,
+      <Card sx={{ padding: '20px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+          }}
+        >
+          <Typography fontSize={20} fontWeight={500}>
+            {row.corporationId}
+          </Typography>
+          <Divider sx={{ my: '5px !important' }} />
+          <Box sx={{ display: 'flex', gap: '20px' }}>
+            <Box sx={{ flex: 1 }}>
+              <Autocomplete
+                fullWidth
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
+                value={
+                  // jobPrices.source && jobPrices.target
+                  //   ? {
+                  //       value: `${languageHelper(
+                  //         jobPrices.source,
+                  //       )} -> ${languageHelper(jobPrices.target)}`,
+                  //       label: `${languageHelper(
+                  //         jobPrices.source,
+                  //       )} -> ${languageHelper(jobPrices.target)}`,
+                  //     }
+                  //   : { value: '', label: '' }
+                  {
+                    value: `${languageHelper(
+                      languagePair.sourceLanguage,
+                    )} → ${languageHelper(languagePair.targetLanguage)}`,
+                    label: `${languageHelper(
+                      languagePair.sourceLanguage,
+                    )} → ${languageHelper(languagePair.targetLanguage)}`,
+                  }
                 }
-              }
-              options={[]}
-              id='languagePair'
-              getOptionLabel={option => option.label}
-              disabled
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  autoComplete='off'
-                  label='Language pair*'
-                />
-              )}
-            />
+                options={[]}
+                id='languagePair'
+                getOptionLabel={option => option.label}
+                disabled
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    autoComplete='off'
+                    label='Language pair*'
+                  />
+                )}
+              />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Autocomplete
+                fullWidth
+                value={price ?? null}
+                options={options}
+                groupBy={option => option?.groupName ?? ''}
+                onChange={(e, v) => {
+                  if (v) {
+                    setPrice(v)
+                    setItem(`items.${0}.priceId`, v.id, {
+                      shouldValidate: true,
+                    })
+                    // if (v?.languagePairs[0]?.minimumPrice)
+                    const matchedLanguagePair =
+                      findMatchedLanguagePairInItems(v)
+                    if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
+                      openMinimumPriceModal(v)
+                    setOverridePriceUnit(true)
+                    setPriceId(v.id)
+                    setIsNotApplicable(v.id === NOT_APPLICABLE ? true : false)
+                    itemTrigger()
+                  } else {
+                    setPrice(null)
+                  }
+                }}
+                id='autocomplete-controlled'
+                getOptionLabel={option => option.priceName}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    autoComplete='off'
+                    placeholder='Price*'
+                  />
+                )}
+              />
+            </Box>
           </Box>
-          <Box sx={{ flex: 1 }}>
-            <Autocomplete
-              fullWidth
-              value={price ?? null}
-              options={options}
-              groupBy={option => option?.groupName ?? ''}
-              onChange={(e, v) => {
-                if (v) {
-                  console.log(v)
 
-                  setPrice(v)
-                  setItem(`items.${0}.priceId`, v.id, { shouldValidate: true })
-                  // if (v?.languagePairs[0]?.minimumPrice)
-                  const matchedLanguagePair = findMatchedLanguagePairInItems(v)
-                  if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
-                    openMinimumPriceModal(v)
-                  setOverridePriceUnit(true)
-                  setPriceId(v.id)
-                  itemTrigger()
-                } else {
-                  setPrice(null)
-                }
+          <Box sx={{ width: '100%' }}>
+            {/* <Box
+              sx={{
+                border: ' 1px solid rgba(76, 78, 100, 0.22)',
+                borderRadius: '10px',
+                height: '482px',
+                maxHeight: '482px',
               }}
-              id='autocomplete-controlled'
-              getOptionLabel={option => option.priceName}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  autoComplete='off'
-                  placeholder='Price*'
-                />
-              )}
-            />
-          </Box>
-        </Box>
-
-        <Box sx={{ width: '100%' }}>
-          <Box
-            sx={{
-              border: ' 1px solid rgba(76, 78, 100, 0.22)',
-              borderRadius: '10px',
-              height: '482px',
-              maxHeight: '482px',
-            }}
-          >
+            > */}
             <Row
               getItem={getItem}
               getPriceOptions={getPriceOptions}
@@ -391,9 +415,11 @@ const EditPrices = ({
               orderItems={orderItems}
               currentOrderItemId={item?.id}
             />
+            {/* </Box> */}
           </Box>
         </Box>
-      </Box>
+      </Card>
+
       {/* <Box
         mt='20px'
         sx={{

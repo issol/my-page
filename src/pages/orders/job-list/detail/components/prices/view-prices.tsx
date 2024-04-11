@@ -101,7 +101,7 @@ const ViewPrices = ({
   setEditPrices,
   type,
   jobPriceHistory,
-  selectedJobUpdatable
+  selectedJobUpdatable,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -150,7 +150,6 @@ const ViewPrices = ({
   }: {
     priceHistory: jobPriceHistoryType
   }) => {
-    console.log('priceHistoryDetail', priceHistory.detail)
     return (
       <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -239,7 +238,9 @@ const ViewPrices = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {type === 'history' || !selectedJobUpdatable ? null : ![60800, 601000].includes(row.status) ? (
+      {type === 'history' || !selectedJobUpdatable ? null : ![
+          60800, 601000,
+        ].includes(row.status) ? (
         <Box
           sx={{
             display: 'flex',

@@ -129,7 +129,7 @@ import EditPrices from './components/prices/edit-prices'
 import ViewPrices from './components/prices/view-prices'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { Resolver, useFieldArray, useForm } from 'react-hook-form'
-import { languageType } from '../../add-new'
+import { languageType, proDefaultOption } from '../../add-new'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
@@ -137,6 +137,12 @@ import toast from 'react-hot-toast'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
+import { log } from 'console'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -348,6 +354,7 @@ const JobDetail = () => {
     setValue: setItem,
     trigger: itemTrigger,
     reset: itemReset,
+    watch: itemWatch,
     formState: { errors: itemErrors, isValid: itemValid },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
@@ -370,6 +377,12 @@ const JobDetail = () => {
     control: itemControl,
     name: 'items',
   })
+
+  const [isNotApplicable, setIsNotApplicable] = useState<boolean>(false)
+  const itemData = getItem(`items.${0}`)
+  console.log(getItem(), 'item data')
+
+  const currentInitialItem = getItem(`items.${0}.initialPrice`)
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setAddRoundMode(false)
@@ -975,12 +988,130 @@ const JobDetail = () => {
 
   const selectedJobUpdatable = () => {
     if (selectedJobInfo) {
-      const isTeamMember = auth.getValue().user?.userId === selectedJobInfo?.jobInfo?.contactPerson?.userId
-      const isMasterManager = auth.getValue().user?.roles?.some(role => ['Master','Manager'].includes(role.type) && role.name === 'LPM')  
+      const isTeamMember =
+        auth.getValue().user?.userId ===
+        selectedJobInfo?.jobInfo?.contactPerson?.userId
+      const isMasterManager = auth
+        .getValue()
+        .user?.roles?.some(
+          role =>
+            ['Master', 'Manager'].includes(role.type) && role.name === 'LPM',
+        )
       return Boolean(isTeamMember || isMasterManager)
     } else {
       return false
     }
+  }
+
+  const getPriceOptions = (source: string, target: string) => {
+    // if (!isSuccess) return [proDefaultOption]
+    if (!prices) return [proDefaultOption]
+
+    // const filteredPriceUnit = prices.priceUnit.filter(value => value !== null)
+    const filteredList = prices
+      .map(item => ({
+        ...item,
+        priceUnit: item.priceUnit.filter(value => value !== null),
+      }))
+      .filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      })
+      .map(item => ({
+        groupName: item.isStandard ? 'Standard pro price' : 'Matching price',
+
+        ...item,
+      }))
+
+    return [proDefaultOption].concat(filteredList)
+  }
+
+  console.log(isNotApplicable, 'isNotApplicable')
+
+  const handleShowMinimum = (value: boolean) => {
+    const minimumPrice = Number(getItem(`items.${0}.minimumPrice`))
+    const totalPrice = Number(getItem(`items.${0}.totalPrice`))
+    const minimumPriceApplied = getItem(`items.${0}.minimumPriceApplied`)
+
+    if (minimumPriceApplied && minimumPrice < totalPrice) return //데이터가 잘못된 케이스
+    if (minimumPrice) {
+      if (value) {
+        if (minimumPrice && minimumPrice >= totalPrice) {
+          setItem(`items.${0}.minimumPriceApplied`, true, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        } else {
+          setItem(`items.${0}.minimumPriceApplied`, false, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
+      } else if (!value) {
+        setItem(`items.${0}.minimumPriceApplied`, false, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
+    } else {
+      setItem(`items.${0}.minimumPriceApplied`, false, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+    itemTrigger(`items.${0}.minimumPriceApplied`)
+    getTotalPrice()
+  }
+  function getTotalPrice() {
+    const itemMinimumPrice = Number(getItem(`items.${0}.minimumPrice`))
+    const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
+    const itemName: `items.${number}.detail` = `items.${0}.detail`
+
+    let total = 0
+    const data = getItem(itemName)
+
+    if (data?.length) {
+      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
+      if (isNaN(price)) return
+
+      if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
+        data.forEach(item => {
+          total += item.unit === 'Percent' ? Number(item.prices) : 0
+        })
+        // handleShowMinimum(true)
+        total = itemMinimumPrice
+      } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum) {
+        total = price
+        // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
+        if (showMinimum === true) handleShowMinimum(false)
+      } else {
+        total = price
+      }
+    } else if (!data?.length && showMinimum) {
+      // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
+      total = itemMinimumPrice!
+    }
+    if (itemData && total === itemData.totalPrice) return
+
+    setItem(`items.${0}.totalPrice`, total, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
+
+  const updateTotalPrice = () => {
+    getTotalPrice()
+  }
+
+  const priceData = () => {
+    if (!itemData) return null
+    return (
+      getPriceOptions(itemData.source!, itemData.target!).find(
+        price => price.id === itemData.priceId,
+      ) || null
+    )
   }
 
   useEffect(() => {
@@ -1160,19 +1291,28 @@ const JobDetail = () => {
     }
   }, [selectedJobInfo, jobDetails])
 
+  // useEffect(() => {
+  //   const priceId = itemWatch(`items.${0}.priceId`)
+  //   console.log(priceId, 'priceId')
+
+  //   updateTotalPrice()
+  // }, [itemWatch])
+
+  console.log(getItem(), 'item detail')
+
   return (
     <Card sx={{ height: '100%' }}>
-      {assignJobMutation.isLoading || 
-        createRequestMutation.isLoading ||
-        createBulkRequestMutation.isLoading ||
-        assignJobMutation.isLoading ||
-        reAssignJobMutation.isLoading ||
-        addProCurrentRequestMutation.isLoading ||
-        requestRedeliveryMutation.isLoading ||
-        addJobFeedbackMutation.isLoading ||
-        saveJobPricesMutation.isLoading ||
-        setJobStatusMutation.isLoading ||
-        linguistTeamLoading ? (
+      {assignJobMutation.isLoading ||
+      createRequestMutation.isLoading ||
+      createBulkRequestMutation.isLoading ||
+      assignJobMutation.isLoading ||
+      reAssignJobMutation.isLoading ||
+      addProCurrentRequestMutation.isLoading ||
+      requestRedeliveryMutation.isLoading ||
+      addJobFeedbackMutation.isLoading ||
+      saveJobPricesMutation.isLoading ||
+      setJobStatusMutation.isLoading ||
+      linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid container sx={{ height: '100%' }}>
@@ -1317,7 +1457,7 @@ const JobDetail = () => {
                   !addRoundMode &&
                   !addProsMode &&
                   !assignProMode) ||
-                  !selectedJobUpdatable()
+                !selectedJobUpdatable()
                 ? 10.416
                 : 7.632
               : value === 'info'
@@ -1450,7 +1590,26 @@ const JobDetail = () => {
                   ) : null}
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
-                  {selectedJobInfo.jobInfo.status === 60000 || editPrices ? (
+                  <Box
+                    sx={{
+                      padding: '10px 20px',
+                      background: '#FFF6E5',
+                      borderRadius: '10px',
+                      mb: '8px',
+                    }}
+                  >
+                    <Typography fontSize={12} fontWeight={400} color='#4C4E64'>
+                      {selectedJobInfo?.jobAssign.length === 0
+                        ? 'The information will be delivered to Pro along with the job request'
+                        : selectedJobInfo?.jobAssign.length > 0 &&
+                            selectedJobInfo.jobInfo.pro === null
+                          ? 'Changes will only be applied to new requests'
+                          : selectedJobInfo.jobInfo.pro !== null
+                            ? 'Changes will also be applied to the Pro’s job detail page'
+                            : null}
+                    </Typography>
+                  </Box>
+                  {selectedJobInfo.jobPrices.priceId === null || editPrices ? (
                     <>
                       <EditPrices
                         priceUnitsList={priceUnitsList ?? []}
@@ -1473,9 +1632,10 @@ const JobDetail = () => {
                         prices={prices}
                         orderItems={langItem?.items || []}
                         setPriceId={setPriceId}
+                        setIsNotApplicable={setIsNotApplicable}
                       />
 
-                      <Box
+                      {/* <Box
                         mt='20px'
                         sx={{
                           display: 'flex',
@@ -1514,7 +1674,7 @@ const JobDetail = () => {
                             </Button>
                           </Box>
                         )}
-                      </Box>
+                      </Box> */}
                     </>
                   ) : (
                     <ViewPrices
@@ -1535,89 +1695,240 @@ const JobDetail = () => {
                       selectedJobUpdatable={selectedJobUpdatable()}
                     />
                   )}
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='flex-end'
+                    height={60}
+                  >
+                    <Typography fontWeight='bold' fontSize={14}>
+                      Total price
+                    </Typography>
+                    <Box
+                      display='flex'
+                      alignItems='center'
+                      marginLeft={20}
+                      marginRight={5}
+                    >
+                      {!editPrices ||
+                      selectedJobInfo.jobPrices.priceId !== null ? (
+                        <Typography fontWeight='bold' fontSize={14}>
+                          {isNotApplicable
+                            ? formatCurrency(
+                                formatByRoundingProcedure(
+                                  Number(getItem(`items.${0}.totalPrice`)),
+                                  getItem().items?.[0]?.detail?.[0]
+                                    ?.currency === 'USD' ||
+                                    getItem().items?.[0]?.detail?.[0]
+                                      ?.currency === 'SGD'
+                                    ? 2
+                                    : getItem().items?.[0]?.detail?.[0]
+                                          ?.currency === 'KRW'
+                                      ? 10
+                                      : 0,
+                                  0,
+                                  getItem().items?.[0]?.detail?.[0]?.currency ??
+                                    'KRW',
+                                ),
+                                getItem().items?.[0]?.detail?.[0]?.currency ??
+                                  null,
+                              )
+                            : formatCurrency(
+                                formatByRoundingProcedure(
+                                  // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                                  // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                                  Number(getItem(`items.${0}.totalPrice`)),
+                                  // fields?.[index].totalPrice! ?? 0,
+                                  getItem().items?.[0]?.detail?.[0]
+                                    ?.currency === 'USD' ||
+                                    getItem().items?.[0]?.detail?.[0]
+                                      ?.currency === 'SGD'
+                                    ? 2
+                                    : getItem().items?.[0]?.detail?.[0]
+                                          ?.currency === 'KRW'
+                                      ? 10
+                                      : 0,
+                                  getItem(`items.${0}.initialPrice.rounding`),
+                                  getItem(`items.${0}.initialPrice.currency`) ||
+                                    'KRW',
+                                ),
+                                getItem(`items.${0}.initialPrice.currency`) ??
+                                  null,
+                              )}
+                        </Typography>
+                      ) : (
+                        <Typography fontWeight='bold' fontSize={14}>
+                          {isNotApplicable
+                            ? getItem().items?.[0]?.detail?.[0]?.currency
+                              ? formatCurrency(
+                                  formatByRoundingProcedure(
+                                    Number(getItem(`items.${0}.totalPrice`)),
+                                    getItem().items?.[0]?.detail?.[0]
+                                      ?.currency === 'USD' ||
+                                      getItem().items?.[0]?.detail?.[0]
+                                        ?.currency === 'SGD'
+                                      ? 2
+                                      : getItem().items?.[0]?.initialPrice
+                                            ?.currency === 'KRW'
+                                        ? 10
+                                        : 1,
+                                    0,
+                                    getItem().items?.[0]?.detail?.[0]
+                                      ?.currency ?? 'KRW',
+                                  ),
+                                  getItem().items?.[0]?.detail?.[0]?.currency ??
+                                    null,
+                                )
+                              : formatCurrency(
+                                  formatByRoundingProcedure(
+                                    Number(getItem(`items.${0}.totalPrice`)),
+                                    getItem().items?.[0]?.initialPrice
+                                      ?.currency === 'USD' ||
+                                      getItem().items?.[0]?.initialPrice
+                                        ?.currency === 'SGD'
+                                      ? 2
+                                      : getItem().items?.[0]?.initialPrice
+                                            ?.currency === 'KRW'
+                                        ? 10
+                                        : 1,
+                                    0,
+                                    getItem().items?.[0]?.initialPrice
+                                      ?.currency ?? 'KRW',
+                                  ),
+                                  getItem().items?.[0]?.initialPrice
+                                    ?.currency ?? null,
+                                )
+                            : priceData()
+                              ? formatCurrency(
+                                  formatByRoundingProcedure(
+                                    Number(getItem(`items.${0}.totalPrice`)) ??
+                                      0,
+                                    priceData()?.decimalPlace!,
+                                    priceData()?.roundingProcedure!,
+                                    priceData()?.currency! ?? 'KRW',
+                                  ),
+                                  priceData()?.currency! ?? null,
+                                )
+                              : currentInitialItem
+                                ? formatCurrency(
+                                    formatByRoundingProcedure(
+                                      Number(
+                                        getItem(`items.${0}.totalPrice`),
+                                      ) ?? 0,
+                                      getItem(
+                                        `items.${0}.initialPrice.numberPlace`,
+                                      ),
+                                      getItem(
+                                        `items.${0}.initialPrice.rounding`,
+                                      ),
+                                      getItem(
+                                        `items.${0}.initialPrice.currency`,
+                                      ) || 'KRW',
+                                    ),
+                                    getItem(
+                                      `items.${0}.initialPrice.currency`,
+                                    ) || null,
+                                  )
+                                : 0}
+                        </Typography>
+                      )}
+                      {!editPrices ||
+                      selectedJobInfo.jobPrices.priceId !== null ? (
+                        <IconButton
+                          onClick={() => {
+                            // getTotalPrice()
+                            updateTotalPrice()
+                          }}
+                        >
+                          <Icon icon='material-symbols:refresh' />
+                        </IconButton>
+                      ) : null}
+                    </Box>
+                  </Box>
                 </TabPanel>
                 <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
-                  {selectedJobInfo &&
-                  (selectedJobInfo?.jobInfo?.name === null ||
-                    selectedJobInfo?.jobPrices?.priceId === null ||
-                    selectedJobInfo?.jobAssign === null) ||
-                    (selectedJobInfo?.jobAssign.length === 0 && !selectedJobUpdatable()) ? 
-                      selectedJobUpdatable() ? (
+                  {(selectedJobInfo &&
+                    (selectedJobInfo?.jobInfo?.name === null ||
+                      selectedJobInfo?.jobPrices?.priceId === null ||
+                      selectedJobInfo?.jobAssign === null)) ||
+                  (selectedJobInfo?.jobAssign.length === 0 &&
+                    !selectedJobUpdatable()) ? (
+                    selectedJobUpdatable() ? (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
                         <Box
                           sx={{
-                            width: '100%',
-                            height: '100%',
                             display: 'flex',
-                            justifyContent: 'center',
+                            flexDirection: 'column',
                             alignItems: 'center',
                           }}
                         >
+                          <Image
+                            src='/images/icons/job-icons/required-lock.png'
+                            alt='lock'
+                            width={150}
+                            height={150}
+                            quality={100}
+                          />
                           <Box
                             sx={{
                               display: 'flex',
                               flexDirection: 'column',
-                              alignItems: 'center',
+                              gap: '4px',
+                              mt: '10px',
                             }}
                           >
-                            <Image
-                              src='/images/icons/job-icons/required-lock.png'
-                              alt='lock'
-                              width={150}
-                              height={150}
-                              quality={100}
-                            />
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '4px',
-                                mt: '10px',
-                              }}
-                            >
-                              <Typography fontSize={20} fontWeight={500}>
-                                Unfilled required field exists
-                              </Typography>
-                              <Typography fontSize={16} color='#8D8E9A'>
-                                Please enter all required fields first
-                              </Typography>
-                            </Box>
-                            <Button
-                              variant='contained'
-                              sx={{ mt: '32px' }}
-                              onClick={() => {
-                                if (!selectedJobInfo.jobInfo.name) {
-                                  setValue('info')
-                                } else if (!selectedJobInfo.jobPrices.priceId) {
-                                  setValue('prices')
-                                } else {
-                                  setValue('info')
-                                }
-                              }}
-                            >
-                              {!selectedJobInfo.jobInfo.name
-                                ? 'Fill out job info'
-                                : !selectedJobInfo.jobPrices.priceId
-                                  ? 'Fill out prices'
-                                  : 'Fill out job info'}
-                            </Button>
+                            <Typography fontSize={20} fontWeight={500}>
+                              Unfilled required field exists
+                            </Typography>
+                            <Typography fontSize={16} color='#8D8E9A'>
+                              Please enter all required fields first
+                            </Typography>
                           </Box>
+                          <Button
+                            variant='contained'
+                            sx={{ mt: '32px' }}
+                            onClick={() => {
+                              if (!selectedJobInfo.jobInfo.name) {
+                                setValue('info')
+                              } else if (!selectedJobInfo.jobPrices.priceId) {
+                                setValue('prices')
+                              } else {
+                                setValue('info')
+                              }
+                            }}
+                          >
+                            {!selectedJobInfo.jobInfo.name
+                              ? 'Fill out job info'
+                              : !selectedJobInfo.jobPrices.priceId
+                                ? 'Fill out prices'
+                                : 'Fill out job info'}
+                          </Button>
                         </Box>
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Typography fontSize={14} color='#8D8E9A'>
-                            There are no requests or assigned Pro yet
-                          </Typography>
-                        </Box>
-                      )
-                    : (
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography fontSize={14} color='#8D8E9A'>
+                          There are no requests or assigned Pro yet
+                        </Typography>
+                      </Box>
+                    )
+                  ) : (
                     <AssignPro
                       jobInfo={selectedJobInfo?.jobInfo!}
                       jobAssign={selectedJobInfo?.jobAssign!}
@@ -1667,8 +1978,7 @@ const JobDetail = () => {
         {selectedJobInfo &&
         (selectedJobInfo.jobInfo.name === null ||
           selectedJobInfo.jobPrices.priceId === null ||
-          selectedJobInfo.jobAssign === null
-          ) ? null : (
+          selectedJobInfo.jobAssign === null) ? null : (
           <Grid item xs={2.784}>
             <Box
               sx={{
@@ -1738,14 +2048,16 @@ const JobDetail = () => {
                             )}
                             / {byteToGB(MAXIMUM_FILE_SIZE)}
                           </Typography>
-                          {selectedJobUpdatable() && <Button
-                            fullWidth
-                            variant='contained'
-                            sx={{ mt: '8px' }}
-                            onClick={() => onClickUploadSourceFile()}
-                          >
-                            Upload files
-                          </Button>}
+                          {selectedJobUpdatable() && (
+                            <Button
+                              fullWidth
+                              variant='contained'
+                              sx={{ mt: '8px' }}
+                              onClick={() => onClickUploadSourceFile()}
+                            >
+                              Upload files
+                            </Button>
+                          )}
                           {sourceFileList && sourceFileList.length > 0
                             ? Object.entries(
                                 sourceFileList.reduce(
@@ -1853,7 +2165,8 @@ const JobDetail = () => {
                           {(selectedJobInfo.jobInfo.status === 60300 ||
                             selectedJobInfo.jobInfo.status === 60400 ||
                             selectedJobInfo.jobInfo.status === 60500) &&
-                            (jobDeliveriesFeedbacks?.deliveries && jobDeliveriesFeedbacks?.deliveries?.length > 0) &&
+                          jobDeliveriesFeedbacks?.deliveries &&
+                          jobDeliveriesFeedbacks?.deliveries?.length > 0 &&
                           selectedJobUpdatable() ? (
                             <>
                               <IconButton
@@ -2097,17 +2410,19 @@ const JobDetail = () => {
                           {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
                           selectedJobInfo.jobInfo.status === 60250 ? ( */}
-                          {selectedJobUpdatable() && <>
-                            <Button
-                              fullWidth
-                              variant='contained'
-                              sx={{ mt: '8px' }}
-                              onClick={() => setUseJobFeedbackForm(true)}
-                            >
-                              Add feedback
-                            </Button>
-                            {/* <Divider /> */}
-                          </>}
+                          {selectedJobUpdatable() && (
+                            <>
+                              <Button
+                                fullWidth
+                                variant='contained'
+                                sx={{ mt: '8px' }}
+                                onClick={() => setUseJobFeedbackForm(true)}
+                              >
+                                Add feedback
+                              </Button>
+                              {/* <Divider /> */}
+                            </>
+                          )}
                           {/* ) : null} */}
 
                           {useJobFeedbackForm ? (
