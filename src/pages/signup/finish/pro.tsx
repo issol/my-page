@@ -52,6 +52,20 @@ const FinishSignUpConsumer = () => {
             },
           })
         })
+    } else if (userId && email && accessToken) {
+      const emailAsString: string = email as string
+      const accessTokenAsString: string = accessToken as string
+      auth
+        .updateUserInfo({
+          userId: Number(userId),
+          email: emailAsString,
+          accessToken: accessTokenAsString,
+        })
+        .then(() => {
+          router.push({
+            pathname: '/welcome/pro',
+          })
+        })
     } else {
       router.push('/login')
     }
