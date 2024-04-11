@@ -19,6 +19,8 @@ import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
+import { styled } from '@mui/system'
+import JobTypeRole from '@src/pages/components/job-type-role-chips'
 
 export const getProListColumns = (
   auth: Loadable<{
@@ -83,10 +85,13 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setIdOrder(!idOrder)
-                  setFilters(prevState => ({
-                    ...prevState,
-                    sortId: idOrder ? 'ASC' : 'DESC',
-                  }))
+                  setFilters(prevState => {
+                    const { sortDate, ...filteredState } = prevState;
+                    return {
+                      ...filteredState,
+                      sortId: idOrder ? 'ASC' : 'DESC',
+                    }
+                  })
                 }}
               />
             </IconButton>
@@ -135,50 +140,19 @@ export const getProListColumns = (
       },
     },
     {
-      minWidth: 260,
-      field: 'clients',
-      headerName: 'Clients',
+      minWidth: 160,
+      field: 'resume',
+      headerName: 'Resume',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Clients</Box>,
+      renderHeader: () => <Box>Resume</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {!row.clients?.length
-              ? '-'
-              : row.clients?.map(
-                  (item, idx) =>
-                    idx < 2 && (
-                      <Box
-                        key={uuidv4()}
-                        sx={{
-                          display: 'flex',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            maxWidth: '150px',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {item.client}{' '}
-                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
-                        </Box>
-                      </Box>
-                    ),
-                )}
-            {row.clients?.length > 1 ? (
-              <Box>+{row.clients?.length - 1}</Box>
-            ) : null}
-          </Box>
+          <ListResume
+            resume={row.resume}
+            onClickFile={onClickFile}
+          ></ListResume>
         )
       },
     },
@@ -259,52 +233,62 @@ export const getProListColumns = (
           })
           setIsSorting(false)
         }
-        // 리턴받은 jobInfo를 createdAt 기준으로 내림차순 정렬, 나중에 백엔드에 정렬된 데이터를 달라고 요구해도 될듯
+        const jobInfo = row.jobInfo.map(value => ({
+          jobType: value.jobType,
+          role: value.role,
+        }))
 
-        return (
-          <Box sx={{ display: 'flex', gap: '8px' }}>
-            {row.jobInfo && row.jobInfo.length ? (
-              <>
-                {' '}
-                <JobTypeChip
-                  type={row.jobInfo[0]?.jobType}
-                  label={row.jobInfo[0]?.jobType}
-                />
-                <RoleChip
-                  type={row.jobInfo[0]?.role}
-                  label={row.jobInfo[0]?.role}
-                />
-              </>
-            ) : (
-              '-'
-            )}
-          </Box>
-        )
-        // const jobInfo = row.jobInfo.map(value => ({
-        //   jobType: value.jobType,
-        //   role: value.role,
-        // }))
-        // return <JobTypeRole jobInfo={jobInfo} />
+        return <JobTypeRole jobInfo={jobInfo} />
       },
     },
     {
-      minWidth: 160,
-      field: 'resume',
-      headerName: 'Resume',
+      minWidth: 260,
+      field: 'clients',
+      headerName: 'Clients',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Resume</Box>,
+      renderHeader: () => <Box>Clients</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <ListResume
-            resume={row.resume}
-            onClickFile={onClickFile}
-          ></ListResume>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {!row.clients?.length
+              ? '-'
+              : row.clients?.map(
+                  (item, idx) =>
+                    idx < 2 && (
+                      <Box
+                        key={uuidv4()}
+                        sx={{
+                          display: 'flex',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            maxWidth: '150px',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {item.client}{' '}
+                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
+                        </Box>
+                      </Box>
+                    ),
+                )}
+            {row.clients?.length > 1 ? (
+              <Box>+{row.clients?.length - 1}</Box>
+            ) : null}
+          </Box>
         )
       },
     },
-
     {
       minWidth: 190,
       field: 'experience',
@@ -343,10 +327,13 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setDateOrder(!dateOrder)
-                  setFilters(prevState => ({
-                    ...prevState,
-                    sortDate: dateOrder ? 'ASC' : 'DESC',
-                  }))
+                  setFilters(prevState => {
+                    const { sortId, ...filteredState } = prevState;
+                    return {
+                      ...filteredState,
+                      sortDate: dateOrder ? 'ASC' : 'DESC',
+                    }
+                  })
                 }}
               />
             </IconButton>
@@ -368,3 +355,19 @@ export const getProListColumns = (
   ]
   return columns
 }
+
+const CountChip = styled('p')`
+  padding: 3px 4px;
+  text-align: center;
+  width: 40px;
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #6d788d;
+  border: 1px solid rgba(76, 78, 100, 0.6);
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: 0.813rem;
+`
