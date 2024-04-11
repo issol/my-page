@@ -30,9 +30,9 @@ import {
   FormControlLabel,
   Divider,
 } from '@mui/material'
+import Image from 'next/image'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { v4 as uuidv4 } from 'uuid'
-import Image from 'next/image'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import {
   JobsStatusChip,
@@ -889,8 +889,8 @@ const JobListCard = ({
                             align='right'
                           >
                             <Tooltip
-                              title={`${row.nextJobId ? 'On' : 'Off'}
-                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
+                              title={`${row.autoNextJob ? 'On' : 'Off'}
+                            ${row.autoNextJob ? `[${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}]` : ''},
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
                               placement='top'
@@ -908,7 +908,7 @@ const JobListCard = ({
                               >
                                 <Box
                                   visibility={
-                                    row.autoNextJob && mode !== 'edit'
+                                    row.nextJobId && mode !== 'edit'
                                       ? 'visible'
                                       : 'hidden'
                                   }
@@ -918,7 +918,39 @@ const JobListCard = ({
                                 </Box>
                                 <Box
                                   visibility={
-                                    row.autoSharingFile && mode !== 'edit'
+                                    row.nextJobId ? 'visible' : 'hidden'
+                                }
+                                margin={0}
+                              >
+                                <TriggerSwitchStatus
+                                  variant='body2'
+                                  color={row.autoNextJob ? theme.palette.success.main : '#BBBCC4'}
+                                  bgcolor={row.autoNextJob ? '#EEFBE5' : '#E9EAEC'}
+                                >
+                                  {row.autoNextJob ? 'On' : 'Off'}
+                                </TriggerSwitchStatus>
+                              </Box>
+                              <Box
+                                visibility={
+                                  row.nextJobId ? 'visible' : 'hidden'
+                                }
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                margin={0}
+                              >
+                                <Image
+                                  src='/images/icons/job-icons/file-share.svg'
+                                  alt=''
+                                  width={24}
+                                  height={24}
+                                />
+                              </Box>
+                              <Box
+                                visibility={
+                                  row.nextJobId && mode !== 'edit'
                                       ? 'visible'
                                       : 'hidden'
                                   }
@@ -926,10 +958,10 @@ const JobListCard = ({
                                 >
                                   <TriggerSwitchStatus
                                     variant='body2'
-                                    color={theme.palette.success.main}
-                                    bgcolor='#EEFBE5'
+                                    color={row.autoSharingFile ? theme.palette.success.main : '#BBBCC4'}
+                                    bgcolor={row.autoSharingFile ? '#EEFBE5' : '#E9EAEC'}
                                   >
-                                    On
+                                    {row.autoSharingFile ? 'On' : 'Off'}
                                   </TriggerSwitchStatus>
                                 </Box>
                               </Box>
