@@ -382,18 +382,19 @@ const Row = ({
 
   return (
     <Box
-      style={
-        setDarkMode
-          ? {
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-          : {
-              border: '1px solid #F5F5F7',
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-      }
+      sx={{ height: '100%' }}
+      // style={
+      //   setDarkMode
+      //     ? {
+      //         borderRadius: '8px',
+      //         marginBottom: '14px',
+      //       }
+      //     : {
+      //         border: '1px solid #F5F5F7',
+      //         borderRadius: '8px',
+      //         marginBottom: '14px',
+      //       }
+      // }
     >
       {/* price unit start */}
       <ItemPriceUnitForm

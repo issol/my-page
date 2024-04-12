@@ -143,6 +143,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { log } from 'console'
+import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -1106,6 +1107,7 @@ const JobDetail = () => {
   }
 
   const priceData = () => {
+    console.log(itemData, 'itemData')
     if (!itemData) return null
     return (
       getPriceOptions(itemData.source!, itemData.target!).find(
@@ -1113,6 +1115,8 @@ const JobDetail = () => {
       ) || null
     )
   }
+
+  console.log(priceData(), 'price data')
 
   useEffect(() => {
     if (!router.isReady) return
@@ -1590,260 +1594,275 @@ const JobDetail = () => {
                   ) : null}
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
-                  <Box
-                    sx={{
-                      padding: '10px 20px',
-                      background: '#FFF6E5',
-                      borderRadius: '10px',
-                      mb: '8px',
-                    }}
-                  >
-                    <Typography fontSize={12} fontWeight={400} color='#4C4E64'>
-                      {selectedJobInfo?.jobAssign.length === 0
-                        ? 'The information will be delivered to Pro along with the job request'
-                        : selectedJobInfo?.jobAssign.length > 0 &&
-                            selectedJobInfo.jobInfo.pro === null
-                          ? 'Changes will only be applied to new requests'
-                          : selectedJobInfo.jobInfo.pro !== null
-                            ? 'Changes will also be applied to the Pro’s job detail page'
-                            : null}
-                    </Typography>
-                  </Box>
-                  {selectedJobInfo.jobPrices.priceId === null || editPrices ? (
-                    <>
-                      <EditPrices
-                        priceUnitsList={priceUnitsList ?? []}
-                        itemControl={itemControl}
-                        itemErrors={itemErrors}
-                        getItem={getItem}
-                        setItem={setItem}
-                        itemTrigger={itemTrigger}
-                        itemReset={itemReset}
-                        isItemValid={itemValid}
-                        appendItems={appendItems}
-                        fields={items}
-                        row={selectedJobInfo.jobInfo}
-                        jobPrices={selectedJobInfo.jobPrices!}
-                        item={jobDetails?.items.find(item =>
-                          item.jobs.some(
-                            job => job.id === selectedJobInfo?.jobId,
-                          ),
-                        )}
-                        prices={prices}
-                        orderItems={langItem?.items || []}
-                        setPriceId={setPriceId}
-                        setIsNotApplicable={setIsNotApplicable}
-                      />
+                  <Box sx={{ height: '100%' }}>
+                    <Box
+                      sx={{
+                        padding: '10px 20px',
+                        background: '#FFF6E5',
+                        borderRadius: '10px',
+                        mb: '8px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        fontWeight={400}
+                        color='#4C4E64'
+                      >
+                        {selectedJobInfo?.jobAssign.length === 0
+                          ? 'The information will be delivered to Pro along with the job request'
+                          : selectedJobInfo?.jobAssign.length > 0 &&
+                              selectedJobInfo.jobInfo.pro === null
+                            ? 'Changes will only be applied to new requests'
+                            : selectedJobInfo.jobInfo.pro !== null
+                              ? 'Changes will also be applied to the Pro’s job detail page'
+                              : null}
+                      </Typography>
+                    </Box>
+                    <Card
+                      sx={{
+                        height: 'calc(100% - 50px)',
+                        position: 'relative',
+                      }}
+                    >
+                      {selectedJobInfo.jobPrices.priceId === null ||
+                      editPrices ? (
+                        <>
+                          <EditPrices
+                            priceUnitsList={priceUnitsList ?? []}
+                            itemControl={itemControl}
+                            itemErrors={itemErrors}
+                            getItem={getItem}
+                            setItem={setItem}
+                            itemTrigger={itemTrigger}
+                            itemReset={itemReset}
+                            isItemValid={itemValid}
+                            appendItems={appendItems}
+                            fields={items}
+                            row={selectedJobInfo.jobInfo}
+                            jobPrices={selectedJobInfo.jobPrices!}
+                            item={jobDetails?.items.find(item =>
+                              item.jobs.some(
+                                job => job.id === selectedJobInfo?.jobId,
+                              ),
+                            )}
+                            prices={prices}
+                            orderItems={langItem?.items || []}
+                            setPriceId={setPriceId}
+                            setIsNotApplicable={setIsNotApplicable}
+                          />
+                        </>
+                      ) : (
+                        <ViewPrices
+                          row={selectedJobInfo.jobInfo}
+                          priceUnitsList={priceUnitsList ?? []}
+                          itemControl={itemControl}
+                          itemErrors={itemErrors}
+                          getItem={getItem}
+                          setItem={setItem}
+                          itemTrigger={itemTrigger}
+                          itemReset={itemReset}
+                          isItemValid={itemValid}
+                          appendItems={appendItems}
+                          fields={items}
+                          setEditPrices={setEditPrices}
+                          jobPriceHistory={jobPriceHistory!}
+                          type='view'
+                          selectedJobUpdatable={selectedJobUpdatable()}
+                        />
+                      )}
 
-                      {/* <Box
-                        mt='20px'
+                      <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
                         sx={{
-                          display: 'flex',
-                          justifyContent:
-                            selectedJobInfo.jobInfo.status === 60000
-                              ? 'flex-end'
-                              : 'center',
                           width: '100%',
+                          borderTop: '1px solid #E9EAEC',
+                          padding: '32px 20px',
+                          height: '100px',
+                          position: 'absolute',
+                          bottom: 0,
                         }}
                       >
-                        {selectedJobInfo.jobInfo.status === 60000 ? (
-                          <Button
-                            variant='contained'
-                            onClick={onSubmit}
-                            disabled={!itemValid}
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography fontWeight='bold' fontSize={14}>
+                            Total price
+                          </Typography>
+                          <Box
+                            display='flex'
+                            alignItems='center'
+                            marginLeft={20}
+                            marginRight={5}
                           >
-                            Save draft
-                          </Button>
-                        ) : (
-                          <Box display='flex' alignItems='center' gap='32px'>
+                            {!editPrices ||
+                            selectedJobInfo.jobPrices.priceId !== null ? (
+                              <Typography fontWeight='bold' fontSize={14}>
+                                {priceData()
+                                  ? isNotApplicable
+                                    ? formatCurrency(
+                                        formatByRoundingProcedure(
+                                          Number(
+                                            getItem(`items.${0}.totalPrice`),
+                                          ),
+                                          getItem().items?.[0]?.detail?.[0]
+                                            ?.currency === 'USD' ||
+                                            getItem().items?.[0]?.detail?.[0]
+                                              ?.currency === 'SGD'
+                                            ? 2
+                                            : getItem().items?.[0]?.detail?.[0]
+                                                  ?.currency === 'KRW'
+                                              ? 10
+                                              : 0,
+                                          0,
+                                          getItem().items?.[0]?.detail?.[0]
+                                            ?.currency ?? 'KRW',
+                                        ),
+                                        getItem().items?.[0]?.detail?.[0]
+                                          ?.currency ?? null,
+                                      )
+                                    : formatCurrency(
+                                        formatByRoundingProcedure(
+                                          // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                                          // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                                          Number(
+                                            getItem(`items.${0}.totalPrice`),
+                                          ),
+                                          // fields?.[index].totalPrice! ?? 0,
+                                          priceData()?.decimalPlace ??
+                                            (getItem().items?.[0]?.detail?.[0]
+                                              ?.currency === 'USD' ||
+                                              getItem().items?.[0]?.detail?.[0]
+                                                ?.currency === 'SGD')
+                                            ? 2
+                                            : getItem().items?.[0]?.detail?.[0]
+                                                  ?.currency === 'KRW'
+                                              ? 10
+                                              : 0,
+                                          priceData()?.roundingProcedure ??
+                                            PriceRoundingResponseEnum.Type_0,
+                                          priceData()?.currency ?? null,
+                                        ),
+                                        priceData()?.currency ?? null,
+                                      )
+                                  : '-'}
+                              </Typography>
+                            ) : (
+                              <Typography fontWeight='bold' fontSize={14}>
+                                {isNotApplicable
+                                  ? getItem().items?.[0]?.detail?.[0]?.currency
+                                    ? formatCurrency(
+                                        formatByRoundingProcedure(
+                                          Number(
+                                            getItem(`items.${0}.totalPrice`),
+                                          ),
+                                          getItem().items?.[0]?.detail?.[0]
+                                            ?.currency === 'USD' ||
+                                            getItem().items?.[0]?.detail?.[0]
+                                              ?.currency === 'SGD'
+                                            ? 2
+                                            : getItem().items?.[0]?.initialPrice
+                                                  ?.currency === 'KRW'
+                                              ? 10
+                                              : 1,
+                                          0,
+                                          getItem().items?.[0]?.detail?.[0]
+                                            ?.currency ?? 'KRW',
+                                        ),
+                                        getItem().items?.[0]?.detail?.[0]
+                                          ?.currency ?? null,
+                                      )
+                                    : formatCurrency(
+                                        formatByRoundingProcedure(
+                                          Number(
+                                            getItem(`items.${0}.totalPrice`),
+                                          ),
+                                          getItem().items?.[0]?.initialPrice
+                                            ?.currency === 'USD' ||
+                                            getItem().items?.[0]?.initialPrice
+                                              ?.currency === 'SGD'
+                                            ? 2
+                                            : getItem().items?.[0]?.initialPrice
+                                                  ?.currency === 'KRW'
+                                              ? 10
+                                              : 1,
+                                          0,
+                                          getItem().items?.[0]?.initialPrice
+                                            ?.currency ?? 'KRW',
+                                        ),
+                                        getItem().items?.[0]?.initialPrice
+                                          ?.currency ?? null,
+                                      )
+                                  : priceData()
+                                    ? formatCurrency(
+                                        formatByRoundingProcedure(
+                                          Number(
+                                            getItem(`items.${0}.totalPrice`),
+                                          ) ?? 0,
+                                          priceData()?.decimalPlace!,
+                                          priceData()?.roundingProcedure!,
+                                          priceData()?.currency! ?? 'KRW',
+                                        ),
+                                        priceData()?.currency! ?? null,
+                                      )
+                                    : currentInitialItem
+                                      ? formatCurrency(
+                                          formatByRoundingProcedure(
+                                            Number(
+                                              getItem(`items.${0}.totalPrice`),
+                                            ) ?? 0,
+                                            getItem(
+                                              `items.${0}.initialPrice.numberPlace`,
+                                            ),
+                                            getItem(
+                                              `items.${0}.initialPrice.rounding`,
+                                            ),
+                                            getItem(
+                                              `items.${0}.initialPrice.currency`,
+                                            ) || 'KRW',
+                                          ),
+                                          getItem(
+                                            `items.${0}.initialPrice.currency`,
+                                          ) || null,
+                                        )
+                                      : 0}
+                              </Typography>
+                            )}
+                            {!editPrices ||
+                            selectedJobInfo.jobPrices.priceId !== null ? (
+                              <IconButton
+                                onClick={() => {
+                                  // getTotalPrice()
+                                  updateTotalPrice()
+                                }}
+                              >
+                                <Icon icon='material-symbols:refresh' />
+                              </IconButton>
+                            ) : null}
+                          </Box>
+                        </Box>
+
+                        <Box display='flex' alignItems='center' gap='32px'>
+                          {selectedJobInfo.jobPrices.priceId === null ? null : (
                             <Button
                               variant='outlined'
                               onClick={() => {
                                 onClickUpdatePriceCancel()
                               }}
-                              // disabled={!isItemValid}
                             >
                               Cancel
                             </Button>
-                            <Button
-                              variant='contained'
-                              onClick={onClickUpdatePrice}
-                              disabled={!itemValid}
-                            >
-                              Save
-                            </Button>
-                          </Box>
-                        )}
-                      </Box> */}
-                    </>
-                  ) : (
-                    <ViewPrices
-                      row={selectedJobInfo.jobInfo}
-                      priceUnitsList={priceUnitsList ?? []}
-                      itemControl={itemControl}
-                      itemErrors={itemErrors}
-                      getItem={getItem}
-                      setItem={setItem}
-                      itemTrigger={itemTrigger}
-                      itemReset={itemReset}
-                      isItemValid={itemValid}
-                      appendItems={appendItems}
-                      fields={items}
-                      setEditPrices={setEditPrices}
-                      jobPriceHistory={jobPriceHistory!}
-                      type='view'
-                      selectedJobUpdatable={selectedJobUpdatable()}
-                    />
-                  )}
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='flex-end'
-                    height={60}
-                  >
-                    <Typography fontWeight='bold' fontSize={14}>
-                      Total price
-                    </Typography>
-                    <Box
-                      display='flex'
-                      alignItems='center'
-                      marginLeft={20}
-                      marginRight={5}
-                    >
-                      {!editPrices ||
-                      selectedJobInfo.jobPrices.priceId !== null ? (
-                        <Typography fontWeight='bold' fontSize={14}>
-                          {isNotApplicable
-                            ? formatCurrency(
-                                formatByRoundingProcedure(
-                                  Number(getItem(`items.${0}.totalPrice`)),
-                                  getItem().items?.[0]?.detail?.[0]
-                                    ?.currency === 'USD' ||
-                                    getItem().items?.[0]?.detail?.[0]
-                                      ?.currency === 'SGD'
-                                    ? 2
-                                    : getItem().items?.[0]?.detail?.[0]
-                                          ?.currency === 'KRW'
-                                      ? 10
-                                      : 0,
-                                  0,
-                                  getItem().items?.[0]?.detail?.[0]?.currency ??
-                                    'KRW',
-                                ),
-                                getItem().items?.[0]?.detail?.[0]?.currency ??
-                                  null,
-                              )
-                            : formatCurrency(
-                                formatByRoundingProcedure(
-                                  // getValues로 가져오면 폼에서 계산된 값이 반영됨
-                                  // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                                  Number(getItem(`items.${0}.totalPrice`)),
-                                  // fields?.[index].totalPrice! ?? 0,
-                                  getItem().items?.[0]?.detail?.[0]
-                                    ?.currency === 'USD' ||
-                                    getItem().items?.[0]?.detail?.[0]
-                                      ?.currency === 'SGD'
-                                    ? 2
-                                    : getItem().items?.[0]?.detail?.[0]
-                                          ?.currency === 'KRW'
-                                      ? 10
-                                      : 0,
-                                  getItem(`items.${0}.initialPrice.rounding`),
-                                  getItem(`items.${0}.initialPrice.currency`) ||
-                                    'KRW',
-                                ),
-                                getItem(`items.${0}.initialPrice.currency`) ??
-                                  null,
-                              )}
-                        </Typography>
-                      ) : (
-                        <Typography fontWeight='bold' fontSize={14}>
-                          {isNotApplicable
-                            ? getItem().items?.[0]?.detail?.[0]?.currency
-                              ? formatCurrency(
-                                  formatByRoundingProcedure(
-                                    Number(getItem(`items.${0}.totalPrice`)),
-                                    getItem().items?.[0]?.detail?.[0]
-                                      ?.currency === 'USD' ||
-                                      getItem().items?.[0]?.detail?.[0]
-                                        ?.currency === 'SGD'
-                                      ? 2
-                                      : getItem().items?.[0]?.initialPrice
-                                            ?.currency === 'KRW'
-                                        ? 10
-                                        : 1,
-                                    0,
-                                    getItem().items?.[0]?.detail?.[0]
-                                      ?.currency ?? 'KRW',
-                                  ),
-                                  getItem().items?.[0]?.detail?.[0]?.currency ??
-                                    null,
-                                )
-                              : formatCurrency(
-                                  formatByRoundingProcedure(
-                                    Number(getItem(`items.${0}.totalPrice`)),
-                                    getItem().items?.[0]?.initialPrice
-                                      ?.currency === 'USD' ||
-                                      getItem().items?.[0]?.initialPrice
-                                        ?.currency === 'SGD'
-                                      ? 2
-                                      : getItem().items?.[0]?.initialPrice
-                                            ?.currency === 'KRW'
-                                        ? 10
-                                        : 1,
-                                    0,
-                                    getItem().items?.[0]?.initialPrice
-                                      ?.currency ?? 'KRW',
-                                  ),
-                                  getItem().items?.[0]?.initialPrice
-                                    ?.currency ?? null,
-                                )
-                            : priceData()
-                              ? formatCurrency(
-                                  formatByRoundingProcedure(
-                                    Number(getItem(`items.${0}.totalPrice`)) ??
-                                      0,
-                                    priceData()?.decimalPlace!,
-                                    priceData()?.roundingProcedure!,
-                                    priceData()?.currency! ?? 'KRW',
-                                  ),
-                                  priceData()?.currency! ?? null,
-                                )
-                              : currentInitialItem
-                                ? formatCurrency(
-                                    formatByRoundingProcedure(
-                                      Number(
-                                        getItem(`items.${0}.totalPrice`),
-                                      ) ?? 0,
-                                      getItem(
-                                        `items.${0}.initialPrice.numberPlace`,
-                                      ),
-                                      getItem(
-                                        `items.${0}.initialPrice.rounding`,
-                                      ),
-                                      getItem(
-                                        `items.${0}.initialPrice.currency`,
-                                      ) || 'KRW',
-                                    ),
-                                    getItem(
-                                      `items.${0}.initialPrice.currency`,
-                                    ) || null,
-                                  )
-                                : 0}
-                        </Typography>
-                      )}
-                      {!editPrices ||
-                      selectedJobInfo.jobPrices.priceId !== null ? (
-                        <IconButton
-                          onClick={() => {
-                            // getTotalPrice()
-                            updateTotalPrice()
-                          }}
-                        >
-                          <Icon icon='material-symbols:refresh' />
-                        </IconButton>
-                      ) : null}
-                    </Box>
+                          )}
+
+                          <Button
+                            variant='contained'
+                            onClick={onClickUpdatePrice}
+                            // disabled={!itemValid}
+                          >
+                            Save
+                          </Button>
+                        </Box>
+                      </Box>
+                    </Card>
                   </Box>
                 </TabPanel>
                 <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
