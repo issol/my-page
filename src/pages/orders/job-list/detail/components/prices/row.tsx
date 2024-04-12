@@ -9,7 +9,13 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import {
   Control,
   useFieldArray,
@@ -72,6 +78,7 @@ type Props = {
       groupName?: string | undefined
     },
   ) => LanguagePairListType | undefined
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const Row = ({
@@ -92,6 +99,7 @@ const Row = ({
   currentOrderItemId,
   useUnitPriceOverrideInPrice,
   findMatchedLanguagePairInItems,
+  errorRefs,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -382,18 +390,19 @@ const Row = ({
 
   return (
     <Box
-      style={
-        setDarkMode
-          ? {
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-          : {
-              border: '1px solid #F5F5F7',
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-      }
+      sx={{ height: '100%' }}
+      // style={
+      //   setDarkMode
+      //     ? {
+      //         borderRadius: '8px',
+      //         marginBottom: '14px',
+      //       }
+      //     : {
+      //         border: '1px solid #F5F5F7',
+      //         borderRadius: '8px',
+      //         marginBottom: '14px',
+      //       }
+      // }
     >
       {/* price unit start */}
       <ItemPriceUnitForm
@@ -425,6 +434,7 @@ const Row = ({
         onChangeCurrency={onChangeCurrency}
         setValue={setItem}
         onDeleteNoPriceUnit={onDeleteNoPriceUnit}
+        errorRefs={errorRefs}
       />
       {/* price unit end */}
     </Box>

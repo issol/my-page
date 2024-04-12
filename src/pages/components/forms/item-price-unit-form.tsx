@@ -1,5 +1,5 @@
 // ** react
-import { useRef, useState } from 'react'
+import { MutableRefObject, useRef, useState } from 'react'
 
 // ** styled components
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
@@ -106,6 +106,7 @@ type Props = {
   >[]
   showCurrency?: boolean
   setDarkMode?: boolean
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -160,9 +161,8 @@ export default function ItemPriceUnitForm({
   showCurrency,
   setDarkMode,
   remove,
+  errorRefs,
 }: Props) {
-  console.log(details)
-
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -248,188 +248,10 @@ export default function ItemPriceUnitForm({
   const updateTotalPrice = () => {
     checkPriceId()
     getTotalPrice()
-    // const newTotalPrice = getValues(`items.${index}.totalPrice`)
-    // setTotalPrice(newTotalPrice)
-
-    // sumTotalPrice()
   }
 
   return (
-    <Grid
-      item
-      xs={12}
-      // onMouseLeave={() => {
-      //   if (type !== 'invoiceDetail' && type !== 'detail') {
-      //     // onItemBoxLeave()
-      //   }
-      // }}
-    >
-      {/* <Box
-        sx={{
-          maxHeight: 400,
-          height: '100%',
-          // height: 'fit-content',
-
-          overflow: 'auto',
-        }}
-      > */}
-      {/* <Table
-        sx={{
-          display: 'block',
-          maxHeight: 400,
-          overflowY: 'auto',
-          height: '100%',
-        }}
-      >
-        <TableHead
-          sx={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            display: 'table',
-            width: '100%',
-          }}
-        >
-          <TableRow sx={{ display: 'table', width: '100%' }}>
-            <StyledTableCell
-              sx={{
-                width: '10%',
-                textTransform: 'none',
-              }}
-              align='left'
-              dark={setDarkMode!}
-            >
-              Quantity
-            </StyledTableCell>
-            <StyledTableCell
-              sx={{ width: '36%', textTransform: 'none' }}
-              align='left'
-              dark={setDarkMode!}
-            >
-              Price unit
-            </StyledTableCell>
-            <StyledTableCell
-              sx={{ width: '15%', textTransform: 'none' }}
-              align='left'
-              dark={setDarkMode!}
-            >
-              Unit price
-            </StyledTableCell>
-            <StyledTableCell
-              sx={{ width: '17%', textTransform: 'none' }}
-              align='left'
-              dark={setDarkMode!}
-            >
-              Currency
-            </StyledTableCell>
-            <StyledTableCell
-              sx={{ width: '17%', textTransform: 'none' }}
-              align='left'
-              dark={setDarkMode!}
-            >
-              Prices
-            </StyledTableCell>
-            <StyledTableCell
-              sx={{ width: '5%', textTransform: 'none' }}
-              align='left'
-              dark={setDarkMode!}
-            ></StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody sx={{ display: 'block', maxHeight: 400, height: '100%' }}>
-          {details?.map((row, idx) => (
-            <Row
-              key={row.id}
-              idx={idx}
-              nestSubPriceUnits={nestSubPriceUnits}
-              currentItem={currentItem}
-              getValues={getValues}
-              // getEachPrice={getEachPrice}
-              detailName={detailName}
-              type={type}
-              isNotApplicable={isNotApplicable[index]}
-              onDeletePriceUnit={onDeletePriceUnit}
-              onDeleteNoPriceUnit={onDeleteNoPriceUnit}
-              updateTotalPrice={updateTotalPrice}
-              priceData={priceData}
-              allPriceUnits={allPriceUnits}
-              index={index}
-              update={update}
-              initialPriceName={initialPriceName}
-              onChangeCurrency={onChangeCurrency}
-              control={control}
-              append={append}
-              remove={remove}
-              showCurrency={showCurrency}
-              setValue={setValue}
-              row={row}
-            />
-          ))}
-
-          {showMinimum && !isNotApplicable[index] ? (
-            <TableRow tabIndex={-1}>
-              <TableCell>
-                <Typography color='primary' fontSize={14}>
-                  1
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography color='primary' fontSize={14}>
-                  Minimum price per item
-                </Typography>
-              </TableCell>
-              <TableCell align='left'>
-                <Typography color='primary' fontSize={14}>
-                  {!priceData ||
-                  priceData.id === NOT_APPLICABLE ||
-                  type === 'edit'
-                    ? formatByRoundingProcedure(
-                        minimumPrice ?? 0,
-                        priceData?.decimalPlace!,
-                        priceData?.roundingProcedure!,
-                        priceData?.currency! ?? 'KRW',
-                      )
-                    : formatCurrency(
-                        formatByRoundingProcedure(
-                          minimumPrice ?? 0,
-                          priceData?.decimalPlace!,
-                          priceData?.roundingProcedure!,
-                          priceData?.currency! ?? 'KRW',
-                        ),
-                        priceData?.currency ?? 'KRW',
-                      )}
-                </Typography>
-              </TableCell>
-              <TableCell align='center'></TableCell>
-              <TableCell align='left'>
-                <Typography color='primary' fontSize={14}>
-                  {!priceData || priceData.id === NOT_APPLICABLE
-                    ? minimumPrice ?? 0
-                    : formatCurrency(
-                        formatByRoundingProcedure(
-                          minimumPrice ?? 0,
-                          priceData?.decimalPlace!,
-                          priceData?.roundingProcedure!,
-                          priceData?.currency! ?? 'KRW',
-                        ),
-                        priceData?.currency ?? 'KRW',
-                      )}
-                </Typography>
-              </TableCell>
-              <TableCell align='center'>
-                {type === 'detail' ||
-                type === 'invoiceDetail' ||
-                type === 'invoiceHistory' ||
-                type === 'invoiceCreate' ? null : (
-                  <IconButton onClick={() => setShowMinimum(false)}>
-                    <Icon icon='mdi:trash-outline' />
-                  </IconButton>
-                )}
-              </TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table> */}
+    <Grid item xs={12} sx={{ height: '100%' }}>
       <table
         style={{
           borderCollapse: 'collapse',
@@ -458,13 +280,16 @@ export default function ItemPriceUnitForm({
       </table>
       <Box
         sx={{
-          maxHeight: '250px',
-          overflowY: 'scroll',
-          width: '100%',
           height: 'fit-content',
+          maxHeight: '300px',
+          overflowY: 'scroll',
         }}
       >
-        <table style={{ width: '100%' }}>
+        <table
+          style={{
+            width: '100%',
+          }}
+        >
           <colgroup>
             <col width='10%'></col>
             <col width='36%'></col>
@@ -500,6 +325,7 @@ export default function ItemPriceUnitForm({
                 showCurrency={showCurrency}
                 setValue={setValue}
                 row={row}
+                errorRefs={errorRefs}
               />
             ))}
           </tbody>
@@ -509,7 +335,8 @@ export default function ItemPriceUnitForm({
       {type === 'detail' ||
       type === 'invoiceDetail' ||
       type === 'invoiceHistory' ||
-      type === 'invoiceCreate' ? null : (
+      type === 'invoiceCreate' ||
+      type === 'job-detail' ? null : (
         <Grid item xs={12}>
           <Box
             display='flex'
@@ -533,7 +360,7 @@ export default function ItemPriceUnitForm({
                 })
                 setId(id + 1)
               }}
-              variant='contained'
+              variant='outlined'
               disabled={!isValid}
               sx={{ p: 0.7, minWidth: 26 }}
             >
@@ -542,62 +369,29 @@ export default function ItemPriceUnitForm({
           </Box>
         </Grid>
       )}
-      <Grid item xs={12}>
-        <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='flex-end'
-          height={60}
-        >
-          <Typography fontWeight='bold' fontSize={14}>
-            Total price
-          </Typography>
+      {type === 'job-edit' || type === 'job-detail' ? null : (
+        <Grid item xs={12}>
           <Box
             display='flex'
             alignItems='center'
-            marginLeft={20}
-            marginRight={5}
+            justifyContent='flex-end'
+            height={60}
           >
-            {type === 'detail' ||
-            type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ||
-            type === 'invoiceCreate' ? (
-              <Typography fontWeight='bold' fontSize={14}>
-                {isNotApplicable[index]
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        Number(getValues(`items.${index}.totalPrice`)),
-                        getValues().items?.[0]?.detail?.[0]?.currency ===
-                          'USD' ||
-                          getValues().items?.[0]?.detail?.[0]?.currency ===
-                            'SGD'
-                          ? 2
-                          : getValues().items?.[0]?.initialPrice?.currency ===
-                              'KRW'
-                            ? 10
-                            : 0,
-                        0,
-                        getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
-                      ),
-                      getValues().items?.[0]?.detail?.[0]?.currency ?? null,
-                    )
-                  : formatCurrency(
-                      formatByRoundingProcedure(
-                        // getValues로 가져오면 폼에서 계산된 값이 반영됨
-                        // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                        Number(getValues(`items.${index}.totalPrice`)),
-                        // fields?.[index].totalPrice! ?? 0,
-                        getValues(`${initialPriceName}.numberPlace`),
-                        getValues(`${initialPriceName}.rounding`),
-                        getValues(`${initialPriceName}.currency`) || 'KRW',
-                      ),
-                      getValues(`${initialPriceName}.currency`) ?? null,
-                    )}
-              </Typography>
-            ) : (
-              <Typography fontWeight='bold' fontSize={14}>
-                {isNotApplicable[index]
-                  ? getValues().items?.[0]?.detail?.[0]?.currency
+            <Typography fontWeight='bold' fontSize={14}>
+              Total price
+            </Typography>
+            <Box
+              display='flex'
+              alignItems='center'
+              marginLeft={20}
+              marginRight={5}
+            >
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
+                <Typography fontWeight='bold' fontSize={14}>
+                  {isNotApplicable[index]
                     ? formatCurrency(
                         formatByRoundingProcedure(
                           Number(getValues(`items.${index}.totalPrice`)),
@@ -609,7 +403,7 @@ export default function ItemPriceUnitForm({
                             : getValues().items?.[0]?.initialPrice?.currency ===
                                 'KRW'
                               ? 10
-                              : 1,
+                              : 0,
                           0,
                           getValues().items?.[0]?.detail?.[0]?.currency ??
                             'KRW',
@@ -618,61 +412,100 @@ export default function ItemPriceUnitForm({
                       )
                     : formatCurrency(
                         formatByRoundingProcedure(
+                          // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                          // fields에서 가져오면 서버에서 넘어온 값이 반영됨
                           Number(getValues(`items.${index}.totalPrice`)),
-                          getValues().items?.[0]?.initialPrice?.currency ===
-                            'USD' ||
+                          // fields?.[index].totalPrice! ?? 0,
+                          getValues(`${initialPriceName}.numberPlace`),
+                          getValues(`${initialPriceName}.rounding`),
+                          getValues(`${initialPriceName}.currency`) || 'KRW',
+                        ),
+                        getValues(`${initialPriceName}.currency`) ?? null,
+                      )}
+                </Typography>
+              ) : (
+                <Typography fontWeight='bold' fontSize={14}>
+                  {isNotApplicable[index]
+                    ? getValues().items?.[0]?.detail?.[0]?.currency
+                      ? formatCurrency(
+                          formatByRoundingProcedure(
+                            Number(getValues(`items.${index}.totalPrice`)),
+                            getValues().items?.[0]?.detail?.[0]?.currency ===
+                              'USD' ||
+                              getValues().items?.[0]?.detail?.[0]?.currency ===
+                                'SGD'
+                              ? 2
+                              : getValues().items?.[0]?.initialPrice
+                                    ?.currency === 'KRW'
+                                ? 10
+                                : 1,
+                            0,
+                            getValues().items?.[0]?.detail?.[0]?.currency ??
+                              'KRW',
+                          ),
+                          getValues().items?.[0]?.detail?.[0]?.currency ?? null,
+                        )
+                      : formatCurrency(
+                          formatByRoundingProcedure(
+                            Number(getValues(`items.${index}.totalPrice`)),
                             getValues().items?.[0]?.initialPrice?.currency ===
-                              'SGD'
-                            ? 2
-                            : getValues().items?.[0]?.initialPrice?.currency ===
-                                'KRW'
-                              ? 10
-                              : 1,
-                          0,
+                              'USD' ||
+                              getValues().items?.[0]?.initialPrice?.currency ===
+                                'SGD'
+                              ? 2
+                              : getValues().items?.[0]?.initialPrice
+                                    ?.currency === 'KRW'
+                                ? 10
+                                : 1,
+                            0,
+                            getValues().items?.[0]?.initialPrice?.currency ??
+                              'KRW',
+                          ),
                           getValues().items?.[0]?.initialPrice?.currency ??
-                            'KRW',
-                        ),
-                        getValues().items?.[0]?.initialPrice?.currency ?? null,
-                      )
-                  : priceData
-                    ? formatCurrency(
-                        formatByRoundingProcedure(
-                          Number(getValues(`items.${index}.totalPrice`)) ?? 0,
-                          priceData?.decimalPlace!,
-                          priceData?.roundingProcedure!,
-                          priceData?.currency! ?? 'KRW',
-                        ),
-                        priceData?.currency! ?? null,
-                      )
-                    : currentInitialItem
+                            null,
+                        )
+                    : priceData
                       ? formatCurrency(
                           formatByRoundingProcedure(
                             Number(getValues(`items.${index}.totalPrice`)) ?? 0,
-                            getValues(`${initialPriceName}.numberPlace`),
-                            getValues(`${initialPriceName}.rounding`),
-                            getValues(`${initialPriceName}.currency`) || 'KRW',
+                            priceData?.decimalPlace!,
+                            priceData?.roundingProcedure!,
+                            priceData?.currency! ?? 'KRW',
                           ),
-                          getValues(`${initialPriceName}.currency`) || null,
+                          priceData?.currency! ?? null,
                         )
-                      : 0}
-              </Typography>
-            )}
-            {type === 'detail' ||
-            type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ||
-            type === 'invoiceCreate' ? null : (
-              <IconButton
-                onClick={() => {
-                  // getTotalPrice()
-                  updateTotalPrice()
-                }}
-              >
-                <Icon icon='material-symbols:refresh' />
-              </IconButton>
-            )}
+                      : currentInitialItem
+                        ? formatCurrency(
+                            formatByRoundingProcedure(
+                              Number(getValues(`items.${index}.totalPrice`)) ??
+                                0,
+                              getValues(`${initialPriceName}.numberPlace`),
+                              getValues(`${initialPriceName}.rounding`),
+                              getValues(`${initialPriceName}.currency`) ||
+                                'KRW',
+                            ),
+                            getValues(`${initialPriceName}.currency`) || null,
+                          )
+                        : 0}
+                </Typography>
+              )}
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? null : (
+                <IconButton
+                  onClick={() => {
+                    // getTotalPrice()
+                    updateTotalPrice()
+                  }}
+                >
+                  <Icon icon='material-symbols:refresh' />
+                </IconButton>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Grid>
+        </Grid>
+      )}
     </Grid>
   )
 }
