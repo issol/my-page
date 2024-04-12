@@ -45,7 +45,7 @@ const FinishSignUpConsumer = () => {
           accessToken: accessTokenAsString,
         })
         .then(() => {
-          router.push({
+          router.replace({
             pathname: '/welcome/pro',
             query: {
               jobId: jobId,
