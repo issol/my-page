@@ -1,5 +1,5 @@
 // ** react
-import { useRef, useState } from 'react'
+import { MutableRefObject, useRef, useState } from 'react'
 
 // ** styled components
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
@@ -106,6 +106,7 @@ type Props = {
   >[]
   showCurrency?: boolean
   setDarkMode?: boolean
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -160,6 +161,7 @@ export default function ItemPriceUnitForm({
   showCurrency,
   setDarkMode,
   remove,
+  errorRefs,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -249,16 +251,7 @@ export default function ItemPriceUnitForm({
   }
 
   return (
-    <Grid
-      item
-      xs={12}
-      sx={{ height: '100%' }}
-      // onMouseLeave={() => {
-      //   if (type !== 'invoiceDetail' && type !== 'detail') {
-      //     // onItemBoxLeave()
-      //   }
-      // }}
-    >
+    <Grid item xs={12} sx={{ height: '100%' }}>
       <table
         style={{
           borderCollapse: 'collapse',
@@ -288,7 +281,7 @@ export default function ItemPriceUnitForm({
       <Box
         sx={{
           height: 'fit-content',
-          maxHeight: 'calc(100% - 210px)',
+          maxHeight: '300px',
           overflowY: 'scroll',
         }}
       >
@@ -332,6 +325,7 @@ export default function ItemPriceUnitForm({
                 showCurrency={showCurrency}
                 setValue={setValue}
                 row={row}
+                errorRefs={errorRefs}
               />
             ))}
           </tbody>
@@ -341,7 +335,8 @@ export default function ItemPriceUnitForm({
       {type === 'detail' ||
       type === 'invoiceDetail' ||
       type === 'invoiceHistory' ||
-      type === 'invoiceCreate' ? null : (
+      type === 'invoiceCreate' ||
+      type === 'job-detail' ? null : (
         <Grid item xs={12}>
           <Box
             display='flex'
@@ -374,7 +369,7 @@ export default function ItemPriceUnitForm({
           </Box>
         </Grid>
       )}
-      {type === 'job-edit' ? null : (
+      {type === 'job-edit' || type === 'job-detail' ? null : (
         <Grid item xs={12}>
           <Box
             display='flex'

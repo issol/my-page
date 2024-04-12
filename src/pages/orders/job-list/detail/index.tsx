@@ -128,7 +128,7 @@ import { FormErrors } from '@src/shared/const/formErrors'
 import EditPrices from './components/prices/edit-prices'
 import ViewPrices from './components/prices/view-prices'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import { Resolver, useFieldArray, useForm } from 'react-hook-form'
+import { FieldErrors, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { languageType, proDefaultOption } from '../../add-new'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
@@ -259,6 +259,7 @@ const JobDetail = () => {
   }>({})
 
   const languageList = getGloLanguage()
+  const errorRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const jobInfoList = (
     useGetJobInfo(jobId, false) as UseQueryResult<JobType, unknown>[]
@@ -356,9 +357,11 @@ const JobDetail = () => {
     trigger: itemTrigger,
     reset: itemReset,
     watch: itemWatch,
+    setFocus: itemSetFocus,
+    handleSubmit: itemHandleSubmit,
     formState: { errors: itemErrors, isValid: itemValid },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(jobItemSchema) as unknown as Resolver<{
       items: ItemType[]
@@ -381,7 +384,6 @@ const JobDetail = () => {
 
   const [isNotApplicable, setIsNotApplicable] = useState<boolean>(false)
   const itemData = getItem(`items.${0}`)
-  console.log(getItem(), 'item data')
 
   const currentInitialItem = getItem(`items.${0}.initialPrice`)
 
@@ -833,6 +835,38 @@ const JobDetail = () => {
     return size
   }
 
+  const onError = (
+    errors: FieldErrors<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
+  ) => {
+    const error = (errors.items && errors.items[0]) ?? {}
+
+    const detailErrorIndex = Number(Object.keys(error.detail ?? {})[0])
+    const detailError = (error.detail && error.detail[detailErrorIndex]) ?? {}
+
+    if (Object.keys(error).includes('priceId')) {
+      errorRefs.current[0]?.focus()
+    } else {
+      const firstErrorName = Object.keys(detailError)[0]
+
+      errorRefs.current[
+        detailErrorIndex +
+          (firstErrorName === 'quantity'
+            ? 1
+            : firstErrorName === 'priceUnitId'
+              ? 2
+              : firstErrorName === 'unitPrice'
+                ? 3
+                : 4) +
+          (detailErrorIndex > 0
+            ? (isNotApplicable ? 3 : 2) * detailErrorIndex
+            : 0)
+      ]?.focus()
+    }
+  }
+
   const onClickUploadSourceFile = () => {
     if (jobDetails) {
       openModal({
@@ -949,22 +983,50 @@ const JobDetail = () => {
   }
 
   const onClickUpdatePrice = () => {
-    openModal({
-      type: 'UpdatePriceModal',
-      children: (
-        <CustomModalV2
-          onClose={() => closeModal('UpdatePriceModal')}
-          title='Save all changes?'
-          subtitle='Are you sure you want to save all changes? The notification will be sent to Pro after the change.'
-          vary='successful'
-          rightButtonText='Save'
-          onClick={() => {
-            closeModal('UpdatePriceModal')
-            onSubmit()
-          }}
-        />
-      ),
-    })
+    if (selectedJobInfo && selectedJobInfo.jobInfo.pro) {
+      openModal({
+        type: 'RevisePriceModal',
+        children: (
+          <CustomModalV2
+            onClose={() => closeModal('RevisePriceModal')}
+            title='Revise price information?'
+            subtitle={
+              <>
+                Are you sure you want to revise the price information?
+                <br />
+                <br /> It will directly impact the Pro, and the updated pricing
+                information will be communicated to the Pro.
+              </>
+            }
+            vary='error-alert'
+            rightButtonText='Proceed'
+            onClick={() => {
+              onSubmit()
+              closeModal('RevisePriceModal')
+            }}
+          />
+        ),
+      })
+    } else {
+      onSubmit()
+    }
+
+    // openModal({
+    //   type: 'UpdatePriceModal',
+    //   children: (
+    //     <CustomModalV2
+    //       onClose={() => closeModal('UpdatePriceModal')}
+    //       title='Save all changes?'
+    //       subtitle='Are you sure you want to save all changes? The notification will be sent to Pro after the change.'
+    //       vary='successful'
+    //       rightButtonText='Save'
+    //       onClick={() => {
+    //         closeModal('UpdatePriceModal')
+    //         onSubmit()
+    //       }}
+    //     />
+    //   ),
+    // })
   }
 
   const onClickUpdatePriceCancel = () => {
@@ -973,9 +1035,9 @@ const JobDetail = () => {
       children: (
         <CustomModalV2
           onClose={() => closeModal('UpdatePriceCancelModal')}
-          title='Discard all changes?'
+          title='Discard changes?'
           subtitle='Are you sure you want to discard all changes?'
-          vary='error'
+          vary='error-alert'
           rightButtonText='Discard'
           onClick={() => {
             closeModal('UpdatePriceCancelModal')
@@ -1028,8 +1090,6 @@ const JobDetail = () => {
 
     return [proDefaultOption].concat(filteredList)
   }
-
-  console.log(isNotApplicable, 'isNotApplicable')
 
   const handleShowMinimum = (value: boolean) => {
     const minimumPrice = Number(getItem(`items.${0}.minimumPrice`))
@@ -1107,7 +1167,6 @@ const JobDetail = () => {
   }
 
   const priceData = () => {
-    console.log(itemData, 'itemData')
     if (!itemData) return null
     return (
       getPriceOptions(itemData.source!, itemData.target!).find(
@@ -1115,8 +1174,6 @@ const JobDetail = () => {
       ) || null
     )
   }
-
-  console.log(priceData(), 'price data')
 
   useEffect(() => {
     if (!router.isReady) return
@@ -1294,15 +1351,6 @@ const JobDetail = () => {
       }
     }
   }, [selectedJobInfo, jobDetails])
-
-  // useEffect(() => {
-  //   const priceId = itemWatch(`items.${0}.priceId`)
-  //   console.log(priceId, 'priceId')
-
-  //   updateTotalPrice()
-  // }, [itemWatch])
-
-  console.log(getItem(), 'item detail')
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -1624,10 +1672,40 @@ const JobDetail = () => {
                         position: 'relative',
                       }}
                     >
-                      {selectedJobInfo.jobPrices.priceId === null ||
-                      editPrices ? (
-                        <>
-                          <EditPrices
+                      <form
+                        onSubmit={itemHandleSubmit(onClickUpdatePrice, onError)}
+                      >
+                        {selectedJobInfo.jobPrices.priceId === null ||
+                        editPrices ? (
+                          <>
+                            <EditPrices
+                              priceUnitsList={priceUnitsList ?? []}
+                              itemControl={itemControl}
+                              itemErrors={itemErrors}
+                              getItem={getItem}
+                              setItem={setItem}
+                              itemTrigger={itemTrigger}
+                              itemReset={itemReset}
+                              isItemValid={itemValid}
+                              appendItems={appendItems}
+                              fields={items}
+                              row={selectedJobInfo.jobInfo}
+                              jobPrices={selectedJobInfo.jobPrices!}
+                              item={jobDetails?.items.find(item =>
+                                item.jobs.some(
+                                  job => job.id === selectedJobInfo?.jobId,
+                                ),
+                              )}
+                              prices={prices}
+                              orderItems={langItem?.items || []}
+                              setPriceId={setPriceId}
+                              setIsNotApplicable={setIsNotApplicable}
+                              errorRefs={errorRefs}
+                            />
+                          </>
+                        ) : (
+                          <ViewPrices
+                            row={selectedJobInfo.jobInfo}
                             priceUnitsList={priceUnitsList ?? []}
                             itemControl={itemControl}
                             itemErrors={itemErrors}
@@ -1638,230 +1716,224 @@ const JobDetail = () => {
                             isItemValid={itemValid}
                             appendItems={appendItems}
                             fields={items}
-                            row={selectedJobInfo.jobInfo}
-                            jobPrices={selectedJobInfo.jobPrices!}
-                            item={jobDetails?.items.find(item =>
-                              item.jobs.some(
-                                job => job.id === selectedJobInfo?.jobId,
-                              ),
-                            )}
-                            prices={prices}
-                            orderItems={langItem?.items || []}
-                            setPriceId={setPriceId}
-                            setIsNotApplicable={setIsNotApplicable}
+                            setEditPrices={setEditPrices}
+                            jobPriceHistory={jobPriceHistory!}
+                            type='view'
+                            selectedJobUpdatable={selectedJobUpdatable()}
                           />
-                        </>
-                      ) : (
-                        <ViewPrices
-                          row={selectedJobInfo.jobInfo}
-                          priceUnitsList={priceUnitsList ?? []}
-                          itemControl={itemControl}
-                          itemErrors={itemErrors}
-                          getItem={getItem}
-                          setItem={setItem}
-                          itemTrigger={itemTrigger}
-                          itemReset={itemReset}
-                          isItemValid={itemValid}
-                          appendItems={appendItems}
-                          fields={items}
-                          setEditPrices={setEditPrices}
-                          jobPriceHistory={jobPriceHistory!}
-                          type='view'
-                          selectedJobUpdatable={selectedJobUpdatable()}
-                        />
-                      )}
+                        )}
 
-                      <Box
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='space-between'
-                        sx={{
-                          width: '100%',
-                          borderTop: '1px solid #E9EAEC',
-                          padding: '32px 20px',
-                          height: '100px',
-                          position: 'absolute',
-                          bottom: 0,
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography fontWeight='bold' fontSize={14}>
-                            Total price
-                          </Typography>
-                          <Box
-                            display='flex'
-                            alignItems='center'
-                            marginLeft={20}
-                            marginRight={5}
-                          >
-                            {!editPrices ||
-                            selectedJobInfo.jobPrices.priceId !== null ? (
-                              <Typography fontWeight='bold' fontSize={14}>
-                                {priceData()
-                                  ? isNotApplicable
-                                    ? formatCurrency(
-                                        formatByRoundingProcedure(
-                                          Number(
-                                            getItem(`items.${0}.totalPrice`),
-                                          ),
-                                          getItem().items?.[0]?.detail?.[0]
-                                            ?.currency === 'USD' ||
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent={
+                            !editPrices &&
+                            selectedJobInfo.jobPrices.priceId !== null
+                              ? 'flex-end'
+                              : 'space-between'
+                          }
+                          sx={{
+                            width: '100%',
+                            borderTop: '1px solid #E9EAEC',
+                            padding: '32px 20px',
+                            height: '100px',
+                            position: 'absolute',
+                            bottom: 0,
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography fontWeight='bold' fontSize={14}>
+                              Total price
+                            </Typography>
+                            <Box
+                              display='flex'
+                              alignItems='center'
+                              marginLeft={20}
+                              marginRight={5}
+                            >
+                              {!editPrices ||
+                              selectedJobInfo.jobPrices.priceId !== null ? (
+                                <Typography fontWeight='bold' fontSize={14}>
+                                  {priceData()
+                                    ? isNotApplicable
+                                      ? formatCurrency(
+                                          formatByRoundingProcedure(
+                                            Number(
+                                              getItem(`items.${0}.totalPrice`),
+                                            ),
                                             getItem().items?.[0]?.detail?.[0]
-                                              ?.currency === 'SGD'
-                                            ? 2
-                                            : getItem().items?.[0]?.detail?.[0]
-                                                  ?.currency === 'KRW'
-                                              ? 10
-                                              : 0,
-                                          0,
-                                          getItem().items?.[0]?.detail?.[0]
-                                            ?.currency ?? 'KRW',
-                                        ),
-                                        getItem().items?.[0]?.detail?.[0]
-                                          ?.currency ?? null,
-                                      )
-                                    : formatCurrency(
-                                        formatByRoundingProcedure(
-                                          // getValues로 가져오면 폼에서 계산된 값이 반영됨
-                                          // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                                          Number(
-                                            getItem(`items.${0}.totalPrice`),
-                                          ),
-                                          // fields?.[index].totalPrice! ?? 0,
-                                          priceData()?.decimalPlace ??
-                                            (getItem().items?.[0]?.detail?.[0]
                                               ?.currency === 'USD' ||
                                               getItem().items?.[0]?.detail?.[0]
-                                                ?.currency === 'SGD')
-                                            ? 2
-                                            : getItem().items?.[0]?.detail?.[0]
-                                                  ?.currency === 'KRW'
-                                              ? 10
-                                              : 0,
-                                          priceData()?.roundingProcedure ??
-                                            PriceRoundingResponseEnum.Type_0,
-                                          priceData()?.currency ?? null,
-                                        ),
-                                        priceData()?.currency ?? null,
-                                      )
-                                  : '-'}
-                              </Typography>
-                            ) : (
-                              <Typography fontWeight='bold' fontSize={14}>
-                                {isNotApplicable
-                                  ? getItem().items?.[0]?.detail?.[0]?.currency
-                                    ? formatCurrency(
-                                        formatByRoundingProcedure(
-                                          Number(
-                                            getItem(`items.${0}.totalPrice`),
-                                          ),
-                                          getItem().items?.[0]?.detail?.[0]
-                                            ?.currency === 'USD' ||
+                                                ?.currency === 'SGD'
+                                              ? 2
+                                              : getItem().items?.[0]
+                                                    ?.detail?.[0]?.currency ===
+                                                  'KRW'
+                                                ? 10
+                                                : 0,
+                                            0,
                                             getItem().items?.[0]?.detail?.[0]
-                                              ?.currency === 'SGD'
-                                            ? 2
-                                            : getItem().items?.[0]?.initialPrice
-                                                  ?.currency === 'KRW'
-                                              ? 10
-                                              : 1,
-                                          0,
+                                              ?.currency ?? 'KRW',
+                                          ),
                                           getItem().items?.[0]?.detail?.[0]
-                                            ?.currency ?? 'KRW',
-                                        ),
-                                        getItem().items?.[0]?.detail?.[0]
-                                          ?.currency ?? null,
-                                      )
-                                    : formatCurrency(
-                                        formatByRoundingProcedure(
-                                          Number(
-                                            getItem(`items.${0}.totalPrice`),
+                                            ?.currency ?? null,
+                                        )
+                                      : formatCurrency(
+                                          formatByRoundingProcedure(
+                                            // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                                            // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                                            Number(
+                                              getItem(`items.${0}.totalPrice`),
+                                            ),
+                                            // fields?.[index].totalPrice! ?? 0,
+                                            priceData()?.decimalPlace ??
+                                              (getItem().items?.[0]?.detail?.[0]
+                                                ?.currency === 'USD' ||
+                                                getItem().items?.[0]
+                                                  ?.detail?.[0]?.currency ===
+                                                  'SGD')
+                                              ? 2
+                                              : getItem().items?.[0]
+                                                    ?.detail?.[0]?.currency ===
+                                                  'KRW'
+                                                ? 10
+                                                : 0,
+                                            priceData()?.roundingProcedure ??
+                                              PriceRoundingResponseEnum.Type_0,
+                                            priceData()?.currency ?? null,
+                                          ),
+                                          priceData()?.currency ?? null,
+                                        )
+                                    : '-'}
+                                </Typography>
+                              ) : (
+                                <Typography fontWeight='bold' fontSize={14}>
+                                  {isNotApplicable
+                                    ? getItem().items?.[0]?.detail?.[0]
+                                        ?.currency
+                                      ? formatCurrency(
+                                          formatByRoundingProcedure(
+                                            Number(
+                                              getItem(`items.${0}.totalPrice`),
+                                            ),
+                                            getItem().items?.[0]?.detail?.[0]
+                                              ?.currency === 'USD' ||
+                                              getItem().items?.[0]?.detail?.[0]
+                                                ?.currency === 'SGD'
+                                              ? 2
+                                              : getItem().items?.[0]
+                                                    ?.initialPrice?.currency ===
+                                                  'KRW'
+                                                ? 10
+                                                : 1,
+                                            0,
+                                            getItem().items?.[0]?.detail?.[0]
+                                              ?.currency ?? 'KRW',
+                                          ),
+                                          getItem().items?.[0]?.detail?.[0]
+                                            ?.currency ?? null,
+                                        )
+                                      : formatCurrency(
+                                          formatByRoundingProcedure(
+                                            Number(
+                                              getItem(`items.${0}.totalPrice`),
+                                            ),
+                                            getItem().items?.[0]?.initialPrice
+                                              ?.currency === 'USD' ||
+                                              getItem().items?.[0]?.initialPrice
+                                                ?.currency === 'SGD'
+                                              ? 2
+                                              : getItem().items?.[0]
+                                                    ?.initialPrice?.currency ===
+                                                  'KRW'
+                                                ? 10
+                                                : 1,
+                                            0,
+                                            getItem().items?.[0]?.initialPrice
+                                              ?.currency ?? 'KRW',
                                           ),
                                           getItem().items?.[0]?.initialPrice
-                                            ?.currency === 'USD' ||
-                                            getItem().items?.[0]?.initialPrice
-                                              ?.currency === 'SGD'
-                                            ? 2
-                                            : getItem().items?.[0]?.initialPrice
-                                                  ?.currency === 'KRW'
-                                              ? 10
-                                              : 1,
-                                          0,
-                                          getItem().items?.[0]?.initialPrice
-                                            ?.currency ?? 'KRW',
-                                        ),
-                                        getItem().items?.[0]?.initialPrice
-                                          ?.currency ?? null,
-                                      )
-                                  : priceData()
-                                    ? formatCurrency(
-                                        formatByRoundingProcedure(
-                                          Number(
-                                            getItem(`items.${0}.totalPrice`),
-                                          ) ?? 0,
-                                          priceData()?.decimalPlace!,
-                                          priceData()?.roundingProcedure!,
-                                          priceData()?.currency! ?? 'KRW',
-                                        ),
-                                        priceData()?.currency! ?? null,
-                                      )
-                                    : currentInitialItem
+                                            ?.currency ?? null,
+                                        )
+                                    : priceData()
                                       ? formatCurrency(
                                           formatByRoundingProcedure(
                                             Number(
                                               getItem(`items.${0}.totalPrice`),
                                             ) ?? 0,
-                                            getItem(
-                                              `items.${0}.initialPrice.numberPlace`,
-                                            ),
-                                            getItem(
-                                              `items.${0}.initialPrice.rounding`,
+                                            priceData()?.decimalPlace!,
+                                            priceData()?.roundingProcedure!,
+                                            priceData()?.currency! ?? 'KRW',
+                                          ),
+                                          priceData()?.currency! ?? null,
+                                        )
+                                      : currentInitialItem
+                                        ? formatCurrency(
+                                            formatByRoundingProcedure(
+                                              Number(
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
+                                              ) ?? 0,
+                                              getItem(
+                                                `items.${0}.initialPrice.numberPlace`,
+                                              ),
+                                              getItem(
+                                                `items.${0}.initialPrice.rounding`,
+                                              ),
+                                              getItem(
+                                                `items.${0}.initialPrice.currency`,
+                                              ) || 'KRW',
                                             ),
                                             getItem(
                                               `items.${0}.initialPrice.currency`,
-                                            ) || 'KRW',
-                                          ),
-                                          getItem(
-                                            `items.${0}.initialPrice.currency`,
-                                          ) || null,
-                                        )
-                                      : 0}
-                              </Typography>
-                            )}
-                            {!editPrices ||
-                            selectedJobInfo.jobPrices.priceId !== null ? (
-                              <IconButton
-                                onClick={() => {
-                                  // getTotalPrice()
-                                  updateTotalPrice()
-                                }}
-                              >
-                                <Icon icon='material-symbols:refresh' />
-                              </IconButton>
-                            ) : null}
+                                            ) || null,
+                                          )
+                                        : 0}
+                                </Typography>
+                              )}
+                              {editPrices ||
+                              selectedJobInfo.jobPrices.priceId === null ? (
+                                <IconButton
+                                  onClick={() => {
+                                    // getTotalPrice()
+                                    updateTotalPrice()
+                                  }}
+                                >
+                                  <Icon icon='material-symbols:refresh' />
+                                </IconButton>
+                              ) : null}
+                            </Box>
                           </Box>
-                        </Box>
+                          {editPrices ||
+                          selectedJobInfo.jobPrices.priceId === null ? (
+                            <Box display='flex' alignItems='center' gap='16px'>
+                              {selectedJobInfo.jobPrices.priceId ===
+                              null ? null : (
+                                <Button
+                                  variant='outlined'
+                                  onClick={() => {
+                                    onClickUpdatePriceCancel()
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
 
-                        <Box display='flex' alignItems='center' gap='32px'>
-                          {selectedJobInfo.jobPrices.priceId === null ? null : (
-                            <Button
-                              variant='outlined'
-                              onClick={() => {
-                                onClickUpdatePriceCancel()
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          )}
-
-                          <Button
-                            variant='contained'
-                            onClick={onClickUpdatePrice}
-                            // disabled={!itemValid}
-                          >
-                            Save
-                          </Button>
+                              <Button
+                                variant='contained'
+                                // onClick={onClickUpdatePrice}
+                                type='submit'
+                                // disabled={!itemValid}
+                              >
+                                {selectedJobInfo.jobInfo.pro
+                                  ? 'Save changes'
+                                  : 'Save'}
+                              </Button>
+                            </Box>
+                          ) : null}
                         </Box>
-                      </Box>
+                      </form>
                     </Card>
                   </Box>
                 </TabPanel>

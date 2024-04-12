@@ -91,6 +91,7 @@ interface Props {
     `items.${number}.detail`,
     'id'
   >
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const Row = ({
@@ -118,6 +119,7 @@ const Row = ({
 
   setValue,
   row,
+  errorRefs,
 }: Props) => {
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
@@ -310,7 +312,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -335,6 +338,15 @@ const Row = ({
                     placeholder='0'
                     autoComplete='off'
                     type='number'
+                    inputRef={ref => {
+                      if (errorRefs) {
+                        errorRefs.current[
+                          idx +
+                            1 +
+                            (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                        ] = ref
+                      }
+                    }}
                     onFocus={e =>
                       e.target.addEventListener(
                         'wheel',
@@ -373,7 +385,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type == 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -549,6 +562,15 @@ const Row = ({
                       autoComplete='off'
                       // label='Price unit*'
                       placeholder={open ? '' : 'Price unit*'}
+                      inputRef={ref => {
+                        if (errorRefs) {
+                          errorRefs.current[
+                            idx +
+                              2 +
+                              (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                          ] = ref
+                        }
+                      }}
                     />
                   )}
                 />
@@ -562,7 +584,8 @@ const Row = ({
           type === 'detail' ||
           type === 'invoiceDetail' ||
           type === 'invoiceHistory' ||
-          type === 'invoiceCreate'
+          type === 'invoiceCreate' ||
+          type === 'job-detail'
             ? 'left'
             : 'left'
         }
@@ -571,7 +594,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -618,7 +642,12 @@ const Row = ({
                     error={value === null || value === 0}
                     disabled={savedValue?.unit === 'Percent'}
                     onChange={e => {
-                      onChange(Number(e.target.value))
+                      if (e.target.value) {
+                        onChange(Number(e.target.value))
+                      } else {
+                        onChange(null)
+                      }
+
                       updatePrice(idx)
                     }}
                     sx={{
@@ -628,6 +657,15 @@ const Row = ({
                         color: '#ff4d49',
                         opacity: 1,
                       },
+                    }}
+                    inputRef={ref => {
+                      if (errorRefs) {
+                        errorRefs.current[
+                          idx +
+                            3 +
+                            (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                        ] = ref
+                      }
                     }}
                   />
                 </Box>
@@ -640,7 +678,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}> */}
             {isNotApplicable || showCurrency
@@ -686,6 +725,15 @@ const Row = ({
                       autoComplete='off'
                       label='Currency*'
                       error={value === null}
+                      inputRef={ref => {
+                        if (errorRefs) {
+                          errorRefs.current[
+                            idx +
+                              4 +
+                              (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                          ] = ref
+                        }
+                      }}
                     />
                   )}
                 />
@@ -698,22 +746,24 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Typography fontSize={14}>
             {isNotApplicable
               ? formatCurrency(
-                formatByRoundingProcedure(
-                  Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                  savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
-                    ? 2
-                    : savedValue?.currency === 'KRW'
-                      ? 10
-                      : 0,
-                  0,
-                  savedValue?.currency ?? 'KRW',
-                ),
-                savedValue?.currency ?? null,
-              )
+                  formatByRoundingProcedure(
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                    savedValue?.currency === 'USD' ||
+                      savedValue.currency === 'SGD'
+                      ? 2
+                      : savedValue?.currency === 'KRW'
+                        ? 10
+                        : 0,
+                    0,
+                    savedValue?.currency ?? 'KRW',
+                  ),
+                  savedValue?.currency ?? null,
+                )
               : formatCurrency(
                   formatByRoundingProcedure(
                     Number(getValues(`${detailName}.${idx}.prices`)),
@@ -723,8 +773,7 @@ const Row = ({
                     getValues(`${initialPriceName}.currency`) || 'KRW',
                   ),
                   getValues(`${initialPriceName}.currency`) || 'KRW',
-                )
-            }
+                )}
           </Typography>
         ) : (
           <Box
@@ -740,7 +789,8 @@ const Row = ({
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
+                      savedValue?.currency === 'USD' ||
+                        savedValue.currency === 'SGD'
                         ? 2
                         : savedValue?.currency === 'KRW'
                           ? 10
@@ -753,7 +803,8 @@ const Row = ({
                 : formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' || getValues(`${initialPriceName}.currency`) === 'SGD'
+                      getValues(`${initialPriceName}.currency`) === 'USD' ||
+                        getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
                         : getValues(`${initialPriceName}.currency`) === 'KRW'
                           ? 10
@@ -789,7 +840,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? null : (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? null : (
           <IconButton
             onClick={() => {
               if (

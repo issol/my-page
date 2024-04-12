@@ -36,9 +36,16 @@ import {
 } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import {
   Control,
+  Controller,
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
@@ -59,6 +66,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { set } from 'lodash'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   row: JobType
@@ -110,6 +118,7 @@ type Props = {
   orderItems: ItemType[]
   setPriceId: Dispatch<SetStateAction<number | null>>
   setIsNotApplicable: Dispatch<SetStateAction<boolean>>
+  errorRefs: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const EditPrices = ({
@@ -131,9 +140,9 @@ const EditPrices = ({
   orderItems,
   setPriceId,
   setIsNotApplicable,
+  errorRefs,
 }: Props) => {
   const queryClient = useQueryClient()
-  console.log(itemErrors, 'itemErrors')
 
   // const [success, setSuccess] = useState(false)
 
@@ -278,28 +287,6 @@ const EditPrices = ({
 
   return (
     <>
-      {/* {success && (
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: 40,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-
-            background: ' #FFFFFF',
-
-            boxShadow: '0px 4px 8px -4px rgba(76, 78, 100, 0.42)',
-            borderRadius: '8px',
-            padding: '12px 10px',
-          }}
-        >
-          <img src='/images/icons/order-icons/success.svg' alt='' />
-          Saved successfully123
-        </Box>
-      )} */}
-
       <Box
         sx={{
           display: 'flex',
@@ -355,36 +342,58 @@ const EditPrices = ({
             />
           </Box>
           <Box sx={{ flex: 1 }}>
-            <Autocomplete
-              fullWidth
-              value={price ?? null}
-              options={options}
-              groupBy={option => option?.groupName ?? ''}
-              onChange={(e, v) => {
-                if (v) {
-                  setPrice(v)
-                  setItem(`items.${0}.priceId`, v.id, {
-                    shouldValidate: true,
-                  })
-
-                  const matchedLanguagePair = findMatchedLanguagePairInItems(v)
-                  if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
-                    openMinimumPriceModal(v)
-                  setOverridePriceUnit(true)
-                  setPriceId(v.id)
-                  setIsNotApplicable(v.id === NOT_APPLICABLE ? true : false)
-                  itemTrigger()
-                } else {
-                  setPrice(null)
-                }
-              }}
-              id='autocomplete-controlled'
-              getOptionLabel={option => option.priceName}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  autoComplete='off'
-                  placeholder='Price*'
+            <Controller
+              name='items.0.priceId'
+              control={itemControl}
+              render={({
+                field: { value, onChange },
+                formState: { isSubmitted },
+              }) => (
+                <Autocomplete
+                  fullWidth
+                  value={options.find(option => option.id === value) ?? null}
+                  options={options}
+                  groupBy={option => option?.groupName ?? ''}
+                  onChange={(e, v) => {
+                    if (v) {
+                      onChange(v.id)
+                      setPrice(v)
+                      const matchedLanguagePair =
+                        findMatchedLanguagePairInItems(v)
+                      if (
+                        matchedLanguagePair &&
+                        matchedLanguagePair.minimumPrice
+                      )
+                        openMinimumPriceModal(v)
+                      setOverridePriceUnit(true)
+                      setPriceId(v.id)
+                      setIsNotApplicable(v.id === NOT_APPLICABLE ? true : false)
+                      itemTrigger()
+                    } else {
+                      onChange(null)
+                      setPrice(null)
+                    }
+                  }}
+                  id='autocomplete-controlled'
+                  getOptionLabel={option => option.priceName}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      autoComplete='off'
+                      placeholder='Price*'
+                      error={
+                        isSubmitted && Boolean(itemErrors.items?.[0]?.priceId)
+                      }
+                      helperText={
+                        isSubmitted &&
+                        Boolean(itemErrors.items?.[0]?.priceId) &&
+                        FormErrors.required
+                      }
+                      inputRef={ref => {
+                        errorRefs.current[0] = ref
+                      }}
+                    />
+                  )}
                 />
               )}
             />
@@ -409,6 +418,7 @@ const EditPrices = ({
             type='job-edit'
             orderItems={orderItems}
             currentOrderItemId={item?.id}
+            errorRefs={errorRefs}
           />
           {/* </Box> */}
         </Box>

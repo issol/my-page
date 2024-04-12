@@ -1,5 +1,14 @@
 import { Icon } from '@iconify/react'
-import { Box, Button, Card, Divider, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
@@ -37,6 +46,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import PriceHistoryModal from './price-history-modal'
 
 type Props = {
   row: JobType
@@ -105,6 +115,14 @@ const ViewPrices = ({
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
@@ -139,10 +157,22 @@ const ViewPrices = ({
     | null
   >(null)
 
+  const onClickPriceHistory = () => {
+    openModal({
+      type: 'PriceHistoryModal',
+      children: (
+        <PriceHistoryModal
+          onClose={() => closeModal('PriceHistoryModal')}
+          jobPriceHistory={jobPriceHistory || []}
+        />
+      ),
+    })
+  }
+
   const [showPriceHistory, setShowPriceHistory] = useState<boolean>(false)
-  useEffect(() => {
-    if (jobPriceHistory && jobPriceHistory.length) setShowPriceHistory(true)
-  }, [])
+  // useEffect(() => {
+  //   if (jobPriceHistory && jobPriceHistory.length) setShowPriceHistory(true)
+  // }, [])
 
   // prices tab 하단의 price history에 들어가는 row
   const PriceHistory = ({
@@ -237,77 +267,150 @@ const ViewPrices = ({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+        padding: '20px',
+
+        height: 'calc(100% - 100px)',
+      }}
+    >
       {type === 'history' || !selectedJobUpdatable ? null : ![
           60800, 601000,
         ].includes(row.status) ? (
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             alignItems: 'center',
             gap: '10px',
           }}
         >
-          <Typography variant='subtitle2'>
-            {row.pro
-              ? '*Changes will also be applied to the invoice'
-              : '*Changes will only be applied to new requests'}
+          <Typography fontSize={20} fontWeight={500}>
+            {row.corporationId}
           </Typography>
-          <Button
-            variant='outlined'
-            // disabled={!!row.assignedPro}
-            onClick={() => setEditPrices && setEditPrices(true)}
-          >
-            <Icon icon='mdi:pencil-outline' fontSize={24} />
-            &nbsp;
-            {row.pro ? 'Edit' : 'Edit before request'}
-          </Button>
+          {row.pro ? (
+            <>
+              <IconButton
+                onClick={e => {
+                  e.stopPropagation()
+                  handleMenuClick(e)
+                }}
+                sx={{ padding: 0 }}
+              >
+                <Icon icon='mdi:dots-horizontal' />
+              </IconButton>
+              <Menu
+                elevation={8}
+                anchorEl={anchorEl}
+                id='customized-menu'
+                onClose={(e: React.MouseEvent) => {
+                  e.stopPropagation()
+                  handleClose()
+                }}
+                open={Boolean(anchorEl)}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <MenuItem
+                  sx={{
+                    gap: 2,
+                    '&:hover': {
+                      background: 'inherit',
+                      cursor: 'default',
+                    },
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    padding: 0,
+                  }}
+                >
+                  <Button
+                    startIcon={
+                      <Icon
+                        icon='mdi:pencil-outline'
+                        color='#4C4E648A'
+                        fontSize={24}
+                      />
+                    }
+                    fullWidth
+                    onClick={e => {
+                      e.stopPropagation()
+                      setEditPrices && setEditPrices(true)
+                      handleClose()
+                    }}
+                    sx={{
+                      justifyContent: 'flex-start',
+                      padding: '6px 16px',
+                      fontSize: 16,
+                      fontWeight: 400,
+                      color: 'rgba(76, 78, 100, 0.87)',
+                      borderRadius: 0,
+                    }}
+                  >
+                    Edit price
+                  </Button>
+                </MenuItem>
+                <MenuItem
+                  sx={{
+                    gap: 2,
+                    '&:hover': {
+                      background: 'inherit',
+                      cursor: 'default',
+                    },
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    padding: 0,
+                  }}
+                >
+                  <Button
+                    startIcon={
+                      <Icon
+                        icon='ic:outline-history'
+                        color='#4C4E648A'
+                        fontSize={24}
+                      />
+                    }
+                    fullWidth
+                    onClick={e => {
+                      e.stopPropagation()
+                      onClickPriceHistory()
+                      handleClose()
+                    }}
+                    sx={{
+                      justifyContent: 'flex-start',
+                      padding: '6px 16px',
+                      fontSize: 16,
+                      fontWeight: 400,
+                      color: 'rgba(76, 78, 100, 0.87)',
+                      borderRadius: 0,
+                    }}
+                  >
+                    Price history
+                  </Button>
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              variant='outlined'
+              onClick={() => setEditPrices && setEditPrices(true)}
+            >
+              Edit before request
+            </Button>
+          )}
         </Box>
       ) : null}
-
-      <Card sx={{ padding: '24px' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {row.pro ? (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography
-                  variant='subtitle1'
-                  fontWeight={600}
-                  fontSize={14}
-                  width={150}
-                >
-                  Pro
-                </Typography>
-                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                  {getLegalName({
-                    firstName: row.pro?.firstName!,
-                    middleName: row.pro?.middleName,
-                    lastName: row.pro?.lastName!,
-                  })}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography
-                  variant='subtitle1'
-                  fontWeight={600}
-                  fontSize={14}
-                  width={150}
-                >
-                  Date&Time
-                </Typography>
-                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                  {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {convertTimeToTimezone(
-                    row.historyAt,
-                    auth.getValue().user?.timezone,
-                    timezone.getValue(),
-                  )}
-                </Typography>
-              </Box>
-            </Box>
-          ) : null}
-
+      <Divider sx={{ my: '5px !important' }} />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* {row.pro ? (
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -316,11 +419,14 @@ const ViewPrices = ({
                 fontSize={14}
                 width={150}
               >
-                Language pair
+                Pro
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {languageHelper(row.sourceLanguage)}&nbsp;&rarr;&nbsp;
-                {languageHelper(row.targetLanguage)}
+                {getLegalName({
+                  firstName: row.pro?.firstName!,
+                  middleName: row.pro?.middleName,
+                  lastName: row.pro?.lastName!,
+                })}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -330,31 +436,65 @@ const ViewPrices = ({
                 fontSize={14}
                 width={150}
               >
-                Price
+                Date&Time
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {fields[0]?.initialPrice?.name}
+                {convertTimeToTimezone(
+                  row.historyAt,
+                  auth.getValue().user?.timezone,
+                  timezone.getValue(),
+                )}
               </Typography>
             </Box>
           </Box>
-          <Divider />
-          <Row
-            getItem={getItem}
-            getPriceOptions={getPriceOptions}
-            itemControl={itemControl}
-            showMinimum={showMinimum}
-            setItem={setItem}
-            itemTrigger={itemTrigger}
-            setShowMinimum={setShowMinimum}
-            openModal={openModal}
-            closeModal={closeModal}
-            priceUnitsList={priceUnitsList}
-            type='detail'
-          />
-        </Box>
-      </Card>
+        ) : null} */}
 
-      {jobPriceHistory?.length && !showPriceHistory ? (
+        <Box sx={{ display: 'flex', gap: '20px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <Typography
+              variant='subtitle1'
+              fontWeight={600}
+              fontSize={14}
+              width={150}
+            >
+              Language pair
+            </Typography>
+            <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+              {languageHelper(row.sourceLanguage)}&nbsp;&rarr;&nbsp;
+              {languageHelper(row.targetLanguage)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <Typography
+              variant='subtitle1'
+              fontWeight={600}
+              fontSize={14}
+              width={150}
+            >
+              Price
+            </Typography>
+            <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+              {fields[0]?.initialPrice?.name}
+            </Typography>
+          </Box>
+        </Box>
+        <Divider />
+        <Row
+          getItem={getItem}
+          getPriceOptions={getPriceOptions}
+          itemControl={itemControl}
+          showMinimum={showMinimum}
+          setItem={setItem}
+          itemTrigger={itemTrigger}
+          setShowMinimum={setShowMinimum}
+          openModal={openModal}
+          closeModal={closeModal}
+          priceUnitsList={priceUnitsList}
+          type='job-detail'
+        />
+      </Box>
+
+      {/* {jobPriceHistory?.length && !showPriceHistory ? (
         <Box
           sx={{
             display: 'flex',
@@ -384,7 +524,7 @@ const ViewPrices = ({
             </Typography>
           </Box>
         </Box>
-      ) : null}
+      ) : null} */}
       {jobPriceHistory?.length && showPriceHistory ? (
         <Box
           sx={{
