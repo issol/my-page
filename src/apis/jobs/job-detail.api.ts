@@ -275,7 +275,8 @@ export type Member = {
   firstName: string
   middleName: string
   lastName: string
-  role: string // lpm | pro
+  role?: string // lpm | pro
+  email: string
 }
 
 export const getMessageList = async (
@@ -284,7 +285,7 @@ export const getMessageList = async (
   type: string,
 ): Promise<{
   unReadCount: number
-  members: Member[]
+  proInfo: Member
   contents: MessageItem[] | null
 }> => {
   try {
@@ -297,20 +298,39 @@ export const getMessageList = async (
     return {
       unReadCount: 0,
       contents: null,
-      members: [],
+      proInfo: {
+        userId: 0,
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        email: '',
+      },
     }
   }
 }
 
-export const sendMessageToPro = async (
+export const sendMessage = async (
   jobId: number,
+  jobRequestId: number,
   proId: number,
   message: string,
 ) => {
-  await axios.post(`/api/enough/u/job/${jobId}/message`, {
+  const body:{
+    jobId: number
+    proId: number
+    message: string
+    jobRequestId?: number
+  } = {
+    jobId: jobId,
     proId: proId,
     message: message,
-  })
+  };
+
+  if (jobRequestId !== 0) {
+    body.jobRequestId = jobRequestId;
+  }
+
+  await axios.post(`/api/enough/u/job/message`, body);
 }
 
 export const readMessage = async (jobId: number, proId: number) => {

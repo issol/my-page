@@ -65,6 +65,7 @@ import { Category } from '@src/shared/const/category/category.enum'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import {
   JobAssignProRequestsType,
+  JobPricesDetailType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -75,7 +76,7 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
-import Message from './message-modal'
+
 import { UseMutationResult, useQueryClient } from 'react-query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { request } from 'http'
@@ -85,6 +86,7 @@ import {
 } from '@src/types/orders/job-detail'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import Message from '../../../components/message-modal'
 
 type Props = {
   jobInfo: JobType
@@ -468,6 +470,7 @@ const AssignPro = ({
       children: (
         <Message
           jobId={jobInfo.id}
+          jobRequestId={row.jobReqId}
           info={{
             userId: row.userId,
             firstName: row.firstName,
@@ -475,6 +478,14 @@ const AssignPro = ({
             middleName: row.middleName ?? null,
           }}
           messageType='request'
+          sendFrom='LPM'
+          jobDetail={[{
+            jobId: jobInfo.id,
+            jobInfo: undefined,
+            jobPrices: undefined,
+            jobAssign: jobAssign,
+            jobAssignDefaultRound: 0,
+          }]}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
@@ -591,7 +602,6 @@ const AssignPro = ({
       const result = {
         [selectedLinguistTeam?.label || '']: selectionModel,
       }
-      console.log('result', result)
       setSelectionModel(prev => ({ ...prev, ...result }))
     }
   }

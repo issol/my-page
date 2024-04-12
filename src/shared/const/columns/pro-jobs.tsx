@@ -14,7 +14,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import React, { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
 import InfoDialogButton, { InfoDialogProps } from '@src/views/pro/infoDialog'
-import Message from '@src/pages/orders/job-list/detail/components/assign-pro/message-modal'
+import Message from '@src/pages/orders/job-list/components/message-modal'
 // import Message from '@src/views/jobDetails/messageModal'
 
 
@@ -75,16 +75,20 @@ export const getProJobColumns = (
     openModal({
       type: 'ProJobsMessageModal',
       children: (
-        console.log("row", row),
         <Message
           jobId={row.jobId}
+          jobRequestId={row.jobRequestId}
           info={{
             userId: auth.getValue().user?.userId!,
             firstName: auth.getValue().user?.firstName!,
             middleName: auth.getValue().user?.middleName!,
             lastName: auth.getValue().user?.lastName!,
           }}
-          messageType='all'
+          messageType={
+            (row.status >= 60110 && row.status <= 601100) ||
+            [70300, 70350].includes(row.status)
+              ? 'job' : 'request'}
+          sendFrom='PRO'
           onClose={() => closeModal('ProJobsMessageModal')}
         />
       ),

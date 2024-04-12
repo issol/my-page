@@ -39,6 +39,7 @@ import { StatusItem } from '@src/types/common/status.type'
 
 import {
   JobAssignProRequestsType,
+  JobPricesDetailType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
@@ -60,11 +61,11 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import Message from '../assign-pro/message-modal'
 import MoveNextJobModal from './move-next-job-modal'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import Message from '../../../components/message-modal'
 
 type Props = {
   jobInfo: JobType
@@ -84,6 +85,13 @@ type Props = {
     unknown
   >
   selectedJobUpdatable: boolean
+  jobDetail: {
+    jobId: number;
+    jobInfo: JobType | undefined;
+    jobPrices: JobPricesDetailType | undefined;
+    jobAssign: JobAssignProRequestsType[];
+    jobAssignDefaultRound: number;
+  }[]
 }
 
 const JobInfo = ({
@@ -96,6 +104,7 @@ const JobInfo = ({
   setJobId,
   setJobStatusMutation,
   selectedJobUpdatable,
+  jobDetail,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -348,8 +357,6 @@ const JobInfo = ({
   }
 
   const onClickRedeliveryReason = () => {
-    console.log(jobInfo.pro)
-
     openModal({
       type: 'SelectRequestRedeliveryReasonModal',
       children: (
@@ -410,11 +417,12 @@ const JobInfo = ({
     openModal({
       type: 'AssignProMessageModal',
       children: (
-        // TODO: 메세지 컴포넌트 수정 필요
         <Message
           jobId={jobInfo.id}
           info={row}
           messageType='job'
+          sendFrom='LPM'
+          jobDetail={jobDetail}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
@@ -443,8 +451,6 @@ const JobInfo = ({
   useEffect(() => {
     if (jobInfo && jobStatusList) filterStatus(jobInfo.status)
   }, [jobInfo, jobStatusList])
-
-  console.log(jobInfoList)
 
   useEffect(() => {
     if (projectTeam) {
@@ -508,6 +514,7 @@ const JobInfo = ({
                     lastName: jobInfo.pro?.lastName!,
                   })
                 }
+                disabled={jobInfo.pro === null}
               >
                 <Icon icon='mdi:message-text' />
               </IconButton>
