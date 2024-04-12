@@ -138,8 +138,8 @@ export const useGetJobPriceHistory = (jobId: number) => {
   })
 }
 
-export const useGetMessage = (jobId: number, proId: number) => {
-  return useQuery(['message', proId], () => getMessageList(jobId, proId), {
+export const useGetMessage = (jobId: number, proId: number, type: string) => {
+  return useQuery(['message', proId], () => getMessageList(jobId, proId, type), {
     staleTime: 10 * 100, // 1
 
     suspense: false,

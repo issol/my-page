@@ -686,7 +686,6 @@ export const getProJobAssignColumnsForRequest = (
             {row.assignmentStatus === null ? null : (
               <IconButton
                 sx={{ padding: 0 }}
-                disabled
                 onClick={e =>
                   onClickMessage({
                     userId: row.userId,

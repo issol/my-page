@@ -410,9 +410,11 @@ const JobInfo = ({
     openModal({
       type: 'AssignProMessageModal',
       children: (
+        // TODO: 메세지 컴포넌트 수정 필요
         <Message
           jobId={jobInfo.id}
           info={row}
+          messageType='job'
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
@@ -498,7 +500,6 @@ const JobInfo = ({
               </Typography>
               <IconButton
                 sx={{ padding: 0 }}
-                disabled
                 onClick={() =>
                   onClickMessage({
                     userId: jobInfo.pro?.id!,

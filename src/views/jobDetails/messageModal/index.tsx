@@ -58,7 +58,7 @@ const Message = ({ jobId, info, isPair = false, onClose }: MessageProps) => {
     data: messageList,
     isLoading: messageListLoading,
     refetch: messageRefetch,
-  } = useGetMessage(jobId, auth.getValue().user?.userId || 0)
+  } = useGetMessage(jobId, auth.getValue().user?.userId || 0, 'all')
 
   const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
 
@@ -174,7 +174,7 @@ const Message = ({ jobId, info, isPair = false, onClose }: MessageProps) => {
       <Divider sx={{ margin: '0 !important' }} />
 
       <Box overflow='scroll'>
-        {Array.from({ length: 6 }).map((item, index) => (
+        {messageList?.contents?.map((item, index) => (
           <>
             <MessageItem key={`message-${index}`} />
             <Divider

@@ -75,8 +75,7 @@ const MessageItem = () => {
         (Tagged: Aria (Soyoung) Jeong, Chloe Yu, Ellie Park, Hope Kim)
       </Typography>
       <Typography variant='body2' fontWeight={400} color='rgba(76, 78, 100, 1)'>
-        {/*{item.content}*/}
-        Around 3-4 PM. Almost done!
+        {/* {item.content} */}
       </Typography>
     </Box>
   )

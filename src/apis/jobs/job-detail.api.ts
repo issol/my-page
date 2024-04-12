@@ -281,6 +281,7 @@ export type Member = {
 export const getMessageList = async (
   jobId: number,
   proId: number,
+  type: string,
 ): Promise<{
   unReadCount: number
   members: Member[]
@@ -288,7 +289,8 @@ export const getMessageList = async (
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      // `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      `/api/enough/u/job/message?type=${type}&jobId=${jobId}&proId=${proId}`
     )
     return data
   } catch (e: any) {

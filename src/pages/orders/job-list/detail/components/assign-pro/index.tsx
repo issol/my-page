@@ -474,6 +474,7 @@ const AssignPro = ({
             lastName: row.lastName,
             middleName: row.middleName ?? null,
           }}
+          messageType='request'
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),

@@ -35,10 +35,11 @@ type Props = {
     middleName: string | null
     lastName: string
   }
+  messageType: 'request' | 'job' | 'all'
   onClose: () => void
 }
 
-const Message = ({ jobId, info, onClose }: Props) => {
+const Message = ({ jobId, info, messageType, onClose }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -57,11 +58,12 @@ const Message = ({ jobId, info, onClose }: Props) => {
 
   const open = Boolean(anchorEl)
 
+  console.log("jobId, info.userId",jobId, info.userId)
   const {
     data: messageList,
     isLoading: messageListLoading,
     refetch: messageRefetch,
-  } = useGetMessage(jobId, info.userId)
+  } = useGetMessage(jobId, info.userId, messageType)
 
   const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
 
@@ -91,7 +93,8 @@ const Message = ({ jobId, info, onClose }: Props) => {
   return (
     <Box
       sx={{
-        maxWidth: '780px',
+        maxWidth: '483px',
+        maxHeight: '80vh', // Limit maxHeight to 80% of the screen size
         width: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
@@ -208,13 +211,13 @@ const Message = ({ jobId, info, onClose }: Props) => {
                 />
                 <Typography fontSize={14} fontWeight={600} color='#666CFF'>
                   {getLegalName({
-                    firstName: messageList?.members.find(
+                    firstName: messageList?.members?.find(
                       value => value.role === 'lpm',
                     )?.firstName,
-                    middleName: messageList?.members.find(
+                    middleName: messageList?.members?.find(
                       value => value.role === 'lpm',
                     )?.middleName,
-                    lastName: messageList?.members.find(
+                    lastName: messageList?.members?.find(
                       value => value.role === 'lpm',
                     )?.lastName,
                   })}
@@ -223,13 +226,13 @@ const Message = ({ jobId, info, onClose }: Props) => {
               </Box>
               <Typography fontWeight={600} fontSize={14}>
                 {getLegalName({
-                  firstName: messageList?.members.find(
+                  firstName: messageList?.members?.find(
                     value => value.role === 'pro',
                   )?.firstName,
-                  middleName: messageList?.members.find(
+                  middleName: messageList?.members?.find(
                     value => value.role === 'pro',
                   )?.middleName,
-                  lastName: messageList?.members.find(
+                  lastName: messageList?.members?.find(
                     value => value.role === 'pro',
                   )?.lastName,
                 })}
