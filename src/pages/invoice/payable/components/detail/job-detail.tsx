@@ -99,6 +99,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
 
   const { data: prices, isSuccess } = useGetProPriceList({})
   const [priceId, setPriceId] = useState<number | null>(null)
+  const [isNotApplicable, setIsNotApplicable] = useState<boolean>(false)
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -452,6 +453,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                           item={findItemWithJobId(jobDetails!, jobInfo.id!)}
                           prices={prices}
                           setPriceId={setPriceId}
+                          setIsNotApplicable={setIsNotApplicable}
                         />
                       )}
                     </Grid>
