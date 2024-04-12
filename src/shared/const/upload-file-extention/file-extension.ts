@@ -52,7 +52,6 @@ export const srtUploadFileExtension = {
       '.ult',
     ],
     'application/zip': ['.zip'],
-    'application/haansofthwp': ['.hwp'],
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
       '.xlsx',
     ],

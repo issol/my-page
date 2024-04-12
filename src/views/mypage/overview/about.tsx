@@ -29,7 +29,6 @@ type Props = {
     mobilePhone?: string
     telephone?: string
     birthday?: string
-    status?: string
     address: ClientAddressType<number> | null
   }
 }
@@ -153,7 +152,7 @@ export default function About({ userInfo }: Props) {
           </Label>
         </Box>
 
-        <>
+        {/* <>
           <Divider />
           <Box
             sx={{
@@ -180,7 +179,7 @@ export default function About({ userInfo }: Props) {
               </Select>
             </FormControl>
           </Box>
-        </>
+        </> */}
       </Box>
     </Fragment>
   )
