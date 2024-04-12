@@ -118,7 +118,7 @@ type Props = {
   orderItems: ItemType[]
   setPriceId: Dispatch<SetStateAction<number | null>>
   setIsNotApplicable: Dispatch<SetStateAction<boolean>>
-  errorRefs: MutableRefObject<(HTMLInputElement | null)[]>
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const EditPrices = ({
@@ -390,7 +390,7 @@ const EditPrices = ({
                         FormErrors.required
                       }
                       inputRef={ref => {
-                        errorRefs.current[0] = ref
+                        if (errorRefs) errorRefs.current[0] = ref
                       }}
                     />
                   )}
