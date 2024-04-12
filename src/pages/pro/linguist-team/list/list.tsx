@@ -14,7 +14,6 @@ type Props = {
   }>
   skip: number
   pageSize: number
-  setSkip: (num: number) => void
   setPageSize: (num: number) => void
   setListCount: (num: number) => void
   clientList: {
@@ -22,17 +21,20 @@ type Props = {
     name: string
   }[]
   activeFilter: FilterType
+  page: number
+  setPage: (num: number) => void
 }
 
 const LinguistTeamList = ({
   serviceTypeList,
   skip,
   pageSize,
-  setSkip,
   setPageSize,
   setListCount,
   clientList,
   activeFilter,
+  page,
+  setPage,
 }: Props) => {
   const router = useRouter()
 
@@ -46,7 +48,6 @@ const LinguistTeamList = ({
     setListCount(listCount)
   }, [linguistList])
 
-  console.log('linguistList', linguistList)
   return (
     <Box
       sx={{
@@ -74,10 +75,10 @@ const LinguistTeamList = ({
           router.push(`/pro/linguist-team/detail/${params.id}`)
         }}
         pagination
-        page={skip}
+        page={page}
         pageSize={pageSize}
         paginationMode='server'
-        onPageChange={setSkip}
+        onPageChange={setPage}
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
       />

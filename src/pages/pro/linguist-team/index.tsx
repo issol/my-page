@@ -30,7 +30,7 @@ export const initialFilter: FilterType = {
   clientId: [],
   search: '',
   skip: 0,
-  take: 12,
+  take: 10,
 }
 
 const LinguistTeam = () => {
@@ -40,6 +40,7 @@ const LinguistTeam = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>({
     ...initialFilter,
   })
+  const [linguistTeamPage, setLinguistTeamPage] = useState<number>(0)
 
   const languageList = getGloLanguage()
   const { data: serviceTypeList } = useGetServiceType()
@@ -107,11 +108,14 @@ const LinguistTeam = () => {
             serviceTypeList={serviceTypeList || []}
             skip={activeFilter.skip}
             pageSize={activeFilter.take}
-            setSkip={(n: number) => {
-              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
-            }}
-            setPageSize={(n: number) =>
+            setPageSize={(n: number) => 
               setActiveFilter({ ...activeFilter, take: n })
+            }
+            page={linguistTeamPage}
+            setPage={(n: number) => {
+                setLinguistTeamPage(n)
+                setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+              }
             }
             handleMenuClick={handleMenuClick}
             handleMenuClose={handleMenuClose}
