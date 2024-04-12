@@ -624,6 +624,7 @@ const JobListCard = ({
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
                             placement='top'
+                            disableHoverListener={mode !== 'view' || !row.autoNextJob}
                           >
                             <Box
                               display='flex'
