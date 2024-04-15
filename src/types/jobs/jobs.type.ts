@@ -316,6 +316,9 @@ export type JobRequestsProType = {
   ongoingJobList: string[]
   order: number
   jobRequestId: number
+  message?: {
+    unReadCount: number
+  }
 }
 
 export type JobRequestFormType = {

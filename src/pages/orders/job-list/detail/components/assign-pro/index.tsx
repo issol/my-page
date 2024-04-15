@@ -483,7 +483,10 @@ const AssignPro = ({
             jobAssignDefaultRound: 0,
           }]}
           isUpdatable={selectedJobUpdatable}
-          onClose={() => closeModal('AssignProMessageModal')}
+          onClose={() => {
+            queryClient.invalidateQueries(['jobAssignProRequests', jobInfo.id])
+            closeModal('AssignProMessageModal')
+          }}
         />
       ),
     })
