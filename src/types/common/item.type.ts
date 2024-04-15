@@ -146,4 +146,7 @@ export type JobType = {
   }
   // 동일한 templateId를 가진 job들이 있을때 구분하기 위한 추가 키 값
   triggerGroup: number | null
+  message?: {
+    unReadCount: number
+  }
 }

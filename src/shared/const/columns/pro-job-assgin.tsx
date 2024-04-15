@@ -683,7 +683,7 @@ export const getProJobAssignColumnsForRequest = (
           >
             {row.assignmentStatus === null ? null : (
               <Box sx={{ margin: '0 auto' }}>
-                <Badge badgeContent={'999'} color='primary'>
+                <Badge badgeContent={row.message?.unReadCount} color='primary'>
                   <IconButton
                     sx={{ padding: 0 }}
                     onClick={e =>
