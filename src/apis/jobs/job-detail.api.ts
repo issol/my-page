@@ -335,10 +335,11 @@ export const sendMessage = async (
   await axios.post(`/api/enough/u/job/message`, body);
 }
 
-export const readMessage = async (jobId: number, proId: number) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/message`, {
+export const readMessage = async (jobId: number, proId: number, type: string) => {
+  await axios.patch(`/api/enough/u/job/message/read`, {
     jobId: jobId,
     proId: proId,
+    type: type,
   })
 }
 

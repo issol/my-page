@@ -26,7 +26,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useMutation } from 'react-query'
-import { sendMessage } from '@src/apis/jobs/job-detail.api'
+import { readMessage, sendMessage } from '@src/apis/jobs/job-detail.api'
 import { JobType } from '@src/types/common/item.type'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { toast } from 'react-hot-toast'
@@ -110,7 +110,6 @@ const Message = ({
         toast.success('Sent successfully', {
           position: 'bottom-left',
         })
-        refetchMessage()
       },
       onError: (error: any) => {
         toast.error(
@@ -123,6 +122,19 @@ const Message = ({
     },
   )
 
+  const readMessageMutation = useMutation(
+    (data: { jobId: number; proId: number; type: string }) => 
+      readMessage(data.jobId, data.proId, data.type),
+    {
+      onSuccess: () => {
+        refetchMessage()
+      },
+      onError: (error: any) => {
+
+      },
+    },
+  )
+
   const refetchMessage = () => {
     messageRefetch().then(() => {
       setMessage('')
@@ -131,10 +143,17 @@ const Message = ({
   }
 
   const handleSendMessage = () => {
-    sendMessageToProMutation.mutate({
+    sendMessageToProMutation.mutateAsync({
       jobId: selectedJobId,
       proId: selectedJobProId,
       message: message,
+    }).then(() => {
+      // 메세지를 보낸 후 읽음 처리한다.
+      readMessageMutation.mutate({
+        jobId: selectedJobId,
+        proId: selectedJobProId,
+        type: sendFrom === 'PRO' ? 'all' : messageType,
+      })
     })
   }
 
@@ -176,6 +195,12 @@ const Message = ({
   }
 
   useEffect(() => {
+    // LPM에서 메세지 탭을 변경할때 메세지를 읽음 처리 한다.
+    readMessageMutation.mutate({
+      jobId: selectedJobId,
+      proId: selectedJobProId,
+      type: sendFrom === 'PRO' ? 'all' : messageType,
+    })
     refetchMessage()
   }, [selectedJobId])
 
@@ -184,9 +209,15 @@ const Message = ({
   }, [messageRefetch])
 
   useEffect(() => {
+    // 메세지 컴포넌트가 열릴때 메세지를 읽음 처리 한다.
+    readMessageMutation.mutate({
+      jobId: selectedJobId,
+      proId: selectedJobProId,
+      type: sendFrom === 'PRO' ? 'all' : messageType,
+    })
     scrollToBottom()
   }, []);
-  console.log("jobName",jobName)
+  
   return (
     <Box
       sx={{
