@@ -148,4 +148,26 @@ export type JobType = {
   }
   // 동일한 templateId를 가진 job들이 있을때 구분하기 위한 추가 키 값
   triggerGroup: number | null
+  round: number
+
+  initialPrice: {
+    id: number
+    name: string
+    currency: Currency
+    numberPlace: number
+    rounding: string
+    priceId: number
+    priceUnits: {
+      id: number
+      title: string
+      unit: string
+      weighting: string
+      isBase: boolean
+      quantity: string
+      price: string
+      prices: string
+      parentPriceUnitId: number
+      isActive: boolean
+    }[]
+  }[]
 }

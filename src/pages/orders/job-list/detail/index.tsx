@@ -28,6 +28,7 @@ import {
   useGetJobInfo,
   useGetJobPriceHistory,
   useGetJobPrices,
+  useGetJobRequestHistory,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
@@ -70,6 +71,7 @@ import {
   JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
+  JobRequestHistoryType,
   jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -144,6 +146,9 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { log } from 'console'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import RequestHistory from './components/request-history'
+import { ErrorBoundary } from 'react-error-boundary'
+import Error500 from '@src/pages/500'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -170,6 +175,13 @@ const JobDetail = () => {
       jobInfo: JobType | undefined
       jobPrices: JobPricesDetailType | undefined
       jobAssign: JobAssignProRequestsType[]
+      jobRequestHistory:
+        | {
+            data: JobRequestHistoryType[]
+            count: number
+            totalCount: number
+          }
+        | undefined
       jobAssignDefaultRound: number
     }>
   >([])
@@ -180,6 +192,11 @@ const JobDetail = () => {
     jobPrices: JobPricesDetailType
     jobAssign: JobAssignProRequestsType[]
     jobAssignDefaultRound: number
+    jobRequestHistory: {
+      data: JobRequestHistoryType[]
+      count: number
+      totalCount: number
+    }
   } | null>(null)
 
   const [selectedAssign, setSelectedAssign] =
@@ -263,13 +280,13 @@ const JobDetail = () => {
 
   const jobInfoList = (
     useGetJobInfo(jobId, false) as UseQueryResult<JobType, unknown>[]
-  ).map(value => value.data)
+  ).map(value => value)
   const jobPriceList = (
     useGetJobPrices(jobId, false) as UseQueryResult<
       JobPricesDetailType | jobPriceHistoryType,
       unknown
     >[]
-  ).map(value => value.data)
+  ).map(value => value)
   const jobAssignList = (
     useGetJobAssignProRequests(jobId) as UseQueryResult<
       {
@@ -279,7 +296,19 @@ const JobDetail = () => {
       },
       unknown
     >[]
-  ).map(value => value.data)
+  ).map(value => value)
+
+  const jobRequestHistoryList = (
+    useGetJobRequestHistory(jobId) as UseQueryResult<
+      {
+        data: JobRequestHistoryType[]
+        count: number
+        totalCount: number
+        jobId: number
+      },
+      unknown
+    >[]
+  ).map(value => value)
 
   const { data: jobStatusList } = useGetStatusList('Job')
   const { data: serviceTypeList } = useGetServiceType()
@@ -1197,27 +1226,37 @@ const JobDetail = () => {
   }, [menuQuery])
 
   useEffect(() => {
+    const jobInfo = jobInfoList.map(value => value.data)
+    const jobPrice = jobPriceList.map(value => value.data)
+    const jobAssign = jobAssignList.map(value => value.data)
+    const jobRequestHistory = jobRequestHistoryList.map(value => value.data)
     if (
-      jobInfoList.includes(undefined) ||
-      jobPriceList.includes(undefined) ||
-      jobAssignList.includes(undefined)
+      jobInfo.includes(undefined) ||
+      jobPrice.includes(undefined) ||
+      jobAssign.includes(undefined) ||
+      jobRequestHistory.includes(undefined)
     )
       return
-    const combinedList = jobInfoList
+    const combinedList = jobInfo
       .sort((a, b) => a?.sortingOrder! - b?.sortingOrder!)
-      .map(jobInfo => {
-        const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
-        const jobAssign = jobAssignList.find(
-          assign => assign!.id === jobInfo!.id,
+      .map(job => {
+        const jobPrices = jobPrice.find(price => price!.id === job!.id)
+        const jobAssigns = jobAssign.find(assign => assign!.id === job!.id)
+        const jobRequestHistories = jobRequestHistory.find(
+          history => history!.jobId === job!.id,
         )
 
         return {
-          jobInfo: jobInfo!,
-
+          jobInfo: job!,
           jobPrices: jobPrices!,
-          jobId: jobInfo!.id,
-          jobAssign: jobAssign?.requests!,
-          jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
+          jobId: job!.id,
+          jobAssign: jobAssigns?.requests ?? [],
+          jobRequestHistory: {
+            data: jobRequestHistories?.data ?? [],
+            totalCount: jobRequestHistories?.totalCount ?? 0,
+            count: jobRequestHistories?.count ?? 0,
+          },
+          jobAssignDefaultRound: jobAssigns?.frontRound ?? 1,
         }
       })
 
@@ -1270,6 +1309,7 @@ const JobDetail = () => {
     selectedJobInfo,
     jobDetail,
     selectedJobId,
+    jobRequestHistoryList,
   ])
 
   useEffect(() => {
@@ -1293,6 +1333,7 @@ const JobDetail = () => {
           jobInfo: selectedJob.jobInfo!,
           jobPrices: selectedJob.jobPrices!,
           jobAssign: selectedJob.jobAssign!,
+          jobRequestHistory: selectedJob.jobRequestHistory!,
           jobAssignDefaultRound: selectedJob.jobAssignDefaultRound,
         }
         setSelectedJobInfo(result)
@@ -1352,6 +1393,17 @@ const JobDetail = () => {
     }
   }, [selectedJobInfo, jobDetails])
 
+  useEffect(() => {
+    if (
+      jobInfoList.map(value => value.status).includes('error') ||
+      jobPriceList.map(value => value.status).includes('error') ||
+      jobAssignList.map(value => value.status).includes('error') ||
+      jobRequestHistoryList.map(value => value.status).includes('error')
+    ) {
+      throw new Error('Server error')
+    }
+  }, [jobInfoList, jobPriceList, jobAssignList, jobRequestHistoryList])
+
   return (
     <Card sx={{ height: '100%' }}>
       {assignJobMutation.isLoading ||
@@ -1367,352 +1419,369 @@ const JobDetail = () => {
       linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
-      <Grid container sx={{ height: '100%' }}>
-        <Grid item xs={1.584} sx={{ height: '100%' }}>
-          <Box
-            sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-          >
+      {jobInfoList.map(value => value.status).includes('loading') ||
+      jobPriceList.map(value => value.status).includes('loading') ||
+      jobAssignList.map(value => value.status).includes('loading') ||
+      jobRequestHistoryList.map(value => value.status).includes('loading') ? (
+        <OverlaySpinner />
+      ) : (
+        <Grid container sx={{ height: '100%' }}>
+          <Grid item xs={1.584} sx={{ height: '100%' }}>
             <Box
-              sx={{
-                padding: '20px',
-                height: '64px',
-                borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
-              }}
+              sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
             >
-              <IconButton
+              <Box
                 sx={{
-                  padding: '0 !important',
-                  height: '24px',
-                }}
-                onClick={() => {
-                  if (addRoundMode) {
-                    setAddRoundMode(false)
-                    setMenu('linguistTeam')
-                    setSelectedLinguistTeam(null)
-                    if (selectedJobInfo) {
-                      setSelectedAssign(
-                        selectedJobInfo.jobAssign.find(
-                          value =>
-                            value.round ===
-                            selectedJobInfo.jobAssignDefaultRound,
-                        ) ?? null,
-                      )
-                    }
-                  } else if (addProsMode) {
-                    setAddProsMode(false)
-                    setMenu('linguistTeam')
-                    setSelectedLinguistTeam(null)
-                    if (selectedJobInfo) {
-                      setSelectedAssign(
-                        selectedJobInfo.jobAssign.find(
-                          value =>
-                            value.round ===
-                            selectedJobInfo.jobAssignDefaultRound,
-                        ) ?? null,
-                      )
-                    }
-                  } else if (assignProMode) {
-                    setAssignProMode(false)
-                    setMenu('linguistTeam')
-                    setSelectedLinguistTeam(null)
-                    if (selectedJobInfo) {
-                      setSelectedAssign(
-                        selectedJobInfo.jobAssign.find(
-                          value =>
-                            value.round ===
-                            selectedJobInfo.jobAssignDefaultRound,
-                        ) ?? null,
-                      )
-                    }
-                  } else {
-                    router.push({
-                      pathname: '/orders/job-list/details/',
-                      query:
-                        jobId.length === 1
-                          ? {
-                              orderId: orderId,
-                              jobId: jobId[0],
-                            }
-                          : {
-                              orderId: orderId,
-                            },
-                    })
-                  }
+                  padding: '20px',
+                  height: '64px',
+                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                 }}
               >
-                <Icon icon='mdi:chevron-left' width={24} height={24} />
-              </IconButton>
+                <IconButton
+                  sx={{
+                    padding: '0 !important',
+                    height: '24px',
+                  }}
+                  onClick={() => {
+                    if (addRoundMode) {
+                      setAddRoundMode(false)
+                      setMenu('linguistTeam')
+                      setSelectedLinguistTeam(null)
+                      if (selectedJobInfo) {
+                        setSelectedAssign(
+                          selectedJobInfo.jobAssign.find(
+                            value =>
+                              value.round ===
+                              selectedJobInfo.jobAssignDefaultRound,
+                          ) ?? null,
+                        )
+                      }
+                    } else if (addProsMode) {
+                      setAddProsMode(false)
+                      setMenu('linguistTeam')
+                      setSelectedLinguistTeam(null)
+                      if (selectedJobInfo) {
+                        setSelectedAssign(
+                          selectedJobInfo.jobAssign.find(
+                            value =>
+                              value.round ===
+                              selectedJobInfo.jobAssignDefaultRound,
+                          ) ?? null,
+                        )
+                      }
+                    } else if (assignProMode) {
+                      setAssignProMode(false)
+                      setMenu('linguistTeam')
+                      setSelectedLinguistTeam(null)
+                      if (selectedJobInfo) {
+                        setSelectedAssign(
+                          selectedJobInfo.jobAssign.find(
+                            value =>
+                              value.round ===
+                              selectedJobInfo.jobAssignDefaultRound,
+                          ) ?? null,
+                        )
+                      }
+                    } else {
+                      router.push({
+                        pathname: '/orders/job-list/details/',
+                        query:
+                          jobId.length === 1
+                            ? {
+                                orderId: orderId,
+                                jobId: jobId[0],
+                              }
+                            : {
+                                orderId: orderId,
+                              },
+                      })
+                    }
+                  }}
+                >
+                  <Icon icon='mdi:chevron-left' width={24} height={24} />
+                </IconButton>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+
+                  height: '100%',
+                  borderRight: '1px solid rgba(76, 78, 100, 0.12)',
+                }}
+              >
+                {jobDetail.map((value, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        cursor: 'pointer',
+                        background:
+                          value.jobId === selectedJobInfo?.jobInfo.id
+                            ? 'rgba(76, 78, 100, 0.05)'
+                            : 'inherit',
+                      }}
+                      onClick={() => {
+                        setSelectedJobInfo({
+                          jobId: value.jobId,
+                          jobInfo: value.jobInfo!,
+                          jobPrices: value.jobPrices!,
+                          jobAssign: value.jobAssign!,
+                          jobAssignDefaultRound: value.jobAssignDefaultRound,
+                          jobRequestHistory: value.jobRequestHistory!,
+                        })
+                        setValue('info')
+                        const path = router.asPath
+                        const newPath = path.replace(
+                          `selectedJobId=${selectedJobInfo?.jobId}`,
+                          `selectedJobId=${value.jobId}`,
+                        )
+                        router.push(newPath, undefined, {
+                          shallow: true,
+                        })
+                      }}
+                    >
+                      <Typography fontSize={14}>
+                        {value?.jobInfo?.corporationId}
+                      </Typography>
+                      <ServiceTypeChip label={value?.jobInfo?.serviceType} />
+                    </Box>
+                  )
+                })}
+              </Box>
             </Box>
+          </Grid>
+
+          <Grid
+            item
+            xs={
+              value === 'assign'
+                ? (selectedJobInfo &&
+                    (selectedJobInfo.jobInfo.name === null ||
+                      selectedJobInfo.jobPrices?.priceId === null)) ||
+                  (selectedJobInfo?.jobAssign &&
+                    selectedJobInfo?.jobAssign.length > 0 &&
+                    !addRoundMode &&
+                    !addProsMode &&
+                    !assignProMode) ||
+                  !selectedJobUpdatable()
+                  ? 10.416
+                  : 7.632
+                : value === 'info'
+                  ? selectedJobInfo?.jobInfo.pro === null
+                    ? 10.416
+                    : 7.632
+                  : value === 'prices'
+                    ? 10.416
+                    : value === 'history'
+                      ? 10.416
+                      : 7.632
+              // (selectedJobInfo &&
+              //   (selectedJobInfo.jobInfo.name === null ||
+              //     selectedJobInfo.jobPrices.priceId === null)) ||
+              // (selectedJobInfo?.jobAssign &&
+              //   selectedJobInfo?.jobAssign.length > 0 &&
+              //   value === 'assign') ||
+              // (!addRoundMode && !addProsMode && !assignProMode) ||
+              // (selectedJobInfo?.jobInfo.pro === null && value === 'info')
+              //   ? 10.416
+              //   : 7.632
+            }
+            sx={{ height: '100%' }}
+          >
             <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
-
                 height: '100%',
                 borderRight: '1px solid rgba(76, 78, 100, 0.12)',
               }}
             >
-              {jobDetail.map((value, index) => {
-                return (
-                  <Box
-                    key={index}
+              {selectedJobInfo && (
+                <TabContext value={value}>
+                  <TabList
+                    onChange={handleChange}
+                    aria-label='Order detail Tab menu'
                     sx={{
-                      padding: '20px',
+                      minHeight: '64px',
+                      height: '64px',
+                      paddingLeft: '20px',
+                      borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                      cursor: 'pointer',
-                      background:
-                        value.jobId === selectedJobInfo?.jobInfo.id
-                          ? 'rgba(76, 78, 100, 0.05)'
-                          : 'inherit',
-                    }}
-                    onClick={() => {
-                      setSelectedJobInfo({
-                        jobId: value.jobId,
-                        jobInfo: value.jobInfo!,
-                        jobPrices: value.jobPrices!,
-                        jobAssign: value.jobAssign!,
-                        jobAssignDefaultRound: value.jobAssignDefaultRound,
-                      })
-                      setSelectedAssign(
-                        value.jobAssign.find(
-                          assign =>
-                            assign.round === value.jobAssignDefaultRound,
-                        ) ?? null,
-                      )
-                      setValue('info')
-                      setMenu('linguistTeam')
-                      setSelectedLinguistTeam(null)
-                      setSelectedRows({})
-                      setSelectionModel({})
-                      setActiveFilter({
-                        source: [],
-                        target: [],
-
-                        client: [],
-                        take: 10,
-                        skip: 0,
-                        genre: [],
-                        serviceType: [],
-                        category: [],
-                        isOffBoard: '1',
-                      })
-                      setFilter({
-                        source: [],
-                        target: [],
-
-                        client: [],
-                        take: 10,
-                        skip: 0,
-                        genre: [],
-                        serviceType: [],
-                        category: [],
-                        isOffBoard: '1',
-                      })
-                      const path = router.asPath
-                      const newPath = path.replace(
-                        `selectedJobId=${selectedJobInfo?.jobId}`,
-                        `selectedJobId=${value.jobId}`,
-                      )
-                      router.push(newPath, undefined, {
-                        shallow: true,
-                      })
+                      alignItems: 'end',
                     }}
                   >
-                    <Typography fontSize={14}>
-                      {value?.jobInfo?.corporationId}
-                    </Typography>
-                    <ServiceTypeChip label={value?.jobInfo?.serviceType} />
-                  </Box>
-                )
-              })}
-            </Box>
-          </Box>
-        </Grid>
-
-        <Grid
-          item
-          xs={
-            value === 'assign'
-              ? (selectedJobInfo &&
-                  (selectedJobInfo.jobInfo.name === null ||
-                    selectedJobInfo.jobPrices.priceId === null)) ||
-                (selectedJobInfo?.jobAssign &&
-                  selectedJobInfo?.jobAssign.length > 0 &&
-                  !addRoundMode &&
-                  !addProsMode &&
-                  !assignProMode) ||
-                !selectedJobUpdatable()
-                ? 10.416
-                : 7.632
-              : value === 'info'
-                ? selectedJobInfo?.jobInfo.pro === null
-                  ? 10.416
-                  : 7.632
-                : value === 'prices'
-                  ? 10.416
-                  : 7.632
-            // (selectedJobInfo &&
-            //   (selectedJobInfo.jobInfo.name === null ||
-            //     selectedJobInfo.jobPrices.priceId === null)) ||
-            // (selectedJobInfo?.jobAssign &&
-            //   selectedJobInfo?.jobAssign.length > 0 &&
-            //   value === 'assign') ||
-            // (!addRoundMode && !addProsMode && !assignProMode) ||
-            // (selectedJobInfo?.jobInfo.pro === null && value === 'info')
-            //   ? 10.416
-            //   : 7.632
-          }
-          sx={{ height: '100%' }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%',
-              borderRight: '1px solid rgba(76, 78, 100, 0.12)',
-            }}
-          >
-            {selectedJobInfo && (
-              <TabContext value={value}>
-                <TabList
-                  onChange={handleChange}
-                  aria-label='Order detail Tab menu'
-                  sx={{
-                    minHeight: '64px',
-                    height: '64px',
-                    paddingLeft: '20px',
-                    borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
-                    display: 'flex',
-                    alignItems: 'end',
-                  }}
-                >
-                  <CustomTab
-                    value='info'
-                    label={
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                        }}
-                      >
-                        Job Info
-                        {selectedJobInfo.jobInfo.name === null ? (
-                          <Badge
-                            variant='dot'
-                            color='error'
-                            sx={{ marginLeft: '4px' }}
-                          ></Badge>
-                        ) : null}
-                      </Box>
-                    }
-                    iconPosition='start'
-                    icon={
-                      <Icon icon='iconoir:large-suitcase' fontSize={'18px'} />
-                    }
-                    onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  />
-
-                  <CustomTab
-                    value='prices'
-                    label={
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                        }}
-                      >
-                        Prices
-                        {selectedJobInfo.jobPrices.priceId === null ? (
-                          <Badge
-                            variant='dot'
-                            color='error'
-                            sx={{ marginLeft: '4px' }}
-                          ></Badge>
-                        ) : null}
-                      </Box>
-                    }
-                    iconPosition='start'
-                    icon={<Icon icon='mdi:dollar' fontSize={'18px'} />}
-                    onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  />
-                  <CustomTab
-                    value='assign'
-                    label='Assign pro'
-                    iconPosition='start'
-                    icon={<Icon icon='mdi:account-outline' fontSize={'18px'} />}
-                    onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  />
-
-                  <CustomTab
-                    value='history'
-                    label='Request history'
-                    iconPosition='start'
-                    disabled
-                    icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
-                    onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  />
-                </TabList>
-                <TabPanel value='info' sx={{ height: '100%' }}>
-                  {jobDetails && langItem ? (
-                    <JobInfo
-                      jobInfo={selectedJobInfo?.jobInfo!}
-                      jobInfoList={jobInfoList}
-                      jobAssign={selectedJobInfo?.jobAssign!}
-                      projectTeam={projectTeam ?? []}
-                      items={jobDetails.items.find(item =>
-                        item.jobs.some(
-                          job => job.id === selectedJobInfo?.jobId,
-                        ),
-                      )}
-                      languagePair={langItem.languagePairs || []}
-                      setJobId={setJobId}
-                      setJobStatusMutation={setJobStatusMutation}
-                      selectedJobUpdatable={selectedJobUpdatable()}
+                    <CustomTab
+                      value='info'
+                      label={
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          Job Info
+                          {selectedJobInfo.jobInfo.name === null ? (
+                            <Badge
+                              variant='dot'
+                              color='error'
+                              sx={{ marginLeft: '4px' }}
+                            ></Badge>
+                          ) : null}
+                        </Box>
+                      }
+                      iconPosition='start'
+                      icon={
+                        <Icon icon='iconoir:large-suitcase' fontSize={'18px'} />
+                      }
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
                     />
-                  ) : null}
-                </TabPanel>
-                <TabPanel value='prices' sx={{ height: '100%' }}>
-                  <Box sx={{ height: '100%' }}>
-                    <Box
-                      sx={{
-                        padding: '10px 20px',
-                        background: '#FFF6E5',
-                        borderRadius: '10px',
-                        mb: '8px',
-                      }}
-                    >
-                      <Typography
-                        fontSize={12}
-                        fontWeight={400}
-                        color='#4C4E64'
+
+                    <CustomTab
+                      value='prices'
+                      label={
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          Prices
+                          {selectedJobInfo.jobPrices?.priceId === null ? (
+                            <Badge
+                              variant='dot'
+                              color='error'
+                              sx={{ marginLeft: '4px' }}
+                            ></Badge>
+                          ) : null}
+                        </Box>
+                      }
+                      iconPosition='start'
+                      icon={<Icon icon='mdi:dollar' fontSize={'18px'} />}
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    />
+                    <CustomTab
+                      value='assign'
+                      label='Assign pro'
+                      iconPosition='start'
+                      icon={
+                        <Icon icon='mdi:account-outline' fontSize={'18px'} />
+                      }
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    />
+
+                    <CustomTab
+                      value='history'
+                      label='Request history'
+                      iconPosition='start'
+                      // disabled
+                      icon={
+                        <Icon icon='ic:outline-history' fontSize={'18px'} />
+                      }
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    />
+                  </TabList>
+                  <TabPanel value='info' sx={{ height: '100%' }}>
+                    {selectedJobInfo.jobInfo && jobDetails && langItem ? (
+                      <JobInfo
+                        jobInfo={selectedJobInfo?.jobInfo!}
+                        jobInfoList={jobInfoList.map(value => value.data)}
+                        jobAssign={selectedJobInfo?.jobAssign!}
+                        projectTeam={projectTeam ?? []}
+                        items={jobDetails.items.find(item =>
+                          item.jobs.some(
+                            job => job.id === selectedJobInfo?.jobId,
+                          ),
+                        )}
+                        languagePair={langItem.languagePairs || []}
+                        setJobId={setJobId}
+                        setJobStatusMutation={setJobStatusMutation}
+                        selectedJobUpdatable={selectedJobUpdatable()}
+                      />
+                    ) : null}
+                  </TabPanel>
+                  <TabPanel value='prices' sx={{ height: '100%' }}>
+                    <Box sx={{ height: '100%' }}>
+                      <Box
+                        sx={{
+                          padding: '10px 20px',
+                          background: '#FFF6E5',
+                          borderRadius: '10px',
+                          mb: '8px',
+                        }}
                       >
-                        {selectedJobInfo?.jobAssign.length === 0
-                          ? 'The information will be delivered to Pro along with the job request'
-                          : selectedJobInfo?.jobAssign.length > 0 &&
-                              selectedJobInfo.jobInfo.pro === null
-                            ? 'Changes will only be applied to new requests'
-                            : selectedJobInfo.jobInfo.pro !== null
-                              ? 'Changes will also be applied to the Pro’s job detail page'
-                              : null}
-                      </Typography>
-                    </Box>
-                    <Card
-                      sx={{
-                        height: 'calc(100% - 50px)',
-                        position: 'relative',
-                      }}
-                    >
-                      <form
-                        onSubmit={itemHandleSubmit(onClickUpdatePrice, onError)}
+                        <Typography
+                          fontSize={12}
+                          fontWeight={400}
+                          color='#4C4E64'
+                        >
+                          {selectedJobInfo?.jobAssign.length === 0
+                            ? 'The information will be delivered to Pro along with the job request'
+                            : selectedJobInfo?.jobAssign.length > 0 &&
+                                selectedJobInfo.jobInfo.pro === null
+                              ? 'Changes will only be applied to new requests'
+                              : selectedJobInfo.jobInfo.pro !== null
+                                ? 'Changes will also be applied to the Pro’s job detail page'
+                                : null}
+                        </Typography>
+                      </Box>
+                      <Card
+                        sx={{
+                          height: 'calc(100% - 50px)',
+                          position: 'relative',
+                        }}
                       >
-                        {selectedJobInfo.jobPrices.priceId === null ||
-                        editPrices ? (
-                          <>
-                            <EditPrices
+                        <form
+                          onSubmit={itemHandleSubmit(
+                            onClickUpdatePrice,
+                            onError,
+                          )}
+                        >
+                          {selectedJobInfo.jobPrices?.priceId === null ||
+                          editPrices ? (
+                            <>
+                              <EditPrices
+                                priceUnitsList={priceUnitsList ?? []}
+                                itemControl={itemControl}
+                                itemErrors={itemErrors}
+                                getItem={getItem}
+                                setItem={setItem}
+                                itemTrigger={itemTrigger}
+                                itemReset={itemReset}
+                                isItemValid={itemValid}
+                                appendItems={appendItems}
+                                fields={items}
+                                row={selectedJobInfo.jobInfo}
+                                jobPrices={selectedJobInfo.jobPrices!}
+                                item={jobDetails?.items.find(item =>
+                                  item.jobs.some(
+                                    job => job.id === selectedJobInfo?.jobId,
+                                  ),
+                                )}
+                                prices={prices}
+                                orderItems={langItem?.items || []}
+                                setPriceId={setPriceId}
+                                setIsNotApplicable={setIsNotApplicable}
+                                errorRefs={errorRefs}
+                              />
+                            </>
+                          ) : (
+                            <ViewPrices
+                              row={selectedJobInfo.jobInfo}
                               priceUnitsList={priceUnitsList ?? []}
                               itemControl={itemControl}
                               itemErrors={itemErrors}
@@ -1723,185 +1792,158 @@ const JobDetail = () => {
                               isItemValid={itemValid}
                               appendItems={appendItems}
                               fields={items}
-                              row={selectedJobInfo.jobInfo}
-                              jobPrices={selectedJobInfo.jobPrices!}
-                              item={jobDetails?.items.find(item =>
-                                item.jobs.some(
-                                  job => job.id === selectedJobInfo?.jobId,
-                                ),
-                              )}
-                              prices={prices}
-                              orderItems={langItem?.items || []}
-                              setPriceId={setPriceId}
-                              setIsNotApplicable={setIsNotApplicable}
-                              errorRefs={errorRefs}
+                              setEditPrices={setEditPrices}
+                              jobPriceHistory={jobPriceHistory!}
+                              type='view'
+                              selectedJobUpdatable={selectedJobUpdatable()}
                             />
-                          </>
-                        ) : (
-                          <ViewPrices
-                            row={selectedJobInfo.jobInfo}
-                            priceUnitsList={priceUnitsList ?? []}
-                            itemControl={itemControl}
-                            itemErrors={itemErrors}
-                            getItem={getItem}
-                            setItem={setItem}
-                            itemTrigger={itemTrigger}
-                            itemReset={itemReset}
-                            isItemValid={itemValid}
-                            appendItems={appendItems}
-                            fields={items}
-                            setEditPrices={setEditPrices}
-                            jobPriceHistory={jobPriceHistory!}
-                            type='view'
-                            selectedJobUpdatable={selectedJobUpdatable()}
-                          />
-                        )}
+                          )}
 
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent={
-                            !editPrices &&
-                            selectedJobInfo.jobPrices.priceId !== null
-                              ? 'flex-end'
-                              : 'space-between'
-                          }
-                          sx={{
-                            width: '100%',
-                            borderTop: '1px solid #E9EAEC',
-                            padding: '32px 20px',
-                            height: '100px',
-                            position: 'absolute',
-                            bottom: 0,
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography fontWeight='bold' fontSize={14}>
-                              Total price
-                            </Typography>
-                            <Box
-                              display='flex'
-                              alignItems='center'
-                              marginLeft={20}
-                              marginRight={5}
-                            >
-                              {!editPrices ||
-                              selectedJobInfo.jobPrices.priceId !== null ? (
-                                <Typography fontWeight='bold' fontSize={14}>
-                                  {priceData()
-                                    ? isNotApplicable
-                                      ? formatCurrency(
-                                          formatByRoundingProcedure(
-                                            Number(
-                                              getItem(`items.${0}.totalPrice`),
-                                            ),
-                                            getItem().items?.[0]?.detail?.[0]
-                                              ?.currency === 'USD' ||
+                          <Box
+                            display='flex'
+                            alignItems='center'
+                            justifyContent={
+                              !editPrices &&
+                              selectedJobInfo.jobPrices?.priceId !== null
+                                ? 'flex-end'
+                                : 'space-between'
+                            }
+                            sx={{
+                              width: '100%',
+                              borderTop: '1px solid #E9EAEC',
+                              padding: '32px 20px',
+                              height: '100px',
+                              position: 'absolute',
+                              bottom: 0,
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Typography fontWeight='bold' fontSize={14}>
+                                Total price
+                              </Typography>
+                              <Box
+                                display='flex'
+                                alignItems='center'
+                                marginLeft={20}
+                                marginRight={5}
+                              >
+                                {!editPrices ||
+                                selectedJobInfo.jobPrices.priceId !== null ? (
+                                  <Typography fontWeight='bold' fontSize={14}>
+                                    {priceData()
+                                      ? isNotApplicable
+                                        ? formatCurrency(
+                                            formatByRoundingProcedure(
+                                              Number(
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
+                                              ),
                                               getItem().items?.[0]?.detail?.[0]
-                                                ?.currency === 'SGD'
-                                              ? 2
-                                              : getItem().items?.[0]
-                                                    ?.detail?.[0]?.currency ===
-                                                  'KRW'
-                                                ? 10
-                                                : 0,
-                                            0,
-                                            getItem().items?.[0]?.detail?.[0]
-                                              ?.currency ?? 'KRW',
-                                          ),
-                                          getItem().items?.[0]?.detail?.[0]
-                                            ?.currency ?? null,
-                                        )
-                                      : formatCurrency(
-                                          formatByRoundingProcedure(
-                                            // getValues로 가져오면 폼에서 계산된 값이 반영됨
-                                            // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                                            Number(
-                                              getItem(`items.${0}.totalPrice`),
-                                            ),
-                                            // fields?.[index].totalPrice! ?? 0,
-                                            priceData()?.decimalPlace ??
-                                              (getItem().items?.[0]?.detail?.[0]
                                                 ?.currency === 'USD' ||
                                                 getItem().items?.[0]
                                                   ?.detail?.[0]?.currency ===
-                                                  'SGD')
-                                              ? 2
-                                              : getItem().items?.[0]
-                                                    ?.detail?.[0]?.currency ===
-                                                  'KRW'
-                                                ? 10
-                                                : 0,
-                                            priceData()?.roundingProcedure ??
-                                              PriceRoundingResponseEnum.Type_0,
-                                            priceData()?.currency ?? null,
-                                          ),
-                                          priceData()?.currency ?? null,
-                                        )
-                                    : '-'}
-                                </Typography>
-                              ) : (
-                                <Typography fontWeight='bold' fontSize={14}>
-                                  {isNotApplicable
-                                    ? getItem().items?.[0]?.detail?.[0]
-                                        ?.currency
-                                      ? formatCurrency(
-                                          formatByRoundingProcedure(
-                                            Number(
-                                              getItem(`items.${0}.totalPrice`),
-                                            ),
-                                            getItem().items?.[0]?.detail?.[0]
-                                              ?.currency === 'USD' ||
+                                                  'SGD'
+                                                ? 2
+                                                : getItem().items?.[0]
+                                                      ?.detail?.[0]
+                                                      ?.currency === 'KRW'
+                                                  ? 10
+                                                  : 0,
+                                              0,
                                               getItem().items?.[0]?.detail?.[0]
-                                                ?.currency === 'SGD'
-                                              ? 2
-                                              : getItem().items?.[0]
-                                                    ?.initialPrice?.currency ===
-                                                  'KRW'
-                                                ? 10
-                                                : 1,
-                                            0,
+                                                ?.currency ?? 'KRW',
+                                            ),
                                             getItem().items?.[0]?.detail?.[0]
-                                              ?.currency ?? 'KRW',
-                                          ),
-                                          getItem().items?.[0]?.detail?.[0]
-                                            ?.currency ?? null,
-                                        )
-                                      : formatCurrency(
-                                          formatByRoundingProcedure(
-                                            Number(
-                                              getItem(`items.${0}.totalPrice`),
+                                              ?.currency ?? null,
+                                          )
+                                        : formatCurrency(
+                                            formatByRoundingProcedure(
+                                              // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                                              // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                                              Number(
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
+                                              ),
+                                              // fields?.[index].totalPrice! ?? 0,
+                                              priceData()?.decimalPlace ??
+                                                (getItem().items?.[0]
+                                                  ?.detail?.[0]?.currency ===
+                                                  'USD' ||
+                                                  getItem().items?.[0]
+                                                    ?.detail?.[0]?.currency ===
+                                                    'SGD')
+                                                ? 2
+                                                : getItem().items?.[0]
+                                                      ?.detail?.[0]
+                                                      ?.currency === 'KRW'
+                                                  ? 10
+                                                  : 0,
+                                              priceData()?.roundingProcedure ??
+                                                PriceRoundingResponseEnum.Type_0,
+                                              priceData()?.currency ?? null,
+                                            ),
+                                            priceData()?.currency ?? null,
+                                          )
+                                      : '-'}
+                                  </Typography>
+                                ) : (
+                                  <Typography fontWeight='bold' fontSize={14}>
+                                    {isNotApplicable
+                                      ? getItem().items?.[0]?.detail?.[0]
+                                          ?.currency
+                                        ? formatCurrency(
+                                            formatByRoundingProcedure(
+                                              Number(
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
+                                              ),
+                                              getItem().items?.[0]?.detail?.[0]
+                                                ?.currency === 'USD' ||
+                                                getItem().items?.[0]
+                                                  ?.detail?.[0]?.currency ===
+                                                  'SGD'
+                                                ? 2
+                                                : getItem().items?.[0]
+                                                      ?.initialPrice
+                                                      ?.currency === 'KRW'
+                                                  ? 10
+                                                  : 1,
+                                              0,
+                                              getItem().items?.[0]?.detail?.[0]
+                                                ?.currency ?? 'KRW',
+                                            ),
+                                            getItem().items?.[0]?.detail?.[0]
+                                              ?.currency ?? null,
+                                          )
+                                        : formatCurrency(
+                                            formatByRoundingProcedure(
+                                              Number(
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
+                                              ),
+                                              getItem().items?.[0]?.initialPrice
+                                                ?.currency === 'USD' ||
+                                                getItem().items?.[0]
+                                                  ?.initialPrice?.currency ===
+                                                  'SGD'
+                                                ? 2
+                                                : getItem().items?.[0]
+                                                      ?.initialPrice
+                                                      ?.currency === 'KRW'
+                                                  ? 10
+                                                  : 1,
+                                              0,
+                                              getItem().items?.[0]?.initialPrice
+                                                ?.currency ?? 'KRW',
                                             ),
                                             getItem().items?.[0]?.initialPrice
-                                              ?.currency === 'USD' ||
-                                              getItem().items?.[0]?.initialPrice
-                                                ?.currency === 'SGD'
-                                              ? 2
-                                              : getItem().items?.[0]
-                                                    ?.initialPrice?.currency ===
-                                                  'KRW'
-                                                ? 10
-                                                : 1,
-                                            0,
-                                            getItem().items?.[0]?.initialPrice
-                                              ?.currency ?? 'KRW',
-                                          ),
-                                          getItem().items?.[0]?.initialPrice
-                                            ?.currency ?? null,
-                                        )
-                                    : priceData()
-                                      ? formatCurrency(
-                                          formatByRoundingProcedure(
-                                            Number(
-                                              getItem(`items.${0}.totalPrice`),
-                                            ) ?? 0,
-                                            priceData()?.decimalPlace!,
-                                            priceData()?.roundingProcedure!,
-                                            priceData()?.currency! ?? 'KRW',
-                                          ),
-                                          priceData()?.currency! ?? null,
-                                        )
-                                      : currentInitialItem
+                                              ?.currency ?? null,
+                                          )
+                                      : priceData()
                                         ? formatCurrency(
                                             formatByRoundingProcedure(
                                               Number(
@@ -1909,533 +1951,347 @@ const JobDetail = () => {
                                                   `items.${0}.totalPrice`,
                                                 ),
                                               ) ?? 0,
-                                              getItem(
-                                                `items.${0}.initialPrice.numberPlace`,
-                                              ),
-                                              getItem(
-                                                `items.${0}.initialPrice.rounding`,
+                                              priceData()?.decimalPlace!,
+                                              priceData()?.roundingProcedure!,
+                                              priceData()?.currency! ?? 'KRW',
+                                            ),
+                                            priceData()?.currency! ?? null,
+                                          )
+                                        : currentInitialItem
+                                          ? formatCurrency(
+                                              formatByRoundingProcedure(
+                                                Number(
+                                                  getItem(
+                                                    `items.${0}.totalPrice`,
+                                                  ),
+                                                ) ?? 0,
+                                                getItem(
+                                                  `items.${0}.initialPrice.numberPlace`,
+                                                ),
+                                                getItem(
+                                                  `items.${0}.initialPrice.rounding`,
+                                                ),
+                                                getItem(
+                                                  `items.${0}.initialPrice.currency`,
+                                                ) || 'KRW',
                                               ),
                                               getItem(
                                                 `items.${0}.initialPrice.currency`,
-                                              ) || 'KRW',
-                                            ),
-                                            getItem(
-                                              `items.${0}.initialPrice.currency`,
-                                            ) || null,
-                                          )
-                                        : 0}
-                                </Typography>
-                              )}
-                              {editPrices ||
-                              selectedJobInfo.jobPrices.priceId === null ? (
-                                <IconButton
-                                  onClick={() => {
-                                    // getTotalPrice()
-                                    updateTotalPrice()
-                                  }}
-                                >
-                                  <Icon icon='material-symbols:refresh' />
-                                </IconButton>
-                              ) : null}
+                                              ) || null,
+                                            )
+                                          : 0}
+                                  </Typography>
+                                )}
+                                {editPrices ||
+                                selectedJobInfo.jobPrices?.priceId === null ? (
+                                  <IconButton
+                                    onClick={() => {
+                                      // getTotalPrice()
+                                      updateTotalPrice()
+                                    }}
+                                  >
+                                    <Icon icon='material-symbols:refresh' />
+                                  </IconButton>
+                                ) : null}
+                              </Box>
                             </Box>
-                          </Box>
-                          {editPrices ||
-                          selectedJobInfo.jobPrices.priceId === null ? (
-                            <Box display='flex' alignItems='center' gap='16px'>
-                              {selectedJobInfo.jobPrices.priceId ===
-                              null ? null : (
-                                <Button
-                                  variant='outlined'
-                                  onClick={() => {
-                                    onClickUpdatePriceCancel()
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
-                              )}
-
-                              <Button
-                                variant='contained'
-                                // onClick={onClickUpdatePrice}
-                                type='submit'
-                                // disabled={!itemValid}
+                            {editPrices ||
+                            selectedJobInfo.jobPrices?.priceId === null ? (
+                              <Box
+                                display='flex'
+                                alignItems='center'
+                                gap='16px'
                               >
-                                {selectedJobInfo.jobInfo.pro
-                                  ? 'Save changes'
-                                  : 'Save'}
-                              </Button>
-                            </Box>
-                          ) : null}
-                        </Box>
-                      </form>
-                    </Card>
-                  </Box>
-                </TabPanel>
-                <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
-                  {(selectedJobInfo &&
-                    (selectedJobInfo?.jobInfo?.name === null ||
-                      selectedJobInfo?.jobPrices?.priceId === null ||
-                      selectedJobInfo?.jobAssign === null)) ||
-                  (selectedJobInfo?.jobAssign.length === 0 &&
-                    !selectedJobUpdatable()) ? (
-                    selectedJobUpdatable() ? (
-                      <Box
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                      >
+                                {selectedJobInfo.jobPrices?.priceId ===
+                                null ? null : (
+                                  <Button
+                                    variant='outlined'
+                                    onClick={() => {
+                                      onClickUpdatePriceCancel()
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+
+                                <Button
+                                  variant='contained'
+                                  // onClick={onClickUpdatePrice}
+                                  type='submit'
+                                  // disabled={!itemValid}
+                                >
+                                  {selectedJobInfo.jobInfo.pro
+                                    ? 'Save changes'
+                                    : 'Save'}
+                                </Button>
+                              </Box>
+                            ) : null}
+                          </Box>
+                        </form>
+                      </Card>
+                    </Box>
+                  </TabPanel>
+                  <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
+                    {(selectedJobInfo &&
+                      (selectedJobInfo?.jobInfo?.name === null ||
+                        selectedJobInfo?.jobPrices?.priceId === null ||
+                        selectedJobInfo?.jobAssign === null)) ||
+                    (selectedJobInfo?.jobAssign.length === 0 &&
+                      !selectedJobUpdatable()) ? (
+                      selectedJobUpdatable() ? (
                         <Box
                           sx={{
+                            width: '100%',
+                            height: '100%',
                             display: 'flex',
-                            flexDirection: 'column',
+                            justifyContent: 'center',
                             alignItems: 'center',
                           }}
                         >
-                          <Image
-                            src='/images/icons/job-icons/required-lock.png'
-                            alt='lock'
-                            width={150}
-                            height={150}
-                            quality={100}
-                          />
                           <Box
                             sx={{
                               display: 'flex',
                               flexDirection: 'column',
-                              gap: '4px',
-                              mt: '10px',
+                              alignItems: 'center',
                             }}
                           >
-                            <Typography fontSize={20} fontWeight={500}>
-                              Unfilled required field exists
-                            </Typography>
-                            <Typography fontSize={16} color='#8D8E9A'>
-                              Please enter all required fields first
-                            </Typography>
+                            <Image
+                              src='/images/icons/job-icons/required-lock.png'
+                              alt='lock'
+                              width={150}
+                              height={150}
+                              quality={100}
+                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '4px',
+                                mt: '10px',
+                              }}
+                            >
+                              <Typography fontSize={20} fontWeight={500}>
+                                Unfilled required field exists
+                              </Typography>
+                              <Typography fontSize={16} color='#8D8E9A'>
+                                Please enter all required fields first
+                              </Typography>
+                            </Box>
+                            <Button
+                              variant='contained'
+                              sx={{ mt: '32px' }}
+                              onClick={() => {
+                                if (!selectedJobInfo.jobInfo.name) {
+                                  setValue('info')
+                                } else if (!selectedJobInfo.jobPrices.priceId) {
+                                  setValue('prices')
+                                } else {
+                                  setValue('info')
+                                }
+                              }}
+                            >
+                              {!selectedJobInfo.jobInfo.name
+                                ? 'Fill out job info'
+                                : !selectedJobInfo.jobPrices.priceId
+                                  ? 'Fill out prices'
+                                  : 'Fill out job info'}
+                            </Button>
                           </Box>
-                          <Button
-                            variant='contained'
-                            sx={{ mt: '32px' }}
-                            onClick={() => {
-                              if (!selectedJobInfo.jobInfo.name) {
-                                setValue('info')
-                              } else if (!selectedJobInfo.jobPrices.priceId) {
-                                setValue('prices')
-                              } else {
-                                setValue('info')
-                              }
-                            }}
-                          >
-                            {!selectedJobInfo.jobInfo.name
-                              ? 'Fill out job info'
-                              : !selectedJobInfo.jobPrices.priceId
-                                ? 'Fill out prices'
-                                : 'Fill out job info'}
-                          </Button>
                         </Box>
-                      </Box>
-                    ) : (
-                      <Box
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Typography fontSize={14} color='#8D8E9A'>
-                          There are no requests or assigned Pro yet
-                        </Typography>
-                      </Box>
-                    )
-                  ) : (
-                    <AssignPro
-                      jobInfo={selectedJobInfo?.jobInfo!}
-                      jobAssign={selectedJobInfo?.jobAssign!}
-                      serviceTypeList={serviceTypeList || []}
-                      clientList={clientList || []}
-                      setSelectedRows={setSelectedRows}
-                      selectedRows={selectedRows}
-                      selectionModel={selectionModel}
-                      setSelectionModel={setSelectionModel}
-                      isLoading={linguistTeamLoading}
-                      linguistTeamList={linguistTeamList}
-                      selectedLinguistTeam={selectedLinguistTeam}
-                      detail={detail!}
-                      setSelectedLinguistTeam={setSelectedLinguistTeam}
-                      menu={menu}
-                      setMenu={setMenu}
-                      filter={filter}
-                      activeFilter={activeFilter}
-                      setFilter={setFilter}
-                      setActiveFilter={setActiveFilter}
-                      proList={proList || { data: [], totalCount: 0, count: 0 }}
-                      setPastLinguistTeam={setPastLinguistTeam}
-                      pastLinguistTeam={pastLinguistTeam}
-                      languageList={languageList}
-                      onSearch={onSearch}
-                      roundQuery={roundQuery}
-                      proId={proId}
-                      addRoundMode={addRoundMode}
-                      setAddRoundMode={setAddRoundMode}
-                      addProsMode={addProsMode}
-                      setAddProsMode={setAddProsMode}
-                      assignProMode={assignProMode}
-                      setAssignProMode={setAssignProMode}
-                      selectedAssign={selectedAssign}
-                      setSelectedAssign={setSelectedAssign}
-                      assignJobMutation={assignJobMutation}
-                      reAssignJobMutation={reAssignJobMutation}
-                      selectedJobUpdatable={selectedJobUpdatable()}
+                      ) : (
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography fontSize={14} color='#8D8E9A'>
+                            There are no requests or assigned Pro yet
+                          </Typography>
+                        </Box>
+                      )
+                    ) : selectedJobInfo.jobAssign ? (
+                      <AssignPro
+                        jobInfo={selectedJobInfo?.jobInfo!}
+                        jobAssign={selectedJobInfo?.jobAssign!}
+                        serviceTypeList={serviceTypeList || []}
+                        clientList={clientList || []}
+                        setSelectedRows={setSelectedRows}
+                        selectedRows={selectedRows}
+                        selectionModel={selectionModel}
+                        setSelectionModel={setSelectionModel}
+                        isLoading={linguistTeamLoading}
+                        linguistTeamList={linguistTeamList}
+                        selectedLinguistTeam={selectedLinguistTeam}
+                        detail={detail!}
+                        setSelectedLinguistTeam={setSelectedLinguistTeam}
+                        menu={menu}
+                        setMenu={setMenu}
+                        filter={filter}
+                        activeFilter={activeFilter}
+                        setFilter={setFilter}
+                        setActiveFilter={setActiveFilter}
+                        proList={
+                          proList || { data: [], totalCount: 0, count: 0 }
+                        }
+                        setPastLinguistTeam={setPastLinguistTeam}
+                        pastLinguistTeam={pastLinguistTeam}
+                        languageList={languageList}
+                        onSearch={onSearch}
+                        roundQuery={roundQuery}
+                        proId={proId}
+                        addRoundMode={addRoundMode}
+                        setAddRoundMode={setAddRoundMode}
+                        addProsMode={addProsMode}
+                        setAddProsMode={setAddProsMode}
+                        assignProMode={assignProMode}
+                        setAssignProMode={setAssignProMode}
+                        selectedAssign={selectedAssign}
+                        setSelectedAssign={setSelectedAssign}
+                        assignJobMutation={assignJobMutation}
+                        reAssignJobMutation={reAssignJobMutation}
+                        selectedJobUpdatable={selectedJobUpdatable()}
+                      />
+                    ) : null}
+                  </TabPanel>
+                  <TabPanel value='history' sx={{ height: '100%' }}>
+                    <RequestHistory
+                      history={selectedJobInfo.jobRequestHistory}
                     />
-                  )}
-                </TabPanel>
-                <TabPanel value='history' sx={{ height: '100%' }}></TabPanel>
-              </TabContext>
-            )}
-          </Box>
-        </Grid>
-        {selectedJobInfo &&
-        (selectedJobInfo.jobInfo.name === null ||
-          selectedJobInfo.jobPrices.priceId === null ||
-          selectedJobInfo.jobAssign === null) ? null : (
-          <Grid item xs={2.784}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                position: 'relative',
-                paddingBottom: '156px',
-              }}
-            >
+                  </TabPanel>
+                </TabContext>
+              )}
+            </Box>
+          </Grid>
+          {(selectedJobInfo &&
+            (selectedJobInfo.jobInfo.name === null ||
+              selectedJobInfo.jobPrices?.priceId === null ||
+              selectedJobInfo.jobAssign === null)) ||
+          value === 'history' ? null : (
+            <Grid item xs={2.784}>
               <Box
                 sx={{
-                  padding: '20px',
-                  height: '64px',
-                  minHeight: '64px',
-                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
+                  position: 'relative',
+                  paddingBottom: '156px',
                 }}
-              ></Box>
-              {value === 'info' && selectedJobInfo?.jobInfo ? (
+              >
                 <Box
                   sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-
-                    height: '100%',
+                    padding: '20px',
+                    height: '64px',
+                    minHeight: '64px',
+                    borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                   }}
-                >
+                ></Box>
+                {value === 'info' && selectedJobInfo?.jobInfo ? (
                   <Box
                     sx={{
                       display: 'flex',
-
                       flexDirection: 'column',
+
+                      height: '100%',
                     }}
                   >
-                    <Accordion
-                      expanded={expanded === 'panel1'}
-                      onChange={handleAccordionChange('panel1')}
+                    <Box
                       sx={{
-                        borderRadius: '0 !important',
-                        boxShadow: 'none !important',
-                        background: expanded === 'panel1' ? '#F7F8FF' : '#FFF',
+                        display: 'flex',
 
-                        margin: '0 !important',
-                        '& .MuiAccordionSummary-content': {
-                          margin: '0 !important',
-                        },
+                        flexDirection: 'column',
                       }}
                     >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls='panel1bh-content'
-                        id='panel1bh-header'
-                        sx={{ padding: '20px' }}
-                      >
-                        <Typography fontSize={16} fontWeight={600}>
-                          Source files to Pro
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={{ padding: '20px' }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          <Typography
-                            fontSize={12}
-                            fontWeight={400}
-                            color='rgba(76, 78, 100, 0.60)'
-                          >
-                            {formatFileSize(
-                              sourceFileList
-                                ? getFileSize(sourceFileList, 'SOURCE')
-                                : 0,
-                            )}
-                            / {byteToGB(MAXIMUM_FILE_SIZE)}
-                          </Typography>
-                          {selectedJobUpdatable() && (
-                            <Button
-                              fullWidth
-                              variant='contained'
-                              sx={{ mt: '8px' }}
-                              onClick={() => onClickUploadSourceFile()}
-                            >
-                              Upload files
-                            </Button>
-                          )}
-                          {sourceFileList && sourceFileList.length > 0
-                            ? Object.entries(
-                                sourceFileList.reduce(
-                                  (acc: { [key: string]: any[] }, cur) => {
-                                    const date = cur.createdAt!
-                                    if (!acc[date]) {
-                                      acc[date] = []
-                                    }
-                                    acc[date].push(cur)
-                                    return acc
-                                  },
-                                  {},
-                                ),
-                              ).map(([key, value]) => {
-                                return (
-                                  <Box key={uuidv4()}>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-
-                                        marginBottom: '10px',
-                                        mt: '20px',
-                                      }}
-                                    >
-                                      <Typography
-                                        variant='body1'
-                                        fontWeight={600}
-                                      >
-                                        {key
-                                          ? convertTimeToTimezone(
-                                              key,
-                                              auth?.getValue().user?.timezone!,
-                                              timezone.getValue(),
-                                            )
-                                          : '-'}
-                                      </Typography>
-                                      <IconButton
-                                        sx={{
-                                          border: '1px solid #666CFF',
-                                          borderRadius: '10px',
-                                          background: '#FFF',
-                                          padding: '4px',
-                                        }}
-                                        onClick={() => {
-                                          DownloadAllFiles(
-                                            value,
-                                            S3FileType.JOB,
-                                          )
-                                        }}
-                                      >
-                                        <Icon
-                                          icon='ic:sharp-download'
-                                          color='#666CFF'
-                                          fontSize={24}
-                                        />
-                                      </IconButton>
-                                    </Box>
-
-                                    <Box
-                                      sx={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(1, 1fr)',
-                                        width: '100%',
-                                        gap: '8px',
-                                      }}
-                                    >
-                                      {fileList(value, 'SOURCE')}
-                                    </Box>
-                                  </Box>
-                                )
-                              })
-                            : null}
-                        </Box>
-                      </AccordionDetails>
-                    </Accordion>
-                    <Accordion
-                      expanded={expanded === 'panel2'}
-                      onChange={handleAccordionChange('panel2')}
-                      sx={{
-                        borderRadius: '0 !important',
-                        boxShadow: 'none !important',
-                        background: expanded === 'panel2' ? '#F7F8FF' : '#FFF',
-                        // padding: '20px',
-                        margin: '0 !important',
-                        '& .MuiAccordionSummary-content': {
-                          margin: '0 !important',
-                        },
-                      }}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls='panel1bh-content'
-                        id='panel1bh-header'
+                      <Accordion
+                        expanded={expanded === 'panel1'}
+                        onChange={handleAccordionChange('panel1')}
                         sx={{
+                          borderRadius: '0 !important',
+                          boxShadow: 'none !important',
+                          background:
+                            expanded === 'panel1' ? '#F7F8FF' : '#FFF',
                           padding: '20px',
+                          margin: '0 !important',
                         }}
                       >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                          }}
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls='panel1bh-content'
+                          id='panel1bh-header'
+                          sx={{ padding: 0 }}
                         >
                           <Typography fontSize={16} fontWeight={600}>
-                            Target files from Pro
+                            Source files to Pro
                           </Typography>
-                          {(selectedJobInfo.jobInfo.status === 60300 ||
-                            selectedJobInfo.jobInfo.status === 60400 ||
-                            selectedJobInfo.jobInfo.status === 60500) &&
-                          jobDeliveriesFeedbacks?.deliveries &&
-                          jobDeliveriesFeedbacks?.deliveries?.length > 0 &&
-                          selectedJobUpdatable() ? (
-                            <>
-                              <IconButton
-                                onClick={e => {
-                                  e.stopPropagation()
-                                  handleMenuClick(e)
-                                }}
-                                sx={{ padding: 0 }}
-                              >
-                                <Icon icon='mdi:dots-horizontal' />
-                              </IconButton>
-                              <Menu
-                                elevation={8}
-                                anchorEl={anchorEl}
-                                id='customized-menu'
-                                onClose={(e: React.MouseEvent) => {
-                                  e.stopPropagation()
-                                  handleClose()
-                                }}
-                                open={Boolean(anchorEl)}
-                                anchorOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: 'left',
-                                }}
-                                transformOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'right',
-                                }}
-                              >
-                                <MenuItem
-                                  sx={{
-                                    gap: 2,
-                                    '&:hover': {
-                                      background: 'inherit',
-                                      cursor: 'default',
-                                    },
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'flex-start',
-                                    padding: 0,
-                                  }}
-                                >
-                                  <Button
-                                    startIcon={
-                                      <Icon
-                                        icon='ic:sharp-refresh'
-                                        color='#4C4E648A'
-                                        fontSize={24}
-                                      />
-                                    }
-                                    fullWidth
-                                    onClick={e => {
-                                      e.stopPropagation()
-                                      handleClose()
-                                      onClickRequestRedelivery()
-                                      // onClickEdit()
-                                    }}
-                                    sx={{
-                                      justifyContent: 'flex-start',
-                                      padding: '6px 16px',
-                                      fontSize: 16,
-                                      fontWeight: 400,
-                                      color: 'rgba(76, 78, 100, 0.87)',
-                                      borderRadius: 0,
-                                    }}
-                                  >
-                                    Request redelivery
-                                  </Button>
-                                </MenuItem>
-                              </Menu>
-                            </>
-                          ) : null}
-                        </Box>
-                      </AccordionSummary>
-                      <AccordionDetails sx={{ padding: 0 }}>
-                        {jobDeliveriesFeedbacks?.deliveries && (
-                          <Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ padding: 0 }}>
+                          <Box
+                            sx={{ display: 'flex', flexDirection: 'column' }}
+                          >
                             <Typography
                               fontSize={12}
                               fontWeight={400}
                               color='rgba(76, 78, 100, 0.60)'
-                              sx={{
-                                padding: '0 20px 16px 20px',
-                              }}
                             >
                               {formatFileSize(
-                                jobDeliveriesFeedbacks.deliveries.flatMap(
-                                  delivery => delivery.files,
-                                )
-                                  ? getFileSize(
-                                      jobDeliveriesFeedbacks.deliveries.flatMap(
-                                        delivery => delivery.files,
-                                      ),
-                                      'TARGET',
-                                    )
+                                sourceFileList
+                                  ? getFileSize(sourceFileList, 'SOURCE')
                                   : 0,
                               )}
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
-                            <Box>
-                              {jobDeliveriesFeedbacks?.deliveries
-                                .sort((a, b) => {
-                                  const dateA = new Date(a.deliveredDate)
-                                  const dateB = new Date(b.deliveredDate)
-                                  return dateB.getTime() - dateA.getTime()
-                                })
-                                .map((delivery, index) => (
-                                  <Box
-                                    key={delivery.id}
-                                    sx={{ borderBottom: '1px solid #E9EAEC' }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '10px',
-                                        padding:
-                                          index !== 0
-                                            ? '20px'
-                                            : '0 20px 20px 20px',
-                                      }}
-                                    >
-                                      <Typography
-                                        variant='body1'
-                                        fontWeight={600}
-                                      >
-                                        {delivery.deliveredDate
-                                          ? convertTimeToTimezone(
-                                              delivery.deliveredDate,
-                                              auth?.getValue().user?.timezone!,
-                                              timezone.getValue(),
-                                            )
-                                          : '-'}
-                                      </Typography>
+                            {selectedJobUpdatable() && (
+                              <Button
+                                fullWidth
+                                variant='contained'
+                                sx={{ mt: '8px' }}
+                                onClick={() => onClickUploadSourceFile()}
+                              >
+                                Upload files
+                              </Button>
+                            )}
+                            {sourceFileList && sourceFileList.length > 0
+                              ? Object.entries(
+                                  sourceFileList.reduce(
+                                    (acc: { [key: string]: any[] }, cur) => {
+                                      const date = cur.createdAt!
+                                      if (!acc[date]) {
+                                        acc[date] = []
+                                      }
+                                      acc[date].push(cur)
+                                      return acc
+                                    },
+                                    {},
+                                  ),
+                                ).map(([key, value]) => {
+                                  return (
+                                    <Box key={uuidv4()}>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between',
 
-                                      {delivery.files.length ? (
+                                          marginBottom: '10px',
+                                          mt: '20px',
+                                        }}
+                                      >
+                                        <Typography
+                                          variant='body1'
+                                          fontWeight={600}
+                                        >
+                                          {key
+                                            ? convertTimeToTimezone(
+                                                key,
+                                                auth?.getValue().user
+                                                  ?.timezone!,
+                                                timezone.getValue(),
+                                              )
+                                            : '-'}
+                                        </Typography>
                                         <IconButton
                                           sx={{
                                             border: '1px solid #666CFF',
@@ -2445,7 +2301,7 @@ const JobDetail = () => {
                                           }}
                                           onClick={() => {
                                             DownloadAllFiles(
-                                              delivery.files,
+                                              value,
                                               S3FileType.JOB,
                                             )
                                           }}
@@ -2456,226 +2312,437 @@ const JobDetail = () => {
                                             fontSize={24}
                                           />
                                         </IconButton>
-                                      ) : null}
-                                    </Box>
+                                      </Box>
 
-                                    <Box
-                                      sx={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(1, 1fr)',
-                                        width: '100%',
-                                        gap: '8px',
-                                        padding: '0 20px 20px 20px',
-                                      }}
-                                    >
-                                      {delivery.files.length ? (
-                                        fileList(delivery.files, 'TARGET')
-                                      ) : (
-                                        <Typography variant='subtitle2'>
-                                          No target files
-                                        </Typography>
-                                      )}
-                                    </Box>
-
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px',
-                                        padding: '0 20px 0 20px',
-                                      }}
-                                    >
-                                      <Typography
-                                        fontSize={14}
-                                        fontWeight={400}
-                                        color='#4C4E64'
+                                      <Box
+                                        sx={{
+                                          display: 'grid',
+                                          gridTemplateColumns: 'repeat(1, 1fr)',
+                                          width: '100%',
+                                          gap: '8px',
+                                        }}
                                       >
-                                        Notes from Pro
-                                      </Typography>
+                                        {fileList(value, 'SOURCE')}
+                                      </Box>
                                     </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-
-                                        padding: '8px 20px 20px 20px',
-                                      }}
-                                    >
-                                      <Typography
-                                        color='#8D8E9A'
-                                        fontWeight={400}
-                                        fontSize={14}
-                                      >
-                                        {delivery.note ?? '-'}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-                                ))}
-                            </Box>
+                                  )
+                                })
+                              : null}
                           </Box>
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
-                    <Accordion
-                      expanded={expanded === 'panel3'}
-                      onChange={handleAccordionChange('panel3')}
-                      sx={{
-                        borderRadius: '0 !important',
-                        boxShadow: 'none !important',
-                        background: expanded === 'panel3' ? '#F7F8FF' : '#FFF',
-
-                        margin: '0 !important',
-                        borderBottom: '1px solid #E9EAEC',
-                        '& .MuiAccordionSummary-content': {
+                        </AccordionDetails>
+                      </Accordion>
+                      <Accordion
+                        expanded={expanded === 'panel2'}
+                        onChange={handleAccordionChange('panel2')}
+                        sx={{
+                          borderRadius: '0 !important',
+                          boxShadow: 'none !important',
+                          background:
+                            expanded === 'panel2' ? '#F7F8FF' : '#FFF',
+                          // padding: '20px',
                           margin: '0 !important',
-                        },
-                      }}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls='panel1bh-content'
-                        id='panel1bh-header'
-                        sx={{ padding: '20px' }}
+                        }}
                       >
-                        <Typography fontSize={16} fontWeight={600}>
-                          Job feedback
-                        </Typography>
-                      </AccordionSummary>
-                      <AccordionDetails sx={{ padding: '20px' }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {/* {selectedJobInfo.jobInfo.status === 60400 ||
-                          selectedJobInfo.jobInfo.status === 60500 ||
-                          selectedJobInfo.jobInfo.status === 60250 ? ( */}
-                          {selectedJobUpdatable() && (
-                            <>
-                              <Button
-                                fullWidth
-                                variant='contained'
-                                sx={{ mt: '8px' }}
-                                onClick={() => setUseJobFeedbackForm(true)}
-                              >
-                                Add feedback
-                              </Button>
-                              {/* <Divider /> */}
-                            </>
-                          )}
-                          {/* ) : null} */}
-
-                          {useJobFeedbackForm ? (
-                            <>
-                              <Divider
-                                sx={{
-                                  my: '20px !important',
-                                }}
-                              />
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: '14px',
-                                  marginTop: '14px',
-                                  marginBottom: '14px',
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls='panel1bh-content'
+                          id='panel1bh-header'
+                          sx={{ padding: '20px' }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                            }}
+                          >
+                            <Typography fontSize={16} fontWeight={600}>
+                              Target files from Pro
+                            </Typography>
+                            {(selectedJobInfo.jobInfo.status === 60300 ||
+                              selectedJobInfo.jobInfo.status === 60400 ||
+                              selectedJobInfo.jobInfo.status === 60500) &&
+                            jobDeliveriesFeedbacks?.deliveries &&
+                            jobDeliveriesFeedbacks?.deliveries?.length > 0 &&
+                            selectedJobUpdatable() ? (
+                              <>
+                                <IconButton
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    handleMenuClick(e)
+                                  }}
+                                  sx={{ padding: 0 }}
+                                >
+                                  <Icon icon='mdi:dots-horizontal' />
+                                </IconButton>
+                                <Menu
+                                  elevation={8}
+                                  anchorEl={anchorEl}
+                                  id='customized-menu'
+                                  onClose={(e: React.MouseEvent) => {
+                                    e.stopPropagation()
+                                    handleClose()
+                                  }}
+                                  open={Boolean(anchorEl)}
+                                  anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
                                   }}
                                 >
-                                  <Box sx={{ display: 'flex', gap: '8px' }}>
-                                    <Chip
-                                      size='small'
-                                      skin='light'
-                                      label={'Writer'}
-                                      color='error'
-                                      sx={{
-                                        textTransform: 'capitalize',
-                                        '& .MuiChip-label': {
-                                          lineHeight: '18px',
-                                        },
-                                        mr: 1,
+                                  <MenuItem
+                                    sx={{
+                                      gap: 2,
+                                      '&:hover': {
+                                        background: 'inherit',
+                                        cursor: 'default',
+                                      },
+                                      justifyContent: 'flex-start',
+                                      alignItems: 'flex-start',
+                                      padding: 0,
+                                    }}
+                                  >
+                                    <Button
+                                      startIcon={
+                                        <Icon
+                                          icon='ic:sharp-refresh'
+                                          color='#4C4E648A'
+                                          fontSize={24}
+                                        />
+                                      }
+                                      fullWidth
+                                      onClick={e => {
+                                        e.stopPropagation()
+                                        handleClose()
+                                        onClickRequestRedelivery()
+                                        // onClickEdit()
                                       }}
-                                    />
-                                    <Typography
-                                      variant='body1'
                                       sx={{
-                                        fontSize: '14px',
-                                        fontWeight: 500,
-                                        lineHeight: '21px',
-                                        letterSpacing: '0.1px',
-                                        color: '#666CFF',
+                                        justifyContent: 'flex-start',
+                                        padding: '6px 16px',
+                                        fontSize: 16,
+                                        fontWeight: 400,
+                                        color: 'rgba(76, 78, 100, 0.87)',
+                                        borderRadius: 0,
                                       }}
                                     >
-                                      {getLegalName({
-                                        firstName:
-                                          auth?.getValue().user?.firstName,
-                                        middleName:
-                                          auth?.getValue().user?.middleName,
-                                        lastName:
-                                          auth?.getValue().user?.lastName,
-                                      })}
-                                    </Typography>
-                                  </Box>
-                                </Box>
+                                      Request redelivery
+                                    </Button>
+                                  </MenuItem>
+                                </Menu>
+                              </>
+                            ) : null}
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ padding: 0 }}>
+                          {jobDeliveriesFeedbacks?.deliveries && (
+                            <Box>
+                              <Typography
+                                fontSize={12}
+                                fontWeight={400}
+                                color='rgba(76, 78, 100, 0.60)'
+                                sx={{
+                                  padding: '0 20px 16px 20px',
+                                }}
+                              >
+                                {formatFileSize(
+                                  jobDeliveriesFeedbacks.deliveries.flatMap(
+                                    delivery => delivery.files,
+                                  )
+                                    ? getFileSize(
+                                        jobDeliveriesFeedbacks.deliveries.flatMap(
+                                          delivery => delivery.files,
+                                        ),
+                                        'TARGET',
+                                      )
+                                    : 0,
+                                )}
+                                / {byteToGB(MAXIMUM_FILE_SIZE)}
+                              </Typography>
+                              <Box>
+                                {jobDeliveriesFeedbacks?.deliveries
+                                  .sort((a, b) => {
+                                    const dateA = new Date(a.deliveredDate)
+                                    const dateB = new Date(b.deliveredDate)
+                                    return dateB.getTime() - dateA.getTime()
+                                  })
+                                  .map((delivery, index) => (
+                                    <Box
+                                      key={delivery.id}
+                                      sx={{ borderBottom: '1px solid #E9EAEC' }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'space-between',
+                                          gap: '10px',
+                                          padding:
+                                            index !== 0
+                                              ? '20px'
+                                              : '0 20px 20px 20px',
+                                        }}
+                                      >
+                                        <Typography
+                                          variant='body1'
+                                          fontWeight={600}
+                                        >
+                                          {delivery.deliveredDate
+                                            ? convertTimeToTimezone(
+                                                delivery.deliveredDate,
+                                                auth?.getValue().user
+                                                  ?.timezone!,
+                                                timezone.getValue(),
+                                              )
+                                            : '-'}
+                                        </Typography>
 
+                                        {delivery.files.length ? (
+                                          <IconButton
+                                            sx={{
+                                              border: '1px solid #666CFF',
+                                              borderRadius: '10px',
+                                              background: '#FFF',
+                                              padding: '4px',
+                                            }}
+                                            onClick={() => {
+                                              DownloadAllFiles(
+                                                delivery.files,
+                                                S3FileType.JOB,
+                                              )
+                                            }}
+                                          >
+                                            <Icon
+                                              icon='ic:sharp-download'
+                                              color='#666CFF'
+                                              fontSize={24}
+                                            />
+                                          </IconButton>
+                                        ) : null}
+                                      </Box>
+
+                                      <Box
+                                        sx={{
+                                          display: 'grid',
+                                          gridTemplateColumns: 'repeat(1, 1fr)',
+                                          width: '100%',
+                                          gap: '8px',
+                                          padding: '0 20px 20px 20px',
+                                        }}
+                                      >
+                                        {delivery.files.length ? (
+                                          fileList(delivery.files, 'TARGET')
+                                        ) : (
+                                          <Typography variant='subtitle2'>
+                                            No target files
+                                          </Typography>
+                                        )}
+                                      </Box>
+
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '10px',
+                                          padding: '0 20px 0 20px',
+                                        }}
+                                      >
+                                        <Typography
+                                          fontSize={14}
+                                          fontWeight={400}
+                                          color='#4C4E64'
+                                        >
+                                          Notes from Pro
+                                        </Typography>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+
+                                          padding: '8px 20px 20px 20px',
+                                        }}
+                                      >
+                                        <Typography
+                                          color='#8D8E9A'
+                                          fontWeight={400}
+                                          fontSize={14}
+                                        >
+                                          {delivery.note ?? '-'}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  ))}
+                              </Box>
+                            </Box>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
+                      <Accordion
+                        expanded={expanded === 'panel3'}
+                        onChange={handleAccordionChange('panel3')}
+                        sx={{
+                          borderRadius: '0 !important',
+                          boxShadow: 'none !important',
+                          background:
+                            expanded === 'panel3' ? '#F7F8FF' : '#FFF',
+                          padding: '20px',
+                          margin: '0 !important',
+                          borderBottom: '1px solid #E9EAEC',
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls='panel1bh-content'
+                          id='panel1bh-header'
+                          sx={{ padding: 0 }}
+                        >
+                          <Typography fontSize={16} fontWeight={600}>
+                            Job feedback
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails sx={{ padding: 0 }}>
+                          <Box
+                            sx={{ display: 'flex', flexDirection: 'column' }}
+                          >
+                            {/* {selectedJobInfo.jobInfo.status === 60400 ||
+                          selectedJobInfo.jobInfo.status === 60500 ||
+                          selectedJobInfo.jobInfo.status === 60250 ? ( */}
+                            {selectedJobUpdatable() && (
+                              <>
+                                <Button
+                                  fullWidth
+                                  variant='contained'
+                                  sx={{ mt: '8px' }}
+                                  onClick={() => setUseJobFeedbackForm(true)}
+                                >
+                                  Add feedback
+                                </Button>
+                                {/* <Divider /> */}
+                              </>
+                            )}
+                            {/* ) : null} */}
+
+                            {useJobFeedbackForm ? (
+                              <>
+                                <Divider
+                                  sx={{
+                                    my: '20px !important',
+                                  }}
+                                />
                                 <Box
                                   sx={{
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: '12px',
+                                    gap: '14px',
+                                    marginTop: '14px',
+                                    marginBottom: '14px',
                                   }}
                                 >
-                                  <TextField
-                                    fullWidth
-                                    autoComplete='off'
-                                    rows={4}
-                                    value={addJobFeedbackData}
-                                    placeholder='Write down a feedback.'
-                                    onChange={event => {
-                                      if (event.target.value) {
-                                        setAddJobFeedbackData(
-                                          event.target.value,
-                                        )
-                                      } else {
-                                        setAddJobFeedbackData(null)
-                                      }
-                                    }}
-                                    multiline
-                                    error={
-                                      addJobFeedbackData === null ? true : false
-                                    }
-                                    helperText={
-                                      addJobFeedbackData === null
-                                        ? FormErrors.required
-                                        : null
-                                    }
-                                    id='textarea-outlined-static'
-                                  />
                                   <Box
                                     sx={{
                                       display: 'flex',
-                                      gap: '8px',
-                                      justifyContent: 'end',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
                                     }}
                                   >
-                                    <Button
-                                      variant='outlined'
-                                      size='small'
-                                      onClick={onClickDiscardFeedback}
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      variant='contained'
-                                      size='small'
-                                      onClick={onClickAddFeedback}
-                                    >
-                                      Confirm
-                                    </Button>
+                                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                                      <Chip
+                                        size='small'
+                                        skin='light'
+                                        label={'Writer'}
+                                        color='error'
+                                        sx={{
+                                          textTransform: 'capitalize',
+                                          '& .MuiChip-label': {
+                                            lineHeight: '18px',
+                                          },
+                                          mr: 1,
+                                        }}
+                                      />
+                                      <Typography
+                                        variant='body1'
+                                        sx={{
+                                          fontSize: '14px',
+                                          fontWeight: 500,
+                                          lineHeight: '21px',
+                                          letterSpacing: '0.1px',
+                                          color: '#666CFF',
+                                        }}
+                                      >
+                                        {getLegalName({
+                                          firstName:
+                                            auth?.getValue().user?.firstName,
+                                          middleName:
+                                            auth?.getValue().user?.middleName,
+                                          lastName:
+                                            auth?.getValue().user?.lastName,
+                                        })}
+                                      </Typography>
+                                    </Box>
                                   </Box>
-                                  {/* {feedbacks && feedbacks.length ? (
+
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: '12px',
+                                    }}
+                                  >
+                                    <TextField
+                                      fullWidth
+                                      autoComplete='off'
+                                      rows={4}
+                                      value={addJobFeedbackData}
+                                      placeholder='Write down a feedback.'
+                                      onChange={event => {
+                                        if (event.target.value) {
+                                          setAddJobFeedbackData(
+                                            event.target.value,
+                                          )
+                                        } else {
+                                          setAddJobFeedbackData(null)
+                                        }
+                                      }}
+                                      multiline
+                                      error={
+                                        addJobFeedbackData === null
+                                          ? true
+                                          : false
+                                      }
+                                      helperText={
+                                        addJobFeedbackData === null
+                                          ? FormErrors.required
+                                          : null
+                                      }
+                                      id='textarea-outlined-static'
+                                    />
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        gap: '8px',
+                                        justifyContent: 'end',
+                                      }}
+                                    >
+                                      <Button
+                                        variant='outlined'
+                                        size='small'
+                                        onClick={onClickDiscardFeedback}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        variant='contained'
+                                        size='small'
+                                        onClick={onClickAddFeedback}
+                                      >
+                                        Confirm
+                                      </Button>
+                                    </Box>
+                                    {/* {feedbacks && feedbacks.length ? (
                                   <Divider
                                     sx={{
                                       my: theme =>
@@ -2683,21 +2750,19 @@ const JobDetail = () => {
                                     }}
                                   />
                                 ) : null} */}
+                                  </Box>
                                 </Box>
-                              </Box>
-                            </>
-                          ) : null}
-
-                          {jobDeliveriesFeedbacks?.feedbacks &&
-                          jobDeliveriesFeedbacks.feedbacks.length > 0
-                            ? jobDeliveriesFeedbacks.feedbacks.map(value => {
-                                return (
-                                  <>
-                                    <Divider
-                                      sx={{
-                                        my: '20px !important',
-                                      }}
-                                    />
+                              </>
+                            ) : null}
+                            <Divider
+                              sx={{
+                                my: '20px !important',
+                              }}
+                            />
+                            {jobDeliveriesFeedbacks?.feedbacks &&
+                            jobDeliveriesFeedbacks.feedbacks.length > 0
+                              ? jobDeliveriesFeedbacks.feedbacks.map(value => {
+                                  return (
                                     <Box
                                       key={uuidv4()}
                                       sx={{
@@ -2867,200 +2932,117 @@ const JobDetail = () => {
                                         {value.feedback}
                                       </Typography>
                                     </Box>
-                                  </>
-                                )
-                              })
-                            : null}
-                        </Box>
-                      </AccordionDetails>
-                    </Accordion>
+                                  )
+                                })
+                              : null}
+                          </Box>
+                        </AccordionDetails>
+                      </Accordion>
+                    </Box>
                   </Box>
-                </Box>
-              ) : value === 'assign' ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-
-                    height: '100%',
-                  }}
-                >
+                ) : value === 'assign' ? (
                   <Box
                     sx={{
                       display: 'flex',
-
                       flexDirection: 'column',
+
+                      height: '100%',
                     }}
                   >
-                    <Typography
-                      sx={{ padding: '20px' }}
-                      fontSize={14}
-                      fontWeight={600}
-                    >
-                      Selected Pros (
-                      {Object.values(selectedRows).reduce(
-                        (sum, array) => sum + array.data.length,
-                        0,
-                      )}
-                      )
-                    </Typography>
                     <Box
                       sx={{
-                        overflowY: 'scroll',
-                        maxHeight: 'calc(85vh - 210px)',
-                        height: '100%',
-                        '&::-webkit-scrollbar': {
-                          width: 6,
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                          borderRadius: 20,
-                          background: hexToRGBA('#57596C', 0.6),
-                        },
-                        '&::-webkit-scrollbar-track': {
-                          borderRadius: 20,
-                          background: 'transparent',
-                        },
+                        display: 'flex',
+
+                        flexDirection: 'column',
                       }}
                     >
-                      {Object.keys(selectedRows).map((key, index) => (
-                        <Box key={uuidv4()}>
-                          {selectedRows[key].data.length === 0 ? null : (
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                padding: '8px 16px 8px 20px',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                              }}
-                            >
+                      <Typography
+                        sx={{ padding: '20px' }}
+                        fontSize={14}
+                        fontWeight={600}
+                      >
+                        Selected Pros (
+                        {Object.values(selectedRows).reduce(
+                          (sum, array) => sum + array.data.length,
+                          0,
+                        )}
+                        )
+                      </Typography>
+                      <Box
+                        sx={{
+                          overflowY: 'scroll',
+                          maxHeight: 'calc(85vh - 210px)',
+                          height: '100%',
+                          '&::-webkit-scrollbar': {
+                            width: 6,
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                            borderRadius: 20,
+                            background: hexToRGBA('#57596C', 0.6),
+                          },
+                          '&::-webkit-scrollbar-track': {
+                            borderRadius: 20,
+                            background: 'transparent',
+                          },
+                        }}
+                      >
+                        {Object.keys(selectedRows).map((key, index) => (
+                          <Box key={uuidv4()}>
+                            {selectedRows[key].data.length === 0 ? null : (
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  gap: '8px',
+                                  padding: '8px 16px 8px 20px',
+                                  justifyContent: 'space-between',
                                   alignItems: 'center',
                                 }}
                               >
-                                {selectedRows[key].isPrivate ? (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                      width: 20,
-                                      height: 20,
-                                      borderRadius: '5px',
-                                      background: '#F7F7F9',
-                                    }}
-                                  >
-                                    <Icon icon='mdi:lock' color='#8D8E9A' />
-                                  </Box>
-                                ) : null}
-                                <Typography
-                                  fontSize={12}
-                                  fontWeight={400}
-                                  color='#8D8E9A'
-                                  sx={{
-                                    width: '100%',
-                                    maxWidth: '210px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                  }}
-                                >
-                                  {key}
-                                </Typography>
-                              </Box>
-                              <IconButton
-                                sx={{ padding: 0 }}
-                                onClick={() => {
-                                  const newSelectedRows = { ...selectedRows }
-
-                                  delete newSelectedRows[key]
-                                  setSelectedRows(newSelectedRows)
-                                  setSelectionModel(prev => {
-                                    const newState = { ...prev }
-                                    delete newState[key]
-                                    return newState
-                                  })
-                                }}
-                              >
-                                <Icon
-                                  icon='mdi:close'
-                                  color='#8D8E9A'
-                                  fontSize={20}
-                                />
-                              </IconButton>
-                            </Box>
-                          )}
-
-                          {selectedRows[key].data.map((pro, index) => (
-                            <Box
-                              key={uuidv4()}
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                              }}
-                            >
-                              <Box sx={{ display: 'flex' }}>
-                                {selectedRows[key].isPrioritized ? (
-                                  <Typography
-                                    fontSize={14}
-                                    fontWeight={600}
-                                    sx={{
-                                      padding: '16px 16px 16px 20px',
-                                    }}
-                                  >
-                                    {(pro as ProListType).order}
-                                  </Typography>
-                                ) : null}
                                 <Box
                                   sx={{
                                     display: 'flex',
-                                    maxWidth: selectedRows[key].isPrioritized
-                                      ? '210px'
-                                      : '250px',
-                                    padding: selectedRows[key].isPrioritized
-                                      ? 'inherit'
-                                      : '0 0 0 20px',
+                                    gap: '8px',
+                                    alignItems: 'center',
                                   }}
                                 >
-                                  <LegalNameEmail
-                                    row={{
-                                      isOnboarded: pro.isOnboarded,
-                                      isActive: pro.isActive,
-
-                                      firstName: pro.firstName,
-                                      middleName: pro.middleName,
-                                      lastName: pro.lastName,
-                                      email: pro.email,
+                                  {selectedRows[key].isPrivate ? (
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: 20,
+                                        height: 20,
+                                        borderRadius: '5px',
+                                        background: '#F7F7F9',
+                                      }}
+                                    >
+                                      <Icon icon='mdi:lock' color='#8D8E9A' />
+                                    </Box>
+                                  ) : null}
+                                  <Typography
+                                    fontSize={12}
+                                    fontWeight={400}
+                                    color='#8D8E9A'
+                                    sx={{
+                                      width: '100%',
+                                      maxWidth: '210px',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
                                     }}
-                                  />
+                                  >
+                                    {key}
+                                  </Typography>
                                 </Box>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-
-                                  width: '40px',
-                                  height: '100%',
-                                  padding: '16px 20px 16px 4px',
-                                }}
-                              >
                                 <IconButton
                                   sx={{ padding: 0 }}
                                   onClick={() => {
                                     const newSelectedRows = { ...selectedRows }
-                                    newSelectedRows[key].data.splice(index, 1)
+
+                                    delete newSelectedRows[key]
                                     setSelectedRows(newSelectedRows)
                                     setSelectionModel(prev => {
                                       const newState = { ...prev }
-                                      newState[key] = prev[key]?.filter(
-                                        value => value !== pro.userId,
-                                      )
-                                      if (newState[key]?.length === 0) {
-                                        delete newState[key]
-                                      }
-
+                                      delete newState[key]
                                       return newState
                                     })
                                   }}
@@ -3072,87 +3054,172 @@ const JobDetail = () => {
                                   />
                                 </IconButton>
                               </Box>
-                            </Box>
-                          ))}
-                        </Box>
-                      ))}
+                            )}
+
+                            {selectedRows[key].data.map((pro, index) => (
+                              <Box
+                                key={uuidv4()}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                }}
+                              >
+                                <Box sx={{ display: 'flex' }}>
+                                  {selectedRows[key].isPrioritized ? (
+                                    <Typography
+                                      fontSize={14}
+                                      fontWeight={600}
+                                      sx={{
+                                        padding: '16px 16px 16px 20px',
+                                      }}
+                                    >
+                                      {(pro as ProListType).order}
+                                    </Typography>
+                                  ) : null}
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      maxWidth: selectedRows[key].isPrioritized
+                                        ? '210px'
+                                        : '250px',
+                                      padding: selectedRows[key].isPrioritized
+                                        ? 'inherit'
+                                        : '0 0 0 20px',
+                                    }}
+                                  >
+                                    <LegalNameEmail
+                                      row={{
+                                        isOnboarded: pro.isOnboarded,
+                                        isActive: pro.isActive,
+
+                                        firstName: pro.firstName,
+                                        middleName: pro.middleName,
+                                        lastName: pro.lastName,
+                                        email: pro.email,
+                                      }}
+                                    />
+                                  </Box>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+
+                                    width: '40px',
+                                    height: '100%',
+                                    padding: '16px 20px 16px 4px',
+                                  }}
+                                >
+                                  <IconButton
+                                    sx={{ padding: 0 }}
+                                    onClick={() => {
+                                      const newSelectedRows = {
+                                        ...selectedRows,
+                                      }
+                                      newSelectedRows[key].data.splice(index, 1)
+                                      setSelectedRows(newSelectedRows)
+                                      setSelectionModel(prev => {
+                                        const newState = { ...prev }
+                                        newState[key] = prev[key]?.filter(
+                                          value => value !== pro.userId,
+                                        )
+                                        if (newState[key]?.length === 0) {
+                                          delete newState[key]
+                                        }
+
+                                        return newState
+                                      })
+                                    }}
+                                  >
+                                    <Icon
+                                      icon='mdi:close'
+                                      color='#8D8E9A'
+                                      fontSize={20}
+                                    />
+                                  </IconButton>
+                                </Box>
+                              </Box>
+                            ))}
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                    <Box
+                      sx={{
+                        padding: '32px 24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '16px',
+                        height: '156px',
+                        // flex: 1,
+                        width: '100%',
+                        position: 'absolute',
+                        bottom: 0,
+                        // position: 'relative',
+                        // transform: 'translateY(-100%)',
+                        // position: 'absolute',
+                        // bottom: 0,
+                      }}
+                    >
+                      {assignProMode ? null : (
+                        <Button
+                          variant={addProsMode ? 'contained' : 'outlined'}
+                          onClick={onClickRequest}
+                        >
+                          Request
+                        </Button>
+                      )}
+
+                      {addProsMode ? (
+                        <Button
+                          variant='outlined'
+                          onClick={() => {
+                            setAddProsMode(false)
+                            setAssignProMode(false)
+                            setSelectionModel({})
+                            setSelectedRows({})
+                            setSelectedLinguistTeam(null)
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      ) : (
+                        <Button
+                          variant={'contained'}
+                          disabled={
+                            Object.values(selectedRows).reduce(
+                              (sum, array) => sum + array.data.length,
+                              0,
+                            ) !== 1
+                          }
+                          onClick={() => {
+                            onClickAssign(selectedRows)
+                          }}
+                        >
+                          Assign
+                        </Button>
+                      )}
+                      {assignProMode ? (
+                        <Button
+                          variant='outlined'
+                          onClick={() => {
+                            setAssignProMode(false)
+                            setSelectionModel({})
+                            setSelectedRows({})
+                            setSelectedLinguistTeam(null)
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      ) : null}
                     </Box>
                   </Box>
-                  <Box
-                    sx={{
-                      padding: '32px 24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '16px',
-                      height: '156px',
-                      // flex: 1,
-                      width: '100%',
-                      position: 'absolute',
-                      bottom: 0,
-                      // position: 'relative',
-                      // transform: 'translateY(-100%)',
-                      // position: 'absolute',
-                      // bottom: 0,
-                    }}
-                  >
-                    {assignProMode ? null : (
-                      <Button
-                        variant={addProsMode ? 'contained' : 'outlined'}
-                        onClick={onClickRequest}
-                      >
-                        Request
-                      </Button>
-                    )}
-
-                    {addProsMode ? (
-                      <Button
-                        variant='outlined'
-                        onClick={() => {
-                          setAddProsMode(false)
-                          setAssignProMode(false)
-                          setSelectionModel({})
-                          setSelectedRows({})
-                          setSelectedLinguistTeam(null)
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={'contained'}
-                        disabled={
-                          Object.values(selectedRows).reduce(
-                            (sum, array) => sum + array.data.length,
-                            0,
-                          ) !== 1
-                        }
-                        onClick={() => {
-                          onClickAssign(selectedRows)
-                        }}
-                      >
-                        Assign
-                      </Button>
-                    )}
-                    {assignProMode ? (
-                      <Button
-                        variant='outlined'
-                        onClick={() => {
-                          setAssignProMode(false)
-                          setSelectionModel({})
-                          setSelectedRows({})
-                          setSelectedLinguistTeam(null)
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    ) : null}
-                  </Box>
-                </Box>
-              ) : null}
-            </Box>
-          </Grid>
-        )}
-      </Grid>
+                ) : null}
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      )}
     </Card>
   )
 }
