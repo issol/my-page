@@ -109,7 +109,7 @@ export const getProListColumns = (
       renderHeader: () => <Box>Legal name / Email</Box>,
       renderCell: ({ row }: ProListCellType) => {
         {
-          console.log('USERID', row.userId)
+          // console.log('USERID', row.userId)
         }
         return (
           <LegalNameEmail

@@ -25,7 +25,6 @@ type Props = {
   }>
   skip: number
   pageSize: number
-  setSkip: (num: number) => void
   setPageSize: (num: number) => void
   handleMenuClick: (event: React.MouseEvent<HTMLElement>) => void
   anchorEl: HTMLElement | null
@@ -35,6 +34,8 @@ type Props = {
     name: string
   }[]
   activeFilter: FilterType
+  page: number
+  setPage: (num: number) => void
 }
 
 const LinguistTeamLayout = ({
@@ -43,13 +44,14 @@ const LinguistTeamLayout = ({
   serviceTypeList,
   skip,
   pageSize,
-  setSkip,
   setPageSize,
   handleMenuClick,
   anchorEl,
   handleMenuClose,
   clientList,
   activeFilter,
+  page,
+  setPage
 }: Props) => {
   const router = useRouter()
   const [listCount, setListCount] = useState<number>(0)
@@ -176,22 +178,24 @@ const LinguistTeamLayout = ({
           serviceTypeList={serviceTypeList}
           skip={skip}
           pageSize={pageSize}
-          setSkip={setSkip}
           setPageSize={setPageSize}
           setListCount={setListCount}
           clientList={clientList}
           activeFilter={activeFilter}
+          page={page}
+          setPage={setPage}
         />
       ) : (
         <LinguistTeamList
           serviceTypeList={serviceTypeList}
           skip={skip}
           pageSize={pageSize}
-          setSkip={setSkip}
           setPageSize={setPageSize}
           setListCount={setListCount}
           clientList={clientList}
           activeFilter={activeFilter}
+          page={page}
+          setPage={setPage}
         />
       )}
     </Card>

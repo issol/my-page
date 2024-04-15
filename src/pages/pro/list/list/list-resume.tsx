@@ -32,7 +32,6 @@ type Props = {
 const ListResume = ({ resume, onClickFile }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(3)
-  console.log("resume",resume)
   const handleChangePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 
