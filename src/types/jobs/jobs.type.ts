@@ -152,6 +152,7 @@ export type autoCreateJobParamsType = {
 export type ProJobListType = {
   id: number
   jobId: number
+  jobRequestId?: number
   corporationId: string
   serviceType: string
   name: string
