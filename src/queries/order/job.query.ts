@@ -5,6 +5,7 @@ import {
   getJobInfo,
   getJobPriceHistory,
   getJobPrices,
+  getJobRequestHistory,
   getMessageList,
   getSourceFileToPro,
 } from '@src/apis/jobs/job-detail.api'
@@ -136,6 +137,41 @@ export const useGetJobPriceHistory = (jobId: number) => {
     enabled: !!jobId,
     suspense: false,
   })
+}
+
+export const useGetJobRequestHistory = (jobId: number | number[]) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobRequestHistory', jobId],
+      () => getJobRequestHistory(jobId),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+        refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobRequestHistory', id],
+          queryFn: () => getJobRequestHistory(id),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+          refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
+        }
+      }),
+    )
+  }
+  // return useQuery(
+  //   ['jobRequestHistory', jobId],
+  //   () => getJobRequestHistory(jobId),
+  //   {
+  //     staleTime: 10 * 1000, // 1
+  //     enabled: !!jobId,
+  //     suspense: false,
+  //   },
+  // )
 }
 
 export const useGetMessage = (jobId: number, proId: number) => {

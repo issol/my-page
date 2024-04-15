@@ -28,6 +28,7 @@ import {
   useGetJobInfo,
   useGetJobPriceHistory,
   useGetJobPrices,
+  useGetJobRequestHistory,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
@@ -70,6 +71,7 @@ import {
   JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
+  JobRequestHistoryType,
   jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -276,6 +278,18 @@ const JobDetail = () => {
         requests: JobAssignProRequestsType[]
         id: number
         frontRound: number
+      },
+      unknown
+    >[]
+  ).map(value => value.data)
+
+  const jobRequestHistoryList = (
+    useGetJobRequestHistory(jobId) as UseQueryResult<
+      {
+        data: JobRequestHistoryType[]
+        count: number
+        totalCount: number
+        jobId: number
       },
       unknown
     >[]
@@ -1200,7 +1214,8 @@ const JobDetail = () => {
     if (
       jobInfoList.includes(undefined) ||
       jobPriceList.includes(undefined) ||
-      jobAssignList.includes(undefined)
+      jobAssignList.includes(undefined) ||
+      jobRequestHistoryList.includes(undefined)
     )
       return
     const combinedList = jobInfoList
@@ -1210,13 +1225,19 @@ const JobDetail = () => {
         const jobAssign = jobAssignList.find(
           assign => assign!.id === jobInfo!.id,
         )
+        const jobRequestHistory = jobRequestHistoryList.find(
+          history => history!.jobId === jobInfo!.id,
+        )
 
         return {
           jobInfo: jobInfo!,
-
           jobPrices: jobPrices!,
           jobId: jobInfo!.id,
           jobAssign: jobAssign?.requests!,
+          jobRequestHistory: {
+            data: jobRequestHistory?.data ?? [],
+            totalCount: jobRequestHistory?.totalCount ?? 0,
+          },
           jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
         }
       })
@@ -1270,6 +1291,7 @@ const JobDetail = () => {
     selectedJobInfo,
     jobDetail,
     selectedJobId,
+    jobRequestHistoryList,
   ])
 
   useEffect(() => {

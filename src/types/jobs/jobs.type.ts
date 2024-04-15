@@ -360,3 +360,14 @@ export type JobPrevNextItem = {
   dueAt: Date
   dueTimezone: CountryType
 }
+
+export type JobRequestHistoryType = {
+  corporationId: string
+  round: number
+  name: string
+  requestType: string
+  historyId: number
+  requestNumber: number
+  requestedAt: string
+  requestor: string
+}

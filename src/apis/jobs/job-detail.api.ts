@@ -10,6 +10,7 @@ import {
   jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
+  JobRequestHistoryType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
@@ -423,7 +424,10 @@ export const getProJobDetailDots = async (id: number): Promise<string[]> => {
 
 export const getPreviousAndNextJob = async (
   jobId: number,
-): Promise<{ previousJob: JobPrevNextItem | null; nextJob: JobPrevNextItem | null }> => {
+): Promise<{
+  previousJob: JobPrevNextItem | null
+  nextJob: JobPrevNextItem | null
+}> => {
   const { data } = await axios.get(`/api/enough/u/job/${jobId}/previous-next`)
   return data
 }
@@ -576,4 +580,16 @@ export const setMoveToNextJob = async (params: {
       autoSharingFile: params.autoSharingFile,
     },
   )
+}
+
+export const getJobRequestHistory = async (
+  jobId: number,
+): Promise<{
+  data: JobRequestHistoryType[]
+  count: number
+  totalCount: number
+  jobId: number
+}> => {
+  const { data } = await axios.get(`/api/enough/u/job/${jobId}/history`)
+  return data
 }
