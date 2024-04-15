@@ -51,6 +51,7 @@ type Props = {
     jobAssignDefaultRound: number;
   }[]
   status?: number
+  jobName?: string
   isUpdatable: boolean
   onClose: () => void
 }
@@ -63,7 +64,8 @@ const Message = ({
   sendFrom, 
   jobDetail,
   status,
-  isUpdatable, 
+  isUpdatable,
+  jobName,
   onClose 
 }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -184,7 +186,7 @@ const Message = ({
   useEffect(() => {
     scrollToBottom()
   }, []);
-
+  console.log("jobName",jobName)
   return (
     <Box
       sx={{
@@ -275,19 +277,26 @@ const Message = ({
               alt=''
               quality={100}
             />
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
-                <Typography fontSize={20} fontWeight={500}>
-                  {getLegalName({
-                    firstName: info.firstName,
-                    middleName: info.middleName,
-                    lastName: info.lastName,
-                  })}
-                </Typography>
-                {sendFrom === 'LPM' && messageType === 'request' && assignmentStatusChip(70000, jobAssignmentStatusList!)}
+            {sendFrom === 'LPM' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+                  <Typography fontSize={20} fontWeight={500} color={'#4C4E64'}>
+                    {getLegalName({
+                      firstName: info.firstName,
+                      middleName: info.middleName,
+                      lastName: info.lastName,
+                    })}
+                  </Typography>
+                  {sendFrom === 'LPM' && messageType === 'request' && assignmentStatusChip(70000, jobAssignmentStatusList!)}
+                </Box>
+                <Typography color={'#8D8E9A'} fontSize={14}>{messageList?.proInfo.email}</Typography>
               </Box>
-              <Typography color={'#8D8E9A'} fontSize={14}>{messageList?.proInfo.email}</Typography>
-            </Box>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography fontSize={20} fontWeight={500} color={'#4C4E64'}>{jobName}</Typography>
+              </Box>
+            )
+            }
           </Box>
           <IconButton
             sx={{ padding: 0, height: 'fit-content' }}

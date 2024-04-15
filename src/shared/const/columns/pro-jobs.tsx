@@ -127,6 +127,7 @@ export const getProJobColumns = (
               ? 'request' : 'job'}
           sendFrom='PRO'
           status={row.status}
+          jobName={row.name}
           isUpdatable={true}
           onClose={() => closeModal('ProJobsMessageModal')}
         />
