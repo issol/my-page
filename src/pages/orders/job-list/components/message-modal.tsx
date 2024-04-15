@@ -361,7 +361,7 @@ const Message = ({
                       ? 'none'
                       : '1px solid #E9EAEC',
                 }}
-              > {index > 0 && messageList.contents?.[index-1].messageType}
+              >
                 <Box
                   sx={{
                     display: 'flex',
