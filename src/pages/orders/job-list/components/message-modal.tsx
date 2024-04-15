@@ -266,7 +266,7 @@ const Message = ({
                 }}
               >
                 <Typography fontSize={14}>
-                  {value?.jobInfo?.corporationId} {value?.jobInfo?.id}
+                  {value?.jobInfo?.corporationId}
                 </Typography>
                 <ServiceTypeChip label={value?.jobInfo?.serviceType} />
               </Box>)

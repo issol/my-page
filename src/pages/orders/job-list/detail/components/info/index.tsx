@@ -12,6 +12,7 @@ import {
   Select,
   SelectChangeEvent,
   Typography,
+  Badge,
 } from '@mui/material'
 import {
   JobsStatusChip,
@@ -424,7 +425,10 @@ const JobInfo = ({
           sendFrom='LPM'
           jobDetail={jobDetail}
           isUpdatable={selectedJobUpdatable}
-          onClose={() => closeModal('AssignProMessageModal')}
+          onClose={() => {
+            queryClient.invalidateQueries(['jobInfo', jobInfo.id, false])
+            closeModal('AssignProMessageModal')
+          }}
         />
       ),
     })
@@ -505,20 +509,24 @@ const JobInfo = ({
               <Typography fontSize={20} fontWeight={500}>
                 {jobInfo.corporationId}
               </Typography>
-              <IconButton
-                sx={{ padding: 0 }}
-                onClick={() =>
-                  onClickMessage({
-                    userId: jobInfo.pro?.id!,
-                    firstName: jobInfo.pro?.firstName!,
-                    middleName: jobInfo.pro?.middleName!,
-                    lastName: jobInfo.pro?.lastName!,
-                  })
-                }
-                disabled={jobInfo.pro === null}
-              >
-                <Icon icon='mdi:message-text' />
-              </IconButton>
+              <Box sx={{ margin: '0 auto' }}>
+                <Badge badgeContent={'999'} color='primary'>
+                  <IconButton
+                    sx={{ padding: 0 }}
+                    onClick={() =>
+                      onClickMessage({
+                        userId: jobInfo.pro?.id!,
+                        firstName: jobInfo.pro?.firstName!,
+                        middleName: jobInfo.pro?.middleName!,
+                        lastName: jobInfo.pro?.lastName!,
+                      })
+                    }
+                    disabled={jobInfo.pro === null}
+                  >
+                    <Icon icon='mdi:message-text' />
+                  </IconButton>
+                </Badge>
+              </Box>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
