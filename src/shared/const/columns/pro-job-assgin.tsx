@@ -88,11 +88,8 @@ export const getProJobAssignColumns = (
               Number(selectedValue) === row.userId
             }
             onChange={() => {
-              console.log(proList)
-
               const selectedPros =
                 proList?.filter(pro => pro.userId === row.userId) ?? []
-              console.log(selectedPros)
 
               setSelectedValue &&
                 setSelectedValue(prev => ({
@@ -714,7 +711,6 @@ export const getProJobAssignColumnsForRequest = (
       sortable: false,
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
-        console.log(row, 'column-row')
 
         return (
           <>
@@ -996,7 +992,6 @@ export const getProJobAssignColumnsForRequest = (
                         <Button
                           fullWidth
                           onClick={() => {
-                            console.log(row, 'column-row12')
 
                             onClickAssign(selectedUser, requestType)
                             handleDetailClose()

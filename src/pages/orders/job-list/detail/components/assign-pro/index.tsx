@@ -287,8 +287,6 @@ const AssignPro = ({
       jobReqId: number | null
     },
   ) => {
-    console.log(event.currentTarget)
-
     setDetailAnchorEls(prev => ({
       ...prev,
       [row.userId]: event.currentTarget,
@@ -320,8 +318,6 @@ const AssignPro = ({
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
-    console.log(row.userId, 'getId')
-
     assignJobMutation.mutate({
       jobId:
         requestType === 'bulkManualAssign' && row.assignmentStatus === 70100
@@ -371,8 +367,6 @@ const AssignPro = ({
     },
     requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
   ) => {
-    console.log(row, 'row')
-
     openModal({
       type: 'AssignProModal',
       children: (
@@ -481,11 +475,12 @@ const AssignPro = ({
           sendFrom='LPM'
           jobDetail={[{
             jobId: jobInfo.id,
-            jobInfo: undefined,
+            jobInfo: jobInfo,
             jobPrices: undefined,
             jobAssign: jobAssign,
             jobAssignDefaultRound: 0,
           }]}
+          isUpdatable={selectedJobUpdatable}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
@@ -636,7 +631,6 @@ const AssignPro = ({
   useEffect(() => {
     if (proList && proList.data && menu === 'pro') {
       setLoading(true)
-      console.log(proList.data)
 
       setRows(prev => {
         return {
@@ -672,6 +666,13 @@ const AssignPro = ({
       setProIdQuery(Number(proId))
     }
   }, [proId])
+
+  useEffect(() => {
+    // jobAssign이 변경되면 다른 job을 클릭한 것으로 보고 jobAssign 데이터 중 가장 마지막 데이터(마지막 라운드)의 값을 setSelectedAssign에 반영합니다.
+    if (jobAssign && jobAssign.length > 0) {
+      setSelectedAssign(jobAssign[jobAssign.length - 1])
+    }
+  }, [jobAssign])
 
   return (
     <>
@@ -1241,8 +1242,6 @@ const AssignPro = ({
                               return option.value === newValue.value
                             }}
                             onChange={(event, item) => {
-                              console.log(item)
-
                               if (item.length > 0) {
                                 const arr: {
                                   label: Category
@@ -1534,7 +1533,6 @@ const AssignPro = ({
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  console.log(selectionModel)
                   return (
                     !Object.entries(selectionModel)
                       .filter(([key]) => key !== selectedLinguistTeam?.label)

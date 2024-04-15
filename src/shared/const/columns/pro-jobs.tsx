@@ -67,6 +67,7 @@ export const getProJobColumns = (
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const assignmentStatus = [60100, 70000, 70100, 70200, 70400, 70450, 70500, 70600]
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
     row: ProJobListType,
@@ -85,10 +86,11 @@ export const getProJobColumns = (
             lastName: auth.getValue().user?.lastName!,
           }}
           messageType={
-            (row.status >= 60110 && row.status <= 601100) ||
-            [70300, 70350].includes(row.status)
-              ? 'job' : 'request'}
+            assignmentStatus.includes(row.status)
+              ? 'request' : 'job'}
           sendFrom='PRO'
+          status={row.status}
+          isUpdatable={true}
           onClose={() => closeModal('ProJobsMessageModal')}
         />
       ),

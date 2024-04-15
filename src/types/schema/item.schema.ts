@@ -75,8 +75,6 @@ export const jobItemSchema = yup.object().shape({
             .oneOf<Currency>(['USD', 'KRW', 'SGD', 'JPY'])
             // .required(FormErrors.required),
             .when('$priceId', ([priceId], schema) => {
-              console.log(priceId)
-
               // return schema
               return priceId === -1
                 ? schema.required(FormErrors.required)

@@ -30,6 +30,7 @@ import { sendMessage } from '@src/apis/jobs/job-detail.api'
 import { JobType } from '@src/types/common/item.type'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { toast } from 'react-hot-toast'
+import { is } from 'immutable'
 
 type Props = {
   jobId: number
@@ -49,15 +50,31 @@ type Props = {
     jobAssign: JobAssignProRequestsType[];
     jobAssignDefaultRound: number;
   }[]
+  status?: number
+  isUpdatable: boolean
   onClose: () => void
 }
 
-const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, onClose }: Props) => {
+const Message = ({ 
+  jobId, 
+  jobRequestId, 
+  info, 
+  messageType, 
+  sendFrom, 
+  jobDetail,
+  status,
+  isUpdatable, 
+  onClose 
+}: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const [message, setMessage] = useState<string>('')
   const [selectedJobId, setSelectedJobId] = useState<number>(jobId)
+  const [selectedJobProId, setSelectedJobProId] = useState<number>(info.userId)
+
+  const jobTerminatedStatuses = [601000, 70200, 70400, 70450, 70500, 70600]
+
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
   }
@@ -77,7 +94,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
     data: messageList,
     isLoading: messageListLoading,
     refetch: messageRefetch,
-  } = useGetMessage(selectedJobId, info.userId, sendFrom === 'PRO' ? 'all' : messageType)
+  } = useGetMessage(selectedJobId, selectedJobProId, sendFrom === 'PRO' ? 'all' : messageType)
 
   const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
 
@@ -114,12 +131,11 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
   const handleSendMessage = () => {
     sendMessageToProMutation.mutate({
       jobId: selectedJobId,
-      proId: info.userId,
+      proId: selectedJobProId,
       message: message,
     })
   }
 
-  // 키보드 입력을 처리하는 함수
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.shiftKey && event.key === 'Enter') {
       handleSendMessage()  // Shift + Enter가 눌렸을 때 handleClick 함수를 호출
@@ -136,6 +152,31 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
   }
 
+  const isMessageUsable = () => {
+    // status를 체크해서 메세지 보내는 창을 컨트롤 한다.
+    if (!isUpdatable) return false
+
+    if (messageType === 'request') { 
+      if (sendFrom === 'LPM') {
+        return jobDetail && !jobDetail?.some((value) => value.jobId === selectedJobId && value.jobInfo?.pro)
+      } else {
+        return status && !jobTerminatedStatuses.includes(status)
+      }
+    } else {
+      if (sendFrom === 'LPM') {
+        const selectedJob = jobDetail?.find((value) => value.jobId === selectedJobId)
+        const selectedJobStatus = selectedJob?.jobInfo?.status
+        return selectedJobStatus && !jobTerminatedStatuses.includes(selectedJobStatus)
+      } else {
+        return status && !jobTerminatedStatuses.includes(status)
+      }
+    }
+  }
+
+  useEffect(() => {
+    refetchMessage()
+  }, [selectedJobId])
+
   useEffect(() => {
     refetchMessage()
   }, [messageRefetch])
@@ -148,7 +189,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
     <Box
       sx={{
         maxWidth: 
-          sendFrom === 'LPM'
+          sendFrom === 'LPM' && messageType === 'job'
             ? '648px'
             : '483px',
         height: '709px', // 화면 높이가 709px보다 큰 경우 709px, 그렇지 않으면 80vh
@@ -162,7 +203,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
       }}
     >
       {messageListLoading && (<OverlaySpinner />)}
-      {(sendFrom === 'LPM' && jobDetail) && (
+      {(sendFrom === 'LPM' && messageType === 'job' && jobDetail) && (
         <Box
           sx={{ 
             width: '165px',
@@ -173,7 +214,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
           }}
         >
           {jobDetail.map((value, index) => {
-            return value.jobAssign?.length > 0 && (
+            return value.jobInfo?.pro && (
               <Box
                 key={index}
                 sx={{
@@ -186,13 +227,13 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
                       ? 'rgba(76, 78, 100, 0.05)'
                       : 'inherit',
                 }}
-                onClick={() => {
+                onClick={(v) => {               
                   setSelectedJobId(value.jobId)
-                  refetchMessage()
+                  setSelectedJobProId(value.jobInfo?.pro?.id ?? 0)
                 }}
               >
                 <Typography fontSize={14}>
-                  {value?.jobInfo?.corporationId}
+                  {value?.jobInfo?.corporationId} {value?.jobInfo?.id}
                 </Typography>
                 <ServiceTypeChip label={value?.jobInfo?.serviceType} />
               </Box>)
@@ -243,7 +284,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
                     lastName: info.lastName,
                   })}
                 </Typography>
-                {assignmentStatusChip(70000, jobAssignmentStatusList!)}
+                {sendFrom === 'LPM' && messageType === 'request' && assignmentStatusChip(70000, jobAssignmentStatusList!)}
               </Box>
               <Typography color={'#8D8E9A'} fontSize={14}>{messageList?.proInfo.email}</Typography>
             </Box>
@@ -261,6 +302,42 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
         messageList.contents.length > 0 ? (
           <>
             {messageList.contents.map((item, index) => (
+              item.messageType === 'system' ? (
+                <Box
+                  key={uuidv4()}
+                  sx={{
+                    height: '37px',
+                    backgroundColor: '#EEFBE5',
+                    padding: 0,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center', // Add this line
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Image
+                      src='/images/icons/job-icons/add.svg'
+                      alt=''
+                      width={20}
+                      height={20}
+                      quality={100}
+                    />
+                    <Typography
+                      fontSize={14}
+                      fontWeight={400}
+                      color='#4C4E64'
+                      textAlign='center'
+                    >
+                      {item.content}
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : (
               <Box
                 key={uuidv4()}
                 sx={{
@@ -268,9 +345,14 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '8px',
-                  borderBottom: '1px solid #E9EAEC',
+                  borderBottom: 
+                    messageList.contents && 
+                    index+1 <= messageList.contents?.length-1 && 
+                    messageList.contents?.[index+1].messageType === 'system' 
+                      ? 'none'
+                      : '1px solid #E9EAEC',
                 }}
-              >
+              > {index > 0 && messageList.contents?.[index-1].messageType}
                 <Box
                   sx={{
                     display: 'flex',
@@ -322,12 +404,12 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
                     </Fragment>
                   ))}
                 </Typography>
-              </Box>
+              </Box>)
             ))}
           </>
         ) : null}
-        {/* TODO: 메세지 박스 상황별 보여지는 부분 컨트롤 해야 함 */}
         </Box>
+        {isMessageUsable() ? (
           <Box 
             sx={{ 
               padding: '20px',
@@ -344,8 +426,7 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
                 multiline
                 autoComplete='off'
                 fullWidth
-                // label='Write down a message to Pro'
-                placeholder='Write down a message to Pro'
+                placeholder={sendFrom === 'LPM' ? 'Write down a message to Pro' : 'Write down a message to LPM'}
                 value={message ?? ''}
                 onChange={handleChangeMessage}
                 inputProps={{ maxLength: 500 }}
@@ -401,7 +482,8 @@ const Message = ({ jobId, jobRequestId, info, messageType, sendFrom, jobDetail, 
             <Typography variant='body2' mt='12px' textAlign='right'>
               {message?.length ?? 0}/500
             </Typography>
-          </Box>
+          </Box>) : null
+        }
       </Box>
     </Box>
   )

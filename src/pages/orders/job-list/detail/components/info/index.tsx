@@ -423,6 +423,7 @@ const JobInfo = ({
           messageType='job'
           sendFrom='LPM'
           jobDetail={jobDetail}
+          isUpdatable={selectedJobUpdatable}
           onClose={() => closeModal('AssignProMessageModal')}
         />
       ),

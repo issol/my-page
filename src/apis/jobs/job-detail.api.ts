@@ -268,6 +268,7 @@ type MessageItem = {
   email: string
   role: string
   isPro: boolean
+  messageType: string // 시스템 메세지인지 사용자 메세지인지 구분용도
 }
 
 export type Member = {
@@ -526,8 +527,6 @@ export const getJobAssignProRequests = async (
   id: number
   frontRound: number
 }> => {
-  console.log(id)
-
   const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)
   return data
 }
