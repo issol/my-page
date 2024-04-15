@@ -48,7 +48,13 @@ export const getJobRequestHistoryColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Typography fontSize={14} variant='body1' fontWeight={400}>
-            {row.requestType}
+            {row.requestType === 'relayRequest'
+              ? 'Relay request'
+              : row.requestType === 'bulkManualAssign'
+                ? 'Mass request (Manual assignment)'
+                : row.requestType === 'bulkAutoAssign'
+                  ? 'Mass request (First come first serve)'
+                  : '-'}
           </Typography>
         )
       },

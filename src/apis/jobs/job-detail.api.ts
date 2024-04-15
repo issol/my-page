@@ -9,6 +9,7 @@ import {
   JobPrevNextItem,
   jobPriceHistoryType,
   JobPricesDetailType,
+  JobRequestedProHistoryType,
   JobRequestFormType,
   JobRequestHistoryType,
   ProJobDeliveryType,
@@ -65,59 +66,17 @@ export const getJobInfo = async (
   id: number,
   isHistory: boolean,
 ): Promise<JobType> => {
-  try {
-    const { data } = isHistory
-      ? await axios.get(`/api/enough/u/job/history/${id}`)
-      : await axios.get(`/api/enough/u/job/${id}/info`)
-    // console.log(data)
+  const { data } = isHistory
+    ? await axios.get(`/api/enough/u/job/history/${id}`)
+    : await axios.get(`/api/enough/u/job/${id}/info`)
+  // console.log(data)
 
-    const result: JobType = {
-      ...data,
-    }
-
-    // return data
-    return result
-  } catch (e: any) {
-    return {
-      id: 0,
-      authorId: 0,
-      templateId: 0,
-      triggerOrder: 0,
-      order: { id: -1 },
-      corporationId: '',
-      clientId: 0,
-      name: '',
-      status: 60000,
-      contactPersonId: 0,
-      serviceType: '',
-      sourceLanguage: '',
-      targetLanguage: '',
-      isJobRequestPresent: false,
-      startedAt: '',
-      dueAt: '',
-      totalPrice: 0,
-      startTimezone: {
-        code: '',
-        label: '',
-        phone: '',
-      },
-      dueTimezone: { code: '', label: '', phone: '' },
-      description: '',
-      isShowDescription: false,
-      contactPerson: null,
-      pro: null,
-      historyAt: null,
-      feedback: '',
-      files: [],
-      autoNextJob: false,
-      nextJobId: null,
-      statusCodeForAutoNextJob: null,
-      autoSharingFile: false,
-      sortingOrder: 0,
-      createdAt: '',
-      triggerGroup: 0,
-    }
+  const result: JobType = {
+    ...data,
   }
+
+  // return data
+  return result
 }
 
 export const saveJobInfo = async (
@@ -508,8 +467,6 @@ export const getJobAssignProRequests = async (
   id: number
   frontRound: number
 }> => {
-  console.log(id)
-
   const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)
   return data
 }
@@ -591,5 +548,20 @@ export const getJobRequestHistory = async (
   jobId: number
 }> => {
   const { data } = await axios.get(`/api/enough/u/job/${jobId}/history`)
+
+  return data
+}
+
+export const getRequestedProHistory = async (
+  historyId: number,
+): Promise<{
+  id: number
+  frontRound: number
+  requests: Array<JobRequestedProHistoryType>
+}> => {
+  const { data } = await axios.get(
+    `/api/enough/u/job/${historyId}/request/list`,
+  )
+
   return data
 }

@@ -7,6 +7,7 @@ import {
   getJobPrices,
   getJobRequestHistory,
   getMessageList,
+  getRequestedProHistory,
   getSourceFileToPro,
 } from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
@@ -188,4 +189,15 @@ export const useGetSourceFile = (jobId: number) => {
     suspense: false,
     enabled: !!jobId,
   })
+}
+
+export const useGetRequestedProHistory = (historyId: number) => {
+  return useQuery(
+    ['requestedProHistory', historyId],
+    () => getRequestedProHistory(historyId),
+    {
+      staleTime: 10 * 1000, // 1
+      suspense: false,
+    },
+  )
 }
