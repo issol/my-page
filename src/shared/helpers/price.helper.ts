@@ -100,7 +100,7 @@ export function formatByRoundingProcedure(
         returnPrice = price; // 예상치 못한 type에 대해 라운딩 없이 반환
         break;
     }
-    if (currency === 'USD' || currency === 'SGD') {
+    if (type !== -1 && (currency === 'USD' || currency === 'SGD')) {
       return returnPrice.toFixed(precision)
     }
     return returnPrice
