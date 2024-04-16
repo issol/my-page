@@ -75,7 +75,14 @@ const Message = ({
   const [selectedJobId, setSelectedJobId] = useState<number>(jobId)
   const [selectedJobProId, setSelectedJobProId] = useState<number>(info.userId)
 
-  const jobTerminatedStatuses = [601000, 70200, 70400, 70450, 70500, 70600]
+  // 메세지 입력창 숨김 조건
+  // job : Approved, Invoiced, Paid, Without invoice, Canceled, Payment Canceled
+  // assign : Request rejected, Assignment canceled, Assignment canceled accepted, Request canceled, No Reply
+  const jobTerminatedLPMStatuses = [60600, 60700, 60800, 60900, 601000, 601100, 70200, 70400, 70450, 70500, 70600]
+
+  // job : Approved, Invoiced, Paid, Without invoice
+  // assign : Declined, Canceled, Unassigned accepted, Unassigned, Unassigned
+  const jobTerminatedProStatuses = [60600, 60700, 60800, 60900, 70200, 70400, 70450, 70500, 70600]
 
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
@@ -153,12 +160,26 @@ const Message = ({
     })
   }
 
+  // const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  //   if (event.shiftKey && event.key === 'Enter') {
+  //     handleSendMessage()  // Shift + Enter가 눌렸을 때 handleClick 함수를 호출
+  //   }
+  // };
+
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.shiftKey && event.key === 'Enter') {
-      handleSendMessage()  // Shift + Enter가 눌렸을 때 handleClick 함수를 호출
+    if (event.key === 'Enter') {
+      if (event.shiftKey) {
+        // Shift + Enter가 눌렸을 때 줄바꿈 처리
+        // 일반적으로 텍스트 입력 필드에서는 자동으로 처리됩니다.
+      } else {
+        // Enter만 눌렸을 때 handleSendMessage 함수 호출
+        handleSendMessage();
+        event.preventDefault();  // 기본 이벤트를 방지하여 폼 제출 등을 막음
+      }
     }
   };
 
+  
   const scrollToBottom = () => {
     const timer = setTimeout(() => {
       if (scrollRef.current) {
@@ -175,17 +196,20 @@ const Message = ({
 
     if (messageType === 'request') { 
       if (sendFrom === 'LPM') {
-        return jobDetail && !jobDetail?.some((value) => value.jobId === selectedJobId && value.jobInfo?.pro)
+        const selectedJob = jobDetail?.find((value) => value.jobId === selectedJobId)
+        const selectedJobStatus = selectedJob?.jobInfo?.status
+        return (jobDetail && !jobDetail?.some((value) => value.jobId === selectedJobId && value.jobInfo?.pro)) ||
+          (selectedJobStatus && !jobTerminatedLPMStatuses.includes(selectedJobStatus))
       } else {
-        return status && !jobTerminatedStatuses.includes(status)
+        return status && !jobTerminatedProStatuses.includes(status)
       }
     } else {
       if (sendFrom === 'LPM') {
         const selectedJob = jobDetail?.find((value) => value.jobId === selectedJobId)
         const selectedJobStatus = selectedJob?.jobInfo?.status
-        return selectedJobStatus && !jobTerminatedStatuses.includes(selectedJobStatus)
+        return selectedJobStatus && !jobTerminatedLPMStatuses.includes(selectedJobStatus)
       } else {
-        return status && !jobTerminatedStatuses.includes(status)
+        return status && !jobTerminatedProStatuses.includes(status)
       }
     }
   }
@@ -579,9 +603,19 @@ const Message = ({
                 </ButtonBase>
               </Box>
             </Box>
-            <Typography variant='body2' mt='12px' textAlign='right'>
-              {message?.length ?? 0}/500
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography variant='body2' mt='12px' textAlign='left'>
+                * Press [Shift]+[Enter] to create a new line
+              </Typography>
+              <Typography variant='body2' mt='12px' textAlign='right'>
+                {message?.length ?? 0}/500
+              </Typography>
+            </Box>
           </Box>) : null
         }
       </Box>
