@@ -149,11 +149,7 @@ const Message = ({
       message: message,
     }).then(() => {
       // 메세지를 보낸 후 읽음 처리한다.
-      readMessageMutation.mutate({
-        jobId: selectedJobId,
-        proId: selectedJobProId,
-        type: sendFrom === 'PRO' ? 'all' : messageType,
-      })
+      handleReadMessage()
     })
   }
 
@@ -194,13 +190,28 @@ const Message = ({
     }
   }
 
+  const handleReadMessage = () => {
+    // job에 contact person이 나일때만 읽음 처리한다.
+    if (sendFrom === 'LPM' && messageType === 'job' && jobDetail) {
+      const selectedJob = jobDetail?.find((value) => value.jobId === selectedJobId)
+      if (selectedJob?.jobInfo?.contactPerson?.userId === auth.getValue()?.user?.id) {
+        readMessageMutation.mutate({
+          jobId: selectedJobId,
+          proId: selectedJobProId,
+          type: messageType,
+        })
+      }
+    } else {
+      readMessageMutation.mutate({
+        jobId: selectedJobId,
+        proId: selectedJobProId,
+        type: sendFrom === 'PRO' ? 'all' : messageType,
+      })
+    }
+  }
   useEffect(() => {
     // LPM에서 메세지 탭을 변경할때 메세지를 읽음 처리 한다.
-    readMessageMutation.mutate({
-      jobId: selectedJobId,
-      proId: selectedJobProId,
-      type: sendFrom === 'PRO' ? 'all' : messageType,
-    })
+    handleReadMessage()
     refetchMessage()
   }, [selectedJobId])
 
@@ -210,11 +221,7 @@ const Message = ({
 
   useEffect(() => {
     // 메세지 컴포넌트가 열릴때 메세지를 읽음 처리 한다.
-    readMessageMutation.mutate({
-      jobId: selectedJobId,
-      proId: selectedJobProId,
-      type: sendFrom === 'PRO' ? 'all' : messageType,
-    })
+    handleReadMessage()
     scrollToBottom()
   }, []);
   
