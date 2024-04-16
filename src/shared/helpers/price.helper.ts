@@ -61,11 +61,15 @@ export function formatByRoundingProcedure(
     let precision = 0
     let returnPrice = 0
 
-    if (typeof roundingType === 'string') {
-      //@ts-ignore
-      type = RoundingProcedureObj[roundingType]
+    if (roundingType === null || roundingType === undefined) {
+      type = -1
     } else {
-      type = Number(roundingType)
+      if (typeof roundingType === 'string') {
+        //@ts-ignore
+        type = RoundingProcedureObj[roundingType]
+      } else {
+        type = Number(roundingType)
+      }
     }
 
     if (!currency) currency = 'KRW'
@@ -100,6 +104,7 @@ export function formatByRoundingProcedure(
         returnPrice = price; // 예상치 못한 type에 대해 라운딩 없이 반환
         break;
     }
+    console.log("type",type)
     if (type !== -1 && (currency === 'USD' || currency === 'SGD')) {
       return returnPrice.toFixed(precision)
     }
