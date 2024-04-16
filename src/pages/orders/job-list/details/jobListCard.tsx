@@ -724,6 +724,7 @@ const JobListCard = ({
                         value => value.id === isHoverJobId,
                       )
                     }
+                    console.log(mode)
 
                     return (
                       <>
