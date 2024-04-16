@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { useQueryClient } from 'react-query'
 import { Badge, Box, IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
@@ -66,6 +67,7 @@ export const getProJobColumns = (
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const queryClient = useQueryClient()
 
   const assignmentStatus = [60100, 70000, 70100, 70200, 70400, 70450, 70500, 70600]
   const onClickMessage = (
@@ -92,7 +94,10 @@ export const getProJobColumns = (
           status={row.status}
           jobName={row.name}
           isUpdatable={true}
-          onClose={() => closeModal('ProJobsMessageModal')}
+          onClose={() => {
+            queryClient.invalidateQueries('proJobList')
+            closeModal('ProJobsMessageModal')
+          }}
         />
       ),
     })
@@ -354,11 +359,9 @@ export const getProJobColumns = (
               <IconButton
                 sx={{ padding: 0 }}
                 onClick={event => onClickMessage(event, row)}
+
               >
-                <Icon
-                  icon='material-symbols:chat'
-                  color='rgba(187, 188, 196, 1)'
-                />
+                <Icon icon='mdi:message-text' />
               </IconButton>
             </Badge>
           </Box>
