@@ -1081,6 +1081,11 @@ const JobDetail = () => {
   ])
 
   useEffect(() => {
+    if (selectedJobInfo) {
+      queryClient.invalidateQueries(['jobInfo', selectedJobInfo.jobId, false])
+      queryClient.invalidateQueries(['jobPrices', selectedJobInfo.jobId, false])
+      queryClient.invalidateQueries(['jobAssignProRequests', selectedJobInfo.jobId])
+    }
     if (roundQuery && selectedJobInfo) {
       setSelectedAssign(
         selectedJobInfo.jobAssign.find(
