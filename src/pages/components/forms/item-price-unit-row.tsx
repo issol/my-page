@@ -140,6 +140,7 @@ const Row = ({
     if (!data?.length) return
     let prices = 0
     const detail = data?.[unitIndex]
+    console.log(priceData, 'priceData')
 
     if (detail) {
       setSavedValue(detail) // setValue된 값 가져오기
@@ -175,6 +176,7 @@ const Row = ({
         getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
         priceData?.currency
 
+      console.log(priceData?.roundingProcedure, 'each price decimal')
       const roundingPrice = formatByRoundingProcedure(
         prices,
         priceData?.decimalPlace!
@@ -201,6 +203,7 @@ const Row = ({
           shouldValidate: false,
         })
       }
+      console.log(roundingPrice, 'each price')
       setValue(
         `items.${index}.detail.${unitIndex}.prices`,
         isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
@@ -299,6 +302,8 @@ const Row = ({
   }, [])
 
   const [open, setOpen] = useState(false)
+
+  console.log(getValues())
 
   return (
     <tr
@@ -765,13 +770,7 @@ const Row = ({
                   savedValue?.currency ?? null,
                 )
               : formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(getValues(`${detailName}.${idx}.prices`)),
-                    // Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
-                    getValues(`${initialPriceName}.numberPlace`),
-                    getValues(`${initialPriceName}.rounding`),
-                    getValues(`${initialPriceName}.currency`) || 'KRW',
-                  ),
+                  Number(getValues(`${detailName}.${idx}.prices`)),
                   getValues(`${initialPriceName}.currency`) || 'KRW',
                 )}
           </Typography>
@@ -787,50 +786,20 @@ const Row = ({
             {isNotApplicable
               ? savedValue?.currency
                 ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' ||
-                        savedValue.currency === 'SGD'
-                        ? 2
-                        : savedValue?.currency === 'KRW'
-                          ? 10
-                          : 0,
-                      0,
-                      savedValue?.currency ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     savedValue?.currency ?? null,
                   )
                 : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' ||
-                        getValues(`${initialPriceName}.currency`) === 'SGD'
-                        ? 2
-                        : getValues(`${initialPriceName}.currency`) === 'KRW'
-                          ? 10
-                          : 0,
-                      0,
-                      getValues(`${initialPriceName}.currency`) ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )
               : priceData
                 ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      priceData?.decimalPlace!,
-                      priceData?.roundingProcedure!,
-                      priceData?.currency! ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     priceData?.currency! ?? null,
                   )
                 : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.numberPlace`),
-                      getValues(`${initialPriceName}.rounding`),
-                      getValues(`${initialPriceName}.currency`) || 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )}
           </Box>

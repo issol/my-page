@@ -1374,6 +1374,7 @@ const JobDetail = () => {
             priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
           },
         ]
+        console.log(result)
 
         itemReset({ items: result })
       } else {
@@ -1404,6 +1405,8 @@ const JobDetail = () => {
       throw new Error('Server error')
     }
   }, [jobInfoList, jobPriceList, jobAssignList, jobRequestHistoryList])
+
+  console.log(getItem(`items.${0}.totalPrice`))
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -1863,10 +1866,10 @@ const JobDetail = () => {
                                               // getValues로 가져오면 폼에서 계산된 값이 반영됨
                                               // fields에서 가져오면 서버에서 넘어온 값이 반영됨
                                               Number(
-                                                selectedJobInfo.jobPrices
-                                                  .totalPrice,
+                                                getItem(
+                                                  `items.${0}.totalPrice`,
+                                                ),
                                               ),
-
                                               // fields?.[index].totalPrice! ?? 0,
                                               priceData()?.decimalPlace ??
                                                 (priceData()?.currency ===
@@ -2158,6 +2161,7 @@ const JobDetail = () => {
                   <TabPanel value='history' sx={{ height: '100%' }}>
                     <RequestHistory
                       history={selectedJobInfo.jobRequestHistory}
+                      jobId={selectedJobInfo.jobId}
                     />
                   </TabPanel>
                 </TabContext>

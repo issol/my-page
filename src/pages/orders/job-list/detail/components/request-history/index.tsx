@@ -16,6 +16,7 @@ type Props = {
     count: number
     totalCount: number
   }
+  jobId: number
 }
 
 function loadServerRows(
@@ -30,7 +31,7 @@ function loadServerRows(
   })
 }
 
-const RequestHistory = ({ history }: Props) => {
+const RequestHistory = ({ history, jobId }: Props) => {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -39,7 +40,7 @@ const RequestHistory = ({ history }: Props) => {
   const [rows, setRows] = useState<JobRequestHistoryType[]>([])
   const [loading, setLoading] = useState(false)
 
-  const onCellClick = (historyId: number) => {
+  const onCellClick = (historyId: number, round: number) => {
     // openModal({})
     openModal({
       type: 'historyInfoModal',
@@ -47,6 +48,8 @@ const RequestHistory = ({ history }: Props) => {
         <InfoModal
           onClose={() => closeModal('historyInfoModal')}
           historyId={historyId}
+          jobId={jobId}
+          round={round}
         />
       ),
     })
@@ -105,7 +108,9 @@ const RequestHistory = ({ history }: Props) => {
           rowsPerPageOptions={[10, 25, 50]}
           loading={loading}
           getRowId={row => row.historyId}
-          onCellClick={params => onCellClick(params.row.historyId)}
+          onCellClick={params =>
+            onCellClick(params.row.historyId, params.row.round)
+          }
           pagination
           page={page}
           pageSize={pageSize}
