@@ -24,6 +24,7 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
 } from 'react-hook-form'
 
 // ** helpers
@@ -107,6 +108,10 @@ type Props = {
   showCurrency?: boolean
   setDarkMode?: boolean
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
+  itemTrigger?: UseFormTrigger<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -162,6 +167,7 @@ export default function ItemPriceUnitForm({
   setDarkMode,
   remove,
   errorRefs,
+  itemTrigger,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -326,6 +332,7 @@ export default function ItemPriceUnitForm({
                 setValue={setValue}
                 row={row}
                 errorRefs={errorRefs}
+                itemTrigger={itemTrigger}
               />
             ))}
           </tbody>

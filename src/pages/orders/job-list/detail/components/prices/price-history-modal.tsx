@@ -102,7 +102,6 @@ const PriceHistoryModal = ({ onClose, jobPriceHistory }: Props) => {
                               middleName: item.pro?.middleName,
                               lastName: item.pro?.lastName!,
                             })}
-                            {item.totalPrice}
                           </Typography>
                         </Box>
                       </Grid>

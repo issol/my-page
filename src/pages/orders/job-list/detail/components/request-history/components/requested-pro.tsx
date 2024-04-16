@@ -31,6 +31,7 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
               key={value.name}
               file={value}
               onClick={() => DownloadFile(value, S3FileType.JOB)}
+              size='small'
             />
           </Box>
         )
@@ -112,16 +113,19 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
           )
         })}
       <Box sx={{ border: '1px solid #D8D8DD', borderRadius: '10px' }}>
-        <Typography fontSize={16} fontWeight={600} sx={{ padding: '20px' }}>
-          {requestedPro?.type === 'relayRequest'
-            ? 'Relay request'
-            : requestedPro?.type === 'bulkManualAssign'
-              ? 'Mass request - Manual assignment'
-              : requestedPro?.type === 'bulkAutoAssign'
-                ? 'Mass request - First come first serve'
-                : '-'}
-          &nbsp;({requestedPro?.pros.length})
-        </Typography>
+        {requestedPro.type === null ? null : (
+          <Typography fontSize={16} fontWeight={600} sx={{ padding: '20px' }}>
+            {requestedPro?.type === 'relayRequest'
+              ? 'Relay request'
+              : requestedPro?.type === 'bulkManualAssign'
+                ? 'Mass request - Manual assignment'
+                : requestedPro?.type === 'bulkAutoAssign'
+                  ? 'Mass request - First come first serve'
+                  : '-'}
+            &nbsp;({requestedPro?.pros.length})
+          </Typography>
+        )}
+
         <Box
           sx={{
             '& .MuiDataGrid-columnHeaderTitle': {
@@ -140,7 +144,8 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
             sx={{
               borderRadius: 0,
               '& .MuiDataGrid-columnHeaders': {
-                borderRadius: '0 !important',
+                borderRadius:
+                  requestedPro.type === null ? '10px 10px 0 0' : '0 !important',
               },
             }}
             // sx={{

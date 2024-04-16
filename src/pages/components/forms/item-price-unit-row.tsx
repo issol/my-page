@@ -27,6 +27,7 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
@@ -92,6 +93,10 @@ interface Props {
     'id'
   >
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
+  itemTrigger?: UseFormTrigger<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 
 const Row = ({
@@ -120,6 +125,7 @@ const Row = ({
   setValue,
   row,
   errorRefs,
+  itemTrigger,
 }: Props) => {
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
@@ -140,7 +146,7 @@ const Row = ({
     if (!data?.length) return
     let prices = 0
     const detail = data?.[unitIndex]
-    console.log(priceData, 'priceData')
+    console.log(getValues(), 'priceData')
 
     if (detail) {
       setSavedValue(detail) // setValue된 값 가져오기
@@ -176,7 +182,7 @@ const Row = ({
         getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
         priceData?.currency
 
-      console.log(priceData?.roundingProcedure, 'each price decimal')
+      console.log(prices, 'each price prices')
       const roundingPrice = formatByRoundingProcedure(
         prices,
         priceData?.decimalPlace!
@@ -196,14 +202,12 @@ const Row = ({
       // NOT_APPLICAABLE일때는 제외
       // 스탠다드 프라이스의 언어페어 정보 : languagePairs
       if (!notApplicable) {
-        console.log('not applicable')
-
         setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
           shouldDirty: true,
           shouldValidate: false,
         })
       }
-      console.log(roundingPrice, 'each price')
+      console.log(roundingPrice, 'prices data')
       setValue(
         `items.${index}.detail.${unitIndex}.prices`,
         isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
@@ -212,6 +216,8 @@ const Row = ({
           shouldValidate: false,
         },
       )
+      itemTrigger && itemTrigger(`items.${index}.detail.${unitIndex}.prices`)
+      // setIsDirty(false)
     }
   }
 
@@ -273,12 +279,15 @@ const Row = ({
     }
   }
 
+  console.log(type)
+
   //init
   useEffect(() => {
     // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
+    if (type === 'job-edit' || type === 'job-detail') return
     updatePrice(idx)
     updateTotalPrice()
-  }, [])
+  }, [type])
 
   useEffect(() => {
     // row 외부가 클릭될때 마다 액션을 준다
@@ -290,6 +299,8 @@ const Row = ({
         !(event.target instanceof HTMLLIElement)
       ) {
         // 필요한 액션
+
+        if (type === 'job-edit' || type === 'job-detail') return
         updatePrice(idx)
         updateTotalPrice()
       }
@@ -302,8 +313,6 @@ const Row = ({
   }, [])
 
   const [open, setOpen] = useState(false)
-
-  console.log(getValues())
 
   return (
     <tr
@@ -376,7 +385,9 @@ const Row = ({
                     error={value === null || value === 0}
                     onChange={e => {
                       onChange(Number(e.target.value))
+
                       updatePrice(idx)
+                      updateTotalPrice()
                     }}
                   />
                   {savedValue?.unit === 'Percent' ? '%' : null}
@@ -652,8 +663,8 @@ const Row = ({
                       } else {
                         onChange(null)
                       }
-
                       updatePrice(idx)
+                      updateTotalPrice()
                     }}
                     sx={{
                       maxWidth: '104px',

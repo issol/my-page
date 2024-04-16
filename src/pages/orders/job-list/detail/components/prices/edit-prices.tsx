@@ -143,6 +143,7 @@ const EditPrices = ({
   errorRefs,
 }: Props) => {
   const queryClient = useQueryClient()
+  console.log(getItem(), 'get Item')
 
   // const [success, setSuccess] = useState(false)
 

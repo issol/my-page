@@ -1313,6 +1313,14 @@ const JobDetail = () => {
   ])
 
   useEffect(() => {
+    if (selectedJobInfo) {
+      queryClient.invalidateQueries(['jobInfo', selectedJobInfo.jobId, false])
+      queryClient.invalidateQueries(['jobPrices', selectedJobInfo.jobId, false])
+      queryClient.invalidateQueries([
+        'jobAssignProRequests',
+        selectedJobInfo.jobId,
+      ])
+    }
     if (roundQuery && selectedJobInfo) {
       setSelectedAssign(
         selectedJobInfo.jobAssign.find(
@@ -1374,7 +1382,7 @@ const JobDetail = () => {
             priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
           },
         ]
-        console.log(result)
+        console.log(result, 'prices')
 
         itemReset({ items: result })
       } else {
@@ -1406,7 +1414,7 @@ const JobDetail = () => {
     }
   }, [jobInfoList, jobPriceList, jobAssignList, jobRequestHistoryList])
 
-  console.log(getItem(`items.${0}.totalPrice`))
+  console.log(getItem(), 'get Item main')
 
   return (
     <Card sx={{ height: '100%' }}>
