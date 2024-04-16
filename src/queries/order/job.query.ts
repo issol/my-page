@@ -164,15 +164,6 @@ export const useGetJobRequestHistory = (jobId: number | number[]) => {
       }),
     )
   }
-  // return useQuery(
-  //   ['jobRequestHistory', jobId],
-  //   () => getJobRequestHistory(jobId),
-  //   {
-  //     staleTime: 10 * 1000, // 1
-  //     enabled: !!jobId,
-  //     suspense: false,
-  //   },
-  // )
 }
 
 export const useGetMessage = (jobId: number, proId: number) => {
