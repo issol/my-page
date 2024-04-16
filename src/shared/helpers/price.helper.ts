@@ -31,7 +31,7 @@ export function formatCurrency(
   decimalPlace?: number,
 ) {
   // if (!currency) currency = 'KRW'
-  if (!currency) return num.toString()
+  if (!currency) return num?.toString()
   const currentLocale = locale[currency]
 
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -52,24 +52,26 @@ export function formatCurrency(
 
 export function formatByRoundingProcedure(
   price: number,
-  decimalPlace: number,
-  roundingType: string | number,
+  decimalPlace: number | null | undefined = 0,
+  roundingType: string | number | null | undefined,
   currency: Currency | null,
 ): number | string {
   try {
-    let type = 0
+    let type = -1
     let precision = 0
     let returnPrice = 0
+
     if (typeof roundingType === 'string') {
       //@ts-ignore
       type = RoundingProcedureObj[roundingType]
     } else {
       type = Number(roundingType)
     }
+
     if (!currency) currency = 'KRW'
     if (currency === 'KRW' || currency === 'JPY') {
-      precision = calculateDigit(decimalPlace)
-    } else precision = decimalPlace
+      precision = calculateDigit(decimalPlace ?? 0)
+    } else precision = decimalPlace ?? 0
 
     if (type === 4 && (currency === 'USD' || currency === 'SGD')) {
       precision = precision - 1
@@ -91,6 +93,12 @@ export function formatByRoundingProcedure(
       case 4:
         returnPrice = roundUp(price, precision)
         break
+      case -1:
+        returnPrice = price; // 입력된 price를 변경 없이 그대로 반환
+        break;
+      default:
+        returnPrice = price; // 예상치 못한 type에 대해 라운딩 없이 반환
+        break;
     }
     if (currency === 'USD' || currency === 'SGD') {
       return returnPrice.toFixed(precision)
