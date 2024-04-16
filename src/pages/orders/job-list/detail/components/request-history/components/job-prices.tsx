@@ -180,12 +180,7 @@ const HistoryJobPrices = ({ jobInfo }: Props) => {
                           }}
                         >
                           {formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(row.prices),
-                              jobInfo.initialPrice[0].numberPlace,
-                              jobInfo.initialPrice[0].rounding,
-                              jobInfo.initialPrice[0].currency,
-                            ),
+                            Number(row.prices),
                             jobInfo.initialPrice[0].currency,
                           )}
                         </Box>
@@ -254,12 +249,7 @@ const HistoryJobPrices = ({ jobInfo }: Props) => {
             >
               <Typography fontWeight='bold' fontSize={14}>
                 {formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(jobInfo.totalPrice),
-                    jobInfo.initialPrice[0]?.numberPlace,
-                    jobInfo.initialPrice[0]?.rounding,
-                    jobInfo.initialPrice[0]?.currency,
-                  ),
+                  Number(jobInfo.totalPrice),
                   jobInfo.initialPrice[0]?.currency,
                 )}
               </Typography>

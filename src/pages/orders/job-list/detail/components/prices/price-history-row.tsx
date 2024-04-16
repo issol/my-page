@@ -229,12 +229,7 @@ const PriceHistoryRow = ({
                       }}
                     >
                       {formatCurrency(
-                        formatByRoundingProcedure(
-                          Number(row.prices),
-                          initialPrice.numberPlace,
-                          initialPrice.rounding,
-                          initialPrice.currency,
-                        ),
+                        Number(row.prices),
                         initialPrice.currency,
                       )}
                     </Box>
@@ -302,15 +297,7 @@ const PriceHistoryRow = ({
             marginRight={5}
           >
             <Typography fontWeight='bold' fontSize={14}>
-              {formatCurrency(
-                formatByRoundingProcedure(
-                  Number(totalPrice),
-                  initialPrice?.numberPlace,
-                  initialPrice?.rounding,
-                  initialPrice?.currency,
-                ),
-                initialPrice?.currency,
-              )}
+              {formatCurrency(Number(totalPrice), initialPrice?.currency)}
             </Typography>
           </Box>
         </Box>

@@ -369,6 +369,7 @@ const Row = ({
         setValue={setItem}
         onDeleteNoPriceUnit={onDeleteNoPriceUnit}
         errorRefs={errorRefs}
+        itemTrigger={itemTrigger}
       />
       {/* price unit end */}
     </Box>

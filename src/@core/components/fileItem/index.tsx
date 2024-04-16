@@ -1,17 +1,23 @@
 import Icon from '@src/@core/components/icon'
-import { IconButton, Typography } from '@mui/material'
+import { IconButton, Tooltip, Typography } from '@mui/material'
 import { styled } from '@mui/system'
 import { FileType } from '@src/types/common/file.type'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 type Props = {
   file: FileType
+  size?: string
   onClick?: (file: FileType) => void
   onClear?: (file: FileType) => void
 }
-export default function FileItem({ file, onClick, onClear }: Props) {
+export default function FileItem({
+  file,
+  onClick,
+  onClear,
+  size = 'medium',
+}: Props) {
   return (
-    <FileList key={file.name}>
+    <FileList key={file.name} size={size}>
       <div className='file-details'>
         <div className='file-preview'>
           <Icon
@@ -19,9 +25,27 @@ export default function FileItem({ file, onClick, onClear }: Props) {
             style={{ color: 'rgba(76, 78, 100, 0.54)' }}
           />
         </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
+        <div
+          style={
+            size === 'small'
+              ? { display: 'flex', gap: '8px', alignItems: 'center' }
+              : {}
+          }
+        >
+          <Tooltip title={file.name}>
+            <Typography
+              className='file-name'
+              sx={size === 'small' ? { maxWidth: '60%', fontSize: '14px' } : {}}
+            >
+              {file.name}
+            </Typography>
+          </Tooltip>
+
+          <Typography
+            className='file-size'
+            variant='body2'
+            sx={size === 'small' ? { fontSize: '12px' } : {}}
+          >
             {formatFileSize(file.size)}
           </Typography>
         </div>
@@ -49,7 +73,7 @@ export default function FileItem({ file, onClick, onClear }: Props) {
   )
 }
 
-const FileList = styled('div')`
+const FileList = styled('div')<{ size: string }>`
   display: flex;
   cursor: pointer;
   margin-bottom: 8px;
@@ -83,7 +107,7 @@ const FileList = styled('div')`
     word-break: break-all;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: ${({ size }) => (size === 'small' ? 1 : 2)};
     -webkit-box-orient: vertical;
   }
 `
