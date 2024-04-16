@@ -443,7 +443,16 @@ const Message = ({
                     </Typography>
                   </Box>
                 </Box>
-                <Typography fontSize={14} fontWeight={400}>
+                <Typography
+                  sx={{
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                    whiteSpace: 'normal',
+                    wordWrap: 'break-word'
+                  }}
+                  fontSize={14}
+                  fontWeight={400}
+                >
                   {item.content.split('\n').map((line, index, array) => (
                     <Fragment key={index}>
                       {line}
