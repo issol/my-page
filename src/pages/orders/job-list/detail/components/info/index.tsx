@@ -18,6 +18,7 @@ import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
+import styled from '@emotion/styled'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import FileItem from '@src/@core/components/fileItem'
 import { saveJobInfo, setMoveToNextJob } from '@src/apis/jobs/job-detail.api'
@@ -45,6 +46,7 @@ import {
 } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
+import { useTheme } from '@mui/material/styles'
 import {
   Dispatch,
   SetStateAction,
@@ -67,6 +69,7 @@ import { displayCustomToast } from '@src/shared/utils/toast'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import Message from '../../../components/message-modal'
+import { TriggerIcon } from '@src/views/svgIcons'
 
 type Props = {
   jobInfo: JobType
@@ -108,6 +111,7 @@ const JobInfo = ({
   jobDetail,
 }: Props) => {
   const { openModal, closeModal } = useModal()
+  const theme = useTheme()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
   const ability = useContext(AbilityContext)
@@ -531,27 +535,69 @@ const JobInfo = ({
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {jobInfo.autoNextJob ? (
-                <Image
-                  src='/images/icons/job-icons/trigger.svg'
-                  alt=''
-                  width={24}
-                  height={24}
-                ></Image>
-              ) : null}
-              {jobInfo.autoNextJob ? (
                 <Box
-                  sx={{
-                    padding: '3px 4px',
-                    borderRadius: '5px',
-                    background: jobInfo.autoNextJob ? '#EEFBE5' : '#E9EAEC',
-                  }}
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='flex-end'
+                  gap='8px'
+                  visibility={
+                    jobInfo.templateId ? 'visible' : 'hidden'
+                  }
                 >
-                  <Typography
-                    fontSize={13}
-                    color={jobInfo.autoNextJob ? '#6AD721' : '#BBBCC4'}
+                  <Box
+                    visibility={
+                      jobInfo.nextJobId ? 'visible' : 'hidden'
+                    }
+                    margin={0}
                   >
-                    {jobInfo.autoNextJob ? 'On' : 'Off'}
-                  </Typography>
+                    <TriggerIcon />
+                  </Box>
+                  <Box
+                    visibility={
+                      jobInfo.nextJobId ? 'visible' : 'hidden'
+                    }
+                    margin={0}
+                  >
+                    <TriggerSwitchStatus
+                      variant='body2'
+                      color={jobInfo.autoNextJob ? theme.palette.success.main : '#BBBCC4'}
+                      bgcolor={jobInfo.autoNextJob ? '#EEFBE5' : '#E9EAEC'}
+                    >
+                      {jobInfo.autoNextJob ? 'On' : 'Off'}
+                    </TriggerSwitchStatus>
+                  </Box>
+                  <Box
+                    visibility={
+                      jobInfo.nextJobId ? 'visible' : 'hidden'
+                    }
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                    margin={0}
+                  >
+                    <Image
+                      src='/images/icons/job-icons/file-share.svg'
+                      alt=''
+                      width={24}
+                      height={24}
+                    />
+                  </Box>
+                  <Box
+                    visibility={
+                      jobInfo.nextJobId ? 'visible' : 'hidden'
+                    }
+                    margin={0}
+                  >
+                    <TriggerSwitchStatus
+                      variant='body2'
+                      color={jobInfo.autoSharingFile ? theme.palette.success.main : '#BBBCC4'}
+                      bgcolor={jobInfo.autoSharingFile ? '#EEFBE5' : '#E9EAEC'}
+                    >
+                      {jobInfo.autoSharingFile ? 'On' : 'Off'}
+                    </TriggerSwitchStatus>
+                  </Box>
                 </Box>
               ) : jobInfoList.find(value => value?.id === jobInfo.nextJobId) ? (
                 jobInfoList.find(value => value?.id === jobInfo.nextJobId)
@@ -971,5 +1017,20 @@ const JobInfo = ({
     </Box>
   )
 }
+
+const TriggerSwitchStatus = styled(Typography)<{
+  color: string
+  bgcolor: string
+}>(({ color, bgcolor }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '40px',
+  height: '28px',
+  fontWeight: 500,
+  background: bgcolor,
+  color: color,
+  borderRadius: '5px',
+}))
 
 export default JobInfo
