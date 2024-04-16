@@ -15,22 +15,25 @@ import HistoryJobInfo from './components/job-info'
 import HistoryJobPrices from './components/job-prices'
 import HistoryRequestedPro from './components/requested-pro'
 import { useGetStatusList } from '@src/queries/common.query'
+import { JobRequestHistoryType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   onClose: any
   historyId: number
+  jobId: number
+  round: number
 }
 
 type MenuType = 'info' | 'prices' | 'requestedPro'
 
-const InfoModal = ({ onClose, historyId }: Props) => {
+const InfoModal = ({ onClose, historyId, jobId, round }: Props) => {
   const [value, setValue] = useState<MenuType>('info')
   const { data } = useGetJobInfo(historyId, true) as UseQueryResult<
     JobType,
     unknown
   >
 
-  const { data: requestedPro } = useGetRequestedProHistory(historyId)
+  const { data: requestedPro } = useGetRequestedProHistory(jobId)
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('JobAssignment')
 
@@ -50,6 +53,11 @@ const InfoModal = ({ onClose, historyId }: Props) => {
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
         position: 'relative',
+        overflowY: 'scroll',
+
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
       }}
     >
       <IconButton
@@ -150,7 +158,9 @@ const InfoModal = ({ onClose, historyId }: Props) => {
             {jobStatusList && requestedPro ? (
               <HistoryRequestedPro
                 jobStatusList={jobStatusList}
-                requestedPro={requestedPro}
+                requestedPro={
+                  requestedPro.requests.find(value => value.round === round)!
+                }
               />
             ) : null}
           </TabPanel>

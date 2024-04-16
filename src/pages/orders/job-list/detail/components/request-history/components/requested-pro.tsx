@@ -18,11 +18,7 @@ type Props = {
     value: number
     label: string
   }[]
-  requestedPro: {
-    id: number
-    frontRound: number
-    requests: JobRequestedProHistoryType[]
-  }
+  requestedPro: JobRequestedProHistoryType
 }
 
 const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
@@ -45,8 +41,8 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
     <Box
       sx={{ mt: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}
     >
-      {requestedPro.requests[0]?.unassignedPros.length > 0 &&
-        requestedPro.requests[0]?.unassignedPros.map(value => {
+      {requestedPro?.unassignedPros.length > 0 &&
+        requestedPro?.unassignedPros.map(value => {
           return (
             <Box
               key={uuidv4()}
@@ -96,7 +92,7 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
                       )
                     }
                   >
-                    Save all
+                    Download all
                   </Typography>
                 </Box>
                 <Box
@@ -117,14 +113,14 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
         })}
       <Box sx={{ border: '1px solid #D8D8DD', borderRadius: '10px' }}>
         <Typography fontSize={16} fontWeight={600} sx={{ padding: '20px' }}>
-          {requestedPro.requests[0]?.type === 'relayRequest'
+          {requestedPro?.type === 'relayRequest'
             ? 'Relay request'
-            : requestedPro.requests[0]?.type === 'bulkManualAssign'
+            : requestedPro?.type === 'bulkManualAssign'
               ? 'Mass request - Manual assignment'
-              : requestedPro.requests[0]?.type === 'bulkAutoAssign'
+              : requestedPro?.type === 'bulkAutoAssign'
                 ? 'Mass request - First come first serve'
-                : ''}
-          &nbsp;({requestedPro.requests[0]?.pros.length})
+                : '-'}
+          &nbsp;({requestedPro?.pros.length})
         </Typography>
         <Box
           sx={{
@@ -152,8 +148,8 @@ const HistoryRequestedPro = ({ jobStatusList, requestedPro }: Props) => {
             //   height: '100%',
             // }}
             columns={getJobRequestedProColumns(jobStatusList)}
-            rows={requestedPro.requests[0]?.pros ?? []}
-            rowCount={requestedPro.requests[0]?.pros.length ?? 0}
+            rows={requestedPro?.pros ?? []}
+            rowCount={requestedPro?.pros.length ?? 0}
             getRowId={row => row.userId}
             disableSelectionOnClick
             hideFooter
