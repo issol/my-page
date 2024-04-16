@@ -11,10 +11,13 @@ import {
   Card,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Tab,
   Typography,
 } from '@mui/material'
 import { styled } from '@mui/system'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
@@ -71,6 +74,7 @@ import { fixDigit } from '@src/shared/helpers/price.helper'
 import ModalWithDatePicker from '@src/pages/client/components/modals/modal-with-datepicker'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoicePayableStatus } from '@src/types/common/status.type'
+import Link from 'next/link'
 
 type MenuType = 'info' | 'history'
 
@@ -105,6 +109,16 @@ export default function PayableDetail() {
   const { data: jobList } = useGetPayableJobList(Number(id))
 
   const [editInfo, setEditInfo] = useState(false)
+
+  /* 케밥 메뉴 */
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
 
   useEffect(() => {
     if (menuQuery && ['info', 'history'].includes(menuQuery)) {
@@ -387,6 +401,73 @@ export default function PayableDetail() {
               alt='invoice detail'
             />
             <Typography variant='h5'>{data?.corporationId}</Typography>
+            {editInfo ? null : (
+              <div>
+                <IconButton
+                  aria-label='more'
+                  aria-haspopup='true'
+                  onClick={handleMenuClick}
+                >
+                  <Icon icon='mdi:dots-vertical' />
+                </IconButton>
+                <Menu
+                  elevation={8}
+                  anchorEl={anchorEl}
+                  id='customized-menu'
+                  onClose={handleMenuClose}
+                  open={Boolean(anchorEl)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
+                >
+                  <MenuItem
+                    sx={{
+                      gap: 2,
+                      '&:hover': {
+                        background: 'inherit',
+                        cursor: 'default',
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        alignITems: 'start',
+                      }}
+                    >
+                      <Typography>Linked order :</Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                      >
+                        {data?.jobs?.data
+                        .sort((a, b) => a.id - b.id)
+                        .map(value => {
+                          return (
+                            <Link
+                              key={uuidv4()}
+                              href={`/orders/order-list/detail/${value?.id}`}
+                              style={{ color: 'rgba(76, 78, 100, 0.87)' }}
+                            >
+                              {value?.corporationId.split('-').slice(0, 2).join('-')}
+                            </Link>
+                          )
+                        })}
+                      </Box>
+                    </Box>
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
           </Box>
           {editInfo ? null : (
             <Box display='flex' alignItems='center' gap='18px'>
