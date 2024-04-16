@@ -271,9 +271,12 @@ const JobListCard = ({
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
-    const jobId = row.templateId && row.triggerGroup
-      ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(value => value.id)
-      : row.id
+    const jobId =
+      row.templateId && row.triggerGroup
+        ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(
+            value => value.id,
+          )
+        : row.id
 
     router.push({
       pathname: '/orders/job-list/detail/',
@@ -542,9 +545,10 @@ const JobListCard = ({
     const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key = job.templateId && job.triggerGroup
-        ? `${job.templateId}-${job.triggerGroup}`
-        : null
+      const key =
+        job.templateId && job.triggerGroup
+          ? `${job.templateId}-${job.triggerGroup}`
+          : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -708,545 +712,201 @@ const JobListCard = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {jobList.length > 0
-                ? (mode === 'edit'
-                    ? getValues(`items.${index}.jobs`)
-                    : jobList
-                  ).map((row, rowIndex) => {
-                    const isItemSelected = isSelected(row.id)
+              {jobList.length > 0 ? (
+                jobList.map((row, index) => {
+                  const isItemSelected = isSelected(row.id)
 
-                    let isHighlighted = false
-                    if (row.templateId && row.triggerGroup && isHoverJobId) {
-                      isHighlighted = groupedJobs[`${row.templateId}-${row.triggerGroup}`]?.some(
-                        value => value.id === isHoverJobId,
-                      )
-                    }
+                  let isHighlighted = false
+                  if (row.templateId && row.triggerGroup && isHoverJobId) {
+                    isHighlighted = groupedJobs[
+                      `${row.templateId}-${row.triggerGroup}`
+                    ]?.some(value => value.id === isHoverJobId)
+                  }
 
-                    return (
-                      <>
-                        <TableRow
-                          component='tr'
-                          key={uuidv4()}
-                          sx={{
-                            background: isHighlighted
-                              ? 'rgba(76, 78, 100, 0.05)'
-                              : '#fff',
-                            '&:hover': {
-                              background: 'rgba(76, 78, 100, 0.05)',
-                            },
-                          }}
-                          onClick={() => {
-                            if (mode !== 'view') return
-                            onClickRow(row, info)
-                          }}
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                          onMouseEnter={() => setIsHoverJobId(row.id)}
-                          onMouseLeave={() => setIsHoverJobId(null)}
-                        >
-                          {viewState && (
-                            <CustomTableCell padding='checkbox'>
-                              <Checkbox
-                                disabled={
-                                  // row.id === Number(jobId!) ||
-                                  mode === 'manageStatus'
-                                    ? !isStatusChangeableJob(
-                                        row.status,
-                                        row.contactPerson?.userId!,
-                                      )
-                                    : mode === 'delete'
-                                      ? !isDeletableJob(
-                                          row.status,
-                                          row.isJobRequestPresent,
-                                          row.contactPerson?.userId!,
-                                        )
-                                      : mode === 'edit'
-                                        ? isEditableJob(
-                                            row.status,
-                                            selectedAllItemJobs.length === 0,
-                                            row.triggerGroup !== null &&
-                                              row.nextJobId !== null,
-                                          ) ||
-                                          (selectedAllItemJobs.length > 1 &&
-                                            !isItemSelected) ||
-                                          (selectedAllItemJobs.length === 1 &&
-                                            (!!!info.jobs.find(
-                                              value =>
-                                                value.id ===
-                                                selectedAllItemJobs[0],
-                                            ) ||
-                                              (row.triggerGroup !== null &&
-                                                row.id !==
-                                                  selectedAllItemJobs[0])))
-                                        : false
-                                }
-                                color='primary'
-                                checked={isItemSelected}
-                                onChange={event =>
-                                  onSelectClick(event.target.checked, row.id)
-                                }
-                                inputProps={{
-                                  'aria-labelledby': row.corporationId,
-                                }}
-                              />
-                            </CustomTableCell>
+                  return (
+                    <TableRow
+                      component='tr'
+                      key={uuidv4()}
+                      sx={{
+                        background: isHighlighted
+                          ? 'rgba(76, 78, 100, 0.05)'
+                          : '#fff',
+                        '&:hover': {
+                          background: 'rgba(76, 78, 100, 0.05)',
+                        },
+                      }}
+                      onClick={() => {
+                        if (mode !== 'view') return
+                        onClickRow(row, info)
+                      }}
+                      selected={isItemSelected}
+                      aria-checked={isItemSelected}
+                      onMouseEnter={() => setIsHoverJobId(row.id)}
+                      onMouseLeave={() => setIsHoverJobId(null)}
+                    >
+                      {viewState && (
+                        <CustomTableCell padding='checkbox'>
+                          <Checkbox
+                            disabled={
+                              // row.id === Number(jobId!) ||
+                              mode === 'manageStatus'
+                                ? !isStatusChangeableJob(
+                                    row.status,
+                                    row.contactPerson?.userId!,
+                                  )
+                                : mode === 'delete'
+                                  ? !isDeletableJob(
+                                      row.status,
+                                      row.isJobRequestPresent,
+                                      row.contactPerson?.userId!,
+                                    )
+                                  : false
+                            }
+                            color='primary'
+                            checked={isItemSelected}
+                            onChange={event =>
+                              onSelectClick(event.target.checked, row.id)
+                            }
+                            inputProps={{
+                              'aria-labelledby': row.corporationId,
+                            }}
+                          />
+                        </CustomTableCell>
+                      )}
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {row.corporationId}
+                      </CustomTableCell>
+
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        <Box display='flex' alignItems='center' gap='8px'>
+                          <ServiceTypeChip
+                            size='small'
+                            label={row.serviceType}
+                          />
+                          {isTriggerJob(row.id) && (
+                            <Icon
+                              icon='ic:outline-people'
+                              fontSize={24}
+                              color='#8D8E9A'
+                            />
                           )}
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            {row.corporationId}
-                          </CustomTableCell>
+                        </Box>
+                      </CustomTableCell>
 
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            <Box display='flex' alignItems='center' gap='8px'>
-                              <ServiceTypeChip
-                                size='small'
-                                label={row.serviceType}
-                              />
-                              {isTriggerJob(row.id) &&
-                                !deleteJobId.includes(row.id) && (
-                                  <Icon
-                                    icon='ic:outline-people'
-                                    fontSize={24}
-                                    color='#8D8E9A'
-                                  />
-                                )}
-                            </Box>
-                          </CustomTableCell>
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {JobsStatusChip(row.status as JobStatus, statusList!)}
+                      </CustomTableCell>
 
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            {JobsStatusChip(
-                              row.status as JobStatus,
-                              statusList!,
-                            )}
-                          </CustomTableCell>
-
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            {row?.totalPrice
-                              ? formatCurrency(
-                                  // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
-                                  // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
-                                  Number(row?.totalPrice) < 1000 &&
-                                    row?.currency === 'KRW'
-                                    ? 0
-                                    : Number(row?.totalPrice),
-                                  row?.currency!,
-                                )
-                              : '-'}
-                          </CustomTableCell>
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                          >
-                            <Box>
-                              {row.assignedPro ? (
-                                <LegalName
-                                  row={{
-                                    isOnboarded: true,
-                                    isActive: true,
-                                    firstName: row.assignedPro.firstName,
-                                    middleName: row.assignedPro.middleName,
-                                    lastName: row.assignedPro.lastName,
-                                    email: row.assignedPro.email,
-                                  }}
-                                />
-                              ) : isUserInTeamMember || isMasterManagerUser ? (
-                                <Button
-                                  variant='outlined'
-                                  size='small'
-                                  onClick={() => {}}
-                                  disabled={
-                                    mode !== 'view' ||
-                                    !canUseRequestAssignButton(row)
-                                  }
-                                >
-                                  Request/Assign
-                                </Button>
-                              ) : (
-                                '-'
-                              )}
-                            </Box>
-                          </CustomTableCell>
-                          <CustomTableCell
-                            size='small'
-                            component='th'
-                            scope='row'
-                            align='right'
-                          >
-                            <Tooltip
-                              title={`${row.autoNextJob ? 'On' : 'Off'}
-                            ${row.autoNextJob ? `[${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}]` : ''},
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {row?.totalPrice
+                          ? formatCurrency(
+                              // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                              // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                              Number(row?.totalPrice) < 1000 &&
+                                row?.currency === 'KRW'
+                                ? 0
+                                : Number(row?.totalPrice),
+                              row?.currency!,
+                            )
+                          : '-'}
+                      </CustomTableCell>
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        <Box>
+                          {row.assignedPro ? (
+                            <LegalName
+                              row={{
+                                isOnboarded: true,
+                                isActive: true,
+                                firstName: row.assignedPro.firstName,
+                                middleName: row.assignedPro.middleName,
+                                lastName: row.assignedPro.lastName,
+                                email: row.assignedPro.email,
+                              }}
+                            />
+                          ) : isUserInTeamMember || isMasterManagerUser ? (
+                            <Button
+                              variant='outlined'
+                              size='small'
+                              onClick={() => {}}
+                              disabled={
+                                mode !== 'view' ||
+                                !canUseRequestAssignButton(row)
+                              }
+                            >
+                              Request/Assign
+                            </Button>
+                          ) : (
+                            '-'
+                          )}
+                        </Box>
+                      </CustomTableCell>
+                      <CustomTableCell
+                        size='small'
+                        component='th'
+                        scope='row'
+                        align='right'
+                      >
+                        <Tooltip
+                          title={`${row.nextJobId ? 'On' : 'Off'}
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
-                              placement='top'
-                              disableHoverListener={mode !== 'view' || !row.autoNextJob}
+                          placement='top'
+                        >
+                          <Box
+                            display='flex'
+                            alignItems='center'
+                            justifyContent='flex-end'
+                            gap='8px'
+                            visibility={
+                              isTriggerJob(row.id) ? 'visible' : 'hidden'
+                            }
                           >
-                              <Box
-                                display='flex'
-                                alignItems='center'
-                                justifyContent='flex-end'
-                                gap='8px'
-                                visibility={
-                                  isTriggerJob(row.id) && mode !== 'edit'
-                                    ? 'visible'
-                                    : 'hidden'
-                                }
-                              >
-                                <Box
-                                  visibility={
-                                    row.nextJobId && mode !== 'edit'
-                                      ? 'visible'
-                                      : 'hidden'
-                                  }
-                                  margin={0}
-                                >
-                                  <TriggerIcon />
-                                </Box>
-                                <Box
-                                  visibility={
-                                    row.nextJobId ? 'visible' : 'hidden'
-                                }
-                                margin={0}
-                              >
-                                <TriggerSwitchStatus
-                                  variant='body2'
-                                  color={row.autoNextJob ? theme.palette.success.main : '#BBBCC4'}
-                                  bgcolor={row.autoNextJob ? '#EEFBE5' : '#E9EAEC'}
-                                >
-                                  {row.autoNextJob ? 'On' : 'Off'}
-                                </TriggerSwitchStatus>
-                              </Box>
-                              <Box
-                                visibility={
-                                  row.nextJobId ? 'visible' : 'hidden'
-                                }
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                }}
-                                margin={0}
-                              >
-                                <Image
-                                  src='/images/icons/job-icons/file-share.svg'
-                                  alt=''
-                                  width={24}
-                                  height={24}
-                                />
-                              </Box>
-                              <Box
-                                visibility={
-                                  row.nextJobId && mode !== 'edit'
-                                      ? 'visible'
-                                      : 'hidden'
-                                  }
-                                  margin={0}
-                                >
-                                  <TriggerSwitchStatus
-                                    variant='body2'
-                                    color={row.autoSharingFile ? theme.palette.success.main : '#BBBCC4'}
-                                    bgcolor={row.autoSharingFile ? '#EEFBE5' : '#E9EAEC'}
-                                  >
-                                    {row.autoSharingFile ? 'On' : 'Off'}
-                                  </TriggerSwitchStatus>
-                                </Box>
-                              </Box>
-                            </Tooltip>
-                          </CustomTableCell>
-                        </TableRow>
-                        {isTriggerJob(row.id) &&
-                        mode === 'edit' &&
-                        row.nextJobId &&
-                        !deleteJobId.includes(row.id) ? (
-                          <TableRow component='tr' sx={{ width: '100%' }}>
-                            <TableCell
-                              colSpan={7}
-                              sx={{
-                                background: '#D8D8DD',
-                                padding: '0 !important',
-                                // width: `${ref.current?.getBoundingClientRect().width}px`,
-                              }}
+                            <Box
+                              visibility={
+                                row.autoNextJob ? 'visible' : 'hidden'
+                              }
+                              margin={0}
                             >
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  padding: '8px 16px',
-                                  borderBottom: '1px solid #E9EAEC',
-                                }}
+                              <TriggerIcon />
+                            </Box>
+                            <Box
+                              visibility={
+                                row.autoSharingFile ? 'visible' : 'hidden'
+                              }
+                              margin={0}
+                            >
+                              <TriggerSwitchStatus
+                                variant='body2'
+                                color={theme.palette.success.main}
+                                bgcolor='#EEFBE5'
                               >
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    gap: '16px',
-                                    alignItems: 'center',
-                                  }}
-                                >
-                                  <Image
-                                    src='/images/icons/job-icons/trigger.svg'
-                                    alt=''
-                                    width={24}
-                                    height={24}
-                                  />
-                                  <Box sx={{ display: 'flex', gap: '4px' }}>
-                                    <Typography fontSize={14} fontWeight={600}>
-                                      Automatic trigger
-                                    </Typography>
-                                    <IconButton
-                                      sx={{ padding: 0 }}
-                                      onClick={onClickAutoTriggerHelpIcon}
-                                    >
-                                      <Icon
-                                        icon='mdi:info-circle-outline'
-                                        fontSize={20}
-                                      />
-                                    </IconButton>
-                                  </Box>
-                                </Box>
-                                <Controller
-                                  name={`items.${index}.jobs.${rowIndex}.autoNextJob`}
-                                  control={control}
-                                  render={({ field }) => {
-                                    return (
-                                      <Switch
-                                        checked={field.value}
-                                        disabled={
-                                          selectedAllItemJobs.length > 0
-                                        }
-                                        onChange={e => {
-                                          field.onChange(
-                                            e.target.checked ? true : false,
-                                          )
-
-                                          if (!e.target.checked) {
-                                            setValue(
-                                              `items.${index}.jobs.${rowIndex}.statusCodeForAutoNextJob`,
-                                              null,
-                                              { shouldDirty: true },
-                                            )
-                                            setValue(
-                                              `items.${index}.jobs.${rowIndex}.autoSharingFile`,
-                                              false,
-                                              { shouldDirty: true },
-                                            )
-                                          } else {
-                                            setValue(
-                                              `items.${index}.jobs.${rowIndex}.statusCodeForAutoNextJob`,
-                                              60500,
-                                              { shouldDirty: true },
-                                            )
-                                            setValue(
-                                              `items.${index}.jobs.${rowIndex}.autoSharingFile`,
-                                              true,
-                                              { shouldDirty: true },
-                                            )
-                                          }
-                                          trigger(
-                                            `items.${index}.jobs.${rowIndex}`,
-                                          )
-                                          // trigger('options')
-                                        }}
-                                      />
-                                    )
-                                  }}
-                                />
-                              </Box>
-                              {getValues(
-                                `items.${index}.jobs.${rowIndex}.autoNextJob`,
-                              ) ? (
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    padding: '8px 16px',
-                                    alignItems: 'center',
-                                  }}
-                                >
-                                  <Box sx={{ display: 'flex' }}>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '16px',
-                                        paddingLeft: '40px',
-                                      }}
-                                    >
-                                      <Typography variant='body2' fontSize={14}>
-                                        When the previous job is marked:
-                                      </Typography>
-                                      <Controller
-                                        name={`items.${index}.jobs.${rowIndex}.statusCodeForAutoNextJob`}
-                                        control={control}
-                                        // defaultValue={60300}
-                                        render={({ field }) => (
-                                          <RadioGroup
-                                            name='status'
-                                            defaultValue={
-                                              row.statusCodeForAutoNextJob
-                                            }
-                                            row
-                                          >
-                                            <FormControlLabel
-                                              value={field.value}
-                                              control={<Radio />}
-                                              disabled={
-                                                !!row.triggerExecutedAt ||
-                                                selectedAllItemJobs.length > 0
-                                              }
-                                              onChange={(e, v) =>
-                                                field.onChange(60400)
-                                              }
-                                              checked={field.value === 60400}
-                                              label={'Partially delivered'}
-                                            />
-                                            <FormControlLabel
-                                              value={field.value}
-                                              disabled={
-                                                !!row.triggerExecutedAt ||
-                                                selectedAllItemJobs.length > 0
-                                              }
-                                              onChange={(e, v) =>
-                                                field.onChange(60500)
-                                              }
-                                              checked={field.value === 60500}
-                                              control={<Radio />}
-                                              label={'Delivered'}
-                                            />
-                                          </RadioGroup>
-                                        )}
-                                      />
-                                    </Box>
-                                    <Divider orientation='vertical' flexItem />
-                                    <Box
-                                      sx={{
-                                        paddingLeft: '16px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '16px',
-                                      }}
-                                    >
-                                      <Box
-                                        sx={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                        }}
-                                      >
-                                        <Image
-                                          src='/images/icons/job-icons/file-share.svg'
-                                          alt=''
-                                          width={24}
-                                          height={24}
-                                        />
-                                        <Typography
-                                          fontSize={14}
-                                          letterSpacing='0.15px'
-                                        >
-                                          Automatic file share
-                                        </Typography>
-                                        <IconButton
-                                          sx={{ padding: 0 }}
-                                          onClick={onClickAutoFileShareHelpIcon}
-                                        >
-                                          <Icon
-                                            icon='mdi:info-circle-outline'
-                                            fontSize={20}
-                                          />
-                                        </IconButton>
-                                      </Box>
-                                      <Box>
-                                        {!!row.triggerExecutedAt ? (
-                                          <Box
-                                            sx={{
-                                              padding: '3px 4px',
-                                              borderRadius: '5px',
-                                              width: 'fit-content',
-                                              background: row.autoSharingFile
-                                                ? '#EEFBE5'
-                                                : '#E9EAEC',
-                                            }}
-                                          >
-                                            <Typography
-                                              fontSize={13}
-                                              color={
-                                                row.autoSharingFile
-                                                  ? '#6AD721'
-                                                  : '#BBBCC4'
-                                              }
-                                            >
-                                              {row.autoSharingFile
-                                                ? 'On'
-                                                : 'Off'}
-                                            </Typography>
-                                          </Box>
-                                        ) : (
-                                          <Controller
-                                            name={`items.${index}.jobs.${rowIndex}.autoSharingFile`}
-                                            control={control}
-                                            render={({ field }) => (
-                                              <Switch
-                                                checked={field.value}
-                                                disabled={
-                                                  selectedAllItemJobs.length > 0
-                                                }
-                                                onChange={e =>
-                                                  field.onChange(
-                                                    e.target.checked,
-                                                  )
-                                                }
-                                              />
-                                            )}
-                                          />
-                                        )}
-                                      </Box>
-                                    </Box>
-                                  </Box>
-                                  {!!row.triggerExecutedAt ? null : (
-                                    <IconButton
-                                      disabled={selectedAllItemJobs.length > 0}
-                                      sx={{
-                                        padding: 0,
-                                        width: '24px',
-                                        height: '24px',
-                                      }}
-                                      onClick={() => {
-                                        const nextJob = allJobs.find(
-                                          value => value.id === row.nextJobId,
-                                        )
-                                        if (nextJob) {
-                                          const assigned = !!nextJob.pro
-
-                                          onClickDeleteTrigger(assigned, row.id)
-                                        }
-                                      }}
-                                    >
-                                      <Icon icon='ic:outline-delete' />
-                                    </IconButton>
-                                  )}
-                                </Box>
-                              ) : null}
-                            </TableCell>
-                          </TableRow>
-                        ) : null}
-                      </>
-                    )
-                  })
-                : null}
+                                On
+                              </TriggerSwitchStatus>
+                            </Box>
+                          </Box>
+                        </Tooltip>
+                      </CustomTableCell>
+                    </TableRow>
+                  )
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <Box
+                      sx={{
+                        height: '68px',
+                        width: '100%',
+                        justifyContent: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography>There are no jobs</Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>

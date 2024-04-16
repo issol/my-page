@@ -1711,6 +1711,7 @@ const JobDetail = () => {
                         setJobId={setJobId}
                         setJobStatusMutation={setJobStatusMutation}
                         selectedJobUpdatable={selectedJobUpdatable()}
+                        jobDetail={jobDetail}
                       />
                     ) : null}
                   </TabPanel>
