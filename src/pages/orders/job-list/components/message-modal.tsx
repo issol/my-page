@@ -318,7 +318,20 @@ const Message = ({
             {sendFrom === 'LPM' ? (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
-                  <Typography fontSize={20} fontWeight={500} color={'#4C4E64'}>
+                  <Typography
+                    sx={{
+                      maxWidth: 250,
+                      fontSize: 20,
+                      fontWeight: 500,
+                      color: '#4C4E64',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: 'vertical',
+                      lineClamp: 1,
+                    }}  
+                  >
                     {getLegalName({
                       firstName: info.firstName,
                       middleName: info.middleName,
@@ -327,11 +340,34 @@ const Message = ({
                   </Typography>
                   {sendFrom === 'LPM' && messageType === 'request' && assignmentStatusChip(70000, jobAssignmentStatusList!)}
                 </Box>
-                <Typography color={'#8D8E9A'} fontSize={14}>{messageList?.proInfo.email}</Typography>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: '#8D8E9A',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                    lineClamp: 1,
+                  }}  
+                >{messageList?.proInfo.email}</Typography>
               </Box>
             ) : (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography fontSize={20} fontWeight={500} color={'#4C4E64'}>{jobName}</Typography>
+                <Typography
+                  sx={{
+                    fontSize: 20,
+                    fontWeight: 500,
+                    color: '#4C4E64',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    lineClamp: 2,
+                  }}                
+                >{jobName}</Typography>
               </Box>
             )
             }
@@ -422,9 +458,17 @@ const Message = ({
                         />
                       ): null}
                       <Typography
-                        fontWeight={600}
-                        fontSize={14}
-                        color={!item.isPro ? '#666CFF' : 'rgba(76, 78, 100, 0.87)'}
+                        sx={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: !item.isPro ? '#666CFF' : 'rgba(76, 78, 100, 0.87)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 1,
+                          WebkitBoxOrient: 'vertical',
+                          lineClamp: 1,
+                        }}  
                       >
                         {getLegalName({
                           firstName: item.firstName,
