@@ -1344,6 +1344,7 @@ const JobDetail = () => {
   useEffect(() => {
     if (selectedJobInfo && jobDetails) {
       const { jobPrices, jobInfo } = selectedJobInfo
+
       const item = jobDetails.items.find(item =>
         item.jobs.some(job => job.id === selectedJobInfo?.jobId),
       )
@@ -1862,22 +1863,19 @@ const JobDetail = () => {
                                               // getValues로 가져오면 폼에서 계산된 값이 반영됨
                                               // fields에서 가져오면 서버에서 넘어온 값이 반영됨
                                               Number(
-                                                getItem(
-                                                  `items.${0}.totalPrice`,
-                                                ),
+                                                selectedJobInfo.jobPrices
+                                                  .totalPrice,
                                               ),
+
                                               // fields?.[index].totalPrice! ?? 0,
                                               priceData()?.decimalPlace ??
-                                                (getItem().items?.[0]
-                                                  ?.detail?.[0]?.currency ===
+                                                (priceData()?.currency ===
                                                   'USD' ||
-                                                  getItem().items?.[0]
-                                                    ?.detail?.[0]?.currency ===
+                                                  priceData()?.currency ===
                                                     'SGD')
                                                 ? 2
-                                                : getItem().items?.[0]
-                                                      ?.detail?.[0]
-                                                      ?.currency === 'KRW'
+                                                : priceData()?.currency ===
+                                                    'KRW'
                                                   ? 10
                                                   : 0,
                                               priceData()?.roundingProcedure ??
