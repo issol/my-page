@@ -42,10 +42,11 @@ type Props = {
   }[]
   skip: number
   pageSize: number
-  setSkip: (num: number) => void
   setPageSize: (num: number) => void
   setListCount: (num: number) => void
   activeFilter: FilterType
+  page: number
+  setPage: (num: number) => void
 }
 
 const LinguistTeamCardList = ({
@@ -53,10 +54,11 @@ const LinguistTeamCardList = ({
   clientList,
   skip,
   pageSize,
-  setSkip,
   setPageSize,
   setListCount,
   activeFilter,
+  page,
+  setPage,
 }: Props) => {
   const router = useRouter()
   const { ref, inView } = useInView()

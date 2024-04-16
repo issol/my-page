@@ -76,8 +76,10 @@ export default function FilePreviewDownloadModal({ onClose, docs }: Props) {
   return (
     <Box
       sx={{
-        maxWidth: '1080px',
-        width: '100%',
+        // maxWidth: '90vw',
+        maxWidth: '1000px',
+        width: '90%',
+        maxHeight: '90vh',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -121,8 +123,12 @@ export default function FilePreviewDownloadModal({ onClose, docs }: Props) {
         >
           <Box
             sx={{
-              width: 1000,
-              height: 1000,
+            //   maxWidth: '80vw',
+              maxWidth: '900px',
+              width: '90%',
+              // height: 800,
+              maxHeight: '80vh',
+              height: '80vh',
               display: 'flex',
               justifyContent: 'center',
               overflow: 'hidden',
