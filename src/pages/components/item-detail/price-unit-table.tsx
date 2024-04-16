@@ -109,12 +109,7 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
                 >
                   <Typography fontWeight='bold'>
                   {formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(totalPrice),
-                      price?.numberPlace!,
-                      price?.rounding!,
-                      price?.currency ?? 'KRW',
-                    ),
+                    Number(totalPrice),
                     price?.currency ?? 'KRW',
                   )}
                   </Typography>
