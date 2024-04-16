@@ -152,6 +152,7 @@ export type autoCreateJobParamsType = {
 export type ProJobListType = {
   id: number
   jobId: number
+  jobRequestId?: number
   corporationId: string
   serviceType: string
   name: string
@@ -315,6 +316,9 @@ export type JobRequestsProType = {
   ongoingJobList: string[]
   order: number
   jobRequestId: number
+  message?: {
+    unReadCount: number
+  }
 }
 
 export type JobRequestFormType = {

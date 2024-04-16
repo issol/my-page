@@ -65,6 +65,7 @@ import { Category } from '@src/shared/const/category/category.enum'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import {
   JobAssignProRequestsType,
+  JobPricesDetailType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -75,7 +76,7 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
-import Message from './message-modal'
+
 import { UseMutationResult, useQueryClient } from 'react-query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { request } from 'http'
@@ -85,6 +86,7 @@ import {
 } from '@src/types/orders/job-detail'
 import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import Message from '../../../components/message-modal'
 
 type Props = {
   jobInfo: JobType
@@ -464,13 +466,27 @@ const AssignPro = ({
       children: (
         <Message
           jobId={jobInfo.id}
+          jobRequestId={row.jobReqId}
           info={{
             userId: row.userId,
             firstName: row.firstName,
             lastName: row.lastName,
             middleName: row.middleName ?? null,
           }}
-          onClose={() => closeModal('AssignProMessageModal')}
+          messageType='request'
+          sendFrom='LPM'
+          jobDetail={[{
+            jobId: jobInfo.id,
+            jobInfo: jobInfo,
+            jobPrices: undefined,
+            jobAssign: jobAssign,
+            jobAssignDefaultRound: 0,
+          }]}
+          isUpdatable={selectedJobUpdatable}
+          onClose={() => {
+            queryClient.invalidateQueries(['jobAssignProRequests', jobInfo.id])
+            closeModal('AssignProMessageModal')
+          }}
         />
       ),
     })
@@ -586,7 +602,6 @@ const AssignPro = ({
       const result = {
         [selectedLinguistTeam?.label || '']: selectionModel,
       }
-
       setSelectionModel(prev => ({ ...prev, ...result }))
     }
   }
@@ -621,7 +636,6 @@ const AssignPro = ({
   useEffect(() => {
     if (proList && proList.data && menu === 'pro') {
       setLoading(true)
-      console.log(proList.data)
 
       setRows(prev => {
         return {
@@ -657,6 +671,13 @@ const AssignPro = ({
       setProIdQuery(Number(proId))
     }
   }, [proId])
+
+  useEffect(() => {
+    // jobAssign이 변경되면 다른 job을 클릭한 것으로 보고 jobAssign 데이터 중 가장 마지막 데이터(마지막 라운드)의 값을 setSelectedAssign에 반영합니다.
+    if (jobAssign && jobAssign.length > 0) {
+      setSelectedAssign(jobAssign[jobAssign.length - 1])
+    }
+  }, [jobAssign])
 
   return (
     <>

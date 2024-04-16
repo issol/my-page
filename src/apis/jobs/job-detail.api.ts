@@ -228,6 +228,7 @@ type MessageItem = {
   email: string
   role: string
   isPro: boolean
+  messageType: string // 시스템 메세지인지 사용자 메세지인지 구분용도
 }
 
 export type Member = {
@@ -235,46 +236,69 @@ export type Member = {
   firstName: string
   middleName: string
   lastName: string
-  role: string // lpm | pro
+  role?: string // lpm | pro
+  email: string
 }
 
 export const getMessageList = async (
   jobId: number,
   proId: number,
+  type: string,
 ): Promise<{
   unReadCount: number
-  members: Member[]
+  proInfo: Member
   contents: MessageItem[] | null
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      // `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      `/api/enough/u/job/message?type=${type}&jobId=${jobId}&proId=${proId}`
     )
     return data
   } catch (e: any) {
     return {
       unReadCount: 0,
       contents: null,
-      members: [],
+      proInfo: {
+        userId: 0,
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        email: '',
+      },
     }
   }
 }
 
-export const sendMessageToPro = async (
+export const sendMessage = async (
   jobId: number,
+  jobRequestId: number,
   proId: number,
   message: string,
 ) => {
-  await axios.post(`/api/enough/u/job/${jobId}/message`, {
-    proId: proId,
-    message: message,
-  })
-}
-
-export const readMessage = async (jobId: number, proId: number) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/message`, {
+  const body:{
+    jobId: number
+    proId: number
+    message: string
+    jobRequestId?: number
+  } = {
     jobId: jobId,
     proId: proId,
+    message: message,
+  };
+
+  if (jobRequestId !== 0) {
+    body.jobRequestId = jobRequestId;
+  }
+
+  await axios.post(`/api/enough/u/job/message`, body);
+}
+
+export const readMessage = async (jobId: number, proId: number, type: string) => {
+  await axios.patch(`/api/enough/u/job/message/read`, {
+    jobId: jobId,
+    proId: proId,
+    type: type,
   })
 }
 

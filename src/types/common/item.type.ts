@@ -170,4 +170,7 @@ export type JobType = {
       isActive: boolean
     }[]
   }[]
+  message?: {
+    unReadCount: number
+  }
 }
