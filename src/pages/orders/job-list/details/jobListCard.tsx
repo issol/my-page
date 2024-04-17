@@ -93,10 +93,13 @@ interface JobListCardProps extends ModeProps {
   >
   setSelectedAllItemJobs: (selected: number[]) => void
   selectedAllItemJobs: number[]
-  isStatusUpdatable: (status: number, jobIds: number[]) => {
+  isStatusUpdatable: (
+    status: number,
+    jobIds: number[],
+  ) => {
     isUpdatable: boolean
     immutableCorporationId: string[]
-  } 
+  }
 }
 
 const JobListCard = ({
@@ -124,6 +127,7 @@ const JobListCard = ({
 
   const router = useRouter()
   const { orderId } = router.query
+  const { jobId } = router.query
 
   const { isOpen, onOpen, onClose } = useDialog()
 
@@ -145,9 +149,12 @@ const JobListCard = ({
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
-    const jobId = row.templateId && row.triggerGroup
-      ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(value => value.id)
-      : row.id
+    const jobId =
+      row.templateId && row.triggerGroup
+        ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(
+            value => value.id,
+          )
+        : row.id
 
     router.push({
       pathname: '/orders/job-list/detail/',
@@ -297,9 +304,10 @@ const JobListCard = ({
     const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key = job.templateId && job.triggerGroup
-        ? `${job.templateId}-${job.triggerGroup}`
-        : null
+      const key =
+        job.templateId && job.triggerGroup
+          ? `${job.templateId}-${job.triggerGroup}`
+          : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -469,9 +477,9 @@ const JobListCard = ({
 
                     let isHighlighted = false
                     if (row.templateId && row.triggerGroup && isHoverJobId) {
-                      isHighlighted = groupedJobs[`${row.templateId}-${row.triggerGroup}`]?.some(
-                        value => value.id === isHoverJobId,
-                      )
+                      isHighlighted = groupedJobs[
+                        `${row.templateId}-${row.triggerGroup}`
+                      ]?.some(value => value.id === isHoverJobId)
                     }
 
                     return (
@@ -481,10 +489,13 @@ const JobListCard = ({
                         sx={{
                           background: isHighlighted
                             ? 'rgba(76, 78, 100, 0.05)'
-                            : '#fff',
+                            : row.id === Number(jobId!)
+                              ? '#F7F8FF'
+                              : '#fff',
                           '&:hover': {
                             background: 'rgba(76, 78, 100, 0.05)',
                           },
+                          cursor: 'pointer',
                         }}
                         onClick={() => {
                           if (mode !== 'view') return
@@ -494,6 +505,9 @@ const JobListCard = ({
                         aria-checked={isItemSelected}
                         onMouseEnter={() => setIsHoverJobId(row.id)}
                         onMouseLeave={() => setIsHoverJobId(null)}
+                        ref={
+                          jobId && row.id === Number(jobId) ? tableRowRef : null
+                        }
                       >
                         {viewState && (
                           <CustomTableCell padding='checkbox'>

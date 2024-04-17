@@ -384,7 +384,10 @@ const JobDetails = () => {
     // approved
     if (changeStatus === 60600) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
         if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
           flag = false
@@ -395,7 +398,10 @@ const JobDetails = () => {
     // without invoice
     else if (changeStatus === 60900) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // delivered, approved, invoiced, Redelivery requested 일때만 true
         if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
           flag = false
@@ -406,7 +412,10 @@ const JobDetails = () => {
     // canceled
     else if (changeStatus === 601000) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // canceled, paid가 아닐때만 true
         if (job && [60800, 601000].includes(job.status)) {
           flag = false

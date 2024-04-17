@@ -975,8 +975,15 @@ const JobDetail = () => {
 
   const selectedJobUpdatable = () => {
     if (selectedJobInfo) {
-      const isTeamMember = auth.getValue().user?.userId === selectedJobInfo?.jobInfo?.contactPerson?.userId
-      const isMasterManager = auth.getValue().user?.roles?.some(role => ['Master','Manager'].includes(role.type) && role.name === 'LPM')  
+      const isTeamMember =
+        auth.getValue().user?.userId ===
+        selectedJobInfo?.jobInfo?.contactPerson?.userId
+      const isMasterManager = auth
+        .getValue()
+        .user?.roles?.some(
+          role =>
+            ['Master', 'Manager'].includes(role.type) && role.name === 'LPM',
+        )
       return Boolean(isTeamMember || isMasterManager)
     } else {
       return false
@@ -1162,17 +1169,17 @@ const JobDetail = () => {
 
   return (
     <Card sx={{ height: '100%' }}>
-      {assignJobMutation.isLoading || 
-        createRequestMutation.isLoading ||
-        createBulkRequestMutation.isLoading ||
-        assignJobMutation.isLoading ||
-        reAssignJobMutation.isLoading ||
-        addProCurrentRequestMutation.isLoading ||
-        requestRedeliveryMutation.isLoading ||
-        addJobFeedbackMutation.isLoading ||
-        saveJobPricesMutation.isLoading ||
-        setJobStatusMutation.isLoading ||
-        linguistTeamLoading ? (
+      {assignJobMutation.isLoading ||
+      createRequestMutation.isLoading ||
+      createBulkRequestMutation.isLoading ||
+      assignJobMutation.isLoading ||
+      reAssignJobMutation.isLoading ||
+      addProCurrentRequestMutation.isLoading ||
+      requestRedeliveryMutation.isLoading ||
+      addJobFeedbackMutation.isLoading ||
+      saveJobPricesMutation.isLoading ||
+      setJobStatusMutation.isLoading ||
+      linguistTeamLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid container sx={{ height: '100%' }}>
@@ -1235,15 +1242,10 @@ const JobDetail = () => {
                   } else {
                     router.push({
                       pathname: '/orders/job-list/details/',
-                      query:
-                        jobId.length === 1
-                          ? {
-                              orderId: orderId,
-                              jobId: jobId[0],
-                            }
-                          : {
-                              orderId: orderId,
-                            },
+                      query: {
+                        orderId: orderId,
+                        jobId: selectedJobId,
+                      },
                     })
                   }
                 }}
@@ -1317,7 +1319,7 @@ const JobDetail = () => {
                   !addRoundMode &&
                   !addProsMode &&
                   !assignProMode) ||
-                  !selectedJobUpdatable()
+                !selectedJobUpdatable()
                 ? 10.416
                 : 7.632
               : value === 'info'
@@ -1446,6 +1448,7 @@ const JobDetail = () => {
                       setJobId={setJobId}
                       setJobStatusMutation={setJobStatusMutation}
                       selectedJobUpdatable={selectedJobUpdatable()}
+                      jobDetail={jobDetail}
                     />
                   ) : null}
                 </TabPanel>
@@ -1537,87 +1540,88 @@ const JobDetail = () => {
                   )}
                 </TabPanel>
                 <TabPanel value='assign' sx={{ height: '100%', padding: 0 }}>
-                  {selectedJobInfo &&
-                  (selectedJobInfo?.jobInfo?.name === null ||
-                    selectedJobInfo?.jobPrices?.priceId === null ||
-                    selectedJobInfo?.jobAssign === null) ||
-                    (selectedJobInfo?.jobAssign.length === 0 && !selectedJobUpdatable()) ? 
-                      selectedJobUpdatable() ? (
+                  {(selectedJobInfo &&
+                    (selectedJobInfo?.jobInfo?.name === null ||
+                      selectedJobInfo?.jobPrices?.priceId === null ||
+                      selectedJobInfo?.jobAssign === null)) ||
+                  (selectedJobInfo?.jobAssign.length === 0 &&
+                    !selectedJobUpdatable()) ? (
+                    selectedJobUpdatable() ? (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
                         <Box
                           sx={{
-                            width: '100%',
-                            height: '100%',
                             display: 'flex',
-                            justifyContent: 'center',
+                            flexDirection: 'column',
                             alignItems: 'center',
                           }}
                         >
+                          <Image
+                            src='/images/icons/job-icons/required-lock.png'
+                            alt='lock'
+                            width={150}
+                            height={150}
+                            quality={100}
+                          />
                           <Box
                             sx={{
                               display: 'flex',
                               flexDirection: 'column',
-                              alignItems: 'center',
+                              gap: '4px',
+                              mt: '10px',
                             }}
                           >
-                            <Image
-                              src='/images/icons/job-icons/required-lock.png'
-                              alt='lock'
-                              width={150}
-                              height={150}
-                              quality={100}
-                            />
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '4px',
-                                mt: '10px',
-                              }}
-                            >
-                              <Typography fontSize={20} fontWeight={500}>
-                                Unfilled required field exists
-                              </Typography>
-                              <Typography fontSize={16} color='#8D8E9A'>
-                                Please enter all required fields first
-                              </Typography>
-                            </Box>
-                            <Button
-                              variant='contained'
-                              sx={{ mt: '32px' }}
-                              onClick={() => {
-                                if (!selectedJobInfo.jobInfo.name) {
-                                  setValue('info')
-                                } else if (!selectedJobInfo.jobPrices.priceId) {
-                                  setValue('prices')
-                                } else {
-                                  setValue('info')
-                                }
-                              }}
-                            >
-                              {!selectedJobInfo.jobInfo.name
-                                ? 'Fill out job info'
-                                : !selectedJobInfo.jobPrices.priceId
-                                  ? 'Fill out prices'
-                                  : 'Fill out job info'}
-                            </Button>
+                            <Typography fontSize={20} fontWeight={500}>
+                              Unfilled required field exists
+                            </Typography>
+                            <Typography fontSize={16} color='#8D8E9A'>
+                              Please enter all required fields first
+                            </Typography>
                           </Box>
+                          <Button
+                            variant='contained'
+                            sx={{ mt: '32px' }}
+                            onClick={() => {
+                              if (!selectedJobInfo.jobInfo.name) {
+                                setValue('info')
+                              } else if (!selectedJobInfo.jobPrices.priceId) {
+                                setValue('prices')
+                              } else {
+                                setValue('info')
+                              }
+                            }}
+                          >
+                            {!selectedJobInfo.jobInfo.name
+                              ? 'Fill out job info'
+                              : !selectedJobInfo.jobPrices.priceId
+                                ? 'Fill out prices'
+                                : 'Fill out job info'}
+                          </Button>
                         </Box>
-                      ) : (
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Typography fontSize={14} color='#8D8E9A'>
-                            There are no requests or assigned Pro yet
-                          </Typography>
-                        </Box>
-                      )
-                    : (
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography fontSize={14} color='#8D8E9A'>
+                          There are no requests or assigned Pro yet
+                        </Typography>
+                      </Box>
+                    )
+                  ) : (
                     <AssignPro
                       jobInfo={selectedJobInfo?.jobInfo!}
                       jobAssign={selectedJobInfo?.jobAssign!}
@@ -1667,8 +1671,7 @@ const JobDetail = () => {
         {selectedJobInfo &&
         (selectedJobInfo.jobInfo.name === null ||
           selectedJobInfo.jobPrices.priceId === null ||
-          selectedJobInfo.jobAssign === null
-          ) ? null : (
+          selectedJobInfo.jobAssign === null) ? null : (
           <Grid item xs={2.784}>
             <Box
               sx={{
@@ -1738,14 +1741,16 @@ const JobDetail = () => {
                             )}
                             / {byteToGB(MAXIMUM_FILE_SIZE)}
                           </Typography>
-                          {selectedJobUpdatable() && <Button
-                            fullWidth
-                            variant='contained'
-                            sx={{ mt: '8px' }}
-                            onClick={() => onClickUploadSourceFile()}
-                          >
-                            Upload files
-                          </Button>}
+                          {selectedJobUpdatable() && (
+                            <Button
+                              fullWidth
+                              variant='contained'
+                              sx={{ mt: '8px' }}
+                              onClick={() => onClickUploadSourceFile()}
+                            >
+                              Upload files
+                            </Button>
+                          )}
                           {sourceFileList && sourceFileList.length > 0
                             ? Object.entries(
                                 sourceFileList.reduce(
@@ -1853,7 +1858,8 @@ const JobDetail = () => {
                           {(selectedJobInfo.jobInfo.status === 60300 ||
                             selectedJobInfo.jobInfo.status === 60400 ||
                             selectedJobInfo.jobInfo.status === 60500) &&
-                            (jobDeliveriesFeedbacks?.deliveries && jobDeliveriesFeedbacks?.deliveries?.length > 0) &&
+                          jobDeliveriesFeedbacks?.deliveries &&
+                          jobDeliveriesFeedbacks?.deliveries?.length > 0 &&
                           selectedJobUpdatable() ? (
                             <>
                               <IconButton
@@ -2097,17 +2103,19 @@ const JobDetail = () => {
                           {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
                           selectedJobInfo.jobInfo.status === 60250 ? ( */}
-                          {selectedJobUpdatable() && <>
-                            <Button
-                              fullWidth
-                              variant='contained'
-                              sx={{ mt: '8px' }}
-                              onClick={() => setUseJobFeedbackForm(true)}
-                            >
-                              Add feedback
-                            </Button>
-                            {/* <Divider /> */}
-                          </>}
+                          {selectedJobUpdatable() && (
+                            <>
+                              <Button
+                                fullWidth
+                                variant='contained'
+                                sx={{ mt: '8px' }}
+                                onClick={() => setUseJobFeedbackForm(true)}
+                              >
+                                Add feedback
+                              </Button>
+                              {/* <Divider /> */}
+                            </>
+                          )}
                           {/* ) : null} */}
 
                           {useJobFeedbackForm ? (
