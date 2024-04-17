@@ -16,6 +16,7 @@ type CellType = {
     email: string
     assignmentStatus: number
     assignmentStatusUpdatedAt: string
+    responseStatusCodeOfPro: number
     order: number
     isOnboarded: boolean
     isActive: boolean
@@ -37,6 +38,7 @@ export const getJobRequestedProColumns = (
     email: string
     assignmentStatus: number
     assignmentStatusUpdatedAt: string
+    responseStatusCodeOfPro: number
     order: number
     isOnboarded: boolean
     isActive: boolean
@@ -81,16 +83,16 @@ export const getJobRequestedProColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <>
-            {row.assignmentStatus === null ? (
+            {row.responseStatusCodeOfPro === null ? (
               '-'
             ) : (
               <>
                 {assignmentStatusChip(
-                  row.assignmentStatus === 70150
+                  row.responseStatusCodeOfPro === 70150
                     ? 70100
-                    : row.assignmentStatus === 70450
+                    : row.responseStatusCodeOfPro === 70450
                       ? 70400
-                      : row.assignmentStatus,
+                      : row.responseStatusCodeOfPro,
                   jobStatusList,
                 )}
               </>

@@ -373,14 +373,13 @@ export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
 
 export function assignmentStatusChip(status: number, statusList: StatusItem[]) {
   const statusColors: Record<string, string> = {
-    70000: '#FDB528', // Requested
-    70100: '#6AD721', // Request accepted
-    70200: '#FF4D49', // Request rejected
-    70300: '#666CFF', // Assigned
-    70400: '#FF4D49', // Canceled
-    70600: '#FF4D49', // Also Canceled
-    70500: '#6D788D', // Unassigned
-    70700: '#8D8E9A', // No_reply
+    70000: '#FDB528', // REQUESTED
+    70100: '#6AD721', // REQUEST_ACCEPTED
+    70200: '#FF4D49', // REQUEST_REJECTED
+    70300: '#666CFF', // ASSIGNED_IN_PROGRESS
+    70400: '#FF4D49', // ASSIGNMENT_CANCELED
+    70500: '#FF4D49', // REQUEST_CANCELED
+    70600: '#8D8E9A', // NO_REPLY
   }
 
   const color = statusColors[status] || ''
