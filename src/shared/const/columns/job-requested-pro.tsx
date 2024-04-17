@@ -2,6 +2,7 @@ import { Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   ProStatusChip,
+  RequestHistoryStatusChip,
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
@@ -87,7 +88,7 @@ export const getJobRequestedProColumns = (
               '-'
             ) : (
               <>
-                {assignmentStatusChip(
+                {RequestHistoryStatusChip(
                   row.responseStatusCodeOfPro === 70150
                     ? 70100
                     : row.responseStatusCodeOfPro === 70450

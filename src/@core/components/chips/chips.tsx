@@ -400,6 +400,43 @@ export function assignmentStatusChip(status: number, statusList: StatusItem[]) {
   )
 }
 
+export function RequestHistoryStatusChip(
+  status: number,
+  statusList: StatusItem[],
+) {
+  const statusColors: Record<string, string> = {
+    70000: '#FDB528', // REQUESTED
+    70100: '#6AD721', // REQUEST_ACCEPTED
+    70200: '#FF4D49', // REQUEST_REJECTED
+    70300: '#666CFF', // ASSIGNED_IN_PROGRESS
+    70400: '#FF4D49', // ASSIGNMENT_CANCELED
+    70500: '#FF4D49', // REQUEST_CANCELED
+    70600: '#8D8E9A', // NO_REPLY
+  }
+
+  const color = statusColors[status] || ''
+
+  return (
+    <CustomChip
+      label={
+        status === 70100
+          ? 'Accepted'
+          : status === 70200
+            ? 'Rejected'
+            : status === 70600
+              ? 'No reply'
+              : '-'
+      }
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
 // export const AssignmentStatusChip = styled(Chip)<{ status: number }>`
 //   border: none;
 //   ${({ status }) =>
