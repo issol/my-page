@@ -78,7 +78,7 @@ const FinalDeliveryModal = ({ onClose, onClick }: Props) => {
               '& .MuiFormControlLabel-label': {
                 fontSize: '14px',
                 color: 'rgba(76, 78, 100, 0.87)',
-                fontWeight: checked ? 400 : 600,
+                fontWeight: 400,
               },
             }}
             control={

@@ -87,6 +87,11 @@ export type InvoicePayableDetailType = {
   tax: string | null
   invoiceConfirmedAt: string | null
   invoiceConfirmTimezone?: CountryType
+  jobs: {
+    count: number
+    totalCount: number
+    data: Array<InvoicePayableJobType>
+  }
 }
 
 export type InvoicePayableJobType = {
