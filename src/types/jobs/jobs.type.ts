@@ -385,6 +385,7 @@ export type JobRequestedProHistoryType = {
     lastName: string
     email: string
     assignmentStatus: number
+    responseStatusCodeOfPro: number
     assignmentStatusUpdatedAt: string
     order: number
     isOnboarded: boolean
