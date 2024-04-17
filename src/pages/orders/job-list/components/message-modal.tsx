@@ -531,7 +531,33 @@ const Message = ({
               </Box>)
             ))}
           </>
-        ) : null}
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '430px',
+            }}
+          >
+            <Image
+              src='/images/icons/job-icons/no-message.svg'
+              alt=''
+              width={119}
+              height={119}
+              quality={100}
+            />
+            <Typography
+              fontSize={14}
+              fontWeight={400}
+              color='#8D8E9A'
+              textAlign='center'
+            >
+              No messages yet
+            </Typography>
+          </Box>
+        )}
         </Box>
         {isMessageUsable() ? (
           <Box 
