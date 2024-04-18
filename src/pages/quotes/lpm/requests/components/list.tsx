@@ -28,6 +28,10 @@ import { Dispatch, SetStateAction, useContext } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { UserRoleType } from '@src/context/types'
+import { saveUserFilters } from '@src/shared/filter-storage'
+import { timezoneSelector } from '@src/states/permission'
+import { getRequestListColumns } from '@src/shared/const/columns/requests'
+import { FilterType } from '..'
 
 type CellType = {
   row: RequestListType
@@ -38,8 +42,9 @@ type Props = {
   pageSize: number
   setPage: (num: number) => void
   setPageSize: (num: number) => void
-
-  setFilters: Dispatch<SetStateAction<RequestFilterType>>
+  defaultFilter: FilterType
+  filters: RequestFilterType
+  setFilters: Dispatch<SetStateAction<RequestFilterType | null>>
   list: {
     data: RequestListType[]
     count: number
@@ -48,8 +53,12 @@ type Props = {
   isLoading: boolean
   onRowClick: (id: number) => void
   role: UserRoleType
-  columns: GridColumns<RequestListType>
+
   type: 'list' | 'calendar'
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
 
 export default function List({
@@ -57,15 +66,19 @@ export default function List({
   pageSize,
   setPage,
   setPageSize,
-
+  defaultFilter,
+  filters,
   setFilters,
   list,
   isLoading,
   onRowClick,
   role,
-  columns,
+
   type,
+  statusList,
 }: Props) {
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   function noData() {
     return (
       <Box
@@ -93,11 +106,16 @@ export default function List({
       onSortModelChange={e => {
         if (e.length) {
           const value = e[0] as { field: SortType; sort: GridSortDirection }
-          setFilters((prevState: RequestFilterType) => ({
-            ...prevState,
+          setFilters((prevState: RequestFilterType | null) => ({
+            ...prevState!,
             sort: value.field,
             ordering: value.sort,
           }))
+          saveUserFilters('lpmRequestListFilter', {
+            ...defaultFilter,
+            sort: value.field,
+            ordering: value.sort,
+          })
         }
       }}
       onRowClick={e => onRowClick(e.row.id)}
@@ -113,20 +131,25 @@ export default function List({
       pageSize={pageSize}
       paginationMode='server'
       onPageChange={(newPage: number) => {
-        setFilters((prevState: RequestFilterType) => ({
-          ...prevState,
+        setFilters((prevState: RequestFilterType | null) => ({
+          ...prevState!,
           skip: newPage * pageSize!,
         }))
         setPage!(newPage)
       }}
       onPageSizeChange={(newPageSize: number) => {
-        setFilters((prevState: RequestFilterType) => ({
-          ...prevState,
+        setFilters((prevState: RequestFilterType | null) => ({
+          ...prevState!,
           take: newPageSize,
         }))
         setPageSize!(newPageSize)
       }}
-      columns={columns}
+      columns={getRequestListColumns(
+        statusList!,
+        role!,
+        auth,
+        timezone.getValue(),
+      )}
     />
   )
 }

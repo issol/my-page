@@ -29,6 +29,8 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { Dispatch, SetStateAction } from 'react'
 import { UserRoleType } from '@src/context/types'
+import { FilterType } from '..'
+import { saveUserFilters } from '@src/shared/filter-storage'
 
 type CellType = {
   row: RequestListType
@@ -40,7 +42,7 @@ type Props = {
   setPage: (num: number) => void
   setPageSize: (num: number) => void
 
-  setFilters: Dispatch<SetStateAction<RequestFilterType>>
+  setFilters: Dispatch<SetStateAction<RequestFilterType | null>>
   list: {
     data: RequestListType[]
     count: number
@@ -51,6 +53,7 @@ type Props = {
   role: UserRoleType
   columns: GridColumns<RequestListType>
   type: 'list' | 'calendar'
+  defaultFilter: FilterType
 }
 
 export default function List({
@@ -66,6 +69,7 @@ export default function List({
   role,
   columns,
   type,
+  defaultFilter,
 }: Props) {
   function noData() {
     return (
@@ -94,11 +98,16 @@ export default function List({
       onSortModelChange={e => {
         if (e.length) {
           const value = e[0] as { field: SortType; sort: GridSortDirection }
-          setFilters((prevState: RequestFilterType) => ({
-            ...prevState,
+          setFilters((prevState: RequestFilterType | null) => ({
+            ...prevState!,
             sort: value.field,
             ordering: value.sort,
           }))
+          saveUserFilters('clientRequestListFilter', {
+            ...defaultFilter,
+            sort: value.field,
+            ordering: value.sort,
+          })
         }
       }}
       onRowClick={e => onRowClick(e.row.id)}
@@ -114,15 +123,15 @@ export default function List({
       pageSize={pageSize}
       paginationMode='server'
       onPageChange={(newPage: number) => {
-        setFilters((prevState: RequestFilterType) => ({
-          ...prevState,
+        setFilters((prevState: RequestFilterType | null) => ({
+          ...prevState!,
           skip: newPage * pageSize!,
         }))
         setPage!(newPage)
       }}
       onPageSizeChange={(newPageSize: number) => {
-        setFilters((prevState: RequestFilterType) => ({
-          ...prevState,
+        setFilters((prevState: RequestFilterType | null) => ({
+          ...prevState!,
           take: newPageSize,
         }))
         setPageSize!(newPageSize)

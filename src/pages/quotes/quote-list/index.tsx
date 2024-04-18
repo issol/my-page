@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form'
 
 // ** types
 import { UserDataType } from '@src/context/types'
-import { QuotesFilterType } from '@src/types/quotes/quote'
+import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 
 // ** values
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
@@ -42,7 +42,8 @@ export type FilterType = {
   estimatedDeliveryDate?: Date[]
   projectDueDate?: Date[]
   lsp?: Array<{ label: string; value: string }>
-
+  ordering?: 'asc' | 'desc'
+  sort?: SortType
   status: Array<{ label: string; value: number }>
   client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
@@ -106,7 +107,7 @@ export default function Quotes({ id, user }: Props) {
   const [hideCompletedQuotes, setHideCompletedQuotes] = useState(false)
   const [seeMyQuotes, setSeeMyQuotes] = useState(false)
 
-  const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<QuotesFilterType | null>(null)
   const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -125,11 +126,7 @@ export default function Quotes({ id, user }: Props) {
 
   const currentRole = getCurrentRole()
 
-  const { data: list, isLoading } = useGetQuotesList({
-    ...filters,
-    skip: quoteListPage * quoteListPageSize,
-    take: quoteListPageSize,
-  })
+  const { data: list, isLoading } = useGetQuotesList(filters)
 
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
@@ -228,6 +225,8 @@ export default function Quotes({ id, user }: Props) {
       estimatedDeliveryDate,
       projectDueDate,
       lsp,
+      hideCompletedQuotes,
+      seeMyQuotes,
     } = data
     saveUserFilters('quoteListFilter', data)
     setDefaultFilter(data)
@@ -292,6 +291,8 @@ export default function Quotes({ id, user }: Props) {
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
+      hideCompletedQuotes: hideCompletedQuotes,
+      seeMyQuotes: seeMyQuotes,
     }
 
     setFilters(filter)
@@ -345,6 +346,8 @@ export default function Quotes({ id, user }: Props) {
         lsp,
         seeMyQuotes,
         hideCompletedQuotes,
+        ordering,
+        sort,
       } = savedFilter
 
       const filter: QuotesFilterType = {
@@ -412,12 +415,20 @@ export default function Quotes({ id, user }: Props) {
         skip: quoteListPageSize * quoteListPage,
         seeMyQuotes: seeMyQuotes,
         hideCompletedQuotes: hideCompletedQuotes,
+        ordering: ordering,
+        sort: sort,
       }
-      setDefaultFilter(savedFilter)
-      reset(savedFilter)
-      setFilters(filter)
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
       setHideCompletedQuotes(hideCompletedQuotes === 1)
       setSeeMyQuotes(seeMyQuotes === 1)
+    } else {
+      setFilters(defaultFilters)
     }
   }, [savedFilter])
 
@@ -453,7 +464,7 @@ export default function Quotes({ id, user }: Props) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Suspense>
               <QuotesFilters
-                filter={filters}
+                filter={filters!}
                 control={control}
                 setFilter={setFilters}
                 onReset={onClickResetButton}
@@ -519,10 +530,11 @@ export default function Quotes({ id, user }: Props) {
                   setPageSize={setClientInvoiceListPageSize}
                   list={list || { data: [], totalCount: 0 }}
                   isLoading={isLoading}
-                  filter={filters}
+                  filter={filters!}
                   setFilter={setFilters}
                   role={currentRole!}
                   type='list'
+                  defaultFilter={defaultFilter}
                 />
               </Card>
             </Grid>

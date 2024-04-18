@@ -16,14 +16,15 @@ export const useGetClientRequestStatus = () => {
   })
 }
 
-export const useGetClientRequestList = (filter: RequestFilterType) => {
+export const useGetClientRequestList = (filter: RequestFilterType | null) => {
   return useQuery(
     ['request/client/list', filter],
-    () => getClientRequestList(filter),
+    () => getClientRequestList(filter!),
     {
       staleTime: 10 * 1000, // 1
       suspense: true,
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }
