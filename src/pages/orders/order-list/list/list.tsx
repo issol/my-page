@@ -1,7 +1,12 @@
 import { Button, Card, Grid, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridSortDirection,
+  gridClasses,
+} from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import {
   ExtraNumberChip,
@@ -22,6 +27,8 @@ import { Dispatch, SetStateAction } from 'react'
 import { useGetStatusList } from '@src/queries/common.query'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { FilterType } from '..'
+import { saveUserFilters } from '@src/shared/filter-storage'
 
 type OrderListCellType = {
   row: OrderListType
@@ -32,7 +39,7 @@ type Props = {
   rowsPerPage?: number
   setPageSize?: Dispatch<SetStateAction<number>>
   setRowsPerPage?: Dispatch<SetStateAction<number>>
-  setFilters?: Dispatch<SetStateAction<OrderListFilterType>>
+  setFilters?: Dispatch<SetStateAction<OrderListFilterType | null>>
   handleRowClick: (row: OrderListType) => void
   user: UserDataType
   list: Array<OrderListType>
@@ -40,6 +47,7 @@ type Props = {
   isLoading: boolean
   isCardHeader: boolean
   role: UserRoleType
+  defaultFilter?: FilterType
 }
 
 export default function OrdersList({
@@ -55,8 +63,8 @@ export default function OrdersList({
   user,
   isCardHeader,
   role,
+  defaultFilter,
 }: Props) {
-  const { data: statusList } = useGetStatusList('Order')
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const columns: GridColumns<OrderListType> = [
@@ -293,7 +301,31 @@ export default function OrdersList({
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              // sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sortingMode='server'
+              onSortModelChange={e => {
+                if (e.length) {
+                  const value = e[0] as {
+                    field:
+                      | 'corporationId'
+                      | 'projectDueDate'
+                      | 'orderDate'
+                      | 'totalPrice'
+                    sort: GridSortDirection
+                  }
+                  setFilters &&
+                    setFilters((prevState: OrderListFilterType | null) => ({
+                      ...prevState!,
+                      sort: value.field,
+                      ordering: value.sort,
+                    }))
+                  defaultFilter &&
+                    saveUserFilters('orderListFilter', {
+                      ...defaultFilter,
+                      sort: value.field,
+                      ordering: value.sort,
+                    })
+                }
+              }}
               sx={{
                 overflowX: 'scroll',
                 cursor: 'pointer',
@@ -330,15 +362,15 @@ export default function OrdersList({
               pageSize={rowsPerPage}
               paginationMode='server'
               onPageChange={(newPage: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   skip: newPage * rowsPerPage!,
                 }))
                 setPageSize!(newPage)
               }}
               onPageSizeChange={(newPageSize: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   take: newPageSize,
                 }))
                 setRowsPerPage!(newPageSize)
@@ -392,15 +424,15 @@ export default function OrdersList({
               hideFooter
               // paginationMode='server'
               onPageChange={(newPage: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   skip: newPage * rowsPerPage!,
                 }))
                 setPageSize!(newPage)
               }}
               onPageSizeChange={(newPageSize: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   take: newPageSize,
                 }))
                 setRowsPerPage!(newPageSize)

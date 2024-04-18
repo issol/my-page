@@ -23,24 +23,22 @@ import {
 
 // ** Icon Imports
 import Icon from '@src/@core/components/icon'
-import format from 'date-fns/format'
-import addDays from 'date-fns/addDays'
+
 import { FilterType } from '..'
 
 import {
   Control,
   UseFormHandleSubmit,
   UseFormTrigger,
-  UseFormWatch,
 } from 'react-hook-form/dist/types'
 import { Controller } from 'react-hook-form'
-import { ProjectType } from '@src/shared/const/project/project-type'
+
 import {
   CategoryList,
   CategoryListPair,
 } from '@src/shared/const/category/categories'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import { FormErrors } from '@src/shared/const/formErrors'
+
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -50,15 +48,12 @@ import {
 } from '@src/shared/const/service-type/service-types'
 import { Category } from '@src/shared/const/category/category.enum'
 import _ from 'lodash'
-import { QuotesFilterType } from '@src/types/quotes/quote'
-import { OrderListFilterType } from '@src/types/orders/order-list'
+
 import { UserRoleType } from '@src/context/types'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import dayjs from 'dayjs'
 
 type Props = {
-  filter: OrderListFilterType
-  setFilter: Dispatch<SetStateAction<OrderListFilterType>>
   onSubmit: (data: FilterType) => void
   handleSubmit: UseFormHandleSubmit<FilterType>
   onReset: () => void
@@ -98,8 +93,6 @@ type Props = {
 }
 
 export default function OrdersFilters({
-  filter,
-  setFilter,
   onReset,
   onSubmit,
   handleSubmit,
@@ -178,7 +171,11 @@ export default function OrdersFilters({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Status' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Status'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -212,7 +209,11 @@ export default function OrdersFilters({
                             id='client'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} autoComplete='off' label='Client' />
+                              <TextField
+                                {...params}
+                                autoComplete='off'
+                                label='Client'
+                              />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -244,7 +245,11 @@ export default function OrdersFilters({
                             id='lsp'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} autoComplete='off' label='LSP' />
+                              <TextField
+                                {...params}
+                                autoComplete='off'
+                                label='LSP'
+                              />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -269,6 +274,7 @@ export default function OrdersFilters({
                           isOptionEqualToValue={(option, newValue) => {
                             return option.value === newValue.value
                           }}
+                          disableCloseOnSelect
                           onChange={(event, item) => {
                             onChange(item)
                             if (item.length) {
@@ -295,7 +301,11 @@ export default function OrdersFilters({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Category' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Category'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -347,7 +357,11 @@ export default function OrdersFilters({
                           limitTags={1}
                           getOptionLabel={option => option.label || ''}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Service type' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Service type'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -459,7 +473,11 @@ export default function OrdersFilters({
                             id='revenueFrom'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} autoComplete='off' label='Revenue from' />
+                              <TextField
+                                {...params}
+                                autoComplete='off'
+                                label='Revenue from'
+                              />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>

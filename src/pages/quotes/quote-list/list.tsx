@@ -20,7 +20,7 @@ type Props = {
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
-  defaultFilter: FilterType
+  defaultFilter?: FilterType
   list: {
     data: Array<QuotesListType> | []
     totalCount: number

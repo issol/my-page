@@ -29,6 +29,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useQueryClient } from 'react-query'
+import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
 
 export type FilterType = {
   orderDate: Date[]
@@ -39,10 +40,13 @@ export type FilterType = {
   client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
-
+  ordering?: 'asc' | 'desc'
+  sort?: 'corporationId' | 'projectDueDate' | 'orderDate' | 'totalPrice'
   lsp?: Array<{ label: string; value: string }>
 
   search: string
+  hideCompleted: '1' | '0'
+  mine: '1' | '0'
 }
 
 const defaultValues: FilterType = {
@@ -55,6 +59,8 @@ const defaultValues: FilterType = {
   serviceType: [],
   revenueFrom: [],
   search: '',
+  hideCompleted: '0',
+  mine: '0',
 }
 
 const defaultFilters: OrderListFilterType = {
@@ -78,6 +84,10 @@ export default function OrderList() {
   const currentRole = getCurrentRole()
   const queryClient = useQueryClient()
 
+  const savedFilter: FilterType | null = getUserFilters('orderListFilter')
+    ? JSON.parse(getUserFilters('orderListFilter')!)
+    : null
+
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
@@ -88,7 +98,9 @@ export default function OrderList() {
   const [hideCompletedOrders, setHideCompletedOrders] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
 
-  const [filters, setFilters] = useState<OrderListFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<OrderListFilterType | null>(null)
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
+
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const [clientList, setClientList] = useState<
@@ -122,13 +134,25 @@ export default function OrderList() {
       : { data: [], isLoading: false }
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
-    defaultValues,
+    defaultValues: defaultFilter,
     mode: 'onSubmit',
   })
 
   const onClickResetButton = () => {
     reset(defaultValues)
-
+    saveUserFilters('orderListFilter', {
+      orderDate: [],
+      projectDueDate: [],
+      status: [],
+      client: [],
+      lsp: [],
+      category: [],
+      serviceType: [],
+      revenueFrom: [],
+      search: '',
+      hideCompleted: hideCompletedOrders ? '1' : '0',
+      mine: seeMyOrders ? '1' : '0',
+    })
     setFilters(defaultFilters)
 
     queryClient.invalidateQueries([
@@ -152,6 +176,10 @@ export default function OrderList() {
       ...prevState,
       hideCompleted: checked ? '1' : '0',
     }))
+    saveUserFilters('orderListFilter', {
+      ...defaultFilter,
+      hideCompleted: checked ? '1' : '0',
+    })
   }
 
   const handleSeeMyOrders = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,6 +190,11 @@ export default function OrderList() {
       ...prevState,
       mine: checked ? '1' : '0',
     }))
+
+    saveUserFilters('orderListFilter', {
+      ...defaultFilter,
+      mine: checked ? '1' : '0',
+    })
   }
 
   const onSubmit = (data: FilterType) => {
@@ -176,7 +209,8 @@ export default function OrderList() {
       search,
       lsp,
     } = data
-
+    saveUserFilters('orderListFilter', data)
+    setDefaultFilter(data)
     const filter: OrderListFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       status: status.map(value => value.value),
@@ -231,6 +265,56 @@ export default function OrderList() {
     queryClient.invalidateQueries(['orderDetail'])
   }, [])
 
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        orderDate,
+        projectDueDate,
+        revenueFrom,
+        status,
+        client,
+        serviceType,
+        category,
+        search,
+        lsp,
+        hideCompleted,
+        mine,
+      } = savedFilter
+
+      const filter: OrderListFilterType = {
+        revenueFrom: revenueFrom?.map(value => value.value) ?? [],
+        status: status.map(value => value.value),
+        client: client?.map(value => value.label) ?? [],
+        serviceType: serviceType.map(value => value.value),
+        category: category.map(value => value.value),
+        orderDateFrom: orderDate[0]?.toISOString() ?? '',
+        orderDateTo: orderDate[1]?.toISOString() ?? '',
+        projectDueDateFrom: projectDueDate[0]?.toISOString() ?? '',
+        projectDueDateTo: projectDueDate[1]?.toISOString() ?? '',
+        lsp: lsp?.map(value => value.label),
+        search: search,
+        take: orderListRowsPerPage,
+        skip: orderListRowsPerPage * orderListPage,
+        ordering: 'desc',
+        sort: 'corporationId',
+        hideCompleted: hideCompleted,
+        mine: mine,
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+      setHideCompletedOrders(hideCompleted === '1')
+      setSeeMyOrders(mine === '1')
+    } else {
+      setFilters({ ...defaultFilters })
+    }
+  }, [savedFilter])
+
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
       <Box
@@ -262,9 +346,7 @@ export default function OrderList() {
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <OrdersFilters
-              filter={filters}
               control={control}
-              setFilter={setFilters}
               onReset={onClickResetButton}
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
@@ -310,6 +392,7 @@ export default function OrderList() {
               isCardHeader={true}
               handleRowClick={handleRowClick}
               role={currentRole!}
+              defaultFilter={defaultFilter}
             />
           </Box>
         ) : (

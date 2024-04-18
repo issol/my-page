@@ -1,23 +1,10 @@
 // ** mui
 import { Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns, GridSortDirection } from '@mui/x-data-grid'
-
-// ** components
-import { ExtraNumberChip } from '@src/@core/components/chips/chips'
+import { DataGrid, GridSortDirection } from '@mui/x-data-grid'
 
 // ** third party
 import { styled } from '@mui/system'
-
-// ** helpers
-
-// ** nextJS
-import { useRouter } from 'next/router'
-import {
-  ClientRequestStatusChip,
-  JobTypeChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
 
 // ** types
 import { RequestListType } from '@src/types/requests/list.type'
