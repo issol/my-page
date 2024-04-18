@@ -21,11 +21,12 @@ import {
 import { DetailFilterResponseType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import { useQuery } from 'react-query'
 
-export const useGetJobsList = (filter: FilterPostType) => {
-  return useQuery(['jobList', filter], () => getJobsList(filter), {
+export const useGetJobsList = (filter: FilterPostType | null) => {
+  return useQuery(['jobList', filter], () => getJobsList(filter!), {
     staleTime: 60 * 1000, // 1
     suspense: false,
     keepPreviousData: true,
+    enabled: !!filter,
   })
 }
 export const useGetJobsTrackerList = (filter: ListFilterType) => {
