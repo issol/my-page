@@ -20,7 +20,7 @@ import {
   convertTimeToTimezone,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { formatGMTTimeZone } from '@src/shared/helpers/timezone.helper'
 import { authState } from '@src/states/auth'
 import {
   applyResponseEnum,
@@ -451,7 +451,7 @@ const JobOpeningDetail = () => {
                     {renderTable('', '')}
                     {renderTable(
                       `Vendor's timezone`,
-                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                      formatGMTTimeZone(data.dueDateTimezone.label),
                     )}
                   </Grid>
                 </Grid>
