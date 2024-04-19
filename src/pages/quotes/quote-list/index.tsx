@@ -33,7 +33,11 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useQueryClient } from 'react-query'
 import dayjs from 'dayjs'
-import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -95,8 +99,8 @@ type MenuType = 'list' | 'calendar'
 export default function Quotes({ id, user }: Props) {
   const { data: statusList } = useGetStatusList('Quote')
   const queryClient = useQueryClient()
-  const savedFilter: FilterType | null = getUserFilters('quoteListFilter')
-    ? JSON.parse(getUserFilters('quoteListFilter')!)
+  const savedFilter: FilterType | null = getUserFilters(FilterKey.QUOTE_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.QUOTE_LIST)!)
     : null
 
   const [menu, setMenu] = useState<MenuType>('list')
@@ -159,7 +163,7 @@ export default function Quotes({ id, user }: Props) {
       lsp: [],
       search: '',
     })
-    saveUserFilters('quoteListFilter', {
+    saveUserFilters(FilterKey.QUOTE_LIST, {
       quoteDate: [],
       quoteDeadline: [],
       quoteExpiryDate: [],
@@ -192,7 +196,7 @@ export default function Quotes({ id, user }: Props) {
       hideCompletedQuotes: checked ? 1 : 0,
     }))
 
-    saveUserFilters('quoteListFilter', {
+    saveUserFilters(FilterKey.QUOTE_LIST, {
       ...defaultFilter,
       hideCompletedQuotes: checked ? 1 : 0,
     })
@@ -206,7 +210,7 @@ export default function Quotes({ id, user }: Props) {
       seeMyQuotes: checked ? 1 : 0,
     }))
 
-    saveUserFilters('quoteListFilter', {
+    saveUserFilters(FilterKey.QUOTE_LIST, {
       ...defaultFilter,
       seeMyQuotes: checked ? 1 : 0,
     })
@@ -228,7 +232,7 @@ export default function Quotes({ id, user }: Props) {
       hideCompletedQuotes,
       seeMyQuotes,
     } = data
-    saveUserFilters('quoteListFilter', data)
+    saveUserFilters(FilterKey.QUOTE_LIST, data)
     setDefaultFilter(data)
     const filter: QuotesFilterType = {
       quoteDate:

@@ -29,7 +29,11 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useQueryClient } from 'react-query'
-import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   orderDate: Date[]
@@ -84,8 +88,8 @@ export default function OrderList() {
   const currentRole = getCurrentRole()
   const queryClient = useQueryClient()
 
-  const savedFilter: FilterType | null = getUserFilters('orderListFilter')
-    ? JSON.parse(getUserFilters('orderListFilter')!)
+  const savedFilter: FilterType | null = getUserFilters(FilterKey.ORDER_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.ORDER_LIST)!)
     : null
 
   const { data: statusList } = useGetStatusList('Order')
@@ -140,7 +144,7 @@ export default function OrderList() {
 
   const onClickResetButton = () => {
     reset(defaultValues)
-    saveUserFilters('orderListFilter', {
+    saveUserFilters(FilterKey.ORDER_LIST, {
       orderDate: [],
       projectDueDate: [],
       status: [],
@@ -176,7 +180,7 @@ export default function OrderList() {
       ...prevState,
       hideCompleted: checked ? '1' : '0',
     }))
-    saveUserFilters('orderListFilter', {
+    saveUserFilters(FilterKey.ORDER_LIST, {
       ...defaultFilter,
       hideCompleted: checked ? '1' : '0',
     })
@@ -191,7 +195,7 @@ export default function OrderList() {
       mine: checked ? '1' : '0',
     }))
 
-    saveUserFilters('orderListFilter', {
+    saveUserFilters(FilterKey.ORDER_LIST, {
       ...defaultFilter,
       mine: checked ? '1' : '0',
     })
@@ -209,7 +213,7 @@ export default function OrderList() {
       search,
       lsp,
     } = data
-    saveUserFilters('orderListFilter', data)
+    saveUserFilters(FilterKey.ORDER_LIST, data)
     setDefaultFilter(data)
     const filter: OrderListFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],

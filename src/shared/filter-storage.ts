@@ -1,3 +1,13 @@
+export enum FilterKey {
+  JOB_LIST = 'jobListFilter',
+  ORDER_LIST = 'orderListFilter',
+  LPM_REQUEST_LIST = 'lpmRequestListFilter',
+  CLIENT_REQUEST_LIST = 'clientRequestListFilter',
+  QUOTE_LIST = 'quoteListFilter',
+  JOB_TRACKER_LIST = 'jobTrackerFilter',
+  JOB_TEMPLATE_LIST = 'jobTemplateFilter',
+}
+
 export function saveUserFilters(key: string, filters: any) {
   if (typeof window === 'object') {
     window.localStorage.setItem(key, JSON.stringify(filters))

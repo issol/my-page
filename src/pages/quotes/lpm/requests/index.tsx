@@ -37,7 +37,11 @@ import { useForm } from 'react-hook-form'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
-import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 // ** components
 export type FilterType = {
@@ -86,8 +90,10 @@ export default function LpmRequests() {
   const router = useRouter()
   const currentRole = getCurrentRole()
 
-  const savedFilter: FilterType | null = getUserFilters('lpmRequestListFilter')
-    ? JSON.parse(getUserFilters('lpmRequestListFilter')!)
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.LPM_REQUEST_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.LPM_REQUEST_LIST)!)
     : null
 
   const [menu, setMenu] = useState<MenuType>('list')
@@ -153,7 +159,7 @@ export default function LpmRequests() {
       category,
       search,
     } = data
-    saveUserFilters('lpmRequestListFilter', data)
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, data)
     setDefaultFilter(data)
     const filter: RequestFilterType = {
       status: status.map(value => value.value),
@@ -187,7 +193,7 @@ export default function LpmRequests() {
       client: [],
     })
     setFilters({ ...defaultFilters })
-    saveUserFilters('lpmRequestListFilter', {
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
       requestDate: [],
       desiredDueDate: [],
       status: [],
@@ -216,7 +222,7 @@ export default function LpmRequests() {
       hideCompleted: event.target.checked ? '1' : '0',
     }))
 
-    saveUserFilters('lpmRequestListFilter', {
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
       ...defaultFilter,
       hideCompleted: event.target.checked ? '1' : '0',
     })

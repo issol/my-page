@@ -39,7 +39,11 @@ import { useQueryClient } from 'react-query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { timezoneSelector } from '@src/states/permission'
 import { useGetStatusList } from '@src/queries/common.query'
-import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 // ** components
 export type FilterType = {
@@ -97,9 +101,9 @@ export default function Requests() {
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const savedFilter: FilterType | null = getUserFilters(
-    'clientRequestListFilter',
+    FilterKey.CLIENT_REQUEST_LIST,
   )
-    ? JSON.parse(getUserFilters('clientRequestListFilter')!)
+    ? JSON.parse(getUserFilters(FilterKey.CLIENT_REQUEST_LIST)!)
     : null
 
   const [requestListPage, setRequestListPage] = useState<number>(0)
@@ -169,7 +173,7 @@ export default function Requests() {
       search,
       lsp,
     } = data
-    saveUserFilters('clientRequestListFilter', data)
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, data)
     setDefaultFilter(data)
     const filter: RequestFilterType = {
       status: status.map(value => value.value),
@@ -205,7 +209,7 @@ export default function Requests() {
       lsp: [],
     })
     setFilters({ ...defaultFilters })
-    saveUserFilters('lpmRequestListFilter', {
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
       requestDate: [],
       desiredDueDate: [],
       status: [],
@@ -235,7 +239,7 @@ export default function Requests() {
       hideCompleted: event.target.checked ? '1' : '0',
     }))
 
-    saveUserFilters('clientRequestListFilter', {
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
       ...defaultFilter,
       hideCompleted: event.target.checked ? '1' : '0',
     })
@@ -249,7 +253,7 @@ export default function Requests() {
       mine: event.target.checked ? '1' : '0',
     }))
 
-    saveUserFilters('clientRequestListFilter', {
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
       ...defaultFilter,
       mine: event.target.checked ? '1' : '0',
     })

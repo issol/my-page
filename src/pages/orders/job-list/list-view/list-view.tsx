@@ -32,7 +32,11 @@ import moment from 'moment'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { StatusItem } from '@src/types/common/status.type'
-import { getUserFilters, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   status?: number[]
@@ -88,8 +92,8 @@ export default function JobListView({
 }: Props) {
   const user = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
-  const savedFilter: FilterType | null = getUserFilters('jobListFilter')
-    ? JSON.parse(getUserFilters('jobListFilter')!)
+  const savedFilter: FilterType | null = getUserFilters(FilterKey.JOB_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.JOB_LIST)!)
     : null
 
   const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
@@ -140,7 +144,7 @@ export default function JobListView({
             : null
         }),
       }
-      saveUserFilters('jobListFilter', postFilter)
+      saveUserFilters(FilterKey.JOB_LIST, postFilter)
       setDefaultFilter(postFilter)
       setActiveFilter(postFilter)
     }
@@ -149,7 +153,7 @@ export default function JobListView({
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
-    saveUserFilters('jobListFilter', {
+    saveUserFilters(FilterKey.JOB_LIST, {
       ...initialFilter,
       isHidePaid: hidePaid ? '1' : '0',
       isMyJobs: seeMyJob ? '1' : '0',
@@ -181,8 +185,8 @@ export default function JobListView({
         setSeeMyJob(savedFilter.isMyJobs === '1')
       }
     } else {
-      setFilter(defaultFilter)
-      setActiveFilter(defaultFilter)
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
     }
   }, [savedFilter])
 
@@ -215,7 +219,7 @@ export default function JobListView({
                 ...activeFilter!,
                 isMyJobs: e.target.checked ? '1' : '0',
               })
-              saveUserFilters('jobListFilter', {
+              saveUserFilters(FilterKey.JOB_LIST, {
                 ...defaultFilter,
                 isMyJobs: e.target.checked ? '1' : '0',
               })
@@ -232,7 +236,7 @@ export default function JobListView({
                 ...activeFilter!,
                 isHidePaid: e.target.checked ? '1' : '0',
               })
-              saveUserFilters('jobListFilter', {
+              saveUserFilters(FilterKey.JOB_LIST, {
                 ...defaultFilter,
                 isHidePaid: e.target.checked ? '1' : '0',
               })
@@ -259,13 +263,13 @@ export default function JobListView({
           <JobsList
             isLoading={isLoading}
             list={list || { data: [], totalCount: 0 }}
-            pageSize={activeFilter?.take ?? 0}
+            pageSize={activeFilter?.take ?? 10}
             skip={skip}
             setSkip={(n: number) => {
               setSkip(n)
               setActiveFilter({
                 ...activeFilter!,
-                skip: n * activeFilter!.take!,
+                skip: n * (activeFilter?.take ?? 10),
               })
             }}
             setPageSize={(n: number) =>

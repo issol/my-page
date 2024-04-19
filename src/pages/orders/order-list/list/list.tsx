@@ -28,7 +28,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 import { FilterType } from '..'
-import { saveUserFilters } from '@src/shared/filter-storage'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 
 type OrderListCellType = {
   row: OrderListType
@@ -319,7 +319,7 @@ export default function OrdersList({
                       ordering: value.sort,
                     }))
                   defaultFilter &&
-                    saveUserFilters('orderListFilter', {
+                    saveUserFilters(FilterKey.ORDER_LIST, {
                       ...defaultFilter,
                       sort: value.field,
                       ordering: value.sort,

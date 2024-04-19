@@ -15,7 +15,7 @@ import { Dispatch, SetStateAction, useContext } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { UserRoleType } from '@src/context/types'
-import { saveUserFilters } from '@src/shared/filter-storage'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 import { timezoneSelector } from '@src/states/permission'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { FilterType } from '..'
@@ -98,7 +98,7 @@ export default function List({
             sort: value.field,
             ordering: value.sort,
           }))
-          saveUserFilters('lpmRequestListFilter', {
+          saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
             ...defaultFilter,
             sort: value.field,
             ordering: value.sort,

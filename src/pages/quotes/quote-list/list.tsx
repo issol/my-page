@@ -12,7 +12,7 @@ import { authState } from '@src/states/auth'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
 import { getQuoteListColumns } from '@src/shared/const/columns/quote-list'
-import { saveUserFilters } from '@src/shared/filter-storage'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 import { FilterType } from '.'
 
 type Props = {
@@ -93,7 +93,7 @@ export default function QuotesList({
                     sort: value.field,
                     ordering: value.sort,
                   })
-                  saveUserFilters('quoteListFilter', {
+                  saveUserFilters(FilterKey.QUOTE_LIST, {
                     ...defaultFilter,
                     sort: value.field,
                     ordering: value.sort,

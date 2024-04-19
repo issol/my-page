@@ -30,7 +30,7 @@ import { authState } from '@src/states/auth'
 import { Dispatch, SetStateAction } from 'react'
 import { UserRoleType } from '@src/context/types'
 import { FilterType } from '..'
-import { saveUserFilters } from '@src/shared/filter-storage'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 
 type CellType = {
   row: RequestListType
@@ -103,7 +103,7 @@ export default function List({
             sort: value.field,
             ordering: value.sort,
           }))
-          saveUserFilters('clientRequestListFilter', {
+          saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
             ...defaultFilter,
             sort: value.field,
             ordering: value.sort,
