@@ -12,6 +12,11 @@ import Filters from './components/filter'
 import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import JobPostingList from './components/list'
 import { useQueryClient } from 'react-query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   jobType?: string
@@ -38,18 +43,23 @@ export const initialFilter: FilterType = {
   sort: 'createdAt',
   ordering: 'DESC',
 }
-export default function jobPosting() {
-  type FilterState = Array<{ value: string; label: string }>
 
+type FilterState = Array<{ value: string; label: string }>
+export default function jobPosting() {
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.JOB_POSTING_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.JOB_POSTING_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
   const queryClient = useQueryClient()
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
   // const [pageSize, setPageSize] = useState(10)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
-  const [activeFilter, setActiveFilter] = useState<FilterType>({
-    ...initialFilter,
-  })
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null)
 
   const { data: list, isLoading } = useGetJobPostingList(activeFilter)
 
@@ -99,21 +109,34 @@ export default function jobPosting() {
   function onSearch() {
     setActiveFilter({
       ...filter,
-      skip: skip * activeFilter?.take!,
-      take: activeFilter.take,
     })
-    queryClient.invalidateQueries(['get-jobPosting/list', activeFilter])
+    saveUserFilters(FilterKey.JOB_POSTING_LIST, { ...filter })
+    setDefaultFilter({ ...filter })
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
-    queryClient.invalidateQueries(['get-jobPosting/list', activeFilter])
+    saveUserFilters(FilterKey.JOB_POSTING_LIST, { ...initialFilter })
   }
 
   useEffect(() => {
     queryClient.invalidateQueries(['get-jobPosting/list'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
+
   return (
     <Grid container spacing={6} className='match-height'>
       <PageHeader title={<Typography variant='h5'>Job posting</Typography>} />
@@ -127,13 +150,16 @@ export default function jobPosting() {
       />
       <JobPostingList
         skip={skip}
-        pageSize={activeFilter.take!}
+        pageSize={activeFilter?.take ?? 10}
         setSkip={(n: number) => {
           setSkip(n)
-          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+          setActiveFilter({
+            ...activeFilter!,
+            skip: n * (activeFilter?.take ?? 10),
+          })
         }}
         setPageSize={(n: number) =>
-          setActiveFilter({ ...activeFilter, take: n })
+          setActiveFilter({ ...activeFilter!, take: n })
         }
         list={list || { data: [], totalCount: 0 }}
         isLoading={isLoading}

@@ -12,6 +12,7 @@ export enum FilterKey {
   LINGUIST_TEAM_LIST = 'linguistTeamListFilter',
   CLIENT_LIST = 'clientListFilter',
   RECRUITING_LIST = 'recruitingListFilter',
+  JOB_POSTING_LIST = 'jobPostingListFilter',
 }
 
 export function saveUserFilters(key: string, filters: any) {
