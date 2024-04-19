@@ -131,8 +131,6 @@ export default function ClientGuidLines() {
     if (savedFilter) {
       if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
         setDefaultFilter(savedFilter)
-      }
-      if (JSON.stringify(filter) !== JSON.stringify(savedFilter)) {
         setFilter(savedFilter)
         setActiveFilter(savedFilter)
       }
