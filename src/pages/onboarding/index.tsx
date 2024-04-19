@@ -30,6 +30,11 @@ import JobTypeRole from '../components/job-type-role-chips'
 import TestStatus from './components/list/list-item/test-status'
 import Icon from '@src/@core/components/icon'
 import { useQueryClient } from 'react-query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -39,24 +44,35 @@ const defaultValues: FilterType = {
   experience: [],
   testStatus: [],
   search: '',
+  order: 'desc',
+}
+
+const initialFilter: OnboardingFilterType = {
+  jobType: [],
+  role: [],
+  source: [],
+  target: [],
+  experience: [],
+  testStatus: [],
+  take: 10,
+  skip: 0,
+  order: 'desc',
 }
 
 export default function Onboarding() {
   const queryClient = useQueryClient()
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.ONBOARDING_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.ONBOARDING_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
+
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
-  const [filters, setFilters] = useState<OnboardingFilterType>({
-    jobType: [],
-    role: [],
-    source: [],
-    target: [],
-    experience: [],
-    testStatus: [],
-    take: onboardingListPageSize,
-    skip: onboardingListPageSize * onboardingListPage,
-    order: 'asc',
-  })
+  const [filters, setFilters] = useState<OnboardingFilterType | null>(null)
 
   const { data: onboardingProList, isLoading } =
     useGetOnboardingProList(filters)
@@ -75,52 +91,25 @@ export default function Onboarding() {
   const languageList = getGloLanguage()
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
-    defaultValues,
+    defaultValues: defaultFilter,
     mode: 'onSubmit',
   })
 
   const onClickResetButton = () => {
     setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
-    reset({
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
-      experience: [],
-      testStatus: [],
-      search: '',
-    })
+    reset(defaultValues)
 
-    setFilters({
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
-      experience: [],
-      testStatus: [],
-      take: onboardingListPageSize,
-      skip: onboardingListPageSize * onboardingListPage,
-    })
-
-    queryClient.invalidateQueries([
-      'onboarding-pro-list',
-      {
-        jobType: [],
-        role: [],
-        source: [],
-        target: [],
-        experience: [],
-        testStatus: [],
-        take: onboardingListPageSize,
-        skip: onboardingListPageSize * onboardingListPage,
-      },
-    ])
+    setFilters(initialFilter)
+    saveUserFilters(FilterKey.ONBOARDING_LIST, { ...defaultValues })
   }
 
   const onSubmit = (data: FilterType) => {
     const { jobType, role, source, target, experience, testStatus, search } =
       data
+
+    saveUserFilters(FilterKey.ONBOARDING_LIST, data)
+    setDefaultFilter(data)
 
     const filter = {
       jobType: jobType.map(value => value.value),
@@ -139,7 +128,7 @@ export default function Onboarding() {
 
     setFilters(filter)
 
-    queryClient.invalidateQueries(['onboarding-pro-list', filter])
+    // queryClient.invalidateQueries(['onboarding-pro-list', filter])
 
     // console.log(data)
   }
@@ -177,8 +166,12 @@ export default function Onboarding() {
                 fontSize={18}
                 onClick={() => {
                   setIdOrder(!idOrder)
+                  saveUserFilters(FilterKey.ONBOARDING_LIST, {
+                    ...defaultFilter,
+                    order: idOrder ? 'asc' : 'desc',
+                  })
                   setFilters(prevState => ({
-                    ...prevState,
+                    ...prevState!,
                     order: idOrder ? 'asc' : 'desc',
                   }))
                 }}
@@ -246,11 +239,11 @@ export default function Onboarding() {
 
         // 필터에 Source, Target, jobType, role, testStatus가 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시킴
         // 리스트에서 Job type/Role, Language Pair, Test status를 볼수있게 처리
-        const sourceFilters = filters.source || []
-        const targetFilters = filters.target || []
-        const jobTypeFilters = filters.jobType || []
-        const roleFilters = filters.role || []
-        const testStatusFilters = filters.testStatus || []
+        const sourceFilters = filters?.source || []
+        const targetFilters = filters?.target || []
+        const jobTypeFilters = filters?.jobType || []
+        const roleFilters = filters?.role || []
+        const testStatusFilters = filters?.testStatus || []
 
         row.jobInfo.some((value, idx) => {
           const source = value.source || ''
@@ -331,6 +324,37 @@ export default function Onboarding() {
     queryClient.invalidateQueries(['onboarding-pro-list'])
     queryClient.invalidateQueries(['onboarding-pro-details'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      const { jobType, role, source, target, experience, testStatus, search } =
+        savedFilter
+
+      const filter = {
+        jobType: jobType.map(value => value.value),
+        role: role.map(value => value.value),
+        source: source.map(value => value.value),
+        target: target.map(value => value.value),
+        testStatus: testStatus.map(value => value.value),
+        experience: experience.map(value => value.value),
+        search: search,
+        take: onboardingListPageSize,
+        skip: onboardingListPageSize * onboardingListPage,
+        order: 'desc',
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+    } else {
+      setFilters(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <Grid container spacing={6}>

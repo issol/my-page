@@ -19,7 +19,7 @@ type Props = {
   setOnboardingListPageSize: Dispatch<SetStateAction<number>>
   onboardingProList: OnboardingListType[]
   onboardingProListCount: number
-  setFilters: Dispatch<SetStateAction<OnboardingFilterType>>
+  setFilters: Dispatch<SetStateAction<OnboardingFilterType | null>>
   columns: GridColumns<OnboardingListType>
   isLoading: boolean
 }
@@ -98,15 +98,15 @@ export default function OnboardingList({
             page={onboardingListPage}
             rowCount={onboardingProListCount}
             onPageChange={(newPage: number) => {
-              setFilters((prevState: OnboardingFilterType) => ({
-                ...prevState,
+              setFilters((prevState: OnboardingFilterType | null) => ({
+                ...prevState!,
                 skip: newPage * onboardingListPageSize,
               }))
               setOnboardingListPage(newPage)
             }}
             onPageSizeChange={(newPageSize: number) => {
-              setFilters((prevState: OnboardingFilterType) => ({
-                ...prevState,
+              setFilters((prevState: OnboardingFilterType | null) => ({
+                ...prevState!,
                 take: newPageSize,
               }))
               setOnboardingListPageSize(newPageSize)

@@ -140,6 +140,7 @@ export type FilterType = {
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
   search: string
+  order: 'desc' | 'asc'
 }
 
 export interface SelectType {
