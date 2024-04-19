@@ -10,6 +10,7 @@ export enum FilterKey {
   INVOICE_PAYABLE_LIST = 'invoicePayableListFilter',
   PRO_LIST = 'proListFilter',
   LINGUIST_TEAM_LIST = 'linguistTeamListFilter',
+  CLIENT_LIST = 'clientListFilter',
 }
 
 export function saveUserFilters(key: string, filters: any) {

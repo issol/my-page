@@ -95,7 +95,6 @@ export default function ClientListFilter({
                         {...params}
                         autoComplete='off'
                         label='Status'
-                        placeholder='Status'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
