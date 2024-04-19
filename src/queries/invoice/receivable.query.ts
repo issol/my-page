@@ -10,15 +10,18 @@ import {
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
 import { useQuery } from 'react-query'
 
-export const useGetReceivableList = (filter: InvoiceReceivableFilterType) => {
+export const useGetReceivableList = (
+  filter: InvoiceReceivableFilterType | null,
+) => {
   return useQuery(
     ['invoice/receivable/list', filter],
-    () => getReceivableList(filter),
+    () => getReceivableList(filter!),
     {
       staleTime: 10 * 1000, // 1
 
       suspense: false,
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }
