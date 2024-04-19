@@ -307,8 +307,8 @@ const ProDetailOverview = () => {
       direction === 'prev'
         ? Math.max(rolePage - 1, 0)
         : direction === 'next'
-        ? rolePage + 1
-        : 0
+          ? rolePage + 1
+          : 0
 
     setRolePage(changedPage)
     setSelectedJobInfo(null)
@@ -319,8 +319,8 @@ const ProDetailOverview = () => {
       direction === 'prev'
         ? Math.max(commentsProPage - 1, 0)
         : direction === 'next'
-        ? commentsProPage + 1
-        : 0
+          ? commentsProPage + 1
+          : 0
 
     setCommentsProPage(changedPage)
   }
@@ -647,12 +647,12 @@ const ProDetailOverview = () => {
               {type === 'Skipped'
                 ? 'you want to skip'
                 : type === 'Basic test Ready'
-                ? 'you want to proceed'
-                : type === 'Basic failed'
-                ? 'you want to fail'
-                : type === 'Basic passed'
-                ? 'to proceed'
-                : null}
+                  ? 'you want to proceed'
+                  : type === 'Basic failed'
+                    ? 'you want to fail'
+                    : type === 'Basic passed'
+                      ? 'to proceed'
+                      : null}
               &nbsp;this basic test?
               <Typography
                 variant='body2'
@@ -684,12 +684,12 @@ const ProDetailOverview = () => {
             type === 'Skipped'
               ? 'Skip'
               : type === 'Basic test Ready'
-              ? 'Proceed'
-              : type === 'Basic failed'
-              ? 'Fail'
-              : type === 'Basic passed'
-              ? 'Pass'
-              : ''
+                ? 'Proceed'
+                : type === 'Basic failed'
+                  ? 'Fail'
+                  : type === 'Basic passed'
+                    ? 'Pass'
+                    : ''
           }
         />
       ),
@@ -748,23 +748,23 @@ const ProDetailOverview = () => {
             type === 'Awaiting assignment'
               ? 'Cancel'
               : type === 'Skill test Ready'
-              ? 'Proceed'
-              : type === 'Skill failed'
-              ? 'Fail'
-              : type === 'Cancelled'
-              ? 'Cancel'
-              : ''
+                ? 'Proceed'
+                : type === 'Skill failed'
+                  ? 'Fail'
+                  : type === 'Cancelled'
+                    ? 'Cancel'
+                    : ''
           }
           leftButtonText={
             type === 'Awaiting assignment'
               ? 'No'
               : type === 'Skill test Ready'
-              ? 'Cancel'
-              : type === 'Skill failed'
-              ? 'Cancel'
-              : type === 'Cancelled'
-              ? 'No'
-              : ''
+                ? 'Cancel'
+                : type === 'Skill failed'
+                  ? 'Cancel'
+                  : type === 'Cancelled'
+                    ? 'No'
+                    : ''
           }
         />
       ),
@@ -1024,7 +1024,9 @@ const ProDetailOverview = () => {
           <Grid
             container
             item
-            xs={3.6}
+            xs={12}
+            md={6}
+            xl={3.6}
             gap='24px'
             display='flex'
             direction='column'
@@ -1107,7 +1109,7 @@ const ProDetailOverview = () => {
             </Grid>
           </Grid>
 
-          <Grid item xs={8.4}>
+          <Grid item xl={8.4} md={6} xs={12}>
             <Box
               sx={{
                 display: 'flex',
