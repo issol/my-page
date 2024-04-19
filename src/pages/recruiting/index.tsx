@@ -23,6 +23,11 @@ import {
 // ** types
 import { RecruitingCountType } from '@src/apis/recruiting.api'
 import { useQueryClient } from 'react-query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   client: string
@@ -47,17 +52,21 @@ export const initialFilter: FilterType = {
   sort: 'createdAt',
   ordering: 'DESC',
 }
+type FilterState = Array<{ value: string; label: string }>
 export default function Recruiting() {
-  type FilterState = Array<{ value: string; label: string }>
-
   const queryClient = useQueryClient()
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.RECRUITING_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.RECRUITING_LIST)!)
+    : null
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
-  const [activeFilter, setActiveFilter] = useState<FilterType>({
-    ...initialFilter,
-  })
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null)
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
 
   const { data: list, isLoading } = useGetRecruitingList(activeFilter)
   const { data: counts } = useGetRecruitingCount()
@@ -108,22 +117,40 @@ export default function Recruiting() {
   function onSearch() {
     setActiveFilter({
       ...filter,
-      skip: skip * activeFilter?.take!,
-      take: activeFilter.take,
+      // skip: skip * activeFilter?.take!,
+      // take: activeFilter.take,
     })
+    saveUserFilters(FilterKey.RECRUITING_LIST, { ...filter })
+    setDefaultFilter({ ...filter })
 
-    queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
+    // queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
-    queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
+    saveUserFilters(FilterKey.RECRUITING_LIST, {
+      ...initialFilter,
+    })
+    // queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
   }
 
   useEffect(() => {
     queryClient.invalidateQueries(['get-recruiting/list'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <Grid container spacing={6} className='match-height'>
@@ -143,13 +170,16 @@ export default function Recruiting() {
       />
       <RecruitingList
         skip={skip}
-        pageSize={activeFilter.take!}
+        pageSize={activeFilter?.take ?? 10}
         setSkip={(n: number) => {
           setSkip(n)
-          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+          setActiveFilter({
+            ...activeFilter!,
+            skip: n * (activeFilter?.take ?? 10),
+          })
         }}
         setPageSize={(n: number) =>
-          setActiveFilter({ ...activeFilter, take: n })
+          setActiveFilter({ ...activeFilter!, take: n })
         }
         list={list || { data: [], totalCount: 0 }}
         isLoading={isLoading}
