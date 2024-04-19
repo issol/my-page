@@ -11,6 +11,7 @@ import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/lega
 import ListResume from '@src/pages/pro/list/list/list-resume'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
+  ProFilterType,
   ProListCellType,
   ProListFilterType,
   ProListType,
@@ -21,6 +22,7 @@ import { Loadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import { styled } from '@mui/system'
 import JobTypeRole from '@src/pages/components/job-type-role-chips'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 
 export const getProListColumns = (
   auth: Loadable<{
@@ -40,13 +42,14 @@ export const getProListColumns = (
   isHoverId: boolean,
   idOrder: boolean,
   setIdOrder: Dispatch<SetStateAction<boolean>>,
-  setFilters: Dispatch<SetStateAction<ProListFilterType>>,
+  setFilters: Dispatch<SetStateAction<ProListFilterType | null>>,
   setIsSorting: Dispatch<SetStateAction<boolean>>,
   filters: ProListFilterType,
   setIsDateHoverId: Dispatch<SetStateAction<boolean>>,
   isDateHoverId: boolean,
   dateOrder: boolean,
   setDateOrder: Dispatch<SetStateAction<boolean>>,
+  defaultFilter: ProFilterType,
   onClickFile: (
     file: {
       id: number
@@ -85,10 +88,17 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setIdOrder(!idOrder)
+                  saveUserFilters(FilterKey.PRO_LIST, {
+                    ...defaultFilter,
+                    sortDate: undefined,
+                    sortId: idOrder ? 'ASC' : 'DESC',
+                  })
                   setFilters(prevState => {
-                    const { sortDate, ...filteredState } = prevState;
+                    const { sortDate, ...filteredState } = prevState!
+
                     return {
                       ...filteredState,
+                      sortDate: undefined,
                       sortId: idOrder ? 'ASC' : 'DESC',
                     }
                   })
@@ -327,10 +337,17 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setDateOrder(!dateOrder)
+                  saveUserFilters(FilterKey.PRO_LIST, {
+                    ...defaultFilter,
+                    sortId: undefined,
+                    sortDate: dateOrder ? 'ASC' : 'DESC',
+                  })
                   setFilters(prevState => {
-                    const { sortId, ...filteredState } = prevState;
+                    const { sortId, ...filteredState } = prevState!
+
                     return {
                       ...filteredState,
+                      sortId: undefined,
                       sortDate: dateOrder ? 'ASC' : 'DESC',
                     }
                   })

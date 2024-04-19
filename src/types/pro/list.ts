@@ -9,6 +9,8 @@ export type ProFilterType = {
   status: { label: string; value: string }[]
   clientId: { name: string; clientId: number }[]
   search: string
+  sortId?: string
+  sortDate?: string
 }
 
 export type ProListFilterType = {

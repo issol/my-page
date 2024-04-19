@@ -17,6 +17,11 @@ import { authState } from '@src/states/auth'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -29,12 +34,27 @@ const defaultValues: ProFilterType = {
   search: '',
 }
 
+const defaultFilters: ProListFilterType = {
+  jobType: [],
+  role: [],
+  source: [],
+  target: [],
+  experience: [],
+  status: [],
+  clientId: [],
+  take: 10,
+  skip: 0,
+}
+
 const ProsList = () => {
   const queryClient = useQueryClient()
   const languageList = getGloLanguage()
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
+  const savedFilter: ProFilterType | null = getUserFilters(FilterKey.PRO_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.PRO_LIST)!)
+    : null
 
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(10)
@@ -50,66 +70,27 @@ const ProsList = () => {
   const [isDateHoverId, setIsDateHoverId] = useState(false)
   const [isSorting, setIsSorting] = useState<boolean>(false)
 
-  const [filters, setFilters] = useState<ProListFilterType>({
-    jobType: [],
-    role: [],
-    source: [],
-    target: [],
-    experience: [],
-    status: [],
-    clientId: [],
-    take: proListPageSize,
-    skip: proListPage * proListPageSize,
-    sortId: 'DESC',
-    // sortDate: 'DESC',
-  })
+  const [filters, setFilters] = useState<ProListFilterType | null>(null)
+
+  const [defaultFilter, setDefaultFilter] =
+    useState<ProFilterType>(defaultValues)
 
   const { data: proList, isLoading } = useGetProList(filters)
 
   const { control, handleSubmit, trigger, reset } = useForm<ProFilterType>({
-    defaultValues,
+    defaultValues: defaultFilter,
     mode: 'onSubmit',
   })
 
   const onClickResetButton = () => {
     setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
-    reset({
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
-      experience: [],
-      status: [],
-      clientId: [],
-      search: '',
-    })
+    reset(defaultValues)
 
-    setFilters({
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
-      experience: [],
-      status: [],
-      clientId: [],
-      take: proListPageSize,
-      skip: proListPageSize * proListPage,
+    setFilters(defaultFilters)
+    saveUserFilters(FilterKey.PRO_LIST, {
+      ...defaultValues,
     })
-    queryClient.invalidateQueries([
-      'pro-list',
-      {
-        jobType: [],
-        role: [],
-        source: [],
-        target: [],
-        experience: [],
-        status: [],
-        clientId: [],
-        take: proListPageSize,
-        skip: proListPageSize * proListPage,
-      },
-    ])
   }
 
   const handleFilterStateChange =
@@ -129,6 +110,9 @@ const ProsList = () => {
       search,
     } = data
 
+    saveUserFilters(FilterKey.PRO_LIST, data)
+    setDefaultFilter(data)
+
     const filter = {
       jobType: jobType.map(value => value.value),
       role: role.map(value => value.value),
@@ -145,7 +129,7 @@ const ProsList = () => {
     }
 
     setFilters(filter)
-    queryClient.invalidateQueries(['pro-list', filter])
+    // queryClient.invalidateQueries(['pro-list', filter])
   }
 
   const onClickFile = (
@@ -176,6 +160,49 @@ const ProsList = () => {
     queryClient.invalidateQueries(['pro-list'])
     queryClient.invalidateQueries(['pro-overview'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        jobType,
+        role,
+        source,
+        target,
+        experience,
+        status,
+        clientId,
+        search,
+        sortId,
+        sortDate,
+      } = savedFilter
+
+      const filter = {
+        jobType: jobType.map(value => value.value),
+        role: role.map(value => value.value),
+        source: source.map(value => value.value),
+        target: target.map(value => value.value),
+        status: status.map(value => value.value),
+        experience: experience.map(value => value.value),
+        clientId: clientId.map(value => value.clientId),
+        search: search,
+        take: proListPageSize,
+        skip: proListPageSize * proListPage,
+        sortId: sortId,
+        sortDate: sortDate,
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilters(filter)
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+    } else {
+      setFilters(defaultFilters)
+    }
+  }, [savedFilter])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -213,11 +240,12 @@ const ProsList = () => {
             setIdOrder,
             setFilters,
             setIsSorting,
-            filters,
+            filters!,
             setIsDateHoverId,
             isDateHoverId,
             dateOrder,
             setDateOrder,
+            defaultFilter,
             onClickFile,
           )}
           isLoading={Boolean(isLoading || isSorting)}

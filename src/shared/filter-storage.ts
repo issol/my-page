@@ -8,6 +8,8 @@ export enum FilterKey {
   JOB_TEMPLATE_LIST = 'jobTemplateFilter',
   INVOICE_RECEIVABLE_LIST = 'invoiceReceivableListFilter',
   INVOICE_PAYABLE_LIST = 'invoicePayableListFilter',
+  PRO_LIST = 'proListFilter',
+  LINGUIST_TEAM_LIST = 'linguistTeamListFilter',
 }
 
 export function saveUserFilters(key: string, filters: any) {

@@ -15,7 +15,7 @@ type Props = {
   setProListPageSize: Dispatch<SetStateAction<number>>
   proList: ProListType[]
   proListCount: number
-  setFilters: Dispatch<SetStateAction<ProListFilterType>>
+  setFilters: Dispatch<SetStateAction<ProListFilterType | null>>
   columns: GridColumns<ProListType>
   isLoading: boolean
 }
@@ -89,15 +89,15 @@ const ProList = ({
           page={proListPage}
           rowCount={proListCount}
           onPageChange={(newPage: number) => {
-            setFilters((prevState: ProListFilterType) => ({
-              ...prevState,
+            setFilters((prevState: ProListFilterType | null) => ({
+              ...prevState!,
               skip: newPage * proListPageSize,
             }))
             setProListPage(newPage)
           }}
           onPageSizeChange={(newPageSize: number) => {
-            setFilters((prevState: ProListFilterType) => ({
-              ...prevState,
+            setFilters((prevState: ProListFilterType | null) => ({
+              ...prevState!,
               take: newPageSize,
             }))
             setProListPageSize(newPageSize)
