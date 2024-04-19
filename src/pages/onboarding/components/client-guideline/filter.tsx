@@ -92,12 +92,7 @@ export default function Filters({
                   id='client'
                   getOptionLabel={option => option.label}
                   renderInput={params => (
-                    <TextField
-                      {...params}
-                      autoComplete='off'
-                      label='Client'
-                      placeholder='Client'
-                    />
+                    <TextField {...params} autoComplete='off' label='Client' />
                   )}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
@@ -132,7 +127,6 @@ export default function Filters({
                         {...params}
                         autoComplete='off'
                         label='Category'
-                        placeholder='Category'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
@@ -168,7 +162,6 @@ export default function Filters({
                       {...params}
                       autoComplete='off'
                       label='Service type'
-                      placeholder='Service type'
                     />
                   )}
                   renderOption={(props, option, { selected }) => (
