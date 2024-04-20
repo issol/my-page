@@ -102,6 +102,7 @@ export type FormType = {
   jobPostLink?: string
   content: any
   text: string
+  clientId: number | null
 }
 
 //post
