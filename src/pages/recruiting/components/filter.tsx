@@ -52,7 +52,7 @@ export default function Filters({
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    () => clientData?.data?.map(i => ({ label: i.name, value: String(i.clientId) })) || [],
     [clientData],
   )
 
@@ -97,6 +97,7 @@ export default function Filters({
                       setFilter({
                         ...filter,
                         client: v?.value ?? '',
+                        clientId: Number(v?.value) ?? null,
                       })
                     }
                     options={clientList}
