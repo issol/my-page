@@ -39,10 +39,12 @@ export type FilterType = {
   take?: number
   sort: string
   ordering: string
+  clientId: number | null
 }
 
 export const initialFilter: FilterType = {
   client: '',
+  clientId: null,
   jobType: '',
   role: '',
   source: '',

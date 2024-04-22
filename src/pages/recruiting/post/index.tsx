@@ -118,7 +118,7 @@ export default function RecruitingPost() {
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    () => clientData?.data?.map(i => ({ label: i.name, value: String(i.clientId) })) || [],
     [clientData],
   )
 
@@ -233,7 +233,8 @@ export default function RecruitingPost() {
     const data = getValues()
     const finalForm = {
       status: data.status.value,
-      client: data.client.value,
+      client: data.client.label,
+      clientId: Number(data.client.value),
       jobType: data.jobType.value,
       role: data.role.value,
       sourceLanguage: data.sourceLanguage.value,
@@ -251,7 +252,6 @@ export default function RecruitingPost() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
-    console.log('filteredForm', filteredForm)
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }
