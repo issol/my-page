@@ -63,7 +63,7 @@ const CertificationTest = () => {
 
   const languageList = getGloLanguage()
 
-  const { control, handleSubmit, trigger, reset } =
+  const { control, handleSubmit, trigger, reset, getValues: getFilterValues } =
     useForm<TestMaterialFilterType>({
       defaultValues,
       mode: 'onSubmit',
@@ -154,6 +154,7 @@ const CertificationTest = () => {
             languageList={languageList}
             handleFilterStateChange={handleFilterStateChange}
             expanded={expanded}
+            getValues={getFilterValues}
           />
           <TestMaterialList
             testMaterialList={testMaterialList!}

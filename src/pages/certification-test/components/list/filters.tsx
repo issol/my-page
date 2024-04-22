@@ -18,6 +18,7 @@ import {
   Control,
   UseFormHandleSubmit,
   UseFormTrigger,
+  UseFormGetValues,
 } from 'react-hook-form'
 
 import Checkbox from '@mui/material/Checkbox'
@@ -25,7 +26,7 @@ import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { JobList } from '@src/shared/const/job/jobs'
 
-import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
+import { useState, Dispatch, SetStateAction, SyntheticEvent, useEffect } from 'react'
 import _ from 'lodash'
 
 import { styled } from '@mui/material/styles'
@@ -36,6 +37,7 @@ import {
   TestType,
 } from '@src/types/certification-test/list'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import { getValue } from '@mui/system'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -81,6 +83,7 @@ type Props = {
     panel: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => void
   expanded: string | false
+  getValues: UseFormGetValues<TestMaterialFilterType>
 }
 
 export default function TestMaterialFilters({
@@ -96,9 +99,25 @@ export default function TestMaterialFilters({
   languageList,
   handleFilterStateChange,
   expanded,
+  getValues,
 }: Props) {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
+  const [uniqueLanguageList, setUniqueLanguageList] = useState<
+    {
+      value: string
+      label: GloLanguageEnum
+    }[]
+  >([])
+
+  useEffect(() => {
+    setUniqueLanguageList(_.uniqBy(languageList, 'value'))
+  }, [languageList])
+
+  const allLanguage = [{
+    value: 'all',
+    label: 'All',
+  }]
 
   const onFocusSearchInput = () => {
     setOnFocused(true)
@@ -208,7 +227,7 @@ export default function TestMaterialFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={_.uniqBy(languageList, 'value')}
+                          options={uniqueLanguageList}
                           id='source'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
@@ -247,7 +266,10 @@ export default function TestMaterialFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={_.uniqBy(languageList, 'value')}
+                          options={getValues().testType.some(type => type.label === 'Basic test')
+                            ? uniqueLanguageList
+                            : [...allLanguage, ...uniqueLanguageList]
+                          }
                           id='target'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
