@@ -47,7 +47,7 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
               <TextField
                 fullWidth
                 autoComplete='off'
-                error={Boolean(errors) && isSubmitted}
+                error={Boolean(errors?.baseAddress) && isSubmitted}
                 inputRef={ref}
                 // label='Street 1*'
                 value={value ?? ''}
@@ -60,7 +60,9 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
                   },
                 }}
                 helperText={
-                  Boolean(errors) && isSubmitted ? FormErrors.required : ''
+                  Boolean(errors?.baseAddress) && isSubmitted
+                    ? FormErrors.required
+                    : ''
                 }
               />
             )}
@@ -118,10 +120,12 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
               <TextField
                 fullWidth
                 autoComplete='off'
-                error={Boolean(errors) && isSubmitted}
+                error={Boolean(errors?.city) && isSubmitted}
                 inputRef={ref}
                 helperText={
-                  Boolean(errors) && isSubmitted ? FormErrors.required : ''
+                  Boolean(errors?.city) && isSubmitted
+                    ? FormErrors.required
+                    : ''
                 }
                 value={value ?? ''}
                 onChange={onChange}
@@ -170,7 +174,7 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
-            '& .MuiInputBase-root': {
+            '.MuiInputBase-root': {
               height: '46px',
               padding: '0 10px',
             },
@@ -205,9 +209,11 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
                   <TextField
                     {...params}
                     autoComplete='off'
-                    error={Boolean(errors) && isSubmitted}
+                    error={Boolean(errors?.country) && isSubmitted}
                     helperText={
-                      Boolean(errors) && isSubmitted ? FormErrors.required : ''
+                      Boolean(errors?.country) && isSubmitted
+                        ? FormErrors.required
+                        : ''
                     }
                     inputRef={field.ref}
                     // label='Country*'
@@ -241,9 +247,11 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
                 fullWidth
                 autoComplete='off'
                 inputRef={ref}
-                error={Boolean(errors) && isSubmitted}
+                error={Boolean(errors?.zipCode) && isSubmitted}
                 helperText={
-                  Boolean(errors) && isSubmitted ? FormErrors.required : ''
+                  Boolean(errors?.zipCode) && isSubmitted
+                    ? FormErrors.required
+                    : ''
                 }
                 value={value ?? ''}
                 onChange={onChange}

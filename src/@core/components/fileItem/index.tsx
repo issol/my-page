@@ -11,7 +11,7 @@ type Props = {
 }
 export default function FileItem({ file, onClick, onClear }: Props) {
   return (
-    <FileList key={file.name}>
+    <FileList>
       <div className='file-details'>
         <div className='file-preview'>
           <Icon
@@ -29,7 +29,9 @@ export default function FileItem({ file, onClick, onClear }: Props) {
       {onClear && (
         <IconButton
           onClick={event => {
-            onClear && onClear(file)
+            console.log(event)
+
+            onClear(file)
           }}
         >
           <Icon icon='mdi:close' fontSize={20} />

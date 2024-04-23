@@ -1,5 +1,12 @@
 // ** React Imports
-import { Fragment, ReactNode, useEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -78,14 +85,14 @@ import { ProRolePair, RoleList } from '@src/shared/const/role/roles'
 
 import { getProfileSchema } from 'src/types/schema/profile.schema'
 
-import { styled } from '@mui/system'
+import { getValue, styled } from '@mui/system'
 
 // ** types
 import { FileType } from '@src/types/common/file.type'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // **fetches
-import { updateConsumerUserInfo } from '@src/apis/user.api'
+import { getUserInfo, updateConsumerUserInfo } from '@src/apis/user.api'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 // ** helpers
@@ -98,7 +105,7 @@ import {
 } from '@src/types/schema/client-billing-address.schema'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { useRecoilValueLoadable } from 'recoil'
+import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
 
@@ -108,10 +115,15 @@ import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 import MuiPhone from '@src/pages/components/phone/mui-phone'
-import { timezoneSelector } from '@src/states/permission'
+import { currentRoleSelector, timezoneSelector } from '@src/states/permission'
 import Stepper from '@src/pages/components/stepper'
 import { Icon } from '@iconify/react'
 import dayjs from 'dayjs'
+import { useGetProContract } from '@src/queries/pro/pro-applied-roles'
+import NDASigned from '@src/pages/certification-test/pro/components/nda-signed'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { signContract } from '@src/apis/pro/pro-certification-tests'
+import { saveUserDataToBrowser } from '@src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -172,8 +184,9 @@ const PersonalInfoPro = () => {
   const theme = useTheme()
   const router = useRouter()
   const jobId = router.query
-  console.log(router.query)
-  console.log(jobId)
+
+  const [signNDA, setSignNDA] = useState(false)
+
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   const MAXIMUM_FILE_SIZE = FILE_SIZE.PRO_RESUME
@@ -189,9 +202,12 @@ const PersonalInfoPro = () => {
   const [fileSize, setFileSize] = useState(0)
   const [activeStep, setActiveStep] = useState<number>(0)
 
+  const [ndaLanguage, setNdaLanguage] = useState<'ENG' | 'KOR'>('ENG')
+
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
   const setAuth = useAuth()
+  const setAuthState = useSetRecoilState(authState)
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -204,65 +220,12 @@ const PersonalInfoPro = () => {
   >([])
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const setCurrentRole = useSetRecoilState(currentRoleSelector)
 
-  useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
-      return {
-        code: list.timezoneCode,
-        label: list.timezone,
-        phone: '',
-      }
-    })
-    setTimeZoneList(filteredTimezone)
-  }, [timezone])
-
-  // ** Hooks
-  const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      // 'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-    },
-    // onDrop: (acceptedFiles: File[]) => {
-    //   setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
-    // },
-    onDrop: (acceptedFiles: File[]) => {
-      setFiles(prevFiles => [...prevFiles, ...acceptedFiles])
-      setResumeError(false)
-    },
+  const { data: ndaData, isLoading: ndaLoading } = useGetProContract({
+    type: 'NDA',
+    language: ndaLanguage,
   })
-
-  useEffect(() => {
-    if (
-      auth.state === 'hasValue' &&
-      auth.getValue() &&
-      auth.getValue().user?.firstName
-    ) {
-      router.replace(`/`)
-    }
-  }, [auth])
-
-  const handleRemoveFile = (file: FileType) => {
-    const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
-    setFiles([...filtered])
-  }
-
-  const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
-
-  const handleNext = () => {
-    setActiveStep(prevActiveStep => prevActiveStep + 1)
-  }
-
-  const fileList = files.map((file: FileType) => (
-    <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
-  ))
 
   const {
     control,
@@ -283,22 +246,75 @@ const PersonalInfoPro = () => {
     ) as unknown as Resolver<ProPersonalInfo>,
   })
 
-  const {
-    control: addressControl,
-    getValues: getAddress,
-    setValue: setAddress,
-    setError: setAddressError,
-    formState: { errors: addressError, isValid: isAddressValid },
-  } = useForm<ClientAddressType>({
-    defaultValues: {
-      ...clientBillingAddressDefaultValue,
-      addressType: 'billing',
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
+
+  // ** Hooks
+  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+    noDragEventsBubbling: true,
+
+    accept: {
+      // 'image/*': ['.png', '.jpg', '.jpeg'],
+      'text/csv': ['.csv'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        ['.docx'],
     },
-    mode: 'onSubmit',
-    resolver: yupResolver(
-      clientBillingAddressSchema,
-    ) as Resolver<ClientAddressType>,
+    // onDrop: (acceptedFiles: File[]) => {
+    //   setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+    // },
+    onDrop: (acceptedFiles: File[]) => {
+      setFiles(prevFiles => [...prevFiles, ...acceptedFiles])
+      // const prevResume = getValues('resume')
+      // if (prevResume && prevResume.length > 0) {
+      //   setValue('resume', [...prevResume, ...acceptedFiles])
+      // } else {
+      //   setValue('resume', [...acceptedFiles])
+      // }
+      setResumeError(false)
+    },
   })
+
+  useEffect(() => {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().user?.firstName
+    ) {
+      router.replace(`/`)
+    }
+  }, [auth])
+
+  const handleRemoveFile = (file: FileType) => {
+    const uploadedFiles = files
+
+    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
+    console.log(filtered)
+
+    setFiles([...filtered])
+  }
+
+  const handleBack = () => {
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
+  }
+
+  const handleNext = () => {
+    setActiveStep(prevActiveStep => prevActiveStep + 1)
+  }
+
+  const fileList = files.map((file: FileType) => (
+    <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
+  ))
 
   const {
     fields: jobInfoFields,
@@ -326,6 +342,46 @@ const PersonalInfoPro = () => {
       clearErrors('resume')
     }
   }, [fileSize])
+
+  const signContractMutation = useMutation(
+    (data: { type: 'nda' | 'contract'; file: string[] }) =>
+      signContract(data.type, data.file),
+    {
+      onSuccess: () => {
+        getUserInfo(auth.getValue().user?.userId!)
+          .then(value => {
+            console.log(value)
+
+            const profile = value
+            const userInfo = {
+              ...profile,
+              id: value.userId,
+              email: value.email,
+              username: `${profile.firstName} ${
+                profile?.middleName ? '(' + profile?.middleName + ')' : ''
+              } ${profile.lastName}`,
+              firstName: profile.firstName,
+              timezone: profile.timezone,
+            }
+            saveUserDataToBrowser(userInfo)
+            setAuthState(prev => ({ ...prev, user: userInfo }))
+
+            // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
+            // user, company 데이터를 동시에 set 하도록 변경
+
+            setCurrentRole(
+              value?.roles && value?.roles.length > 0 ? value?.roles[0] : null,
+            )
+          })
+          .catch(e => {
+            router.push('/login')
+          })
+
+        setSignNDA(false)
+        // setChecked(false)
+      },
+    },
+  )
 
   const updateUserInfoMutation = useMutation(
     (data: ProUserInfoType & { userId: number }) =>
@@ -415,6 +471,57 @@ const PersonalInfoPro = () => {
     //       )
     //     })
     // }
+  }
+
+  const onClickSave = () => {
+    const data = getValues()
+    if (data.resume?.length) {
+      const promiseArr = data.resume.map((file, idx) => {
+        return getUploadUrlforCommon(
+          S3FileType.RESUME,
+          getResumeFilePath(auth.getValue().user?.id as number, file.name),
+        ).then(res => {
+          return uploadFileToS3(res.url, file)
+        })
+      })
+      Promise.all(promiseArr)
+        .then(res => {
+          const finalData: ProUserInfoType & { userId: number } = {
+            userId: auth.getValue().user?.id || 0,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            country: data.timezone.label,
+            birthday: data.birthday?.toISOString()!,
+            extraData: {
+              havePreferredName: data.havePreferred,
+              jobInfo: data.jobInfo,
+              middleName: data.middleName,
+              experience: data.experience,
+              legalNamePronunciation: data.legalNamePronunciation,
+              mobilePhone: data.mobile,
+              telephone: data.phone,
+              preferredName: data.preferredName,
+              resume: data.resume?.length
+                ? data.resume.map(file => file.name)
+                : [],
+              preferredNamePronunciation: data.preferredNamePronunciation,
+              pronounce: data.pronounce,
+              specialties: data.specialties?.map(item => item.value),
+              timezone: data.timezone,
+              addresses: [{}],
+            },
+          }
+          updateUserInfoMutation.mutate(finalData)
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
+    }
   }
 
   const onError = (errors: FieldErrors<ProPersonalInfo>) => {
@@ -581,7 +688,7 @@ const PersonalInfoPro = () => {
             // p: 7,
             display: 'flex',
             alignItems: 'center',
-            padding: '50px 50px',
+            padding: '72px 145px',
             // height: '100%',
             // maxWidth: '850px',
             // height: '100vh',
@@ -1112,7 +1219,7 @@ const PersonalInfoPro = () => {
                       <Controller
                         name='timezone'
                         control={control}
-                        render={({ field }) => (
+                        render={({ field, formState: { isSubmitted } }) => (
                           <Autocomplete
                             autoHighlight
                             fullWidth
@@ -1129,7 +1236,12 @@ const PersonalInfoPro = () => {
                               <TextField
                                 {...params}
                                 autoComplete='off'
-                                error={Boolean(errors.timezone)}
+                                error={isSubmitted && Boolean(errors.timezone)}
+                                helperText={
+                                  isSubmitted && Boolean(errors.timezone)
+                                    ? FormErrors.required
+                                    : ''
+                                }
                                 inputProps={{
                                   ...params.inputProps,
                                 }}
@@ -1142,11 +1254,6 @@ const PersonalInfoPro = () => {
                           />
                         )}
                       />
-                      {errors.timezone && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.timezone.message}
-                        </FormHelperText>
-                      )}
                     </Box>
                     <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
                       <Box
@@ -1171,7 +1278,10 @@ const PersonalInfoPro = () => {
                           name='experience'
                           control={control}
                           rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
+                          render={({
+                            field: { value, onChange, onBlur },
+                            formState: { isSubmitted },
+                          }) => (
                             <Autocomplete
                               fullWidth
                               options={ExperiencedYears}
@@ -1185,17 +1295,19 @@ const PersonalInfoPro = () => {
                                 <TextField
                                   {...params}
                                   autoComplete='off'
-                                  error={Boolean(errors.experience)}
+                                  error={
+                                    isSubmitted && Boolean(errors.experience)
+                                  }
+                                  helperText={
+                                    isSubmitted && Boolean(errors.experience)
+                                      ? FormErrors.required
+                                      : ''
+                                  }
                                 />
                               )}
                             />
                           )}
                         />
-                        {errors.experience && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.experience.message}
-                          </FormHelperText>
-                        )}
                       </Box>
                       <Box
                         sx={{
@@ -1283,82 +1395,124 @@ const PersonalInfoPro = () => {
                       }}
                       ref={resumeRef}
                     >
-                      <div {...getRootProps({ className: 'dropzone' })}>
-                        <input {...getInputProps()} />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '10px',
+                        }}
+                      >
                         <Box
                           sx={{
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '10px',
+                            flexDirection: 'column',
+                            gap: '4px',
                           }}
                         >
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '4px',
-                            }}
-                          >
-                            <Box sx={{ display: 'flex', alignItems: 'end' }}>
-                              <Typography fontSize={14} fontWeight={600}>
-                                Resume&nbsp;
-                                <Typography
-                                  component={'span'}
-                                  color={
-                                    errors.resume && isSubmitted
-                                      ? '#FF4D49'
-                                      : '#666CFF'
-                                  }
-                                >
-                                  *&nbsp;
-                                </Typography>
-                              </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'end' }}>
+                            <Typography fontSize={14} fontWeight={600}>
+                              Resume&nbsp;
                               <Typography
-                                fontSize={14}
+                                component={'span'}
                                 color={
                                   errors.resume && isSubmitted
-                                    ? '#4C4E6499'
+                                    ? '#FF4D49'
                                     : '#666CFF'
                                 }
                               >
-                                Supports only csv. pdf. and docx.
+                                *&nbsp;
                               </Typography>
-                            </Box>
+                            </Typography>
                             <Typography
                               fontSize={14}
-                              color='rgba(76, 78, 100, 0.60)'
-                              fontWeight={400}
+                              color={
+                                errors.resume && isSubmitted
+                                  ? '#4C4E6499'
+                                  : '#666CFF'
+                              }
                             >
-                              {formatFileSize(fileSize)}/{' '}
-                              {byteToMB(MAXIMUM_FILE_SIZE)}
+                              Supports only csv. pdf. and docx.
                             </Typography>
                           </Box>
-
+                          <Typography
+                            fontSize={14}
+                            color='rgba(76, 78, 100, 0.60)'
+                            fontWeight={400}
+                          >
+                            {formatFileSize(fileSize)}/{' '}
+                            {byteToMB(MAXIMUM_FILE_SIZE)}
+                          </Typography>
+                        </Box>
+                        <div {...getRootProps({ className: 'dropzone' })}>
+                          <input {...getInputProps()} />
                           <Button variant='contained' size='small'>
                             Upload
                           </Button>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            mt: '20px',
-                            width: '100%',
-                            gap: '20px',
-                          }}
-                        >
-                          {files.length > 0
-                            ? files.map((value, index) => (
-                                <FileItem
-                                  key={uuidv4()}
-                                  file={value}
-                                  onClear={handleRemoveFile}
-                                />
-                              ))
-                            : null}
-                        </Box>
-                      </div>
+                        </div>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          mt: '20px',
+                          width: '100%',
+                          gap: '20px',
+                        }}
+                      >
+                        {/* {getValues('resume') && getValues('resume')!.length > 0
+                          ? getValues('resume')!.map((value, index) => (
+                              <FileList key={uuidv4()}>
+                                <div className='file-details'>
+                                  <div className='file-preview'>
+                                    <Icon
+                                      icon='material-symbols:file-present-outline'
+                                      style={{
+                                        color: 'rgba(76, 78, 100, 0.54)',
+                                      }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Typography className='file-name'>
+                                      {value.name}
+                                    </Typography>
+                                    <Typography
+                                      className='file-size'
+                                      variant='body2'
+                                    >
+                                      {formatFileSize(value.size)}
+                                    </Typography>
+                                  </div>
+                                </div>
+
+                                <IconButton
+                                  onClick={event => {
+                                    console.log(event)
+                                    // event.stopPropagation()
+                                    // let removeFiles = files
+                                    // console.log(removeFiles.splice(index, 1))
+
+                                    // setFiles()
+
+                                    // handleRemoveFile(value)
+                                  }}
+                                >
+                                  <Icon icon='mdi:close' fontSize={20} />
+                                </IconButton>
+                              </FileList>
+                            ))
+                          : null} */}
+
+                        {files.length > 0
+                          ? files.map((value, index) => (
+                              <FileItem
+                                key={uuidv4()}
+                                file={value}
+                                onClear={handleRemoveFile}
+                              />
+                            ))
+                          : null}
+                      </Box>
                     </Box>
                   </Box>
                   <Divider sx={{ my: '20px !important' }} />
@@ -1450,7 +1604,10 @@ const PersonalInfoPro = () => {
                                 <Controller
                                   name={`jobInfo.${idx}.jobType`}
                                   control={control}
-                                  render={({ field }) => (
+                                  render={({
+                                    field,
+                                    formState: { isSubmitted },
+                                  }) => (
                                     <Autocomplete
                                       fullWidth
                                       options={
@@ -1481,24 +1638,23 @@ const PersonalInfoPro = () => {
                                             ] = ref
                                           }}
                                           error={
+                                            isSubmitted &&
                                             errors.jobInfo?.length
                                               ? !!errors.jobInfo[idx]?.jobType
                                               : false
+                                          }
+                                          helperText={
+                                            isSubmitted &&
+                                            errors.jobInfo?.length &&
+                                            errors.jobInfo[idx]?.jobType
+                                              ? FormErrors.required
+                                              : ''
                                           }
                                         />
                                       )}
                                     />
                                   )}
                                 />
-                                {errors.jobInfo?.length
-                                  ? errors.jobInfo[idx]?.jobType && (
-                                      <FormHelperText
-                                        sx={{ color: 'error.main' }}
-                                      >
-                                        {errors?.jobInfo[idx]?.jobType?.message}
-                                      </FormHelperText>
-                                    )
-                                  : ''}
                               </Box>
                               <Box
                                 sx={{
@@ -1555,24 +1711,23 @@ const PersonalInfoPro = () => {
                                             ] = ref
                                           }}
                                           error={
+                                            isSubmitted &&
                                             errors.jobInfo?.length
                                               ? !!errors.jobInfo[idx]?.role
                                               : false
+                                          }
+                                          helperText={
+                                            isSubmitted &&
+                                            errors.jobInfo?.length &&
+                                            errors.jobInfo[idx]?.role
+                                              ? FormErrors.required
+                                              : ''
                                           }
                                         />
                                       )}
                                     />
                                   )}
                                 />
-                                {errors.jobInfo?.length
-                                  ? errors.jobInfo[idx]?.role && (
-                                      <FormHelperText
-                                        sx={{ color: 'error.main' }}
-                                      >
-                                        {errors?.jobInfo[idx]?.role?.message}
-                                      </FormHelperText>
-                                    )
-                                  : ''}
                               </Box>
                             </Box>
                             {/* languages */}
@@ -1642,9 +1797,17 @@ const PersonalInfoPro = () => {
                                             ] = ref
                                           }}
                                           error={
+                                            isSubmitted &&
                                             errors.jobInfo?.length
                                               ? !!errors.jobInfo[idx]?.source
                                               : false
+                                          }
+                                          helperText={
+                                            isSubmitted &&
+                                            errors.jobInfo?.length &&
+                                            errors.jobInfo[idx]?.source
+                                              ? FormErrors.required
+                                              : ''
                                           }
                                           inputProps={{
                                             ...params.inputProps,
@@ -1654,16 +1817,6 @@ const PersonalInfoPro = () => {
                                     />
                                   )}
                                 />
-
-                                {errors.jobInfo?.length
-                                  ? errors.jobInfo[idx]?.source && (
-                                      <FormHelperText
-                                        sx={{ color: 'error.main' }}
-                                      >
-                                        {errors?.jobInfo[idx]?.source?.message}
-                                      </FormHelperText>
-                                    )
-                                  : ''}
                               </Box>
                               <Box
                                 sx={{
@@ -1729,9 +1882,17 @@ const PersonalInfoPro = () => {
                                             ] = ref
                                           }}
                                           error={
+                                            isSubmitted &&
                                             errors.jobInfo?.length
                                               ? !!errors.jobInfo[idx]?.target
                                               : false
+                                          }
+                                          helperText={
+                                            isSubmitted &&
+                                            errors.jobInfo?.length &&
+                                            errors.jobInfo[idx]?.target
+                                              ? FormErrors.required
+                                              : ''
                                           }
                                           inputProps={{
                                             ...params.inputProps,
@@ -1741,23 +1902,15 @@ const PersonalInfoPro = () => {
                                     />
                                   )}
                                 />
-
-                                {errors.jobInfo?.length
-                                  ? errors.jobInfo[idx]?.target && (
-                                      <FormHelperText
-                                        sx={{ color: 'error.main' }}
-                                      >
-                                        {errors?.jobInfo[idx]?.target?.message}
-                                      </FormHelperText>
-                                    )
-                                  : ''}
                               </Box>
                             </Box>
                           </Box>
                         )
                       })}
-                      <IconButton
+                      <Button
                         onClick={addJobInfo}
+                        variant='contained'
+                        sx={{ p: '4px', minWidth: 26 }}
                         disabled={jobInfoFields.some(item => {
                           if (item.jobType === 'DTP') {
                             return !item.jobType || !item.role
@@ -1771,17 +1924,43 @@ const PersonalInfoPro = () => {
                           }
                         })}
                       >
-                        <img
-                          src='/images/signup/add-info.png'
-                          width={20}
-                          alt='add job information'
-                        />
-                      </IconButton>
+                        <Icon icon='mdi:add' fontSize={18} />
+                      </Button>
                     </Box>
                   </Box>
                 </Box>
               ) : (
-                <Box>{/* NDA */}</Box>
+                <Box>
+                  {ndaData ? (
+                    <NDASigned
+                      language={ndaLanguage}
+                      setLanguage={setNdaLanguage}
+                      nda={ndaData}
+                      signNDA={signNDA}
+                      setSignNDA={setSignNDA}
+                      auth={auth}
+                      type='additional'
+                      address={{
+                        baseAddress: getValues('baseAddress') ?? null,
+                        detailAddress: getValues('detailAddress') ?? null,
+                        city: getValues('city') ?? null,
+                        state: getValues('state') ?? null,
+                        zipCode: getValues('zipCode') ?? null,
+                        country: getValues('country') ?? null,
+                      }}
+                      user={{
+                        name: getLegalName({
+                          firstName: getValues('firstName'),
+                          middleName: getValues('middleName'),
+                          lastName: getValues('lastName'),
+                        }),
+                        birthday: getValues('birthday')
+                          ? dayjs(getValues('birthday')).format('DD/MM/YYYY')
+                          : null,
+                      }}
+                    />
+                  ) : null}
+                </Box>
               )}
               <Box
                 sx={{
@@ -1806,8 +1985,9 @@ const PersonalInfoPro = () => {
                     size='large'
                     type='button'
                     variant='contained'
-                    disabled={!isValid}
+                    disabled={!signNDA}
                     sx={{ mb: 7 }}
+                    onClick={onClickSave}
                   >
                     Get started &nbsp; <Icon icon='mdi:arrow-right' />
                   </Button>
@@ -1863,3 +2043,42 @@ export default PersonalInfoPro
 //     opacity: ${({ step }) => (step === 1 ? 0.3 : 1)};
 //   }
 // `
+
+const FileList = styled('div')`
+  display: flex;
+  cursor: pointer;
+  margin-bottom: 8px;
+  width: 100%;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid rgba(76, 78, 100, 0.22);
+  background: #f9f8f9;
+  .file-details {
+    display: flex;
+    align-items: center;
+  }
+  .file-preview {
+    margin-right: 8px;
+    display: flex;
+  }
+
+  img {
+    width: 38px;
+    height: 38px;
+
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(93, 89, 98, 0.14);
+  }
+
+  .file-name {
+    font-weight: 600;
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+`
