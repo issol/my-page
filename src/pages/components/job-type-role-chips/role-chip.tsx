@@ -9,13 +9,13 @@ import { JobTypeColor, RoleColor } from '@src/shared/const/chipColors'
 type Props = {
   jobType: string
   role: string
-  visibleChip?: 'jobType' | 'role'
+  visibleChip?: 'jobType' | 'role' | 'all'
 }
 
 const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
   return (
     <Box sx={{ display: 'flex', gap: '8px' }}>
-      {!visibleChip || visibleChip === 'jobType' && (
+      {!visibleChip || visibleChip === 'jobType' || visibleChip === 'all' && (
         <Chip
           key={uuidv4()}
           size='medium'
@@ -30,7 +30,7 @@ const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
           }}
         />)
       }
-      {!visibleChip || visibleChip === 'role' && (
+      {!visibleChip || visibleChip === 'role' || visibleChip === 'all'&& (
         <Chip
           key={uuidv4()}
           size='medium'
