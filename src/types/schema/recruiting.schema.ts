@@ -28,8 +28,8 @@ export const recruitingFormSchema = yup.object().shape({
       .required(FormErrors.required),
   }),
   client: yup.object().shape({
-    label: yup.string().nullable(),
-    value: yup.string().nullable(),
+    label: yup.string().required(FormErrors.required),
+    value: yup.string().required(FormErrors.required),
   }),
   jobType: yup.object().shape({
     label: yup.string().required(FormErrors.required),

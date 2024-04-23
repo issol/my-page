@@ -158,6 +158,7 @@ export default function RecruitingEdit() {
     createdAt: '',
     status: '',
     client: '',
+    clientId: null,
     jobType: '',
     role: '',
     sourceLanguage: '',
@@ -179,6 +180,7 @@ export default function RecruitingEdit() {
     const values: Array<{ name: any; list?: Array<any> }> = [
       { name: 'status', list: RecruitingStatus },
       { name: 'client', list: clientList },
+      { name: 'clientId' },
       { name: 'role', list: RoleList },
       { name: 'jobType', list: JobList },
       { name: 'sourceLanguage', list: languageList },
@@ -188,7 +190,6 @@ export default function RecruitingEdit() {
       { name: 'dueDateTimezone', list: countries },
       { name: 'jobPostLink' },
     ]
-
     values.forEach(({ name, list = null }) => {
       const value = data[name]
       let itemValue = null
@@ -209,6 +210,8 @@ export default function RecruitingEdit() {
 
       setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
     })
+    const clientValue = clientList.find(list => list.value === String(data['clientId'])) || { value: '', label: '' }
+    setValue('client', clientValue, { shouldDirty: true, shouldValidate: true })
   }
 
   useEffect(() => {
@@ -248,7 +251,6 @@ export default function RecruitingEdit() {
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema) as Resolver<RecruitingFormType>,
   })
-
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const currDueDate = watch('dueDate')
 
