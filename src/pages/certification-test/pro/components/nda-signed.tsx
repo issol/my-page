@@ -23,6 +23,7 @@ import {
   Dispatch,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { Loadable, useSetRecoilState } from 'recoil'
@@ -83,10 +84,12 @@ const NDASigned = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
+  const editorRef = useRef<HTMLElement | null>(null)
   const [checked, setChecked] = useState<boolean>(false)
   const setCurrentRole = useSetRecoilState(currentRoleSelector)
   const setAuth = useSetRecoilState(authState)
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const signContractMutation = useMutation(
     (data: { type: 'nda' | 'contract'; file: string[] }) =>
@@ -121,9 +124,12 @@ const NDASigned = ({
           .catch(e => {
             router.push('/login')
           })
-
+        setLoading(false)
         setSignNDA(false)
         setChecked(false)
+      },
+      onError: () => {
+        setLoading(false)
       },
     },
   )
@@ -371,27 +377,49 @@ const NDASigned = ({
     //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedNDA 재조회 필요)
 
     const input = document.getElementById('downloadItem')
+    const root = document.getElementById('__next')
+
     let fileInfo: FileType[] = []
 
-    if (input) {
-      html2canvas(input).then(canvas => {
+    if (input && root) {
+      setLoading(true)
+      const draftEditor = input.querySelector(
+        '.public-DraftEditor-content',
+      ) as HTMLElement
+      const cloneCopy = draftEditor.cloneNode(true) as HTMLElement
+      const printFrame = document.createElement('div')
+      printFrame.id = 'draftEditor'
+      const frameHeight = draftEditor.scrollHeight
+      const frameWidth = draftEditor.offsetWidth
+      printFrame.setAttribute('style', 'position:absolute; left:-99999999px')
+      printFrame.append(cloneCopy)
+      root.append(printFrame)
+
+      html2canvas(printFrame, {
+        width: frameWidth,
+        height: frameHeight,
+      }).then(canvas => {
         const imgData = canvas.toDataURL('image/png')
-        const pdf = new jsPDF('p', 'mm')
-        const imgWidth = 210
+        console.log(imgData)
+
+        const pdf = new jsPDF('p', 'mm', 'a4')
+
+        const imgWidth = 190
         const imgHeight = (canvas.height * imgWidth) / canvas.width
-        const pageHeight = 295
+        const pageHeight = 297
         let heightLeft = imgHeight
         let position = 0
         heightLeft -= pageHeight
-        pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 10, 0, imgWidth, imgHeight)
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
-          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+          pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
           heightLeft -= pageHeight
         }
 
         let downloadFile = pdf.output('blob')
+        pdf.save(`[${language}] NDA.pdf`)
         let data = new FormData()
 
         if (downloadFile) {
@@ -424,14 +452,15 @@ const NDASigned = ({
               file: fileInfo.map(file => file.name),
             })
           })
-          .catch(err =>
+          .catch(err => {
             toast.error(
               'Something went wrong while uploading files. Please try again.',
               {
                 position: 'bottom-left',
               },
-            ),
-          )
+            )
+            setLoading(false)
+          })
       })
     }
   }
@@ -461,56 +490,66 @@ const NDASigned = ({
           >
             <Box
               sx={{
+                // padding: '20px',
                 display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '20px',
+                flexDirection: 'column',
+                // gap: '20px',
               }}
             >
-              <Typography variant='h6'>[{language} NDA]</Typography>
               <Box
                 sx={{
                   display: 'flex',
-                  gap: '4px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '20px',
                 }}
               >
-                <Typography
-                  fontSize={14}
-                  fontWeight={language === 'KOR' ? 400 : 600}
-                  color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
-                >
-                  English
-                </Typography>
-                <Switch
-                  checked={language === 'KOR'}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setLanguage(event.target.checked ? 'KOR' : 'ENG')
-                  }}
-                  inputProps={{ 'aria-label': 'controlled' }}
+                <Typography variant='h6'>[{language} NDA]</Typography>
+                <Box
                   sx={{
-                    '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                      color: '#666CFF',
-                      '.MuiSwitch-thumb': {
-                        color: '#666CFF',
-                      },
-                    },
-                    '.MuiSwitch-track': {
-                      backgroundColor: '#666CFF',
-                    },
+                    display: 'flex',
+                    gap: '4px',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
-                />
-                <Typography
-                  fontSize={14}
-                  fontWeight={language === 'KOR' ? 600 : 400}
-                  color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
                 >
-                  Korean
-                </Typography>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={language === 'KOR' ? 400 : 600}
+                    color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
+                  >
+                    English
+                  </Typography>
+                  <Switch
+                    checked={language === 'KOR'}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      setLanguage(event.target.checked ? 'KOR' : 'ENG')
+                    }}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    sx={{
+                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                        color: '#666CFF',
+                        '.MuiSwitch-thumb': {
+                          color: '#666CFF',
+                        },
+                      },
+                      '.MuiSwitch-track': {
+                        backgroundColor: '#666CFF',
+                      },
+                    }}
+                  />
+                  <Typography
+                    fontSize={14}
+                    fontWeight={language === 'KOR' ? 600 : 400}
+                    color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
+                  >
+                    Korean
+                  </Typography>
+                </Box>
               </Box>
             </Box>
             <Divider />
             <Box
+              id='downloadItem'
               sx={{
                 maxHeight: '570px',
                 overflowY: 'scroll',

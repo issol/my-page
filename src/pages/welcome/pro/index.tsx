@@ -61,7 +61,10 @@ import { useMutation } from 'react-query'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 // ** helpers
-import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
+import {
+  getContractFilePath,
+  getResumeFilePath,
+} from '@src/shared/transformer/filePath.transformer'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
@@ -124,6 +127,9 @@ import NDASigned from '@src/pages/certification-test/pro/components/nda-signed'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { signContract } from '@src/apis/pro/pro-certification-tests'
 import { saveUserDataToBrowser } from '@src/shared/auth/storage'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -208,6 +214,7 @@ const PersonalInfoPro = () => {
   const auth = useRecoilValueLoadable(authState)
   const setAuth = useAuth()
   const setAuthState = useSetRecoilState(authState)
+  const [loading, setLoading] = useState(false)
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -365,6 +372,7 @@ const PersonalInfoPro = () => {
             }
             saveUserDataToBrowser(userInfo)
             setAuthState(prev => ({ ...prev, user: userInfo }))
+            setLoading(false)
 
             // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
             // user, company 데이터를 동시에 set 하도록 변경
@@ -372,6 +380,7 @@ const PersonalInfoPro = () => {
             setCurrentRole(
               value?.roles && value?.roles.length > 0 ? value?.roles[0] : null,
             )
+            router.push('/dashboards/pro')
           })
           .catch(e => {
             router.push('/login')
@@ -382,6 +391,95 @@ const PersonalInfoPro = () => {
       },
     },
   )
+
+  const ndaSigned = () => {
+    const input = document.getElementById('downloadItem')
+    const root = document.getElementById('__next')
+
+    let fileInfo: FileType[] = []
+
+    if (input && root) {
+      const draftEditor = input.querySelector(
+        '.public-DraftEditor-content',
+      ) as HTMLElement
+      const cloneCopy = draftEditor.cloneNode(true) as HTMLElement
+      const printFrame = document.createElement('div')
+      printFrame.id = 'draftEditor'
+      const frameHeight = draftEditor.scrollHeight
+      const frameWidth = draftEditor.offsetWidth
+      printFrame.setAttribute('style', 'position:absolute; left:-99999999px')
+      printFrame.append(cloneCopy)
+      root.append(printFrame)
+
+      html2canvas(printFrame, {
+        width: frameWidth,
+        height: frameHeight,
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png')
+        console.log(imgData)
+
+        const pdf = new jsPDF('p', 'mm', 'a4')
+
+        const imgWidth = 190
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+        const pageHeight = 297
+        let heightLeft = imgHeight
+        let position = 0
+        heightLeft -= pageHeight
+        pdf.addImage(imgData, 'JPEG', 10, 0, imgWidth, imgHeight)
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
+
+        let downloadFile = pdf.output('blob')
+        // pdf.save(`[${ndaLanguage}] NDA.pdf`)
+        let data = new FormData()
+
+        if (downloadFile) {
+          data.append('data', downloadFile, `[${ndaLanguage}] NDA`)
+        }
+
+        const path: string = getContractFilePath(
+          auth.getValue().user?.id!,
+          `[${ndaLanguage}] NDA.pdf`,
+        )
+
+        const promise = [
+          getUploadUrlforCommon(S3FileType.PRO_CONTRACT, path).then(res => {
+            fileInfo.push({
+              name: `[${ndaLanguage}] NDA.pdf`,
+              size: downloadFile.size,
+              file: path,
+              type: 'pdf',
+              // type: 'imported',
+            })
+            return uploadFileToS3(res.url, data)
+          }),
+        ]
+
+        Promise.all(promise)
+          .then(res => {
+            // updateProject.mutate({ deliveries: fileInfo })
+            signContractMutation.mutate({
+              type: 'nda',
+              file: fileInfo.map(file => file.name),
+            })
+          })
+          .catch(err => {
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            )
+            setLoading(false)
+          })
+      })
+    }
+  }
 
   const updateUserInfoMutation = useMutation(
     (data: ProUserInfoType & { userId: number }) =>
@@ -395,8 +493,8 @@ const PersonalInfoPro = () => {
           email: auth.getValue().user!.email,
           accessToken: accessTokenAsString,
         })
-
-        router.push('/dashboards/pro')
+        ndaSigned()
+        // router.push('/dashboards/pro')
       },
       onError: () => {
         openModal({
@@ -476,6 +574,7 @@ const PersonalInfoPro = () => {
   const onClickSave = () => {
     const data = getValues()
     if (data.resume?.length) {
+      setLoading(true)
       const promiseArr = data.resume.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
@@ -508,7 +607,17 @@ const PersonalInfoPro = () => {
               pronounce: data.pronounce,
               specialties: data.specialties?.map(item => item.value),
               timezone: data.timezone,
-              addresses: [{}],
+              addresses: [
+                {
+                  detailAddress: data.detailAddress,
+                  baseAddress: data.baseAddress,
+                  addressType: data.addressType,
+                  state: data.state,
+                  city: data.city,
+                  country: data.country,
+                  zipCode: data.zipCode,
+                },
+              ],
             },
           }
           updateUserInfoMutation.mutate(finalData)
@@ -662,659 +771,560 @@ const PersonalInfoPro = () => {
   }, [router.isReady, activeStep])
 
   return (
-    <Box className='content-right'>
-      {!hidden ? (
-        <Box
-          sx={{
-            maxWidth: '30rem',
-            padding: '8rem',
-            flex: 1,
-            display: 'flex',
-            position: 'relative',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          aria-hidden
-        >
-          <Illustration
-            alt='forgot-password-illustration'
-            src={`/images/pages/auth-v2-register-multi-steps-illustration.png`}
-          />
-        </Box>
-      ) : null}
-      <RightWrapper sx={{ maxHeight: '100vh', overflow: 'scroll' }}>
-        <Box
-          sx={{
-            // p: 7,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '72px 145px',
-            // height: '100%',
-            // maxWidth: '850px',
-            // height: '100vh',
-            // maxHeight: '110vh',
+    <>
+      {loading ? <OverlaySpinner /> : null}
+      <Box className='content-right'>
+        {!hidden ? (
+          <Box
+            sx={{
+              maxWidth: '30rem',
+              padding: '8rem',
+              flex: 1,
+              display: 'flex',
+              position: 'relative',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-hidden
+          >
+            <Illustration
+              alt='forgot-password-illustration'
+              src={`/images/pages/auth-v2-register-multi-steps-illustration.png`}
+            />
+          </Box>
+        ) : null}
+        <RightWrapper sx={{ maxHeight: '100vh', overflow: 'scroll' }}>
+          <Box
+            sx={{
+              // p: 7,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '72px 145px',
+              // height: '100%',
+              // maxWidth: '850px',
+              // height: '100vh',
+              // maxHeight: '110vh',
 
-            margin: 'auto',
-          }}
-        >
-          <BoxWrapper>
-            <Box sx={{ mb: '64px' }}>
-              <Stepper
-                activeStep={activeStep}
-                steps={steps}
-                style={{
-                  maxWidth: '70%',
-                  // margin: '0 auto',
-                  padding: '20px 20px 20px 0',
-                }}
-              />
-            </Box>
+              margin: 'auto',
+            }}
+          >
+            <BoxWrapper>
+              <Box sx={{ mb: '64px' }}>
+                <Stepper
+                  activeStep={activeStep}
+                  steps={steps}
+                  style={{
+                    maxWidth: '70%',
+                    // margin: '0 auto',
+                    padding: '20px 20px 20px 0',
+                  }}
+                />
+              </Box>
 
-            <form
-              noValidate
-              autoComplete='off'
-              onSubmit={handleSubmit(onSubmit, onError)}
-            >
-              {activeStep === 0 ? (
-                <Box>
-                  <Typography fontSize={20} fontWeight={500} mb={'20px'}>
-                    Personal information
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '20px',
-                      // justifyContent: 'space-between',
-                    }}
-                  >
-                    <FormControl fullWidth className='filterFormControl'>
-                      <Typography fontSize={14} fontWeight={600} mb='8px'>
-                        First name{' '}
-                        <Typography component={'span'} color='#666CFF'>
-                          *
-                        </Typography>
-                      </Typography>
-                      <Controller
-                        name='firstName'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({
-                          field: { value, onChange, onBlur, ref },
-                        }) => (
-                          <TextField
-                            autoComplete='off'
-                            value={value}
-                            // onBlur={onBlur}
-                            inputRef={ref}
-                            onChange={onChange}
-                            sx={{ height: '46px' }}
-                            inputProps={{
-                              maxLength: 50,
-                              style: { height: '46px', padding: '0 14px' },
-                            }}
-                            error={Boolean(errors.firstName)}
-                            placeholder='First name*'
-                          />
-                        )}
-                      />
-                      {errors.firstName && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.firstName.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                    <FormControl fullWidth className='filterFormControl'>
-                      <Typography fontSize={14} fontWeight={600} mb='8px'>
-                        Middle name{' '}
-                        <Typography
-                          component={'span'}
-                          color='#666CFF'
-                        ></Typography>
-                      </Typography>
-                      <Controller
-                        name='middleName'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
-                            autoComplete='off'
-                            value={value}
-                            // onBlur={onBlur}
-                            onChange={onChange}
-                            inputProps={{
-                              maxLength: 50,
-                              style: {
-                                height: '46px',
-                                padding: '0 14px',
-                              },
-                            }}
-                            error={Boolean(errors.middleName)}
-                            placeholder='Middle name'
-                          />
-                        )}
-                      />
-                      {errors.middleName && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.middleName.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                    <FormControl fullWidth className='filterFormControl'>
-                      <Typography fontSize={14} fontWeight={600} mb='8px'>
-                        Last name{' '}
-                        <Typography component={'span'} color='#666CFF'>
-                          *
-                        </Typography>
-                      </Typography>
-                      <Controller
-                        name='lastName'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({
-                          field: { value, onChange, onBlur, ref },
-                        }) => (
-                          <TextField
-                            autoComplete='off'
-                            value={value}
-                            // onBlur={onBlur}
-                            inputRef={ref}
-                            sx={{ height: '46px' }}
-                            onChange={onChange}
-                            inputProps={{
-                              maxLength: 50,
-                              style: {
-                                height: '46px',
-                                padding: '0 14px',
-                              },
-                            }}
-                            error={Boolean(errors.lastName)}
-                            placeholder='Last name*'
-                          />
-                        )}
-                      />
-                      {errors.lastName && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.lastName.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      width: '100%',
-                      flexDirection: 'column',
-                      mt: '8px',
-                      paddingLeft: '16px',
-                    }}
-                  >
-                    <Typography fontSize={14} color='#8D8E9A'>
-                      *Please enter your{' '}
-                      <Typography
-                        component={'span'}
-                        color='#666CFF'
-                        fontWeight={600}
-                        fontSize={14}
-                      >
-                        legal name in English
-                      </Typography>{' '}
-                      as it appears on your I.D., passport, or bank account.
-                    </Typography>
-                    <Typography fontSize={14} color='#8D8E9A'>
-                      *Your payment may be affected if the spelling is
-                      different.
-                    </Typography>
-                    <Typography fontSize={14} color='#8D8E9A'>
-                      *Do NOT use all caps
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '20px',
-                      mt: '20px',
-                      alignItems: 'self-end',
-                      // alignItems: 'center',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <FormControl fullWidth className='filterFormControl'>
-                        <Typography fontSize={14} fontWeight={600} mb='8px'>
-                          Pronunciation
-                          <Typography
-                            component={'span'}
-                            color='#666CFF'
-                          ></Typography>
-                        </Typography>
-                        <Controller
-                          name='legalNamePronunciation'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextField
-                              autoComplete='off'
-                              value={value}
-                              onBlur={onBlur}
-                              onChange={onChange}
-                              sx={{ height: '46px' }}
-                              inputProps={{
-                                maxLength: 200,
-                                style: {
-                                  height: '46px',
-                                  padding: '0 14px',
-                                },
-                              }}
-                              error={Boolean(errors.legalNamePronunciation)}
-                              placeholder='Pronunciation'
-                            />
-                          )}
-                        />
-                        {errors.legalNamePronunciation && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.legalNamePronunciation.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    </Box>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Controller
-                        name='havePreferred'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                value={value || false}
-                                onChange={onChange}
-                                onBlur={onBlur}
-                                checked={value || false}
-                              />
-                            }
-                            label='I have my preferred name.'
-                          />
-                        )}
-                      />
-                    </Box>
-                  </Box>
-
-                  {getValues('havePreferred') && (
-                    <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
-                      <FormControl fullWidth className='filterFormControl'>
-                        <Typography fontSize={14} fontWeight={600} mb='8px'>
-                          Preferred name
-                          <Typography
-                            component={'span'}
-                            color='#666CFF'
-                          ></Typography>
-                        </Typography>
-                        <Controller
-                          name='preferredName'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextField
-                              autoComplete='off'
-                              value={value}
-                              onBlur={onBlur}
-                              onChange={onChange}
-                              sx={{ height: '46px' }}
-                              inputProps={{
-                                maxLength: 200,
-                                style: {
-                                  height: '46px',
-                                  padding: '0 14px',
-                                },
-                              }}
-                              error={Boolean(errors.preferredName)}
-                              placeholder='Preferred name'
-                            />
-                          )}
-                        />
-                        {errors.preferredName && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.preferredName.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                      <FormControl fullWidth className='filterFormControl'>
-                        <Typography fontSize={14} fontWeight={600} mb='8px'>
-                          Pronunciation
-                          <Typography
-                            component={'span'}
-                            color='#666CFF'
-                          ></Typography>
-                        </Typography>
-                        <Controller
-                          name='preferredNamePronunciation'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <TextField
-                              autoComplete='off'
-                              value={value}
-                              onBlur={onBlur}
-                              onChange={onChange}
-                              inputProps={{
-                                maxLength: 200,
-                                style: {
-                                  height: '46px',
-                                  padding: '0 14px',
-                                },
-                              }}
-                              error={Boolean(errors.preferredNamePronunciation)}
-                              placeholder='Pronunciation'
-                            />
-                          )}
-                        />
-                        {errors.preferredNamePronunciation && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.preferredNamePronunciation.message}
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                    </Box>
-                  )}
-                  <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
-                    <FormControl fullWidth>
-                      <Typography fontSize={14} fontWeight={600} mb='8px'>
-                        Date of birth
-                        <Typography component={'span'} color='#666CFF'>
-                          *
-                        </Typography>
-                      </Typography>
-                      <DatePickerWrapper>
-                        <Controller
-                          control={control}
-                          name='birthday'
-                          render={({ field: { onChange, value, ref } }) => {
-                            const selected = value ? new Date(value) : null
-                            return (
-                              <Box sx={{ width: '100%' }}>
-                                <DatePicker
-                                  shouldCloseOnSelect={false}
-                                  selected={selected}
-                                  isClearable={true}
-                                  onChange={onChange}
-                                  placeholderText='MM/DD/YYYY'
-                                  showYearDropdown
-                                  scrollableYearDropdown
-                                  customInput={
-                                    <Box>
-                                      <CustomInput
-                                        // label='Date of birth*'
-                                        icon='calendar'
-                                        sx={{ height: '46px' }}
-                                        error={Boolean(errors?.birthday)}
-                                        placeholder='MM/DD/YYYY'
-                                        ref={ref}
-                                        value={
-                                          value
-                                            ? dayjs(value).format('MM/DD/YYYY')
-                                            : ''
-                                        }
-                                      />
-                                    </Box>
-                                  }
-                                />
-                              </Box>
-                            )
-                          }}
-                        />
-                      </DatePickerWrapper>
-                      {errors.birthday && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.birthday.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                    <FormControl fullWidth className='filterFormControl'>
-                      <Typography fontSize={14} fontWeight={600} mb='8px'>
-                        Pronouns
-                        <Typography
-                          component={'span'}
-                          color='#666CFF'
-                        ></Typography>
-                      </Typography>
-                      <Controller
-                        name='pronounce'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <>
-                            <Select
-                              // label='legalName_pronounce'
-                              value={value}
-                              placeholder='Pronouns'
-                              onBlur={onBlur}
-                              onChange={onChange}
-                              sx={{ height: '46px' }}
-                            >
-                              {Pronunciation.map((item, idx) => (
-                                <MenuItem value={item.value} key={idx}>
-                                  {item.label}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </>
-                        )}
-                      />
-                      {errors.pronounce && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.pronounce.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
-                    <FormControl fullWidth>
-                      <Typography fontSize={14} fontWeight={600}>
-                        Mobile phone
-                        <Typography
-                          component={'span'}
-                          color='#666CFF'
-                        ></Typography>
-                      </Typography>
-                      <Controller
-                        name='mobile'
-                        control={control}
-                        rules={{ required: false }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <MuiPhone
-                            value={value || ''}
-                            onChange={onChange}
-
-                            // label={'Mobile phone'}
-                          />
-                        )}
-                      />
-                      {errors.mobile && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.mobile.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-
-                    <FormControl fullWidth>
-                      <Typography fontSize={14} fontWeight={600}>
-                        Telephone
-                        <Typography
-                          component={'span'}
-                          color='#666CFF'
-                        ></Typography>
-                      </Typography>
-                      <Controller
-                        name='phone'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <MuiPhone
-                            value={value || ''}
-                            onChange={onChange}
-                            // label={'Telephone'}
-                          />
-                        )}
-                      />
-                      {errors.phone && (
-                        <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.phone.message}
-                        </FormHelperText>
-                      )}
-                    </FormControl>
-                  </Box>
-
-                  <Divider sx={{ my: '20px !important' }} />
+              <form
+                noValidate
+                autoComplete='off'
+                onSubmit={handleSubmit(onSubmit, onError)}
+              >
+                {activeStep === 0 ? (
                   <Box>
-                    <Typography fontSize={20} fontWeight={500}>
-                      Permanent address
-                    </Typography>
-                    <Typography
-                      fontSize={14}
-                      fontWeight={400}
-                      color='#8D8E9A'
-                      sx={{ paddingLeft: '16px', mb: '20px', mt: '8px' }}
-                    >
-                      *Please enter your{' '}
-                      <Typography
-                        fontSize={14}
-                        color='#666CFF'
-                        component={'span'}
-                        fontWeight={600}
-                      >
-                        address in English
-                      </Typography>{' '}
-                      as it appears on your I.D., passport, or bank account.
-                    </Typography>
-                    <Grid container spacing={5}>
-                      <ClientBillingAddressesForm
-                        control={control}
-                        errors={errors}
-                      />
-                    </Grid>
-                  </Box>
-                  <Divider sx={{ my: '20px !important' }} />
-                  <Box>
-                    <Typography fontSize={20} fontWeight={500}>
-                      Work-related information
+                    <Typography fontSize={20} fontWeight={500} mb={'20px'}>
+                      Personal information
                     </Typography>
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                        mt: '16px',
-                        '.MuiInputBase-root': {
-                          height: '46px',
-                          padding: '0 10px',
-                        },
+                        gap: '20px',
+                        // justifyContent: 'space-between',
                       }}
                     >
-                      <Typography fontSize={14} fontWeight={600}>
-                        Timezone&nbsp;
-                        <Typography component={'span'} color='#666CFF'>
-                          *
-                        </Typography>
-                      </Typography>
-                      <Controller
-                        name='timezone'
-                        control={control}
-                        render={({ field, formState: { isSubmitted } }) => (
-                          <Autocomplete
-                            autoHighlight
-                            fullWidth
-                            {...field}
-                            options={timeZoneList as CountryType[]}
-                            onChange={(e, v) => field.onChange(v)}
-                            disableClearable
-                            renderOption={(props, option) => (
-                              <Box component='li' {...props} key={uuidv4()}>
-                                {timeZoneFormatter(option, timezone.getValue())}
-                              </Box>
-                            )}
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                autoComplete='off'
-                                error={isSubmitted && Boolean(errors.timezone)}
-                                helperText={
-                                  isSubmitted && Boolean(errors.timezone)
-                                    ? FormErrors.required
-                                    : ''
-                                }
-                                inputProps={{
-                                  ...params.inputProps,
-                                }}
-                              />
-                            )}
-                            getOptionLabel={option =>
-                              timeZoneFormatter(option, timezone.getValue()) ??
-                              ''
-                            }
-                          />
-                        )}
-                      />
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          flex: 1,
-                          '.MuiInputBase-root': {
-                            height: '46px',
-                            padding: '0 10px',
-                          },
-                        }}
-                      >
-                        <Typography fontSize={14} fontWeight={600}>
-                          Years of experience&nbsp;
+                      <FormControl fullWidth className='filterFormControl'>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
+                          First name{' '}
                           <Typography component={'span'} color='#666CFF'>
                             *
                           </Typography>
                         </Typography>
                         <Controller
-                          name='experience'
+                          name='firstName'
                           control={control}
                           rules={{ required: true }}
                           render={({
-                            field: { value, onChange, onBlur },
-                            formState: { isSubmitted },
+                            field: { value, onChange, onBlur, ref },
                           }) => (
-                            <Autocomplete
-                              fullWidth
-                              options={ExperiencedYears}
-                              getOptionLabel={option => option.label}
-                              value={{ label: value, value: value }}
-                              onChange={(event, item) => {
-                                console.log('event', event, item)
-                                onChange(item ? item.value : '')
+                            <TextField
+                              autoComplete='off'
+                              value={value}
+                              // onBlur={onBlur}
+                              inputRef={ref}
+                              onChange={onChange}
+                              sx={{ height: '46px' }}
+                              inputProps={{
+                                maxLength: 50,
+                                style: { height: '46px', padding: '0 14px' },
                               }}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={
-                                    isSubmitted && Boolean(errors.experience)
-                                  }
-                                  helperText={
-                                    isSubmitted && Boolean(errors.experience)
-                                      ? FormErrors.required
-                                      : ''
-                                  }
+                              error={Boolean(errors.firstName)}
+                              placeholder='First name*'
+                            />
+                          )}
+                        />
+                        {errors.firstName && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.firstName.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                      <FormControl fullWidth className='filterFormControl'>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
+                          Middle name{' '}
+                          <Typography
+                            component={'span'}
+                            color='#666CFF'
+                          ></Typography>
+                        </Typography>
+                        <Controller
+                          name='middleName'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <TextField
+                              autoComplete='off'
+                              value={value}
+                              // onBlur={onBlur}
+                              onChange={onChange}
+                              inputProps={{
+                                maxLength: 50,
+                                style: {
+                                  height: '46px',
+                                  padding: '0 14px',
+                                },
+                              }}
+                              error={Boolean(errors.middleName)}
+                              placeholder='Middle name'
+                            />
+                          )}
+                        />
+                        {errors.middleName && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.middleName.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                      <FormControl fullWidth className='filterFormControl'>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
+                          Last name{' '}
+                          <Typography component={'span'} color='#666CFF'>
+                            *
+                          </Typography>
+                        </Typography>
+                        <Controller
+                          name='lastName'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({
+                            field: { value, onChange, onBlur, ref },
+                          }) => (
+                            <TextField
+                              autoComplete='off'
+                              value={value}
+                              // onBlur={onBlur}
+                              inputRef={ref}
+                              sx={{ height: '46px' }}
+                              onChange={onChange}
+                              inputProps={{
+                                maxLength: 50,
+                                style: {
+                                  height: '46px',
+                                  padding: '0 14px',
+                                },
+                              }}
+                              error={Boolean(errors.lastName)}
+                              placeholder='Last name*'
+                            />
+                          )}
+                        />
+                        {errors.lastName && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.lastName.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        width: '100%',
+                        flexDirection: 'column',
+                        mt: '8px',
+                        paddingLeft: '16px',
+                      }}
+                    >
+                      <Typography fontSize={14} color='#8D8E9A'>
+                        *Please enter your{' '}
+                        <Typography
+                          component={'span'}
+                          color='#666CFF'
+                          fontWeight={600}
+                          fontSize={14}
+                        >
+                          legal name in English
+                        </Typography>{' '}
+                        as it appears on your I.D., passport, or bank account.
+                      </Typography>
+                      <Typography fontSize={14} color='#8D8E9A'>
+                        *Your payment may be affected if the spelling is
+                        different.
+                      </Typography>
+                      <Typography fontSize={14} color='#8D8E9A'>
+                        *Do NOT use all caps
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '20px',
+                        mt: '20px',
+                        alignItems: 'self-end',
+                        // alignItems: 'center',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <FormControl fullWidth className='filterFormControl'>
+                          <Typography fontSize={14} fontWeight={600} mb='8px'>
+                            Pronunciation
+                            <Typography
+                              component={'span'}
+                              color='#666CFF'
+                            ></Typography>
+                          </Typography>
+                          <Controller
+                            name='legalNamePronunciation'
+                            control={control}
+                            rules={{ required: true }}
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextField
+                                autoComplete='off'
+                                value={value}
+                                onBlur={onBlur}
+                                onChange={onChange}
+                                sx={{ height: '46px' }}
+                                inputProps={{
+                                  maxLength: 200,
+                                  style: {
+                                    height: '46px',
+                                    padding: '0 14px',
+                                  },
+                                }}
+                                error={Boolean(errors.legalNamePronunciation)}
+                                placeholder='Pronunciation'
+                              />
+                            )}
+                          />
+                          {errors.legalNamePronunciation && (
+                            <FormHelperText sx={{ color: 'error.main' }}>
+                              {errors.legalNamePronunciation.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Box>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Controller
+                          name='havePreferred'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  value={value || false}
+                                  onChange={onChange}
+                                  onBlur={onBlur}
+                                  checked={value || false}
                                 />
-                              )}
+                              }
+                              label='I have my preferred name.'
                             />
                           )}
                         />
                       </Box>
+                    </Box>
+
+                    {getValues('havePreferred') && (
+                      <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
+                        <FormControl fullWidth className='filterFormControl'>
+                          <Typography fontSize={14} fontWeight={600} mb='8px'>
+                            Preferred name
+                            <Typography
+                              component={'span'}
+                              color='#666CFF'
+                            ></Typography>
+                          </Typography>
+                          <Controller
+                            name='preferredName'
+                            control={control}
+                            rules={{ required: true }}
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextField
+                                autoComplete='off'
+                                value={value}
+                                onBlur={onBlur}
+                                onChange={onChange}
+                                sx={{ height: '46px' }}
+                                inputProps={{
+                                  maxLength: 200,
+                                  style: {
+                                    height: '46px',
+                                    padding: '0 14px',
+                                  },
+                                }}
+                                error={Boolean(errors.preferredName)}
+                                placeholder='Preferred name'
+                              />
+                            )}
+                          />
+                          {errors.preferredName && (
+                            <FormHelperText sx={{ color: 'error.main' }}>
+                              {errors.preferredName.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                        <FormControl fullWidth className='filterFormControl'>
+                          <Typography fontSize={14} fontWeight={600} mb='8px'>
+                            Pronunciation
+                            <Typography
+                              component={'span'}
+                              color='#666CFF'
+                            ></Typography>
+                          </Typography>
+                          <Controller
+                            name='preferredNamePronunciation'
+                            control={control}
+                            rules={{ required: true }}
+                            render={({
+                              field: { value, onChange, onBlur },
+                            }) => (
+                              <TextField
+                                autoComplete='off'
+                                value={value}
+                                onBlur={onBlur}
+                                onChange={onChange}
+                                inputProps={{
+                                  maxLength: 200,
+                                  style: {
+                                    height: '46px',
+                                    padding: '0 14px',
+                                  },
+                                }}
+                                error={Boolean(
+                                  errors.preferredNamePronunciation,
+                                )}
+                                placeholder='Pronunciation'
+                              />
+                            )}
+                          />
+                          {errors.preferredNamePronunciation && (
+                            <FormHelperText sx={{ color: 'error.main' }}>
+                              {errors.preferredNamePronunciation.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Box>
+                    )}
+                    <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
+                      <FormControl fullWidth>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
+                          Date of birth
+                          <Typography component={'span'} color='#666CFF'>
+                            *
+                          </Typography>
+                        </Typography>
+                        <DatePickerWrapper>
+                          <Controller
+                            control={control}
+                            name='birthday'
+                            render={({ field: { onChange, value, ref } }) => {
+                              const selected = value ? new Date(value) : null
+                              return (
+                                <Box sx={{ width: '100%' }}>
+                                  <DatePicker
+                                    shouldCloseOnSelect={false}
+                                    selected={selected}
+                                    isClearable={true}
+                                    onChange={onChange}
+                                    placeholderText='MM/DD/YYYY'
+                                    showYearDropdown
+                                    scrollableYearDropdown
+                                    customInput={
+                                      <Box>
+                                        <CustomInput
+                                          // label='Date of birth*'
+                                          icon='calendar'
+                                          sx={{ height: '46px' }}
+                                          error={Boolean(errors?.birthday)}
+                                          placeholder='MM/DD/YYYY'
+                                          ref={ref}
+                                          value={
+                                            value
+                                              ? dayjs(value).format(
+                                                  'MM/DD/YYYY',
+                                                )
+                                              : ''
+                                          }
+                                        />
+                                      </Box>
+                                    }
+                                  />
+                                </Box>
+                              )
+                            }}
+                          />
+                        </DatePickerWrapper>
+                        {errors.birthday && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.birthday.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                      <FormControl fullWidth className='filterFormControl'>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
+                          Pronouns
+                          <Typography
+                            component={'span'}
+                            color='#666CFF'
+                          ></Typography>
+                        </Typography>
+                        <Controller
+                          name='pronounce'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <>
+                              <Select
+                                // label='legalName_pronounce'
+                                value={value}
+                                placeholder='Pronouns'
+                                onBlur={onBlur}
+                                onChange={onChange}
+                                sx={{ height: '46px' }}
+                              >
+                                {Pronunciation.map((item, idx) => (
+                                  <MenuItem value={item.value} key={idx}>
+                                    {item.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </>
+                          )}
+                        />
+                        {errors.pronounce && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.pronounce.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
+                      <FormControl fullWidth>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Mobile phone
+                          <Typography
+                            component={'span'}
+                            color='#666CFF'
+                          ></Typography>
+                        </Typography>
+                        <Controller
+                          name='mobile'
+                          control={control}
+                          rules={{ required: false }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <MuiPhone
+                              value={value || ''}
+                              onChange={onChange}
+
+                              // label={'Mobile phone'}
+                            />
+                          )}
+                        />
+                        {errors.mobile && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.mobile.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+
+                      <FormControl fullWidth>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Telephone
+                          <Typography
+                            component={'span'}
+                            color='#666CFF'
+                          ></Typography>
+                        </Typography>
+                        <Controller
+                          name='phone'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <MuiPhone
+                              value={value || ''}
+                              onChange={onChange}
+                              // label={'Telephone'}
+                            />
+                          )}
+                        />
+                        {errors.phone && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.phone.message}
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    </Box>
+
+                    <Divider sx={{ my: '20px !important' }} />
+                    <Box>
+                      <Typography fontSize={20} fontWeight={500}>
+                        Permanent address
+                      </Typography>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={400}
+                        color='#8D8E9A'
+                        sx={{ paddingLeft: '16px', mb: '20px', mt: '8px' }}
+                      >
+                        *Please enter your{' '}
+                        <Typography
+                          fontSize={14}
+                          color='#666CFF'
+                          component={'span'}
+                          fontWeight={600}
+                        >
+                          address in English
+                        </Typography>{' '}
+                        as it appears on your I.D., passport, or bank account.
+                      </Typography>
+                      <Grid container spacing={5}>
+                        <ClientBillingAddressesForm
+                          control={control}
+                          errors={errors}
+                        />
+                      </Grid>
+                    </Box>
+                    <Divider sx={{ my: '20px !important' }} />
+                    <Box>
+                      <Typography fontSize={20} fontWeight={500}>
+                        Work-related information
+                      </Typography>
                       <Box
                         sx={{
                           display: 'flex',
-                          flex: 1,
                           flexDirection: 'column',
                           gap: '8px',
+                          mt: '16px',
                           '.MuiInputBase-root': {
                             height: '46px',
                             padding: '0 10px',
@@ -1322,145 +1332,263 @@ const PersonalInfoPro = () => {
                         }}
                       >
                         <Typography fontSize={14} fontWeight={600}>
-                          Specialties
-                          <Typography
-                            component={'span'}
-                            color='#666CFF'
-                          ></Typography>
+                          Timezone&nbsp;
+                          <Typography component={'span'} color='#666CFF'>
+                            *
+                          </Typography>
                         </Typography>
                         <Controller
-                          name='specialties'
+                          name='timezone'
                           control={control}
-                          render={({ field }) => (
+                          render={({ field, formState: { isSubmitted } }) => (
                             <Autocomplete
                               autoHighlight
                               fullWidth
-                              multiple
                               {...field}
-                              value={
-                                getValues('specialties')[0]?.label === ''
-                                  ? []
-                                  : getValues('specialties')
-                              }
-                              options={AreaOfExpertiseList}
-                              onChange={(e, v: any, l) => {
-                                if (
-                                  v.length <= 1 &&
-                                  l === 'removeOption' &&
-                                  (!v[0]?.value || !v[0]?.label)
-                                ) {
-                                  field.onChange([{ label: '', value: '' }])
-                                  return
-                                }
-                                field.onChange(v)
-                              }}
-                              limitTags={1}
-                              renderOption={(props, option, { selected }) => (
-                                <li {...props}>
-                                  <Checkbox
-                                    style={{ marginRight: 8 }}
-                                    checked={selected}
-                                  />
-                                  {option.label}
-                                </li>
+                              options={timeZoneList as CountryType[]}
+                              onChange={(e, v) => field.onChange(v)}
+                              disableClearable
+                              renderOption={(props, option) => (
+                                <Box component='li' {...props} key={uuidv4()}>
+                                  {timeZoneFormatter(
+                                    option,
+                                    timezone.getValue(),
+                                  )}
+                                </Box>
                               )}
-                              id='multiple-limit-tags'
                               renderInput={params => (
                                 <TextField
                                   {...params}
                                   autoComplete='off'
-                                  error={Boolean(errors.specialties)}
+                                  error={
+                                    isSubmitted && Boolean(errors.timezone)
+                                  }
+                                  helperText={
+                                    isSubmitted && Boolean(errors.timezone)
+                                      ? FormErrors.required
+                                      : ''
+                                  }
+                                  inputProps={{
+                                    ...params.inputProps,
+                                  }}
                                 />
                               )}
+                              getOptionLabel={option =>
+                                timeZoneFormatter(
+                                  option,
+                                  timezone.getValue(),
+                                ) ?? ''
+                              }
                             />
                           )}
                         />
-
-                        {Boolean(errors.specialties) && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {FormErrors.required}
-                          </FormHelperText>
-                        )}
                       </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        border:
-                          errors.resume && isSubmitted
-                            ? '1px dashed #FF4D49'
-                            : '1px dashed #666CFF',
-                        borderRadius: '10px',
-                        padding: '20px',
-                        mt: '20px',
-                      }}
-                      ref={resumeRef}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '10px',
-                        }}
-                      >
+                      <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
                         <Box
                           sx={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '4px',
+                            gap: '8px',
+                            flex: 1,
+                            '.MuiInputBase-root': {
+                              height: '46px',
+                              padding: '0 10px',
+                            },
                           }}
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'end' }}>
-                            <Typography fontSize={14} fontWeight={600}>
-                              Resume&nbsp;
-                              <Typography
-                                component={'span'}
-                                color={
-                                  errors.resume && isSubmitted
-                                    ? '#FF4D49'
-                                    : '#666CFF'
-                                }
-                              >
-                                *&nbsp;
-                              </Typography>
+                          <Typography fontSize={14} fontWeight={600}>
+                            Years of experience&nbsp;
+                            <Typography component={'span'} color='#666CFF'>
+                              *
                             </Typography>
-                            <Typography
-                              fontSize={14}
-                              color={
-                                errors.resume && isSubmitted
-                                  ? '#4C4E6499'
-                                  : '#666CFF'
-                              }
-                            >
-                              Supports only csv. pdf. and docx.
-                            </Typography>
-                          </Box>
-                          <Typography
-                            fontSize={14}
-                            color='rgba(76, 78, 100, 0.60)'
-                            fontWeight={400}
-                          >
-                            {formatFileSize(fileSize)}/{' '}
-                            {byteToMB(MAXIMUM_FILE_SIZE)}
                           </Typography>
+                          <Controller
+                            name='experience'
+                            control={control}
+                            rules={{ required: true }}
+                            render={({
+                              field: { value, onChange, onBlur },
+                              formState: { isSubmitted },
+                            }) => (
+                              <Autocomplete
+                                fullWidth
+                                options={ExperiencedYears}
+                                getOptionLabel={option => option.label}
+                                value={{ label: value, value: value }}
+                                onChange={(event, item) => {
+                                  console.log('event', event, item)
+                                  onChange(item ? item.value : '')
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={
+                                      isSubmitted && Boolean(errors.experience)
+                                    }
+                                    helperText={
+                                      isSubmitted && Boolean(errors.experience)
+                                        ? FormErrors.required
+                                        : ''
+                                    }
+                                  />
+                                )}
+                              />
+                            )}
+                          />
                         </Box>
-                        <div {...getRootProps({ className: 'dropzone' })}>
-                          <input {...getInputProps()} />
-                          <Button variant='contained' size='small'>
-                            Upload
-                          </Button>
-                        </div>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flex: 1,
+                            flexDirection: 'column',
+                            gap: '8px',
+                            '.MuiInputBase-root': {
+                              height: '46px',
+                              padding: '0 10px',
+                            },
+                          }}
+                        >
+                          <Typography fontSize={14} fontWeight={600}>
+                            Specialties
+                            <Typography
+                              component={'span'}
+                              color='#666CFF'
+                            ></Typography>
+                          </Typography>
+                          <Controller
+                            name='specialties'
+                            control={control}
+                            render={({ field }) => (
+                              <Autocomplete
+                                autoHighlight
+                                fullWidth
+                                multiple
+                                {...field}
+                                value={
+                                  getValues('specialties')[0]?.label === ''
+                                    ? []
+                                    : getValues('specialties')
+                                }
+                                options={AreaOfExpertiseList}
+                                onChange={(e, v: any, l) => {
+                                  if (
+                                    v.length <= 1 &&
+                                    l === 'removeOption' &&
+                                    (!v[0]?.value || !v[0]?.label)
+                                  ) {
+                                    field.onChange([{ label: '', value: '' }])
+                                    return
+                                  }
+                                  field.onChange(v)
+                                }}
+                                limitTags={1}
+                                renderOption={(props, option, { selected }) => (
+                                  <li {...props}>
+                                    <Checkbox
+                                      style={{ marginRight: 8 }}
+                                      checked={selected}
+                                    />
+                                    {option.label}
+                                  </li>
+                                )}
+                                id='multiple-limit-tags'
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={Boolean(errors.specialties)}
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+
+                          {Boolean(errors.specialties) && (
+                            <FormHelperText sx={{ color: 'error.main' }}>
+                              {FormErrors.required}
+                            </FormHelperText>
+                          )}
+                        </Box>
                       </Box>
                       <Box
                         sx={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          border:
+                            errors.resume && isSubmitted
+                              ? '1px dashed #FF4D49'
+                              : '1px dashed #666CFF',
+                          borderRadius: '10px',
+                          padding: '20px',
                           mt: '20px',
-                          width: '100%',
-                          gap: '20px',
                         }}
+                        ref={resumeRef}
                       >
-                        {/* {getValues('resume') && getValues('resume')!.length > 0
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '10px',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '4px',
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'end' }}>
+                              <Typography fontSize={14} fontWeight={600}>
+                                Resume&nbsp;
+                                <Typography
+                                  component={'span'}
+                                  color={
+                                    errors.resume && isSubmitted
+                                      ? '#FF4D49'
+                                      : '#666CFF'
+                                  }
+                                >
+                                  *&nbsp;
+                                </Typography>
+                              </Typography>
+                              <Typography
+                                fontSize={14}
+                                color={
+                                  errors.resume && isSubmitted
+                                    ? '#4C4E6499'
+                                    : '#666CFF'
+                                }
+                              >
+                                Supports only csv. pdf. and docx.
+                              </Typography>
+                            </Box>
+                            <Typography
+                              fontSize={14}
+                              color='rgba(76, 78, 100, 0.60)'
+                              fontWeight={400}
+                            >
+                              {formatFileSize(fileSize)}/{' '}
+                              {byteToMB(MAXIMUM_FILE_SIZE)}
+                            </Typography>
+                          </Box>
+                          <div {...getRootProps({ className: 'dropzone' })}>
+                            <input {...getInputProps()} />
+                            <Button variant='contained' size='small'>
+                              Upload
+                            </Button>
+                          </div>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            mt: '20px',
+                            width: '100%',
+                            gap: '20px',
+                          }}
+                        >
+                          {/* {getValues('resume') && getValues('resume')!.length > 0
                           ? getValues('resume')!.map((value, index) => (
                               <FileList key={uuidv4()}>
                                 <div className='file-details'>
@@ -1503,528 +1631,541 @@ const PersonalInfoPro = () => {
                             ))
                           : null} */}
 
-                        {files.length > 0
-                          ? files.map((value, index) => (
-                              <FileItem
-                                key={uuidv4()}
-                                file={value}
-                                onClear={handleRemoveFile}
-                              />
-                            ))
-                          : null}
+                          {files.length > 0
+                            ? files.map((value, index) => (
+                                <FileItem
+                                  key={uuidv4()}
+                                  file={value}
+                                  onClear={handleRemoveFile}
+                                />
+                              ))
+                            : null}
+                        </Box>
+                      </Box>
+                    </Box>
+                    <Divider sx={{ my: '20px !important' }} />
+                    <Box>
+                      <Typography fontSize={20} fontWeight={500}>
+                        Applying Role{' '}
+                        <Typography
+                          component={'span'}
+                          color='#666CFF'
+                          fontSize={20}
+                          fontWeight={500}
+                        >
+                          *
+                        </Typography>
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          paddingLeft: '16px',
+                          mt: '8px',
+                        }}
+                      >
+                        <Typography
+                          color='#8D8E9A'
+                          fontSize={14}
+                          fontWeight={400}
+                        >
+                          *After sign-up, you'll automatically be enrolled for
+                          the certification test for your applied role here.
+                        </Typography>
+                        <Typography
+                          color='#8D8E9A'
+                          fontSize={14}
+                          fontWeight={400}
+                        >
+                          *Applying here does not guarantee that you will be
+                          able to take a test immediately.
+                        </Typography>
+                      </Box>
+                      <Box sx={{ mt: '16px' }}>
+                        {jobInfoFields?.map((item, idx) => {
+                          return (
+                            <Box key={item.id} mb={4}>
+                              {/* job type & role */}
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                }}
+                              >
+                                <Typography mb={3}>
+                                  {idx < 9 ? 0 : null}
+                                  {idx + 1}.
+                                </Typography>
+                                {jobInfoFields?.length > 1 && (
+                                  <IconButton
+                                    onClick={() => removeJobInfo(item)}
+                                  >
+                                    <img
+                                      src='/images/signup/delete-info.png'
+                                      alt='delete job information'
+                                      width={25}
+                                    />
+                                  </IconButton>
+                                )}
+                              </Box>
+
+                              <Box sx={{ display: 'flex', gap: '20px' }}>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flex: 1,
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    '.MuiInputBase-root': {
+                                      height: '46px',
+                                      padding: '0 10px',
+                                    },
+                                  }}
+                                >
+                                  <Typography fontSize={14} fontWeight={600}>
+                                    Job type&nbsp;
+                                    <Typography
+                                      component={'span'}
+                                      color='#666CFF'
+                                    >
+                                      *
+                                    </Typography>
+                                  </Typography>
+                                  <Controller
+                                    name={`jobInfo.${idx}.jobType`}
+                                    control={control}
+                                    render={({
+                                      field,
+                                      formState: { isSubmitted },
+                                    }) => (
+                                      <Autocomplete
+                                        fullWidth
+                                        options={
+                                          item.role && item.role !== ''
+                                            ? /* @ts-ignore */
+                                              ProJobPair[item.role] ?? JobList
+                                            : JobList
+                                        }
+                                        getOptionLabel={option => option.label}
+                                        value={{
+                                          label: item.jobType,
+                                          value: item.jobType,
+                                        }}
+                                        onChange={(e, newValue) =>
+                                          onChangeJobInfo(
+                                            item.id,
+                                            newValue?.value ?? '',
+                                            'jobType',
+                                          )
+                                        }
+                                        renderInput={params => (
+                                          <TextField
+                                            {...params}
+                                            autoComplete='off'
+                                            inputRef={ref => {
+                                              errorRefs.current[
+                                                idx + (idx > 0 ? 3 * idx : 0)
+                                              ] = ref
+                                            }}
+                                            error={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length
+                                                ? !!errors.jobInfo[idx]?.jobType
+                                                : false
+                                            }
+                                            helperText={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length &&
+                                              errors.jobInfo[idx]?.jobType
+                                                ? FormErrors.required
+                                                : ''
+                                            }
+                                          />
+                                        )}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flex: 1,
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    '.MuiInputBase-root': {
+                                      height: '46px',
+                                      padding: '0 10px',
+                                    },
+                                  }}
+                                >
+                                  <Typography fontSize={14} fontWeight={600}>
+                                    Role&nbsp;
+                                    <Typography
+                                      component={'span'}
+                                      color='#666CFF'
+                                    >
+                                      *
+                                    </Typography>
+                                  </Typography>
+                                  <Controller
+                                    name={`jobInfo.${idx}.role`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Autocomplete
+                                        fullWidth
+                                        options={
+                                          item.jobType && item.jobType !== ''
+                                            ? /* @ts-ignore */
+                                              ProRolePair[item.jobType]
+                                            : RoleList
+                                        }
+                                        getOptionLabel={option => option.label}
+                                        value={{
+                                          label: item.role,
+                                          value: item.role,
+                                        }}
+                                        onChange={(e, newValue) =>
+                                          onChangeJobInfo(
+                                            item.id,
+                                            newValue?.value ?? '',
+                                            'role',
+                                          )
+                                        }
+                                        renderInput={params => (
+                                          <TextField
+                                            {...params}
+                                            autoComplete='off'
+                                            inputRef={ref => {
+                                              errorRefs.current[
+                                                idx +
+                                                  1 +
+                                                  (idx > 0 ? 3 * idx : 0)
+                                              ] = ref
+                                            }}
+                                            error={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length
+                                                ? !!errors.jobInfo[idx]?.role
+                                                : false
+                                            }
+                                            helperText={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length &&
+                                              errors.jobInfo[idx]?.role
+                                                ? FormErrors.required
+                                                : ''
+                                            }
+                                          />
+                                        )}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                              </Box>
+                              {/* languages */}
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: '20px',
+                                  mt: '20px',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flex: 1,
+                                    flexDirection: 'column',
+                                    gap: '8px',
+                                    '.MuiInputBase-root': {
+                                      height: '46px',
+                                      padding: '0 10px',
+                                    },
+                                  }}
+                                >
+                                  <Typography fontSize={14} fontWeight={600}>
+                                    Source&nbsp;
+                                    <Typography
+                                      component={'span'}
+                                      color='#666CFF'
+                                    >
+                                      *
+                                    </Typography>
+                                  </Typography>
+                                  <Controller
+                                    name={`jobInfo.${idx}.source`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Autocomplete
+                                        autoHighlight
+                                        fullWidth
+                                        {...field}
+                                        disableClearable
+                                        disabled={item.jobType === 'DTP'}
+                                        value={
+                                          languageList.filter(
+                                            l => l.value === item.source,
+                                          )[0]
+                                        }
+                                        options={languageList}
+                                        onChange={(e, v) =>
+                                          onChangeJobInfo(
+                                            item.id,
+                                            v?.value,
+                                            'source',
+                                          )
+                                        }
+                                        renderOption={(props, option) => (
+                                          <Box
+                                            component='li'
+                                            {...props}
+                                            key={props.id}
+                                          >
+                                            {option.label}
+                                          </Box>
+                                        )}
+                                        renderInput={params => (
+                                          <TextField
+                                            {...params}
+                                            autoComplete='off'
+                                            inputRef={ref => {
+                                              errorRefs.current[
+                                                idx +
+                                                  2 +
+                                                  (idx > 0 ? 3 * idx : 0)
+                                              ] = ref
+                                            }}
+                                            error={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length
+                                                ? !!errors.jobInfo[idx]?.source
+                                                : false
+                                            }
+                                            helperText={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length &&
+                                              errors.jobInfo[idx]?.source
+                                                ? FormErrors.required
+                                                : ''
+                                            }
+                                            inputProps={{
+                                              ...params.inputProps,
+                                            }}
+                                          />
+                                        )}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flex: 1,
+                                    flexDirection: 'column',
+
+                                    gap: '8px',
+                                    '.MuiInputBase-root': {
+                                      height: '46px',
+                                      padding: '0 10px',
+                                    },
+                                  }}
+                                >
+                                  <Typography fontSize={14} fontWeight={600}>
+                                    Target&nbsp;
+                                    <Typography
+                                      component={'span'}
+                                      color='#666CFF'
+                                    >
+                                      *
+                                    </Typography>
+                                  </Typography>
+                                  <Controller
+                                    name={`jobInfo.${idx}.target`}
+                                    control={control}
+                                    render={({ field }) => (
+                                      <Autocomplete
+                                        autoHighlight
+                                        fullWidth
+                                        {...field}
+                                        disableClearable
+                                        disabled={item.jobType === 'DTP'}
+                                        value={
+                                          languageList.filter(
+                                            l => l.value === item.target,
+                                          )[0]
+                                        }
+                                        options={languageList}
+                                        onChange={(e, v) =>
+                                          onChangeJobInfo(
+                                            item.id,
+                                            v?.value,
+                                            'target',
+                                          )
+                                        }
+                                        renderOption={(props, option) => (
+                                          <Box
+                                            component='li'
+                                            {...props}
+                                            key={props.id}
+                                          >
+                                            {option.label}
+                                          </Box>
+                                        )}
+                                        renderInput={params => (
+                                          <TextField
+                                            {...params}
+                                            autoComplete='off'
+                                            inputRef={ref => {
+                                              errorRefs.current[
+                                                idx +
+                                                  3 +
+                                                  (idx > 0 ? 3 * idx : 0)
+                                              ] = ref
+                                            }}
+                                            error={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length
+                                                ? !!errors.jobInfo[idx]?.target
+                                                : false
+                                            }
+                                            helperText={
+                                              isSubmitted &&
+                                              errors.jobInfo?.length &&
+                                              errors.jobInfo[idx]?.target
+                                                ? FormErrors.required
+                                                : ''
+                                            }
+                                            inputProps={{
+                                              ...params.inputProps,
+                                            }}
+                                          />
+                                        )}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                              </Box>
+                            </Box>
+                          )
+                        })}
+                        <Button
+                          onClick={addJobInfo}
+                          variant='contained'
+                          sx={{ p: '4px', minWidth: 26 }}
+                          disabled={jobInfoFields.some(item => {
+                            if (item.jobType === 'DTP') {
+                              return !item.jobType || !item.role
+                            } else {
+                              return (
+                                !item.jobType ||
+                                !item.role ||
+                                !item.target ||
+                                !item.source
+                              )
+                            }
+                          })}
+                        >
+                          <Icon icon='mdi:add' fontSize={18} />
+                        </Button>
                       </Box>
                     </Box>
                   </Box>
-                  <Divider sx={{ my: '20px !important' }} />
+                ) : (
                   <Box>
-                    <Typography fontSize={20} fontWeight={500}>
-                      Applying Role{' '}
-                      <Typography
-                        component={'span'}
-                        color='#666CFF'
-                        fontSize={20}
-                        fontWeight={500}
-                      >
-                        *
-                      </Typography>
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        paddingLeft: '16px',
-                        mt: '8px',
-                      }}
-                    >
-                      <Typography
-                        color='#8D8E9A'
-                        fontSize={14}
-                        fontWeight={400}
-                      >
-                        *After sign-up, you'll automatically be enrolled for the
-                        certification test for your applied role here.
-                      </Typography>
-                      <Typography
-                        color='#8D8E9A'
-                        fontSize={14}
-                        fontWeight={400}
-                      >
-                        *Applying here does not guarantee that you will be able
-                        to take a test immediately.
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mt: '16px' }}>
-                      {jobInfoFields?.map((item, idx) => {
-                        return (
-                          <Box key={item.id} mb={4}>
-                            {/* job type & role */}
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                              }}
-                            >
-                              <Typography mb={3}>
-                                {idx < 9 ? 0 : null}
-                                {idx + 1}.
-                              </Typography>
-                              {jobInfoFields?.length > 1 && (
-                                <IconButton onClick={() => removeJobInfo(item)}>
-                                  <img
-                                    src='/images/signup/delete-info.png'
-                                    alt='delete job information'
-                                    width={25}
-                                  />
-                                </IconButton>
-                              )}
-                            </Box>
-
-                            <Box sx={{ display: 'flex', gap: '20px' }}>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flex: 1,
-                                  flexDirection: 'column',
-                                  gap: '8px',
-                                  '.MuiInputBase-root': {
-                                    height: '46px',
-                                    padding: '0 10px',
-                                  },
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={600}>
-                                  Job type&nbsp;
-                                  <Typography
-                                    component={'span'}
-                                    color='#666CFF'
-                                  >
-                                    *
-                                  </Typography>
-                                </Typography>
-                                <Controller
-                                  name={`jobInfo.${idx}.jobType`}
-                                  control={control}
-                                  render={({
-                                    field,
-                                    formState: { isSubmitted },
-                                  }) => (
-                                    <Autocomplete
-                                      fullWidth
-                                      options={
-                                        item.role && item.role !== ''
-                                          ? /* @ts-ignore */
-                                            ProJobPair[item.role] ?? JobList
-                                          : JobList
-                                      }
-                                      getOptionLabel={option => option.label}
-                                      value={{
-                                        label: item.jobType,
-                                        value: item.jobType,
-                                      }}
-                                      onChange={(e, newValue) =>
-                                        onChangeJobInfo(
-                                          item.id,
-                                          newValue?.value ?? '',
-                                          'jobType',
-                                        )
-                                      }
-                                      renderInput={params => (
-                                        <TextField
-                                          {...params}
-                                          autoComplete='off'
-                                          inputRef={ref => {
-                                            errorRefs.current[
-                                              idx + (idx > 0 ? 3 * idx : 0)
-                                            ] = ref
-                                          }}
-                                          error={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length
-                                              ? !!errors.jobInfo[idx]?.jobType
-                                              : false
-                                          }
-                                          helperText={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length &&
-                                            errors.jobInfo[idx]?.jobType
-                                              ? FormErrors.required
-                                              : ''
-                                          }
-                                        />
-                                      )}
-                                    />
-                                  )}
-                                />
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flex: 1,
-                                  flexDirection: 'column',
-                                  gap: '8px',
-                                  '.MuiInputBase-root': {
-                                    height: '46px',
-                                    padding: '0 10px',
-                                  },
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={600}>
-                                  Role&nbsp;
-                                  <Typography
-                                    component={'span'}
-                                    color='#666CFF'
-                                  >
-                                    *
-                                  </Typography>
-                                </Typography>
-                                <Controller
-                                  name={`jobInfo.${idx}.role`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Autocomplete
-                                      fullWidth
-                                      options={
-                                        item.jobType && item.jobType !== ''
-                                          ? /* @ts-ignore */
-                                            ProRolePair[item.jobType]
-                                          : RoleList
-                                      }
-                                      getOptionLabel={option => option.label}
-                                      value={{
-                                        label: item.role,
-                                        value: item.role,
-                                      }}
-                                      onChange={(e, newValue) =>
-                                        onChangeJobInfo(
-                                          item.id,
-                                          newValue?.value ?? '',
-                                          'role',
-                                        )
-                                      }
-                                      renderInput={params => (
-                                        <TextField
-                                          {...params}
-                                          autoComplete='off'
-                                          inputRef={ref => {
-                                            errorRefs.current[
-                                              idx + 1 + (idx > 0 ? 3 * idx : 0)
-                                            ] = ref
-                                          }}
-                                          error={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length
-                                              ? !!errors.jobInfo[idx]?.role
-                                              : false
-                                          }
-                                          helperText={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length &&
-                                            errors.jobInfo[idx]?.role
-                                              ? FormErrors.required
-                                              : ''
-                                          }
-                                        />
-                                      )}
-                                    />
-                                  )}
-                                />
-                              </Box>
-                            </Box>
-                            {/* languages */}
-                            <Box
-                              sx={{ display: 'flex', gap: '20px', mt: '20px' }}
-                            >
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flex: 1,
-                                  flexDirection: 'column',
-                                  gap: '8px',
-                                  '.MuiInputBase-root': {
-                                    height: '46px',
-                                    padding: '0 10px',
-                                  },
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={600}>
-                                  Source&nbsp;
-                                  <Typography
-                                    component={'span'}
-                                    color='#666CFF'
-                                  >
-                                    *
-                                  </Typography>
-                                </Typography>
-                                <Controller
-                                  name={`jobInfo.${idx}.source`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Autocomplete
-                                      autoHighlight
-                                      fullWidth
-                                      {...field}
-                                      disableClearable
-                                      disabled={item.jobType === 'DTP'}
-                                      value={
-                                        languageList.filter(
-                                          l => l.value === item.source,
-                                        )[0]
-                                      }
-                                      options={languageList}
-                                      onChange={(e, v) =>
-                                        onChangeJobInfo(
-                                          item.id,
-                                          v?.value,
-                                          'source',
-                                        )
-                                      }
-                                      renderOption={(props, option) => (
-                                        <Box
-                                          component='li'
-                                          {...props}
-                                          key={props.id}
-                                        >
-                                          {option.label}
-                                        </Box>
-                                      )}
-                                      renderInput={params => (
-                                        <TextField
-                                          {...params}
-                                          autoComplete='off'
-                                          inputRef={ref => {
-                                            errorRefs.current[
-                                              idx + 2 + (idx > 0 ? 3 * idx : 0)
-                                            ] = ref
-                                          }}
-                                          error={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length
-                                              ? !!errors.jobInfo[idx]?.source
-                                              : false
-                                          }
-                                          helperText={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length &&
-                                            errors.jobInfo[idx]?.source
-                                              ? FormErrors.required
-                                              : ''
-                                          }
-                                          inputProps={{
-                                            ...params.inputProps,
-                                          }}
-                                        />
-                                      )}
-                                    />
-                                  )}
-                                />
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flex: 1,
-                                  flexDirection: 'column',
-
-                                  gap: '8px',
-                                  '.MuiInputBase-root': {
-                                    height: '46px',
-                                    padding: '0 10px',
-                                  },
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={600}>
-                                  Target&nbsp;
-                                  <Typography
-                                    component={'span'}
-                                    color='#666CFF'
-                                  >
-                                    *
-                                  </Typography>
-                                </Typography>
-                                <Controller
-                                  name={`jobInfo.${idx}.target`}
-                                  control={control}
-                                  render={({ field }) => (
-                                    <Autocomplete
-                                      autoHighlight
-                                      fullWidth
-                                      {...field}
-                                      disableClearable
-                                      disabled={item.jobType === 'DTP'}
-                                      value={
-                                        languageList.filter(
-                                          l => l.value === item.target,
-                                        )[0]
-                                      }
-                                      options={languageList}
-                                      onChange={(e, v) =>
-                                        onChangeJobInfo(
-                                          item.id,
-                                          v?.value,
-                                          'target',
-                                        )
-                                      }
-                                      renderOption={(props, option) => (
-                                        <Box
-                                          component='li'
-                                          {...props}
-                                          key={props.id}
-                                        >
-                                          {option.label}
-                                        </Box>
-                                      )}
-                                      renderInput={params => (
-                                        <TextField
-                                          {...params}
-                                          autoComplete='off'
-                                          inputRef={ref => {
-                                            errorRefs.current[
-                                              idx + 3 + (idx > 0 ? 3 * idx : 0)
-                                            ] = ref
-                                          }}
-                                          error={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length
-                                              ? !!errors.jobInfo[idx]?.target
-                                              : false
-                                          }
-                                          helperText={
-                                            isSubmitted &&
-                                            errors.jobInfo?.length &&
-                                            errors.jobInfo[idx]?.target
-                                              ? FormErrors.required
-                                              : ''
-                                          }
-                                          inputProps={{
-                                            ...params.inputProps,
-                                          }}
-                                        />
-                                      )}
-                                    />
-                                  )}
-                                />
-                              </Box>
-                            </Box>
-                          </Box>
-                        )
-                      })}
-                      <Button
-                        onClick={addJobInfo}
-                        variant='contained'
-                        sx={{ p: '4px', minWidth: 26 }}
-                        disabled={jobInfoFields.some(item => {
-                          if (item.jobType === 'DTP') {
-                            return !item.jobType || !item.role
-                          } else {
-                            return (
-                              !item.jobType ||
-                              !item.role ||
-                              !item.target ||
-                              !item.source
-                            )
-                          }
-                        })}
-                      >
-                        <Icon icon='mdi:add' fontSize={18} />
-                      </Button>
-                    </Box>
+                    {ndaData ? (
+                      <NDASigned
+                        language={ndaLanguage}
+                        setLanguage={setNdaLanguage}
+                        nda={ndaData}
+                        signNDA={signNDA}
+                        setSignNDA={setSignNDA}
+                        auth={auth}
+                        type='additional'
+                        address={{
+                          baseAddress: getValues('baseAddress') ?? null,
+                          detailAddress: getValues('detailAddress') ?? null,
+                          city: getValues('city') ?? null,
+                          state: getValues('state') ?? null,
+                          zipCode: getValues('zipCode') ?? null,
+                          country: getValues('country') ?? null,
+                        }}
+                        user={{
+                          name: getLegalName({
+                            firstName: getValues('firstName'),
+                            middleName: getValues('middleName'),
+                            lastName: getValues('lastName'),
+                          }),
+                          birthday: getValues('birthday')
+                            ? dayjs(getValues('birthday')).format('DD/MM/YYYY')
+                            : null,
+                        }}
+                      />
+                    ) : null}
                   </Box>
-                </Box>
-              ) : (
-                <Box>
-                  {ndaData ? (
-                    <NDASigned
-                      language={ndaLanguage}
-                      setLanguage={setNdaLanguage}
-                      nda={ndaData}
-                      signNDA={signNDA}
-                      setSignNDA={setSignNDA}
-                      auth={auth}
-                      type='additional'
-                      address={{
-                        baseAddress: getValues('baseAddress') ?? null,
-                        detailAddress: getValues('detailAddress') ?? null,
-                        city: getValues('city') ?? null,
-                        state: getValues('state') ?? null,
-                        zipCode: getValues('zipCode') ?? null,
-                        country: getValues('country') ?? null,
-                      }}
-                      user={{
-                        name: getLegalName({
-                          firstName: getValues('firstName'),
-                          middleName: getValues('middleName'),
-                          lastName: getValues('lastName'),
-                        }),
-                        birthday: getValues('birthday')
-                          ? dayjs(getValues('birthday')).format('DD/MM/YYYY')
-                          : null,
-                      }}
-                    />
-                  ) : null}
-                </Box>
-              )}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  mt: '32px',
-                }}
-              >
-                <Button
-                  size='large'
-                  type='button'
-                  variant='outlined'
-                  color='secondary'
-                  disabled={activeStep === 0}
-                  onClick={() => handleBack()}
-                  sx={{ mb: 7 }}
+                )}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    mt: '32px',
+                  }}
                 >
-                  <Icon icon='mdi:arrow-left' /> &nbsp;Previous
-                </Button>
-                {activeStep === 1 ? (
                   <Button
                     size='large'
                     type='button'
-                    variant='contained'
-                    disabled={!signNDA}
+                    variant='outlined'
+                    color='secondary'
+                    disabled={activeStep === 0}
+                    onClick={() => handleBack()}
                     sx={{ mb: 7 }}
-                    onClick={onClickSave}
                   >
-                    Get started &nbsp; <Icon icon='mdi:arrow-right' />
+                    <Icon icon='mdi:arrow-left' /> &nbsp;Previous
                   </Button>
-                ) : (
-                  <Button
-                    size='large'
-                    // type='button'
-                    variant='contained'
-                    type='submit'
-                    sx={{ mb: 7 }}
-                    // disabled={
-                    //   !(
-                    //     dirtyFields.firstName &&
-                    //     dirtyFields.lastName &&
-                    //     dirtyFields.timezone &&
-                    //     dirtyFields.birthday &&
-                    //     (!errors.firstName ||
-                    //       !errors.lastName ||
-                    //       !errors.timezone ||
-                    //       !errors.birthday)
-                    //   ) || !isAddressValid
-                    // }
-                    // onClick={e => {
-                    //   e.preventDefault()
-                    //   handleNext()
-                    // }}
-                  >
-                    Next &nbsp;
-                    <Icon icon='mdi:arrow-right' />
-                  </Button>
-                )}
-              </Box>
-            </form>
-          </BoxWrapper>
-        </Box>
-      </RightWrapper>
-    </Box>
+                  {activeStep === 1 ? (
+                    <Button
+                      size='large'
+                      type='button'
+                      variant='contained'
+                      disabled={!signNDA || loading}
+                      sx={{ mb: 7 }}
+                      onClick={onClickSave}
+                    >
+                      Get started &nbsp; <Icon icon='mdi:arrow-right' />
+                    </Button>
+                  ) : (
+                    <Button
+                      size='large'
+                      // type='button'
+                      variant='contained'
+                      type='submit'
+                      sx={{ mb: 7 }}
+                      // disabled={
+                      //   !(
+                      //     dirtyFields.firstName &&
+                      //     dirtyFields.lastName &&
+                      //     dirtyFields.timezone &&
+                      //     dirtyFields.birthday &&
+                      //     (!errors.firstName ||
+                      //       !errors.lastName ||
+                      //       !errors.timezone ||
+                      //       !errors.birthday)
+                      //   ) || !isAddressValid
+                      // }
+                      // onClick={e => {
+                      //   e.preventDefault()
+                      //   handleNext()
+                      // }}
+                    >
+                      Next &nbsp;
+                      <Icon icon='mdi:arrow-right' />
+                    </Button>
+                  )}
+                </Box>
+              </form>
+            </BoxWrapper>
+          </Box>
+        </RightWrapper>
+      </Box>
+    </>
   )
 }
 
