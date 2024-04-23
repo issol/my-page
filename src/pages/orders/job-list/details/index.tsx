@@ -15,6 +15,7 @@ import React, {
   MouseEvent,
   ReactElement,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -53,6 +54,10 @@ const JobDetails = () => {
   const { orderId, jobId } = router.query
 
   const tableRowRef = useRef<HTMLTableRowElement>(null)
+  const jobTitleRef = useRef<HTMLElement>(null)
+  const cardListRef = useRef<HTMLElement>(null)
+  const wrapperRef = useRef<HTMLElement>(null)
+
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -70,6 +75,7 @@ const JobDetails = () => {
   const [isMasterManagerUser, setIsMasterManagerUser] = useState(false)
 
   const [mode, setMode] = useState<JobListMode>('view')
+  const [scrolled, setScrolled] = useState(false)
 
   const [selectedAllItemJobs, setSelectedAllItemJobs] = useState<number[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -384,7 +390,10 @@ const JobDetails = () => {
     // approved
     if (changeStatus === 60600) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // partially delivered, delivered, invoiced, Redelivery requested 일때만 true
         if (job && ![60400, 60500, 60700, 60250].includes(job.status)) {
           flag = false
@@ -395,7 +404,10 @@ const JobDetails = () => {
     // without invoice
     else if (changeStatus === 60900) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // delivered, approved, invoiced, Redelivery requested 일때만 true
         if (job && ![60500, 60600, 60700, 60250].includes(job.status)) {
           flag = false
@@ -406,7 +418,10 @@ const JobDetails = () => {
     // canceled
     else if (changeStatus === 601000) {
       jobIds.map(jobId => {
-        const job = jobDetails?.items.map(item => item.jobs).flat().find(row => row.id === jobId)
+        const job = jobDetails?.items
+          .map(item => item.jobs)
+          .flat()
+          .find(row => row.id === jobId)
         // canceled, paid가 아닐때만 true
         if (job && [60800, 601000].includes(job.status)) {
           flag = false
@@ -420,6 +435,55 @@ const JobDetails = () => {
     }
   }
 
+  const header = document.querySelector('header')
+
+  useEffect(() => {
+    const element = jobTitleRef.current
+    const cardList = cardListRef.current
+    const wrapper = wrapperRef.current
+    const main = document.querySelector('main')
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY || window.pageYOffset
+      setScrolled(scrollPosition !== 0)
+      if (scrollPosition > 0 && element && main && cardList && wrapper) {
+        element.style.width = '100vw'
+        element.style.borderRadius = '0'
+        element.style.boxShadow = '0px 2px 10px 0px rgba(76, 78, 100, 0.22)'
+        main.style.marginLeft = '0'
+        main.style.padding = '0'
+        wrapper.style.width = '100vw'
+        cardList.style.padding = '1.5rem'
+        cardList.style.margin = '0 auto'
+        cardList.style.maxWidth = '1440px'
+      } else if (
+        scrollPosition === 0 &&
+        element &&
+        main &&
+        cardList &&
+        wrapper
+      ) {
+        element.style.width = '100%'
+        element.style.borderRadius = '6px'
+        element.style.boxShadow = 'none'
+        main.style.marginLeft = 'auto'
+        main.style.padding = '1.5rem'
+        wrapper.style.width = '100%'
+        cardList.style.padding = '0'
+        cardList.style.margin = '0'
+        cardList.style.maxWidth = 'inherit'
+
+        // wrapper.style.width = '100%'
+      }
+      // Add your logic here
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
@@ -429,8 +493,16 @@ const JobDetails = () => {
       isLoadingDeleteState ? (
         <OverlaySpinner />
       ) : null}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Box
+        ref={wrapperRef}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+        }}
+      >
         <JobTitleSection
+          ref={jobTitleRef}
           width='100%'
           display='flex'
           alignItems='center'
@@ -439,6 +511,15 @@ const JobDetails = () => {
           gap='12px'
           borderRadius='6px'
           bgcolor='#fff'
+          sx={{
+            position: 'sticky',
+            zIndex: 9999,
+            top: header
+              ? `${header?.getBoundingClientRect().height + 0.5}px`
+              : '128px',
+
+            // top: 100,
+          }}
         >
           <Box display='flex' alignItems='center' gap='8px'>
             <IconButton
@@ -508,7 +589,13 @@ const JobDetails = () => {
           )}
         </JobTitleSection>
 
-        <CardListSection display='flex' flexDirection='column' gap='24px'>
+        <CardListSection
+          ref={cardListRef}
+          display='flex'
+          flexDirection='column'
+          gap='24px'
+          sx={{ margin: '0 auto', width: '100%' }}
+        >
           {jobDetails?.items.map((value, index) => {
             return (
               <JobListCard
