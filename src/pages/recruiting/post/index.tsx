@@ -376,7 +376,7 @@ export default function RecruitingPost() {
                               {...params}
                               autoComplete='off'
                               error={Boolean(errors.client)}
-                              label='Client'
+                              label='Client*'
                               placeholder='Client*'
                             />
                           )}
