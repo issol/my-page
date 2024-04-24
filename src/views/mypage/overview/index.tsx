@@ -319,12 +319,17 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     control: offDayControl,
     getValues: getOffDayValues,
     setValue: setOffDayValues,
-    watch: watchOffDays,
     reset: resetOffDay,
-    formState: { dirtyFields: offDayDirtyFields, isValid: isOffDayValid },
+    formState: { isValid: isOffDayValid },
   } = useForm<OffDayEventType & { otherReason?: string }>({
-    // mode: 'onChange',
     mode: 'onChange',
+    defaultValues: {
+      id: undefined,
+      reason: '',
+      start: '',
+      end: '',
+      otherReason: '',
+    },
     resolver: yupResolver(offDaySchema) as unknown as Resolver<
       OffDayEventType & { otherReason?: string }
     >,
@@ -1023,7 +1028,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
               <Button
                 variant='outlined'
                 onClick={() => {
-                  resetOffDay({})
+                  resetOffDay()
                   setEditOffDay(false)
                 }}
               >
@@ -1032,7 +1037,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
               <Button
                 variant='contained'
                 onClick={onOffDaySave}
-                disabled={!isOffDayValid || _.isEmpty(offDayDirtyFields)}
+                disabled={!isOffDayValid}
               >
                 Save
               </Button>
