@@ -268,3 +268,8 @@ canvas {
   font-size: 12px;
   font-weight: 500;
 }
+
+/* onboarding */
+.onboarding-name-cell {
+  background-color: #FFF2F2;
+}

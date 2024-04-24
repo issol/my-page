@@ -25,11 +25,12 @@ import {
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { GridColumns } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
-import LegalNameEmail from './components/list/list-item/legalname-email'
+import LegalNameEmail, { LegalName } from './components/list/list-item/legalname-email'
 import JobTypeRole from '../components/job-type-role-chips'
 import TestStatus from './components/list/list-item/test-status'
 import Icon from '@src/@core/components/icon'
 import { useQueryClient } from 'react-query'
+import JobTypeRoleChips from '../components/job-type-role-chips/role-chip'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -154,7 +155,7 @@ export default function Onboarding() {
     {
       flex: 0.1,
       field: 'id',
-      minWidth: 80,
+      minWidth: 120,
       headerName: 'No.',
       disableColumnMenu: true,
       hideSortIcons: true,
@@ -165,7 +166,7 @@ export default function Onboarding() {
           onMouseLeave={() => setIsHoverId(false)}
           sx={{
             display: 'flex',
-            minWidth: 80,
+            minWidth: 120,
             width: '100%',
             alignItems: 'center',
           }}
@@ -191,41 +192,124 @@ export default function Onboarding() {
     },
     {
       flex: 0.25,
-      minWidth: 200,
+      minWidth: 240,
       field: 'name',
-      headerName: 'Legal name / Email',
+      headerName: 'Legal name',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Legal name / Email</Box>,
+      cellClassName: 'onboarding-name-cell',
+      renderHeader: () => <Box>Legal name</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         return (
-          <LegalNameEmail
+          <LegalName
             row={{
               isOnboarded: row.isOnboarded,
               isActive: row.isActive,
-
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
-              email: row.email,
             }}
-            link={`/onboarding/detail/${row.userId}`}
           />
         )
       },
     },
     {
-      flex: 0.15,
-      minWidth: 100,
-      field: 'experience',
-      headerName: 'Experience',
+      flex: 0.25,
+      minWidth: 240,
+      field: 'email',
+      headerName: 'Email',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Experience</Box>,
+      renderHeader: () => <Box>Email</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return <Typography variant='body1'>{row.experience}</Typography>
+        return <Typography variant='body2' fontWeight={400} sx={{ color: '#4C4E64' }}>{row.email}</Typography>
+      },
+    },
+    {
+      flex: 0.25,
+      minWidth: 145,
+      field: 'resume',
+      headerName: 'Resume',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Resume</Box>,
+      renderCell: ({ row }: OnboardingListCellType) => {
+        return (null)
+      },
+    },
+    {
+      flex: 0.4,
+      minWidth: 400,
+      field: 'applicationInformation',
+      headerName: 'Application information',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Application information</Box>,
+      renderCell: ({ row }: OnboardingListCellType) => {
+        // 리턴받은 jobInfo를 createdAt 기준으로 내림차순 정렬, 나중에 백엔드에 정렬된 데이터를 달라고 요구해도 될듯
+        row.jobInfo.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime()
+          const dateB = new Date(b.createdAt).getTime()
+          return dateB - dateA
+        })
+
+        // 필터에 Source, Target, jobType, role, testStatus가 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시킴
+        // 리스트에서 Job type/Role, Language Pair, Test status를 볼수있게 처리
+        const sourceFilters = filters.source || []
+        const targetFilters = filters.target || []
+        const jobTypeFilters = filters.jobType || []
+        const roleFilters = filters.role || []
+        const testStatusFilters = filters.testStatus || []
+
+        row.jobInfo.some((value, idx) => {
+          const source = value.source || ''
+          const target = value.target || ''
+          const jobType = value.jobType || ''
+          const role = value.role || ''
+          const testStatus = value.testStatus || ''
+          if (
+            (sourceFilters.length === 0 || sourceFilters.includes(source)) &&
+            (targetFilters.length === 0 || targetFilters.includes(target)) &&
+            (jobTypeFilters.length === 0 || jobTypeFilters.includes(jobType)) &&
+            (roleFilters.length === 0 || roleFilters.includes(role)) &&
+            (testStatusFilters.length === 0 ||
+              testStatusFilters.includes(testStatus))
+          ) {
+            const dummy = row.jobInfo[idx]
+            for (let i = idx; i > 0; i--) {
+              row.jobInfo[i] = row.jobInfo[i - 1]
+            }
+            row.jobInfo[0] = dummy
+            return true
+          }
+          return false
+        })
+        const jobInfo = row.jobInfo.map(value => ({
+          jobType: value.jobType,
+          role: value.role,
+          source: value.source,
+          target: value.target,
+        }))
+        return (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <Typography variant='body2' fontWeight={400} sx={{ color: '#4C4E64' }}>
+              {jobInfo[0].source?.toUpperCase()} &rarr;{' '}
+              {jobInfo[0].target?.toUpperCase()}
+            </Typography>
+            <JobTypeRoleChips jobType={jobInfo[0].jobType} role={jobInfo[0].role} visibleChip={'all'} />
+          </Box>
+        )
       },
     },
     {
@@ -314,6 +398,19 @@ export default function Onboarding() {
       ),
     },
     {
+      flex: 0.15,
+      minWidth: 100,
+      field: 'experience',
+      headerName: 'Experience',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Experience</Box>,
+      renderCell: ({ row }: OnboardingListCellType) => {
+        return <Typography variant='body1'>{row.experience}</Typography>
+      },
+    },
+    {
       flex: 0.17,
       field: 'age',
       minWidth: 80,
@@ -334,7 +431,7 @@ export default function Onboarding() {
   }, [])
 
   return (
-    <Grid container spacing={6}>
+    <Grid container spacing={0}>
       {/* <PageHeader
         title={<Typography variant='h5'>Onboarding list</Typography>}
       /> */}
@@ -343,6 +440,7 @@ export default function Onboarding() {
         onboardingStatistic={onboardingStatistic!}
       /> */}
       <Filters
+        onboardingProListCount={onboardingProList?.totalCount || 0}
         control={control}
         handleSubmit={handleSubmit}
         onSubmit={onSubmit}

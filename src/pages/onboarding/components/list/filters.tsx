@@ -48,6 +48,7 @@ export type CardProps = {
 }
 
 type Props = {
+  onboardingProListCount: number
   control: Control<FilterType, any>
   handleSubmit: UseFormHandleSubmit<FilterType>
   onSubmit: (data: FilterType) => void
@@ -90,6 +91,7 @@ type Props = {
 }
 
 export default function Filters({
+  onboardingProListCount,
   control,
   handleSubmit,
   onSubmit,
@@ -116,14 +118,21 @@ export default function Filters({
   return (
     <>
       <Grid item xs={12}>
-        <Card>
+        <Card
+          sx={{
+            borderRadius: '16px 16px 0 0',
+            paddingBottom: 0,
+            // boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.2)',
+            
+          }}
+        >
           <Box
             sx={{
               padding: '20px 20px 12px 20px',
             }}
           >
             <Typography variant='h6'>
-              Onboarding list
+              Onboarding list ({onboardingProListCount.toLocaleString()})
             </Typography>
           </Box>
           <form onSubmit={handleSubmit(onSubmit)}>

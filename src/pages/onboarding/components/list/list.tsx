@@ -37,11 +37,11 @@ export default function OnboardingList({
 }: Props) {
   return (
     <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={`Pros (${onboardingProListCount.toLocaleString()})`}
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
+      <Card
+        sx={{
+          borderRadius: '0 0 16px 16px',
+        }}
+      >
         <Box
           sx={{
             width: '100%',
@@ -51,6 +51,11 @@ export default function OnboardingList({
           }}
         >
           <DataGrid
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                borderTop: '1px solid #4C4E6412'  // 회색 상단 보더 설정
+              }
+            }}
             components={{
               NoRowsOverlay: () => {
                 return (
@@ -88,6 +93,7 @@ export default function OnboardingList({
               },
             }}
             columns={columns}
+            rowHeight={40}
             loading={isLoading}
             rows={onboardingProList ?? []}
             autoHeight
