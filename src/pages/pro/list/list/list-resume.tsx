@@ -127,18 +127,21 @@ const ListResume = ({ resume, onClickFile }: Props) => {
       case 'xls':
       case 'xlsx':
       case 'csv':
-        return 'csv'
+        return 'excel'
       case 'pdf':
         return 'pdf'
-      // case 'ppt':
-      // case 'pptx':
-      //   return 'ppt'
+      case 'ppt':
+      case 'pptx':
+        return 'ppt'
       case 'png':
-        return 'png'
       case 'jpg':
       case 'jpeg':
       case 'gif':
-        return 'jpg'
+        return 'img'
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+        return 'video'
       default:
         return 'default'
     }

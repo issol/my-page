@@ -281,11 +281,9 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Resume</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        const temp = [...row.resume, 'test.pdf', 'test.docx', 'test.pptx']
         return (          
           <ListResume
-            // resume={row.resume}
-            resume={temp}
+            resume={row.resume}
             onClickFile={onClickFile}
           ></ListResume>)
       },
