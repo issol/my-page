@@ -568,16 +568,17 @@ const JobDetails = () => {
         cardList.style.padding = '0'
         cardList.style.margin = '0'
         cardList.style.maxWidth = 'inherit'
-
-        // wrapper.style.width = '100%'
       }
-      // Add your logic here
     }
 
     window.addEventListener('scroll', handleScroll)
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
+      if (main) {
+        main.style.marginLeft = 'auto'
+        main.style.padding = '1.5rem'
+      }
     }
   }, [])
 
@@ -610,7 +611,7 @@ const JobDetails = () => {
           bgcolor='#fff'
           sx={{
             position: 'sticky',
-            zIndex: 9999,
+            zIndex: 1000,
             top: header
               ? `${header?.getBoundingClientRect().height + 0.5}px`
               : '128px',
