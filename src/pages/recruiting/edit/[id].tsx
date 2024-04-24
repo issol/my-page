@@ -339,7 +339,7 @@ export default function RecruitingEdit() {
       targetLanguage: data.targetLanguage.value,
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      dueDateTimezone: data.dueDateTimezone ?? '',
       jobPostLink: data.jobPostLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
