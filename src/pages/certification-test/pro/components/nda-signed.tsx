@@ -389,32 +389,30 @@ const NDASigned = ({
       const cloneCopy = draftEditor.cloneNode(true) as HTMLElement
       const printFrame = document.createElement('div')
       printFrame.id = 'draftEditor'
-      const frameHeight = draftEditor.scrollHeight
-      const frameWidth = draftEditor.offsetWidth
-      printFrame.setAttribute('style', 'position:absolute; left:-99999999px')
+      printFrame.style.position = 'absolute'
+      printFrame.style.left = '-9999px'
+      printFrame.style.display = 'block'
+      printFrame.style.width = '19.5cm'
+      printFrame.style.padding = '0 10px'
       printFrame.append(cloneCopy)
-      root.append(printFrame)
+      root.appendChild(printFrame)
 
-      html2canvas(printFrame, {
-        width: frameWidth,
-        height: frameHeight,
-      }).then(canvas => {
+      html2canvas(printFrame).then(canvas => {
         const imgData = canvas.toDataURL('image/png')
-        console.log(imgData)
 
-        const pdf = new jsPDF('p', 'mm', 'a4')
+        const pdf = new jsPDF('p', 'mm')
 
-        const imgWidth = 190
+        const imgWidth = 210
         const imgHeight = (canvas.height * imgWidth) / canvas.width
         const pageHeight = 297
         let heightLeft = imgHeight
         let position = 0
         heightLeft -= pageHeight
-        pdf.addImage(imgData, 'JPEG', 10, 0, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight)
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
-          pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
           heightLeft -= pageHeight
         }
 
