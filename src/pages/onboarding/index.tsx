@@ -31,6 +31,11 @@ import TestStatus from './components/list/list-item/test-status'
 import Icon from '@src/@core/components/icon'
 import { useQueryClient } from 'react-query'
 import JobTypeRoleChips from '../components/job-type-role-chips/role-chip'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -45,9 +50,12 @@ const defaultValues: FilterType = {
 
 export default function Onboarding() {
   const queryClient = useQueryClient()
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
-    useState<number>(10)
+    useState<number>(100)
   const [filters, setFilters] = useState<OnboardingFilterType>({
     jobType: [],
     role: [],
@@ -315,12 +323,12 @@ export default function Onboarding() {
     {
       flex: 0.4,
       minWidth: 180,
-      field: 'jobInfo',
-      headerName: 'Job type / Role',
+      field: 'role',
+      headerName: 'Roles',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Job type / Role</Box>,
+      renderHeader: () => <Box>Roles</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         // 리턴받은 jobInfo를 createdAt 기준으로 내림차순 정렬, 나중에 백엔드에 정렬된 데이터를 달라고 요구해도 될듯
         row.jobInfo.sort((a, b) => {
@@ -369,58 +377,51 @@ export default function Onboarding() {
     },
     {
       flex: 0.15,
-      minWidth: 120,
-      field: 'languages',
-      headerName: 'Language pair',
+      minWidth: 190,
+      field: 'experience',
+      headerName: 'Years of experience',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Language pair</Box>,
-      renderCell: ({ row }: OnboardingListCellType) => (
-        <Box>
-          {!row.jobInfo.length ? (
-            '-'
-          ) : (
-            <Box key={row.id}>
-              <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                {row.jobInfo[0].source && row.jobInfo[0].target ? (
-                  <>
-                    {row.jobInfo[0].source.toUpperCase()} &rarr;{' '}
-                    {row.jobInfo[0].target.toUpperCase()}
-                  </>
-                ) : (
-                  '-'
-                )}
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      ),
+      renderHeader: () => <Box>Years of experience</Box>,
+      renderCell: ({ row }: OnboardingListCellType) => {
+        return <Typography variant='body2' fontWeight={400} sx={{ color: '#4C4E64' }}>{row.experience ?? '-'}</Typography>
+      },
     },
     {
       flex: 0.15,
-      minWidth: 100,
-      field: 'experience',
-      headerName: 'Experience',
+      minWidth: 200,
+      field: 'timezone',
+      headerName: `Pro's timezone`,
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Experience</Box>,
+      renderHeader: () => <Box>Pro's timezone</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return <Typography variant='body1'>{row.experience}</Typography>
+        return <Typography variant='body2' fontWeight={400} sx={{ color: '#4C4E64' }}>
+          {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+        </Typography>
       },
     },
     {
       flex: 0.17,
-      field: 'age',
-      minWidth: 80,
-      headerName: 'testStatus',
+      field: 'enrollment',
+      minWidth: 250,
+      headerName: 'Date of Enrollment',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Test status</Box>,
+      renderHeader: () => <Box>Date of Enrollment</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return <TestStatus row={row} />
+        return (
+          <Box>
+            {convertTimeToTimezone(
+              row.createdAt,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
+          </Box>
+        )
       },
     },
   ]
@@ -432,13 +433,6 @@ export default function Onboarding() {
 
   return (
     <Grid container spacing={0}>
-      {/* <PageHeader
-        title={<Typography variant='h5'>Onboarding list</Typography>}
-      /> */}
-      {/* <OnboardingDashboard
-        totalStatistics={totalStatistics!}
-        onboardingStatistic={onboardingStatistic!}
-      /> */}
       <Filters
         onboardingProListCount={onboardingProList?.totalCount || 0}
         control={control}

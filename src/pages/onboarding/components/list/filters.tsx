@@ -123,12 +123,12 @@ export default function Filters({
             borderRadius: '16px 16px 0 0',
             paddingBottom: 0,
             // boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.2)',
-            
+            paddingLeft: '24px',
           }}
         >
           <Box
             sx={{
-              padding: '20px 20px 12px 20px',
+              padding: '12px 20px 12px 20px',
             }}
           >
             <Typography variant='h6'>

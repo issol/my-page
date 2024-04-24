@@ -45,6 +45,12 @@ export default function OnboardingList({
         <Box
           sx={{
             width: '100%',
+            height: {
+              lg: 'calc(97vh - 323px)', // 1075px 이상
+              md: 'calc(97vh - 398px)', // 1075px 이하
+              sm: 'calc(97vh - 398px)', // 1075px 이하
+              xs: 'calc(97vh - 500px)', // 1075px 이하
+            },
             '& .MuiDataGrid-columnHeaderTitle': {
               textTransform: 'none',
             },
@@ -96,7 +102,6 @@ export default function OnboardingList({
             rowHeight={40}
             loading={isLoading}
             rows={onboardingProList ?? []}
-            autoHeight
             disableSelectionOnClick
             paginationMode='server'
             pageSize={onboardingListPageSize}

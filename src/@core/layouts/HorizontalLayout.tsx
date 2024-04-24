@@ -171,7 +171,7 @@ const HorizontalLayout = (props: LayoutProps) => {
               sx={{
                 mx: 'auto',
                 ...(contentWidth === 'boxed' && {
-                  '@media (min-width:1440px)': { maxWidth: 1440 },
+                  '@media (min-width:1440px)': { maxWidth: 1900 },
                 }),
                 minHeight: theme =>
                   `${
@@ -201,7 +201,7 @@ const HorizontalLayout = (props: LayoutProps) => {
                 sx={{
                   mx: 'auto',
                   ...(contentWidth === 'boxed' && {
-                    '@media (min-width:1440px)': { maxWidth: 1440 },
+                    '@media (min-width:1440px)': { maxWidth: 1900 },
                   }),
                   minHeight: theme =>
                     `${
@@ -234,7 +234,7 @@ const HorizontalLayout = (props: LayoutProps) => {
             ...(contentHeightFixed && { display: 'flex', overflow: 'hidden' }),
             ...(contentWidth === 'boxed' && {
               mx: 'auto',
-              '@media (min-width:1440px)': { maxWidth: 1440 },
+              '@media (min-width:1440px)': { maxWidth: 1900 },
               '@media (min-width:1200px)': { maxWidth: '100%' },
             }),
           }}
