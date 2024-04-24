@@ -144,7 +144,6 @@ const ListResume = ({ resume, onClickFile }: Props) => {
     }
   }
 
-  console.log("")
   return (
     <Box
       sx={{
