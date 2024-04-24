@@ -134,7 +134,7 @@ const Message = ({
       readMessage(data.jobId, data.proId, data.type),
     {
       onSuccess: () => {
-        refetchMessage()
+        // refetchMessage()
       },
       onError: (error: any) => {
 
@@ -157,6 +157,7 @@ const Message = ({
     }).then(() => {
       // 메세지를 보낸 후 읽음 처리한다.
       handleReadMessage()
+      refetchMessage()
     })
   }
 
