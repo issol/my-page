@@ -9,15 +9,17 @@ type Props = {
     jobType: string
     role: string
   }[]
+  visibleChip?: 'all' | 'jobType' | 'role'
 }
 
-const JobTypeRole = ({ jobInfo }: Props) => {
+const JobTypeRole = ({ jobInfo, visibleChip }: Props) => {
   return (
     <Box
       sx={{
         display: 'flex',
         gap: '8px',
         alignItems: 'center',
+        justifyContent: 'center', // Add this line
       }}
     >
       {!jobInfo.length
@@ -28,7 +30,7 @@ const JobTypeRole = ({ jobInfo }: Props) => {
                 <JobTypeRoleChips
                   jobType={item.jobType}
                   role={item.role}
-                  visibleChip='all'
+                  visibleChip={visibleChip ? visibleChip : 'all'}
                   key={uuidv4()}
                 />
               ),
@@ -39,8 +41,8 @@ const JobTypeRole = ({ jobInfo }: Props) => {
 }
 
 const CountChip = styled('p')`
-  padding: 3px 4px;
   text-align: center;
+  height: 24px;
   width: 40px;
   background: linear-gradient(
       0deg,
@@ -52,6 +54,6 @@ const CountChip = styled('p')`
   border-radius: 16px;
   font-weight: 500;
   font-size: 0.813rem;
+}
 `
-
 export default JobTypeRole

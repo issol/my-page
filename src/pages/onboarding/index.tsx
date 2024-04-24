@@ -36,6 +36,11 @@ import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import ListResume from '../pro/list/list/list-resume'
+import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import useModal from '@src/hooks/useModal'
+import { useRouter } from 'next/router'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -50,8 +55,11 @@ const defaultValues: FilterType = {
 
 export default function Onboarding() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const { openModal, closeModal } = useModal()
 
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
@@ -159,6 +167,34 @@ export default function Onboarding() {
       setExpanded(isExpanded ? panel : false)
     }
 
+  const onClickFile = (
+    file: {
+      id: number
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => {
+    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
+      file.url = res.url
+      openModal({
+        type: 'FilePreviewDownloadModal',
+        children: (
+          <FilePreviewDownloadModal
+            onClose={() => closeModal('FilePreviewDownloadModal')}
+            docs={[file]}
+          />
+        ),
+      })
+    })
+  }
+
+  const handleRowClick = (id: number) => {
+    router.push(`/onboarding/detail/${id}`)
+  }
+
   const columns: GridColumns<OnboardingListType> = [
     {
       flex: 0.1,
@@ -245,7 +281,13 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Resume</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return (null)
+        const temp = [...row.resume, 'test.pdf', 'test.docx', 'test.pptx']
+        return (          
+          <ListResume
+            // resume={row.resume}
+            resume={temp}
+            onClickFile={onClickFile}
+          ></ListResume>)
       },
     },
     {
@@ -322,7 +364,7 @@ export default function Onboarding() {
     },
     {
       flex: 0.4,
-      minWidth: 180,
+      minWidth: 330,
       field: 'role',
       headerName: 'Roles',
       hideSortIcons: true,
@@ -372,7 +414,7 @@ export default function Onboarding() {
           jobType: value.jobType,
           role: value.role,
         }))
-        return <JobTypeRole jobInfo={jobInfo} />
+        return <JobTypeRole jobInfo={jobInfo} visibleChip='role' />
       },
     },
     {
@@ -458,6 +500,7 @@ export default function Onboarding() {
         columns={columns}
         setFilters={setFilters}
         isLoading={isLoading}
+        handleRowClick={handleRowClick}
       />
     </Grid>
   )
