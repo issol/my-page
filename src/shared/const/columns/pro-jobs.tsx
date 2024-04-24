@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { useQueryClient } from 'react-query'
 import { Badge, Box, IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
@@ -14,7 +15,9 @@ import { useRecoilValueLoadable } from 'recoil'
 import React, { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
 import InfoDialogButton, { InfoDialogProps } from '@src/views/pro/infoDialog'
-import Message from '@src/views/jobDetails/messageModal'
+import Message from '@src/pages/orders/job-list/components/message-modal'
+// import Message from '@src/views/jobDetails/messageModal'
+
 
 const AwaitingPriorJobProps: InfoDialogProps = {
   title: 'Awaiting prior job',
@@ -64,7 +67,9 @@ export const getProJobColumns = (
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const queryClient = useQueryClient()
 
+  const assignmentStatus = [60100, 70000, 70100, 70200, 70400, 70450, 70500, 70600]
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
     row: ProJobListType,
@@ -75,8 +80,24 @@ export const getProJobColumns = (
       children: (
         <Message
           jobId={row.jobId}
-          info={row}
-          onClose={() => closeModal('ProJobsMessageModal')}
+          jobRequestId={row.jobRequestId}
+          info={{
+            userId: auth.getValue().user?.userId!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName!,
+            lastName: auth.getValue().user?.lastName!,
+          }}
+          messageType={
+            assignmentStatus.includes(row.status)
+              ? 'request' : 'job'}
+          sendFrom='PRO'
+          status={row.status}
+          jobName={row.name}
+          isUpdatable={true}
+          onClose={() => {
+            queryClient.invalidateQueries('proJobList')
+            closeModal('ProJobsMessageModal')
+          }}
         />
       ),
     })
@@ -336,14 +357,11 @@ export const getProJobColumns = (
           <Box sx={{ margin: '0 auto' }}>
             <Badge badgeContent={row.message?.unReadCount} color='primary'>
               <IconButton
-                disabled
                 sx={{ padding: 0 }}
                 onClick={event => onClickMessage(event, row)}
+
               >
-                <Icon
-                  icon='material-symbols:chat'
-                  color='rgba(187, 188, 196, 1)'
-                />
+                <Icon icon='mdi:message-text' />
               </IconButton>
             </Badge>
           </Box>

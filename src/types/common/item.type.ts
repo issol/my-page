@@ -96,6 +96,7 @@ export type JobType = {
   isShowDescription: boolean
   totalPrice: number
   clientId: number
+
   contactPerson: {
     userId: number
     firstName: string
@@ -138,6 +139,7 @@ export type JobType = {
   sortingOrder: number
   triggerOrder: number
   isJobRequestPresent: boolean
+  triggerExecutedAt: string | null
   redeliveryHistory?: {
     jobId: number
     deleteReason: string[]
@@ -146,4 +148,29 @@ export type JobType = {
   }
   // 동일한 templateId를 가진 job들이 있을때 구분하기 위한 추가 키 값
   triggerGroup: number | null
+  message?: {
+    unReadCount: number
+  }
+  round: number
+
+  initialPrice: {
+    id: number
+    name: string
+    currency: Currency
+    numberPlace: number
+    rounding: string
+    priceId: number
+    priceUnits: {
+      id: number
+      title: string
+      unit: string
+      weighting: string
+      isBase: boolean
+      quantity: string
+      price: string
+      prices: string
+      parentPriceUnitId: number
+      isActive: boolean
+    }[]
+  }[]
 }

@@ -15,7 +15,12 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from '@src/types/onboarding/details'
 import { useRecoilStateLoadable } from 'recoil'
 import { currentRoleSelector } from '@src/states/permission'
-import { useMemo } from 'react'
+import { Dispatch, MouseEvent, SetStateAction, useMemo, useState } from 'react'
+import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import JobTypeRole from '../job-type-role-chips'
+import JobTypeRoleChips from '../job-type-role-chips/role-chip'
+import Icon from '@src/@core/components/icon'
+import { Menu, MenuItem } from '@mui/material'
 
 interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
@@ -74,6 +79,19 @@ const AppliedRole = ({
 }: AppliedRoleProps) => {
   const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
 
+  const [anchorEl, setAnchorEl] = useState<{ [key: number | string]: HTMLButtonElement | null }>({})
+  const handleClick = (event: MouseEvent<HTMLButtonElement>, roleId: number | string) => {
+    event.stopPropagation()
+    setAnchorEl(prev => ({
+      ...prev,
+      [roleId]: event.currentTarget,
+    }))
+  }
+
+  const handleClose = (roleId: number | string) => {
+    setAnchorEl(prev => ({ ...prev, [roleId]: null }))
+  }
+
   const isDisabled = () => {
     if (type === 'onboarding') return false
     if (currentRole.contents.name === 'LPM') return true
@@ -94,7 +112,14 @@ const AppliedRole = ({
       ) {
         return (
           <>
-            <Grid item md={4} lg={4} xs={4}>
+            <Box
+              sx={{
+                width: 270,
+                height: 32,
+                display: 'flex',
+                gap: '16px',
+              }}
+            >
               <Button
                 variant='outlined'
                 fullWidth
@@ -109,8 +134,6 @@ const AppliedRole = ({
               >
                 Reject
               </Button>
-            </Grid>
-            <Grid item md={8} lg={8} xs={8}>
               <Button
                 fullWidth
                 variant='contained'
@@ -121,7 +144,7 @@ const AppliedRole = ({
               >
                 Certify
               </Button>
-            </Grid>
+            </Box>
           </>
         )
       } else if (
@@ -139,7 +162,14 @@ const AppliedRole = ({
         ) {
           return (
             <>
-              <Grid item md={4} lg={4} xs={4}>
+              <Box
+                sx={{
+                  width: 270,
+                  height: 32,
+                  display: 'flex',
+                  gap: '16px',
+                }}
+              >
                 <Button
                   variant='outlined'
                   fullWidth
@@ -154,8 +184,6 @@ const AppliedRole = ({
                 >
                   Reject
                 </Button>
-              </Grid>
-              <Grid item md={8} lg={8} xs={8}>
                 <Button
                   fullWidth
                   variant='contained'
@@ -166,32 +194,47 @@ const AppliedRole = ({
                 >
                   Certify
                 </Button>
-              </Grid>
+              </Box>
             </>
           )
         } else {
           return (
-            <Button
-              fullWidth
-              variant='contained'
-              disabled
+            <Box
               sx={{
-                '&.Mui-disabled': {
-                  background:
-                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-                  border: '1px solid rgba(255, 77, 73, 0.5)',
-                  color: '#E04440',
-                },
+                width: 270,
+                height: 32,
+                display: 'flex',
               }}
             >
-              No certification test created
-            </Button>
+              <Button
+                fullWidth
+                variant='contained'
+                disabled
+                sx={{
+                  '&.Mui-disabled': {
+                    background:
+                      'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                    border: 'none',
+                    color: '#E04440',
+                  },
+                }}
+              >
+                No certification test created
+              </Button>
+            </Box>
           )
         }
       } else {
         return (
           <>
-            <Grid item md={4} lg={4} xs={4}>
+            <Box
+              sx={{
+                width: 270,
+                height: 32,
+                display: 'flex',
+                gap: '16px',
+              }}
+            >
               <Button
                 variant='outlined'
                 fullWidth
@@ -206,8 +249,6 @@ const AppliedRole = ({
               >
                 Reject
               </Button>
-            </Grid>
-            <Grid item md={8} lg={8} xs={8}>
               <Button
                 fullWidth
                 variant='contained'
@@ -228,7 +269,7 @@ const AppliedRole = ({
               >
                 Assign test
               </Button>
-            </Grid>
+            </Box>
           </>
         )
       }
@@ -238,20 +279,28 @@ const AppliedRole = ({
         jobInfo.test.length === 0)
     ) {
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background: 'rgba(76, 78, 100, 0.12)',
-              border: 'none',
-              color: 'rgba(76, 78, 100, 0.38)',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          {jobInfo.requestStatusOfPro} - Awaiting response
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background: 'rgba(76, 78, 100, 0.12)',
+                border: 'none',
+                color: 'rgba(76, 78, 100, 0.38)',
+              },
+            }}
+          >
+            {jobInfo.requestStatusOfPro} - Awaiting response
+          </Button>
+        </Box>
       )
     } else if (
       // requestStatus가 Certified인데 testStatus가 Cancelled로 남아있는 디비 정보가 있어 예외처리함
@@ -260,21 +309,29 @@ const AppliedRole = ({
       jobInfo.requestStatus !== 'Certified'
     ) {
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-              border: '1px solid rgba(255, 77, 73, 0.5)',
-              color: '#E04440',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          Failed
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                border: 'none',
+                color: '#E04440',
+              },
+            }}
+          >
+            Failed
+          </Button>
+        </Box>
       )
     } else if (
       jobInfo!.requestStatus === 'Test assigned' &&
@@ -283,21 +340,29 @@ const AppliedRole = ({
       skillTest.status !== 'No test'
     ) {
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128;',
-              border: '1px solid rgba(114, 225, 40, 0.5)',
-              color: '#64C623',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          Test assigned
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128;',
+                border: 'none',
+                color: '#64C623',
+              },
+            }}
+          >
+            Test assigned
+          </Button>
+        </Box>
       )
     } else if (
       basicTest &&
@@ -309,21 +374,29 @@ const AppliedRole = ({
         jobInfo!.testStatus === 'Basic passed')
     ) {
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528',
-              border: '1px solid rgba(253, 181, 40, 0.5)',
-              color: '#DF9F23',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          Basic test in progress
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528',
+                border: 'none',
+                color: '#DF9F23',
+              },
+            }}
+          >
+            Basic test in progress
+          </Button>
+        </Box>
       )
     } else if (
       skillTest &&
@@ -335,21 +408,29 @@ const AppliedRole = ({
         jobInfo!.testStatus === 'Review canceled')
     ) {
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF',
-              border: ' 1px solid #666CFF',
-              color: '#666CFF',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          Skill test in progress
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF',
+                border: 'none',
+                color: '#666CFF',
+              },
+            }}
+          >
+            Skill test in progress
+          </Button>
+        </Box>
       )
     } else if (
       (jobInfo!.requestStatus === 'Test in progress' &&
@@ -362,21 +443,29 @@ const AppliedRole = ({
     ) {
       // basic skip
       return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128',
-              border: '1px solid rgba(114, 225, 40, 0.5)',
-              color: '#64C623',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
         >
-          Test assigned
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128',
+                border: 'none',
+                color: '#64C623',
+              },
+            }}
+          >
+            Test assigned
+          </Button>
+        </Box>
       )
     } else if (
       // no test case 2, jobInfo.requestStatus에 상관없이 체크
@@ -393,7 +482,14 @@ const AppliedRole = ({
       ) {
         return (
           <>
-            <Grid item md={4} lg={4} xs={4}>
+            <Box
+              sx={{
+                width: 270,
+                height: 32,
+                display: 'flex',
+                gap: '16px',
+              }}
+            >
               <Button
                 variant='outlined'
                 fullWidth
@@ -408,8 +504,6 @@ const AppliedRole = ({
               >
                 Reject
               </Button>
-            </Grid>
-            <Grid item md={8} lg={8} xs={8}>
               <Button
                 fullWidth
                 variant='contained'
@@ -420,11 +514,45 @@ const AppliedRole = ({
               >
                 Certify
               </Button>
-            </Grid>
+            </Box>
           </>
         )
       } else {
         return (
+          <Box
+            sx={{
+              width: 270,
+              height: 32,
+              display: 'flex',
+            }}
+          >
+            <Button
+              fullWidth
+              variant='contained'
+              disabled
+              sx={{
+                '&.Mui-disabled': {
+                  background:
+                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                  border: 'none',
+                  color: '#E04440',
+                },
+              }}
+            >
+              No certification test created
+            </Button>
+          </Box>
+        )
+      }
+    } else if (jobInfo.requestStatus === 'Test rejected') {
+      return (
+        <Box
+          sx={{
+            width: 270,
+            height: 32,
+            display: 'flex',
+          }}
+        >
           <Button
             fullWidth
             variant='contained'
@@ -433,75 +561,221 @@ const AppliedRole = ({
               '&.Mui-disabled': {
                 background:
                   'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-                border: '1px solid rgba(255, 77, 73, 0.5)',
+                border: 'none',
                 color: '#E04440',
               },
             }}
           >
-            No certification test created
+            Rejected
           </Button>
-        )
-      }
-    } else if (jobInfo.requestStatus === 'Test rejected') {
-      return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
-          sx={{
-            '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-              border: '1px solid rgba(255, 77, 73, 0.5)',
-              color: '#E04440',
-            },
-          }}
-        >
-          Rejected
-        </Button>
+        </Box>
       )
     } else if (jobInfo.requestStatus === 'Paused') {
       return (
-        <Button
-          fullWidth
-          variant='contained'
+        <Box
           sx={{
-            '&.Mui-disabled': {
-              background: 'rgba(76, 78, 100, 0.12)',
-              border: 'none',
-              color: 'rgba(76, 78, 100, 0.38)',
-            },
+            width: 270,
+            height: 32,
+            display: 'flex',
           }}
-          disabled={isDisabled()}
         >
-          Paused
-        </Button>
+          <Button
+            fullWidth
+            variant='contained'
+            sx={{
+              '&.Mui-disabled': {
+                background: 'rgba(76, 78, 100, 0.12)',
+                border: 'none',
+                color: 'rgba(76, 78, 100, 0.38)',
+              },
+            }}
+            disabled={isDisabled()}
+          >
+            Paused
+          </Button>
+        </Box>
       )
     } else if (jobInfo.requestStatus === 'Certified') {
       return (
-        <Button
+        <Box
           sx={{
+            width: 270,
+            height: 32,
             display: 'flex',
-            gap: '8px',
-            cursor: 'unset',
-            width: '100%',
-            justifyContent: 'flex-start',
-            paddingLeft: 0,
           }}
-          disabled
         >
-          <img
-            src='/images/icons/onboarding-icons/certified-role.svg'
-            alt='certified'
-          />
-          <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-            Certified
-          </Typography>
-        </Button>
+          <Button
+            sx={{
+              display: 'flex',
+              gap: '8px',
+              cursor: 'unset',
+              width: '100%',
+              justifyContent: 'flex-start',
+              paddingLeft: 0,
+            }}
+            disabled
+          >
+            <img
+              src='/images/icons/onboarding-icons/certified-role.svg'
+              alt='certified'
+            />
+            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+              Certified
+            </Typography>
+          </Button>
+        </Box>
       )
     } else {
-      return <Typography></Typography>
+      return (
+        <Box
+          sx={{
+            width: 270,
+            height: 32,
+            display: 'flex',
+          }}
+        >
+          <Button
+            fullWidth
+            variant='contained'
+            sx={{
+              '&.Mui-disabled': {
+                background: 'rgba(76, 78, 100, 0.12)',
+                border: 'none',
+                color: 'rgba(76, 78, 100, 0.38)',
+              },
+            }}
+            disabled={true}
+          >
+            -
+          </Button>
+        </Box>
+      )        
+        
     }
+  }
+
+  const getPauseResumeButton = (jobInfo: AppliedRoleType) => {
+    let usePauseButton = false
+    let useResumeButton = false
+    let useReasonIcon = false
+
+    if (
+      !((jobInfo.test.find(data => data.testType === 'basic',)?.status === 'No test' &&
+          jobInfo.test.find(data => data.testType === 'skill',)?.status === 'No test') ||
+        (jobInfo.test.find(data => data.testType === 'basic',)?.status !== 'No test' &&
+          jobInfo.test.find(data => data.testType === 'skill',)?.status === 'No test')) &&
+      jobInfo.requestStatus !== 'Certified' &&
+      jobInfo.requestStatus !== 'Awaiting assignment' &&
+      jobInfo.requestStatus !== 'Paused' &&
+      jobInfo.requestStatus !== 'Test rejected' &&
+      !(jobInfo.test.find(data => data.testType === 'basic',)?.status === 'Basic failed' &&
+      jobInfo.test.find(data => data.testType === 'skill',)?.status === 'Awaiting assignment') &&
+      jobInfo.test.find(data => data.testType === 'skill')?.status !== 'Skill failed' &&
+      jobInfo.test.find(data => data.testType === 'skill')?.status !== 'Cancelled') {
+      usePauseButton = true
+    } else if (jobInfo.requestStatus === 'Paused') {
+      useResumeButton = true
+    } else if (jobInfo.requestStatus === 'Test rejected') {
+      useResumeButton = true
+    }
+
+    return (
+      <Box>
+        {usePauseButton || useResumeButton ? (
+        <Box>
+          <IconButton
+            sx={{ width: '24px', height: '24px', padding: 0 }}
+            onClick={e => {
+              handleClick(e, jobInfo.id)
+            }}
+          >
+            <Icon icon='mdi:dots-vertical' />
+          </IconButton>
+          <Menu
+            elevation={8}
+            anchorEl={anchorEl[jobInfo.id]}
+            id={`pause-menu-${jobInfo.id}`}
+            onClose={() => handleClose(jobInfo.id)}
+            open={Boolean(anchorEl[jobInfo.id])}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+          >
+            {usePauseButton ? (
+              <MenuItem
+                sx={{
+                  gap: 2,
+                  '&:hover': {
+                    background: 'inherit',
+                    cursor: 'default',
+                  },
+                }}
+                disabled={isDisabled()}
+                onClick={() => {
+                  onClickRejectOrPause(jobInfo, 'pause')
+                }}
+              >
+                Pause
+              </MenuItem>
+            ) : null}
+            {useResumeButton ? (
+              <MenuItem
+                sx={{
+                  gap: 2,
+                  '&:hover': {
+                    background: 'inherit',
+                    cursor: 'default',
+                  },
+                }}
+                onClick={() => {
+                  onClickResumeTest(jobInfo)
+                }}
+                disabled={isDisabled()}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  Resume
+                  {useReasonIcon ? (
+                  <Box
+                    sx={{
+                      width: '20px',
+                      height: '20px',
+                    }}
+                  >
+                    <IconButton
+                      sx={{ padding: 0 }}
+                      onClick={event => {
+                        event.stopPropagation()
+                        onClickReason(
+                          jobInfo.requestStatus,
+                          jobInfo.messageToUser!,
+                          jobInfo.reason!,
+                        )
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      ></img>
+                    </IconButton>
+                  </Box>) : null}
+                </Box>
+              </MenuItem>
+            ) : null}
+          </Menu>
+        </Box>
+        ) : null}
+      </Box>)
   }
 
   const SectionTitle = useMemo(() => {
@@ -510,6 +784,83 @@ const AppliedRole = ({
       return 'Certified role and test information'
     return "Pro's role and Applied"
   }, [type])
+
+  const columns: GridColumns<AppliedRoleType> = [
+    {
+      field: 'id',
+      headerName: 'Id',
+      width: 165,
+      hide: true,
+    },
+    {
+      field: 'jobType',
+      headerName: 'Job Type',
+      width: 165,
+      disableColumnMenu: true,
+      sortable: false,
+      hideSortIcons: true,
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return <JobTypeRoleChips jobType={row.jobType} role={row.role} visibleChip={'jobType'}/>
+      }
+    },
+    {
+      field: 'role',
+      headerName: 'Role',
+      width: 219,
+      disableColumnMenu: true,
+      sortable: false,
+      hideSortIcons: true,
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return <JobTypeRoleChips jobType={row.jobType} role={row.role} visibleChip={'role'}/>
+      }
+    },
+    {
+      field: 'languagePair',
+      headerName: 'Languege Pair',
+      width: 153,
+      disableColumnMenu: true,
+      sortable: false,
+      hideSortIcons: true,
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return (
+          <Typography
+            variant='subtitle1'
+            sx={{
+              fontWeight: 600,
+              lineHeight: '24px',
+            }}
+          >
+            {row.source?.toUpperCase()} &rarr; {row.target?.toUpperCase()}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      flex: 1,
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return (
+          <Box
+            sx={{
+              width: 270,
+              height: 32,
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
+            }}
+          >
+            <Box>
+              {getStatusButton(row)}
+            </Box>
+            <Box>
+              {getPauseResumeButton(row)}
+            </Box>
+          </Box>
+        )
+      }
+    },
+  ]
 
   return (
     <Card
@@ -631,210 +982,33 @@ const AppliedRole = ({
         </Box>
       </Typography>
       {userInfo && userInfo.length ? (
-        <Box sx={{ minHeight: 22, paddingLeft: '20px' }}>
-          <Grid container xs={12} spacing={5}>
-            {userInfo && userInfo.length
-              ? userInfo
-                  .slice(offset, offset + rowsPerPage)
-                  .map((value, index) => {
-                    return (
-                      <Grid
-                        item
-                        lg={6}
-                        md={12}
-                        sm={12}
-                        xs={12}
-                        key={`${value.id}-${index}`}
-                      >
-                        <Card
-                          className='applied_card'
-                          sx={{
-                            padding: '20px',
-                            height: '100%',
-                            cursor: 'pointer',
-                            boxShadow:
-                              selectedJobInfo &&
-                              value.id === selectedJobInfo!.id
-                                ? 3
-                                : 0,
-                            border:
-                              selectedJobInfo &&
-                              value.id === selectedJobInfo!.id
-                                ? '2px solid #666CFF'
-                                : '2px solid rgba(76, 78, 100, 0.12)',
-                          }}
-                          onClick={() => handleClickRoleCard(value)}
-                        >
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <Box>
-                              <Typography
-                                variant='subtitle1'
-                                sx={{ fontWeight: 600, lineHeight: '24px' }}
-                              >
-                                {value.jobType}
-                              </Typography>
-                              <Typography
-                                variant='subtitle1'
-                                sx={{ fontWeight: 600 }}
-                              >
-                                {value.role}
-                              </Typography>
-                            </Box>
-
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'flex-start',
-                                padding: 0,
-                                gap: 2,
-                              }}
-                            >
-                              {!(
-                                (value.test.find(
-                                  data => data.testType === 'basic',
-                                )?.status === 'No test' &&
-                                  value.test.find(
-                                    data => data.testType === 'skill',
-                                  )?.status === 'No test') ||
-                                (value.test.find(
-                                  data => data.testType === 'basic',
-                                )?.status !== 'No test' &&
-                                  value.test.find(
-                                    data => data.testType === 'skill',
-                                  )?.status === 'No test')
-                              ) &&
-                              value.requestStatus !== 'Certified' &&
-                              value.requestStatus !== 'Awaiting assignment' &&
-                              value.requestStatus !== 'Paused' &&
-                              value.requestStatus !== 'Test rejected' &&
-                              !(
-                                value.test.find(
-                                  data => data.testType === 'basic',
-                                )?.status === 'Basic failed' &&
-                                value.test.find(
-                                  data => data.testType === 'skill',
-                                )?.status === 'Awaiting assignment'
-                              ) &&
-                              value.test.find(data => data.testType === 'skill')
-                                ?.status !== 'Skill failed' &&
-                              value.test.find(data => data.testType === 'skill')
-                                ?.status !== 'Cancelled' ? (
-                                <Button
-                                  variant='outlined'
-                                  size='small'
-                                  color='secondary'
-                                  sx={{ height: '30px' }}
-                                  disabled={isDisabled()}
-                                  onClick={() => {
-                                    onClickRejectOrPause(value, 'pause')
-                                  }}
-                                >
-                                  Pause
-                                </Button>
-                              ) : value.requestStatus === 'Paused' ? (
-                                <Button
-                                  variant='outlined'
-                                  size='small'
-                                  color='primary'
-                                  sx={{ height: '30px' }}
-                                  onClick={() => {
-                                    onClickResumeTest(value)
-                                  }}
-                                  disabled={isDisabled()}
-                                >
-                                  Resume
-                                </Button>
-                              ) : null}
-                              {value.requestStatus === 'Test rejected' ||
-                              value.requestStatus === 'Paused' ? (
-                                <Box
-                                  sx={{
-                                    width: '20px',
-                                    height: '20px',
-                                  }}
-                                >
-                                  <IconButton
-                                    sx={{ padding: 0 }}
-                                    onClick={event => {
-                                      event.stopPropagation()
-                                      onClickReason(
-                                        value.requestStatus,
-                                        value.messageToUser!,
-                                        value.reason!,
-                                      )
-                                    }}
-                                  >
-                                    <img
-                                      src='/images/icons/onboarding-icons/more-reason.svg'
-                                      alt='more'
-                                    ></img>
-                                  </IconButton>
-                                </Box>
-                              ) : null}
-                            </Box>
-                          </Box>
-                          <CardContent
-                            sx={{
-                              padding: 0,
-                              paddingTop: '10px',
-                              paddingBottom: '0 !important',
-                            }}
-                          >
-                            <Typography
-                              variant='subtitle2'
-                              sx={{
-                                fontWeight: 600,
-                                minHeight: '20px',
-                                lineHeight: '20px',
-                                letterSpacing: ' 0.15px',
-                              }}
-                            >
-                              {value.source &&
-                              value.target &&
-                              value.source !== '' &&
-                              value.target !== '' ? (
-                                <>
-                                  {value.source.toUpperCase()} &rarr;{' '}
-                                  {value.target.toUpperCase()}
-                                </>
-                              ) : (
-                                ''
-                              )}
-                            </Typography>
-
-                            <Grid item display='flex' gap={4} mt={4}>
-                              {getStatusButton(value)}
-                            </Grid>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    )
-                  })
-              : null}
-            {userInfo && userInfo.length ? (
-              <Grid
-                item
-                xs={12}
-                sx={{
-                  padding: '0 !important',
-                  marginBottom: '10px',
-                }}
-              >
-                <CustomPagination
-                  listCount={userInfo.length}
-                  page={page}
-                  handleChangePage={handleChangePage}
-                  rowsPerPage={rowsPerPage}
-                />
-              </Grid>
-            ) : null}
-          </Grid>
+        <Card>
+        <Box
+          sx={{
+            minHeight: 356,
+            height: 356,
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textTransform: 'none',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              display: 'none',
+            },
+            '& .selected': {
+              background: 'rgba(76, 78, 100, 0.12)',
+            }
+          }}
+        >
+            <DataGrid
+              rows={userInfo}
+              columns={columns}
+              disableSelectionOnClick
+              onRowClick={e => handleClickRoleCard(e.row as AppliedRoleType)}
+              getRowClassName={params => {
+                return params.row.id === selectedJobInfo?.id ? 'selected' : ''
+              }}
+            />
         </Box>
+        </Card>
       ) : null}
     </Card>
   )

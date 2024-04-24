@@ -27,6 +27,7 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
@@ -91,6 +92,11 @@ interface Props {
     `items.${number}.detail`,
     'id'
   >
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
+  itemTrigger?: UseFormTrigger<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 
 const Row = ({
@@ -118,6 +124,8 @@ const Row = ({
 
   setValue,
   row,
+  errorRefs,
+  itemTrigger,
 }: Props) => {
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
@@ -138,6 +146,7 @@ const Row = ({
     if (!data?.length) return
     let prices = 0
     const detail = data?.[unitIndex]
+    console.log(getValues(), 'priceData')
 
     if (detail) {
       setSavedValue(detail) // setValue된 값 가져오기
@@ -173,6 +182,7 @@ const Row = ({
         getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
         priceData?.currency
 
+      console.log(prices, 'each price prices')
       const roundingPrice = formatByRoundingProcedure(
         prices,
         priceData?.decimalPlace!
@@ -192,13 +202,12 @@ const Row = ({
       // NOT_APPLICAABLE일때는 제외
       // 스탠다드 프라이스의 언어페어 정보 : languagePairs
       if (!notApplicable) {
-        console.log('not applicable')
-
         setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
           shouldDirty: true,
           shouldValidate: false,
         })
       }
+      console.log(roundingPrice, 'prices data')
       setValue(
         `items.${index}.detail.${unitIndex}.prices`,
         isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
@@ -207,6 +216,8 @@ const Row = ({
           shouldValidate: false,
         },
       )
+      itemTrigger && itemTrigger(`items.${index}.detail.${unitIndex}.prices`)
+      // setIsDirty(false)
     }
   }
 
@@ -268,12 +279,15 @@ const Row = ({
     }
   }
 
+  console.log(type)
+
   //init
   useEffect(() => {
     // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
+    if (type === 'job-edit' || type === 'job-detail') return
     updatePrice(idx)
     updateTotalPrice()
-  }, [])
+  }, [type])
 
   useEffect(() => {
     // row 외부가 클릭될때 마다 액션을 준다
@@ -285,6 +299,8 @@ const Row = ({
         !(event.target instanceof HTMLLIElement)
       ) {
         // 필요한 액션
+
+        if (type === 'job-edit' || type === 'job-detail') return
         updatePrice(idx)
         updateTotalPrice()
       }
@@ -310,7 +326,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -335,6 +352,15 @@ const Row = ({
                     placeholder='0'
                     autoComplete='off'
                     type='number'
+                    inputRef={ref => {
+                      if (errorRefs) {
+                        errorRefs.current[
+                          idx +
+                            1 +
+                            (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                        ] = ref
+                      }
+                    }}
                     onFocus={e =>
                       e.target.addEventListener(
                         'wheel',
@@ -359,7 +385,9 @@ const Row = ({
                     error={value === null || value === 0}
                     onChange={e => {
                       onChange(Number(e.target.value))
+
                       updatePrice(idx)
+                      updateTotalPrice()
                     }}
                   />
                   {savedValue?.unit === 'Percent' ? '%' : null}
@@ -373,7 +401,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type == 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -549,6 +578,15 @@ const Row = ({
                       autoComplete='off'
                       // label='Price unit*'
                       placeholder={open ? '' : 'Price unit*'}
+                      inputRef={ref => {
+                        if (errorRefs) {
+                          errorRefs.current[
+                            idx +
+                              2 +
+                              (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                          ] = ref
+                        }
+                      }}
                     />
                   )}
                 />
@@ -562,7 +600,8 @@ const Row = ({
           type === 'detail' ||
           type === 'invoiceDetail' ||
           type === 'invoiceHistory' ||
-          type === 'invoiceCreate'
+          type === 'invoiceCreate' ||
+          type === 'job-detail'
             ? 'left'
             : 'left'
         }
@@ -571,7 +610,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box
             sx={{
               fontSize: '14px',
@@ -618,8 +658,13 @@ const Row = ({
                     error={value === null || value === 0}
                     disabled={savedValue?.unit === 'Percent'}
                     onChange={e => {
-                      onChange(Number(e.target.value))
+                      if (e.target.value) {
+                        onChange(Number(e.target.value))
+                      } else {
+                        onChange(null)
+                      }
                       updatePrice(idx)
+                      updateTotalPrice()
                     }}
                     sx={{
                       maxWidth: '104px',
@@ -628,6 +673,15 @@ const Row = ({
                         color: '#ff4d49',
                         opacity: 1,
                       },
+                    }}
+                    inputRef={ref => {
+                      if (errorRefs) {
+                        errorRefs.current[
+                          idx +
+                            3 +
+                            (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                        ] = ref
+                      }
                     }}
                   />
                 </Box>
@@ -640,7 +694,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}> */}
             {isNotApplicable || showCurrency
@@ -686,6 +741,15 @@ const Row = ({
                       autoComplete='off'
                       label='Currency*'
                       error={value === null}
+                      inputRef={ref => {
+                        if (errorRefs) {
+                          errorRefs.current[
+                            idx +
+                              4 +
+                              (idx > 0 ? (isNotApplicable ? 3 : 2) * idx : 0)
+                          ] = ref
+                        }
+                      }}
                     />
                   )}
                 />
@@ -698,33 +762,28 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? (
           <Typography fontSize={14}>
             {isNotApplicable
               ? formatCurrency(
-                formatByRoundingProcedure(
-                  Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                  savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
-                    ? 2
-                    : savedValue?.currency === 'KRW'
-                      ? 10
-                      : 0,
-                  0,
-                  savedValue?.currency ?? 'KRW',
-                ),
-                savedValue?.currency ?? null,
-              )
-              : formatCurrency(
                   formatByRoundingProcedure(
-                    Number(getValues(`${detailName}.${idx}.prices`)),
-                    // Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
-                    getValues(`${initialPriceName}.numberPlace`),
-                    getValues(`${initialPriceName}.rounding`),
-                    getValues(`${initialPriceName}.currency`) || 'KRW',
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                    savedValue?.currency === 'USD' ||
+                      savedValue.currency === 'SGD'
+                      ? 2
+                      : savedValue?.currency === 'KRW'
+                        ? 10
+                        : 0,
+                    0,
+                    savedValue?.currency ?? 'KRW',
                   ),
-                  getValues(`${initialPriceName}.currency`) || 'KRW',
+                  savedValue?.currency ?? null,
                 )
-            }
+              : formatCurrency(
+                  Number(getValues(`${detailName}.${idx}.prices`)),
+                  getValues(`${initialPriceName}.currency`) || 'KRW',
+                )}
           </Typography>
         ) : (
           <Box
@@ -738,48 +797,20 @@ const Row = ({
             {isNotApplicable
               ? savedValue?.currency
                 ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
-                        ? 2
-                        : savedValue?.currency === 'KRW'
-                          ? 10
-                          : 0,
-                      0,
-                      savedValue?.currency ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     savedValue?.currency ?? null,
                   )
                 : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' || getValues(`${initialPriceName}.currency`) === 'SGD'
-                        ? 2
-                        : getValues(`${initialPriceName}.currency`) === 'KRW'
-                          ? 10
-                          : 0,
-                      0,
-                      getValues(`${initialPriceName}.currency`) ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )
               : priceData
                 ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      priceData?.decimalPlace!,
-                      priceData?.roundingProcedure!,
-                      priceData?.currency! ?? 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     priceData?.currency! ?? null,
                   )
                 : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.numberPlace`),
-                      getValues(`${initialPriceName}.rounding`),
-                      getValues(`${initialPriceName}.currency`) || 'KRW',
-                    ),
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )}
           </Box>
@@ -789,7 +820,8 @@ const Row = ({
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
-        type === 'invoiceCreate' ? null : (
+        type === 'invoiceCreate' ||
+        type === 'job-detail' ? null : (
           <IconButton
             onClick={() => {
               if (

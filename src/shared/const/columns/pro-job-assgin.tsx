@@ -8,6 +8,7 @@ import {
   Radio,
   Tooltip,
   Typography,
+  Badge,
 } from '@mui/material'
 import {
   GridColumns,
@@ -88,11 +89,8 @@ export const getProJobAssignColumns = (
               Number(selectedValue) === row.userId
             }
             onChange={() => {
-              console.log(proList)
-
               const selectedPros =
                 proList?.filter(pro => pro.userId === row.userId) ?? []
-              console.log(selectedPros)
 
               setSelectedValue &&
                 setSelectedValue(prev => ({
@@ -684,22 +682,28 @@ export const getProJobAssignColumnsForRequest = (
             }}
           >
             {row.assignmentStatus === null ? null : (
-              <IconButton
-                sx={{ padding: 0 }}
-                disabled
-                onClick={e =>
-                  onClickMessage({
-                    userId: row.userId,
-                    firstName: row.firstName,
-                    middleName: row.middleName,
-                    lastName: row.lastName,
-                    assignmentStatus: row.assignmentStatus,
-                    jobReqId: row.jobRequestId,
-                  })
-                }
-              >
-                <Icon icon='mdi:message-text' />
-              </IconButton>
+              <Box sx={{ margin: '0 auto' }}>
+                <Badge badgeContent={row.message?.unReadCount} color='primary'>
+                  <IconButton
+                    sx={{ padding: 0 }}
+                    onClick={e =>
+                      onClickMessage({
+                        userId: row.userId,
+                        firstName: row.firstName,
+                        middleName: row.middleName,
+                        lastName: row.lastName,
+                        assignmentStatus: row.assignmentStatus,
+                        jobReqId: row.jobRequestId,
+                      })
+                    }
+                  >
+                    <Icon
+                      icon='material-symbols:chat'
+                      color='rgba(187, 188, 196, 1)'
+                    />
+                  </IconButton>
+                </Badge>
+              </Box>
             )}
           </Box>
         )
@@ -715,7 +719,6 @@ export const getProJobAssignColumnsForRequest = (
       sortable: false,
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
-        console.log(row, 'column-row')
 
         return (
           <>
@@ -997,7 +1000,6 @@ export const getProJobAssignColumnsForRequest = (
                         <Button
                           fullWidth
                           onClick={() => {
-                            console.log(row, 'column-row12')
 
                             onClickAssign(selectedUser, requestType)
                             handleDetailClose()

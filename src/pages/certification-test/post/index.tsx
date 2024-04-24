@@ -100,6 +100,7 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { content } from 'html2canvas/dist/types/css/property-descriptors/content'
+import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -142,6 +143,16 @@ const TestMaterialPost = () => {
     OnboardingListRolePair,
   )
   const [postFormError, setPostFormError] = useState(false)
+  const [uniqueLanguageList, setUniqueLanguageList] = useState<
+    {
+      value: string
+      label: GloLanguageEnum
+    }[]
+  >([])
+  const allLanguage = [{
+    value: 'all',
+    label: 'All',
+  }]
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
@@ -432,6 +443,11 @@ const TestMaterialPost = () => {
         setSavedFiles(testDetail?.currentVersion.files)
     }
   }, [isFetched])
+
+
+  useEffect(() => {
+    setUniqueLanguageList(_.uniqBy(languageList, 'value'))
+  }, [])
 
   const handleRemoveSavedFile = (file: FileType) => {
     setSavedFiles(savedFiles.filter(item => item.name !== file.name))
@@ -921,7 +937,7 @@ const TestMaterialPost = () => {
                               disabled={
                                 isFetched || selectedTestType === 'Basic test'
                               }
-                              options={_.uniqBy(languageList, 'value')}
+                              options={uniqueLanguageList}
                               id='source'
                               getOptionLabel={option => option.label}
                               renderInput={params => (
@@ -962,7 +978,10 @@ const TestMaterialPost = () => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
                               }}
-                              options={_.uniqBy(languageList, 'value')}
+                              options={getValues().testType === 'Basic test'
+                                ? uniqueLanguageList
+                                : [...allLanguage, ...uniqueLanguageList]
+                              }
                               id='target'
                               disabled={isFetched}
                               getOptionLabel={option => option.label}

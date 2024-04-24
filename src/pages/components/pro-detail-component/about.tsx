@@ -27,6 +27,10 @@ import {
   splitContryCodeAndPhoneNumber,
 } from '@src/shared/helpers/phone-number-helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
+import { useEffect, useState } from 'react'
 
 const Pronounce: Record<string, string> = {
   SHE: 'She/her/hers',
@@ -55,6 +59,7 @@ type Props = {
 
 const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
   const currentRole = getCurrentRole()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   if (!userInfo) {
     return null
@@ -102,7 +107,7 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
           <LabelTitle>Timezone:</LabelTitle>
-          <Label>{userInfo.timezone?.label || '-'}</Label>
+          <Label>{timeZoneFormatter(userInfo.timezone, timezone.getValue()) || '-'}</Label>
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

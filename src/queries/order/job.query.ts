@@ -5,7 +5,9 @@ import {
   getJobInfo,
   getJobPriceHistory,
   getJobPrices,
+  getJobRequestHistory,
   getMessageList,
+  getRequestedProHistory,
   getSourceFileToPro,
 } from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
@@ -138,12 +140,41 @@ export const useGetJobPriceHistory = (jobId: number) => {
   })
 }
 
-export const useGetMessage = (jobId: number, proId: number) => {
-  return useQuery(['message', proId], () => getMessageList(jobId, proId), {
-    staleTime: 10 * 100, // 1
+export const useGetMessage = (jobId: number, proId: number, type: string) => {
+  return useQuery(
+    ['message', proId],
+    () => getMessageList(jobId, proId, type),
+    {
+      staleTime: 10 * 100, // 1
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
+}
+export const useGetJobRequestHistory = (jobId: number | number[]) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobRequestHistory', jobId],
+      () => getJobRequestHistory(jobId),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+        refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobRequestHistory', id],
+          queryFn: () => getJobRequestHistory(id),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+          refetchInterval: 1 * 60 * 1000, // 1분마다 리프레시
+        }
+      }),
+    )
+  }
 }
 
 export const useGetSourceFile = (jobId: number) => {
@@ -152,4 +183,15 @@ export const useGetSourceFile = (jobId: number) => {
     suspense: false,
     enabled: !!jobId,
   })
+}
+
+export const useGetRequestedProHistory = (historyId: number) => {
+  return useQuery(
+    ['requestedProHistory', historyId],
+    () => getRequestedProHistory(historyId),
+    {
+      staleTime: 10 * 1000, // 1
+      suspense: false,
+    },
+  )
 }

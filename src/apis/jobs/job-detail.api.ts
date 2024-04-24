@@ -9,7 +9,9 @@ import {
   JobPrevNextItem,
   jobPriceHistoryType,
   JobPricesDetailType,
+  JobRequestedProHistoryType,
   JobRequestFormType,
+  JobRequestHistoryType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
@@ -64,59 +66,17 @@ export const getJobInfo = async (
   id: number,
   isHistory: boolean,
 ): Promise<JobType> => {
-  try {
-    const { data } = isHistory
-      ? await axios.get(`/api/enough/u/job/history/${id}`)
-      : await axios.get(`/api/enough/u/job/${id}/info`)
-    // console.log(data)
+  const { data } = isHistory
+    ? await axios.get(`/api/enough/u/job/history/${id}`)
+    : await axios.get(`/api/enough/u/job/${id}/info`)
+  // console.log(data)
 
-    const result: JobType = {
-      ...data,
-    }
-
-    // return data
-    return result
-  } catch (e: any) {
-    return {
-      id: 0,
-      authorId: 0,
-      templateId: 0,
-      triggerOrder: 0,
-      order: { id: -1 },
-      corporationId: '',
-      clientId: 0,
-      name: '',
-      status: 60000,
-      contactPersonId: 0,
-      serviceType: '',
-      sourceLanguage: '',
-      targetLanguage: '',
-      isJobRequestPresent: false,
-      startedAt: '',
-      dueAt: '',
-      totalPrice: 0,
-      startTimezone: {
-        code: '',
-        label: '',
-        phone: '',
-      },
-      dueTimezone: { code: '', label: '', phone: '' },
-      description: '',
-      isShowDescription: false,
-      contactPerson: null,
-      pro: null,
-      historyAt: null,
-      feedback: '',
-      files: [],
-      autoNextJob: false,
-      nextJobId: null,
-      statusCodeForAutoNextJob: null,
-      autoSharingFile: false,
-      sortingOrder: 0,
-      createdAt: '',
-      triggerGroup: 0,
-    }
+  const result: JobType = {
+    ...data,
   }
+
+  // return data
+  return result
 }
 
 export const saveJobInfo = async (
@@ -268,6 +228,7 @@ type MessageItem = {
   email: string
   role: string
   isPro: boolean
+  messageType: string // 시스템 메세지인지 사용자 메세지인지 구분용도
 }
 
 export type Member = {
@@ -275,46 +236,73 @@ export type Member = {
   firstName: string
   middleName: string
   lastName: string
-  role: string // lpm | pro
+  role?: string // lpm | pro
+  email: string
 }
 
 export const getMessageList = async (
   jobId: number,
   proId: number,
+  type: string,
 ): Promise<{
   unReadCount: number
-  members: Member[]
+  proInfo: Member
   contents: MessageItem[] | null
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      // `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+      `/api/enough/u/job/message?type=${type}&jobId=${jobId}&proId=${proId}`,
     )
     return data
   } catch (e: any) {
     return {
       unReadCount: 0,
       contents: null,
-      members: [],
+      proInfo: {
+        userId: 0,
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        email: '',
+      },
     }
   }
 }
 
-export const sendMessageToPro = async (
+export const sendMessage = async (
   jobId: number,
+  jobRequestId: number,
   proId: number,
   message: string,
 ) => {
-  await axios.post(`/api/enough/u/job/${jobId}/message`, {
-    proId: proId,
-    message: message,
-  })
-}
-
-export const readMessage = async (jobId: number, proId: number) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/message`, {
+  const body: {
+    jobId: number
+    proId: number
+    message: string
+    jobRequestId?: number
+  } = {
     jobId: jobId,
     proId: proId,
+    message: message,
+  }
+
+  if (jobRequestId !== 0) {
+    body.jobRequestId = jobRequestId
+  }
+
+  await axios.post(`/api/enough/u/job/message`, body)
+}
+
+export const readMessage = async (
+  jobId: number,
+  proId: number,
+  type: string,
+) => {
+  await axios.patch(`/api/enough/u/job/message/read`, {
+    jobId: jobId,
+    proId: proId,
+    type: type,
   })
 }
 
@@ -423,7 +411,10 @@ export const getProJobDetailDots = async (id: number): Promise<string[]> => {
 
 export const getPreviousAndNextJob = async (
   jobId: number,
-): Promise<{ previousJob: JobPrevNextItem | null; nextJob: JobPrevNextItem | null }> => {
+): Promise<{
+  previousJob: JobPrevNextItem | null
+  nextJob: JobPrevNextItem | null
+}> => {
   const { data } = await axios.get(`/api/enough/u/job/${jobId}/previous-next`)
   return data
 }
@@ -504,8 +495,6 @@ export const getJobAssignProRequests = async (
   id: number
   frontRound: number
 }> => {
-  console.log(id)
-
   const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)
   return data
 }
@@ -576,4 +565,60 @@ export const setMoveToNextJob = async (params: {
       autoSharingFile: params.autoSharingFile,
     },
   )
+}
+
+export const saveTriggerOptions = async (params: {
+  updateData: {
+    jobId: number
+    statusCodeForAutoNextJob: number | null
+    autoNextJob: '0' | '1'
+    autoSharingFile: '0' | '1'
+  }[]
+  deleteData: { jobId: number[] }
+}) => {
+  //TODO API endpoint 추가 필요
+  await axios.patch(`/api/enough/u/job/edit-trigger-option`, {
+    ...params,
+  })
+
+  return true
+}
+
+export const addTriggerBetweenJobs = async (
+  params: {
+    jobId: number
+    sortingOrder: number
+    triggerOrder?: number
+  }[],
+) => {
+  //TODO API endpoint 추가 필요
+  await axios.patch(`/api/enough/u/job/add-trigger`, {
+    data: params,
+  })
+}
+export const getJobRequestHistory = async (
+  jobId: number,
+): Promise<{
+  data: JobRequestHistoryType[]
+  count: number
+  totalCount: number
+  jobId: number
+}> => {
+  const { data } = await axios.get(`/api/enough/u/job/${jobId}/history`)
+
+  return data
+}
+
+export const getRequestedProHistory = async (
+  historyId: number,
+): Promise<{
+  id: number
+  frontRound: number
+  requests: Array<JobRequestedProHistoryType>
+}> => {
+  const { data } = await axios.get(
+    `/api/enough/u/job/${historyId}/request/list`,
+  )
+
+  return data
 }
