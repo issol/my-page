@@ -139,6 +139,7 @@ export type FilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
+  timezone: { label: string; value: string }[]
   search: string
 }
 

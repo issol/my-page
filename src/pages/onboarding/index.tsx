@@ -38,6 +38,7 @@ const defaultValues: FilterType = {
   target: [],
   experience: [],
   testStatus: [],
+  timezone: [],
   search: '',
 }
 
@@ -334,13 +335,13 @@ export default function Onboarding() {
 
   return (
     <Grid container spacing={6}>
-      <PageHeader
+      {/* <PageHeader
         title={<Typography variant='h5'>Onboarding list</Typography>}
-      />
-      <OnboardingDashboard
+      /> */}
+      {/* <OnboardingDashboard
         totalStatistics={totalStatistics!}
         onboardingStatistic={onboardingStatistic!}
-      />
+      /> */}
       <Filters
         control={control}
         handleSubmit={handleSubmit}

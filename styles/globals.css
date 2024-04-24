@@ -115,6 +115,66 @@ code[class*='language-'] {
   }
 }
 
+.filterFormAutoCompleteV2 {
+  .MuiAutocomplete-hasClearIcon {
+    label {
+      transform: translate(14px, -9px) scale(0.75); /* 라벨 위치 수정 */
+    }
+    .MuiInputBase-root {
+      padding: 1px 12px; /* 커서 위치를 중앙으로 조정하기 위해 상하 패딩 추가 */
+    }
+  }
+  .Mui-focused.MuiAutocomplete-hasClearIcon {
+    .MuiFormControl-root,
+    .MuiInputBase-root {
+      height: 100%; /* 입력 필드의 높이를 100%로 유지 */
+    }
+    .MuiInputBase-root {
+      padding: 1px 12px; /* 포커스 시에도 동일하게 패딩 적용 */
+    }
+  }
+
+  .Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-focused {
+    padding-top: 0px !important;
+  }
+
+  .MuiFormControl-root,
+  .MuiInputBase-root {
+    height: 40px; /* 입력 필드 높이 고정 */
+  }
+  label {
+    transform: translate(14px, 9px) scale(1); /* 비활성 상태의 라벨 위치 조정 */
+  }
+
+  label.Mui-focused,
+  label.MuiFormLabel-filled {
+    transform: translate(14px, -9px) scale(0.75); /* 활성 상태의 라벨 위치 조정 */
+  }
+
+  .MuiChip-root {
+    height: 24px;
+    /* margin: 0 !important; */
+  }
+}
+
+.filterFormAutoCompleteV2 .MuiAutocomplete-root:not(.MuiAutocomplete-popupIndicatorOpen) {
+  .MuiChip-root {
+    max-width: calc(100% - 75px); /* +2와 같은 숫자 표시 공간을 고려 */
+    overflow: hidden; /* 오버플로우된 텍스트 숨기기 */
+    text-overflow: ellipsis; /* 텍스트가 너비를 초과할 경우 ellipsis 적용 */
+    white-space: nowrap; /* 텍스트를 한 줄로 처리 */
+  }
+
+  .MuiAutocomplete-tag {
+    margin-right: 4px; /* Chip 사이의 간격 조정 */
+  }
+
+  .MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"] {
+    padding-right: 30px; /* 숫자 표시 부분을 위한 패딩 추가 */
+  }
+}
+
 /* OutlinedInput disabled design */
 .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
   background: rgba(76, 78, 100, 0.12) !important;
