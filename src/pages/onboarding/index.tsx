@@ -85,6 +85,14 @@ export default function Onboarding() {
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
   )
+  const [timezoneList, setTimezoneList] = useState<
+  {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }[]
+>([])
   const [idOrder, setIdOrder] = useState(true)
   const [isHoverId, setIsHoverId] = useState(false)
 
@@ -137,7 +145,7 @@ export default function Onboarding() {
   }
 
   const onSubmit = (data: FilterType) => {
-    const { jobType, role, source, target, experience, testStatus, search } =
+    const { jobType, role, source, target, experience, testStatus, timezone, search } =
       data
 
     const filter = {
@@ -147,6 +155,7 @@ export default function Onboarding() {
       target: target.map(value => value.value),
       testStatus: testStatus.map(value => value.value),
       experience: experience.map(value => value.value),
+      timezone: timezone.map(value => value.code),
       search: search,
       take: onboardingListPageSize,
       skip: onboardingListPageSize * onboardingListPage,
@@ -471,6 +480,35 @@ export default function Onboarding() {
     queryClient.invalidateQueries(['onboarding-pro-details'])
   }, [])
 
+
+  const loadTimezonePin = (): {
+    id: number;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }[] | null => {
+    const storedOptions = localStorage.getItem('timezonePinnedOptions');
+    return storedOptions ? JSON.parse(storedOptions) : null;
+  }
+
+  useEffect(() => {
+    console.log("timezoneList", timezoneList.length)
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned: loadTimezonePinned && loadTimezonePinned.length > 0
+          ? loadTimezonePinned[idx].pinned
+          : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   return (
     <Grid container spacing={0}>
       <Filters
@@ -484,6 +522,9 @@ export default function Onboarding() {
         jobTypeOptions={jobTypeOptions}
         roleOptions={roleOptions}
         languageList={languageList}
+        timezoneList={timezoneList}
+        setTimezoneList={setTimezoneList}
+        timezone={timezone.getValue()}
         onClickResetButton={onClickResetButton}
         handleFilterStateChange={handleFilterStateChange}
         expanded={expanded}
