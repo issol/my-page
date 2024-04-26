@@ -10,7 +10,7 @@ export type OnboardingListType = Omit<
   | 'pronounce'
   | 'preferredName'
   | 'preferredNamePronunciation'
-  | 'timezone'
+  // | 'timezone'
   | 'mobile'
   | 'phone'
   | 'resume'
@@ -70,6 +70,7 @@ export type AssignReviewerType = {
 }
 
 export type OnboardingUserType = {
+  createdAt: string
   id: string
   userId: number
   email: string
@@ -139,6 +140,7 @@ export type FilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
+  timezone: { label: string; value: string }[]
   search: string
   order: 'desc' | 'asc'
 }

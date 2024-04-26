@@ -28,6 +28,7 @@ const JobTypeRole = ({ jobInfo }: Props) => {
                 <JobTypeRoleChips
                   jobType={item.jobType}
                   role={item.role}
+                  visibleChip='all'
                   key={uuidv4()}
                 />
               ),

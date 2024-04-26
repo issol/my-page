@@ -16,6 +16,17 @@ interface LegalNameEmailProps {
   link?: string
 }
 
+interface LegalNameProps {
+  row: {
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string | null
+    lastName: string
+  }
+  link?: string
+}
+
 const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
   return (
     <Box
@@ -92,7 +103,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
   )
 }
 
-export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
+export const LegalName = ({ row }: LegalNameProps) => {
   return (
     <Box
       display='flex'
@@ -102,7 +113,7 @@ export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
       overflow='hidden'
       textOverflow='ellipsis'
     >
-      <Box display='flex' width='32px' height='32px'>
+      <Box display='flex' width='24px' height='24px'>
         <img
           alt=''
           aria-hidden
@@ -124,8 +135,8 @@ export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
           whiteSpace='nowrap'
           overflow='hidden'
           textOverflow='ellipsis'
-          fontWeight={600}
-          sx={{ color: `#4C4E64DE` }}
+          fontWeight={400}
+          sx={{ color: `#4C4E64` }}
         >
           {getLegalName({
             firstName: row.firstName,
