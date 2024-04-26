@@ -8,7 +8,7 @@ import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 // ** helpers
 // ** contexts
 import { useRouter } from 'next/router'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 
 type CellType = {
   row: InvoicePayableListType

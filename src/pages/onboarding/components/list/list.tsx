@@ -51,6 +51,11 @@ export default function OnboardingList({
           }}
         >
           <DataGrid
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
+              },
+            }}
             components={{
               NoRowsOverlay: () => {
                 return (

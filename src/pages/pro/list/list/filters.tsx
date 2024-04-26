@@ -85,6 +85,7 @@ type Props = {
     panel: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => void
   expanded: string | false
+  proListCount: number
 }
 
 const ProListFilters = ({
@@ -100,6 +101,7 @@ const ProListFilters = ({
   languageList,
   expanded,
   handleFilterStateChange,
+  proListCount,
 }: Props) => {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
@@ -114,11 +116,14 @@ const ProListFilters = ({
   const { data: clientList } = useGetSimpleClientList()
 
   return (
-    <Card sx={{ padding: '24px' }}>
+    <Card sx={{ padding: '24px', borderRadius: '0' }}>
+      <Typography variant='h6' sx={{ mb: '20px' }}>
+        Pros ({proListCount.toLocaleString()})
+      </Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container xs={12} spacing={6} rowSpacing={4}>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='status'
@@ -157,7 +162,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='clientId'
@@ -203,7 +208,7 @@ const ProListFilters = ({
           </Grid>
 
           <Grid item xs={3}>
-            <Box className='filterFormSoloAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='source'
@@ -258,7 +263,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormSoloAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='target'
@@ -313,7 +318,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='jobType'
@@ -382,7 +387,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='role'
@@ -451,7 +456,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={2}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='experience'
@@ -497,7 +502,7 @@ const ProListFilters = ({
           </Grid>
 
           <Grid item xs={2}>
-            <FormControl fullWidth className='filterFormControl'>
+            <FormControl fullWidth className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='search'
@@ -539,7 +544,7 @@ const ProListFilters = ({
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                height: '46px',
+                height: '40px',
                 gap: '16px',
               }}
             >

@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import { getProCertificationTestListColumns } from '@src/shared/const/columns/pro-certification-tests'
 import {
   ProCertificationTestFilterType,

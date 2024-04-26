@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface TADJobDataGridProps extends CSVDataRecordProps {

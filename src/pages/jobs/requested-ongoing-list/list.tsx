@@ -1,6 +1,6 @@
 import { Box, Button, Card, Typography } from '@mui/material'
 import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { Dispatch, SetStateAction } from 'react'
 
@@ -44,7 +44,9 @@ const JobList = ({
         alignItems='center'
         padding='20px'
       >
-        <Typography variant='h6'>Jobs ({listCount && listCount > 0 ?listCount : 0})</Typography>
+        <Typography variant='h6'>
+          Jobs ({listCount && listCount > 0 ? listCount : 0})
+        </Typography>
         {type === 'delivered' && (
           <Button
             variant='contained'

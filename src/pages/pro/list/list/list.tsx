@@ -1,12 +1,21 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, Grid, LinearProgress, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 
 import { ProListFilterType, ProListType } from '@src/types/pro/list'
+import {
+  DataGridPro,
+  DataGridProProps,
+  GridColDef,
+  GridSlots,
+  useGridApiRef,
+} from '@mui/x-data-grid-pro'
+import { NoList } from '@src/pages/components/no-list'
+import { useRouter } from 'next/router'
 
 type Props = {
   proListPage: number
@@ -15,8 +24,8 @@ type Props = {
   setProListPageSize: Dispatch<SetStateAction<number>>
   proList: ProListType[]
   proListCount: number
-  setFilters: Dispatch<SetStateAction<ProListFilterType | null>>
-  columns: GridColumns<ProListType>
+  setFilters: Dispatch<SetStateAction<ProListFilterType>>
+  columns: GridColDef[]
   isLoading: boolean
 }
 
@@ -31,77 +40,76 @@ const ProList = ({
   columns,
   isLoading,
 }: Props) => {
+  const apiRef = useGridApiRef()
+  const router = useRouter()
+
+  const handleOnRowsScrollEnd = useCallback<
+    NonNullable<DataGridProProps['onRowsScrollEnd']>
+  >(async params => {
+    setFilters(prev => ({ ...prev, skip: params.visibleRowsCount, take: 500 }))
+  }, [])
+
   return (
-    <Card>
-      <CardHeader
-        title={`Pros (${(proListCount || 0).toLocaleString()})`}
-        sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-      ></CardHeader>
+    <Card sx={{ borderRadius: '0' }}>
       <Box
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
             textTransform: 'none',
           },
+          '& .MuiDataGrid-cell': {
+            padding: '0 20px !important',
+            justifyContent: 'center',
+            alignContent: 'center',
+          },
+          height: {
+            lg: 'calc(97vh - 323px)', // 1075px 이상
+            md: 'calc(97vh - 398px)', // 1075px 이하
+            sm: 'calc(97vh - 398px)', // 1075px 이하
+            xs: 'calc(97vh - 500px)', // 1075px 이하
+          },
         }}
       >
-        <DataGrid
-          components={{
-            NoRowsOverlay: () => {
-              return (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant='subtitle1'>There are no Pros</Typography>
-                </Box>
-              )
-            },
-            NoResultsOverlay: () => {
-              return (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant='subtitle1'>There are no Pros</Typography>
-                </Box>
-              )
-            },
+        <DataGridPro
+          rowHeight={40}
+          apiRef={apiRef}
+          slots={{
+            noRowsOverlay: () => NoList('There are no Pros'),
+            loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
           }}
           sx={{ overflowX: 'scroll' }}
+          initialState={{
+            pinnedColumns: { left: ['id', 'name'], right: ['actions'] },
+          }}
           columns={columns}
           loading={isLoading}
           rows={proList ?? []}
-          autoHeight
-          disableSelectionOnClick
+          // autoHeight
+          // disableSelectionOnClick
           paginationMode='server'
-          pageSize={proListPageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          page={proListPage}
+          // pageSize={proListPageSize}
+          // rowsPerPageOptions={[5, 10, 25, 50]}
+          // page={proListPage}
           rowCount={proListCount}
-          onPageChange={(newPage: number) => {
-            setFilters((prevState: ProListFilterType | null) => ({
-              ...prevState!,
-              skip: newPage * proListPageSize,
-            }))
-            setProListPage(newPage)
+          onRowsScrollEnd={handleOnRowsScrollEnd}
+          scrollEndThreshold={200}
+          hideFooter
+          onCellClick={params => {
+            router.push(`/pro/list/detail/${params.row.userId}`)
           }}
-          onPageSizeChange={(newPageSize: number) => {
-            setFilters((prevState: ProListFilterType | null) => ({
-              ...prevState!,
-              take: newPageSize,
-            }))
-            setProListPageSize(newPageSize)
-          }}
+          // onPageChange={(newPage: number) => {
+          //   setFilters((prevState: ProListFilterType) => ({
+          //     ...prevState,
+          //     skip: newPage * proListPageSize,
+          //   }))
+          //   setProListPage(newPage)
+          // }}
+          // onPageSizeChange={(newPageSize: number) => {
+          //   setFilters((prevState: ProListFilterType) => ({
+          //     ...prevState,
+          //     take: newPageSize,
+          //   }))
+          //   setProListPageSize(newPageSize)
+          // }}
         />
       </Box>
     </Card>

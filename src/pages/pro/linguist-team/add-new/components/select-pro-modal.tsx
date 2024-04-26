@@ -24,7 +24,7 @@ import {
 } from '@mui/x-data-grid'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import useModal from '@src/hooks/useModal'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetSimpleClientList } from '@src/queries/common.query'
 import { useGetProList } from '@src/queries/pro/pro-list.query'

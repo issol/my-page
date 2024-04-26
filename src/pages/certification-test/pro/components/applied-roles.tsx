@@ -16,7 +16,7 @@ import StatusHistoryModal from './modal/status-history-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import ReasonModal from './modal/reson-modal'
 import TestGuidelineModal from './modal/test-guideline-modal'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import { useMutation, useQueryClient } from 'react-query'
 import { patchAppliedRole, patchTestStatus } from '@src/apis/onboarding.api'
 
@@ -370,12 +370,14 @@ const ProAppliedRoles = ({
               title={'Would you like to accept the role offer from TAD?'}
               onClick={() => {
                 //TODO : API call (applied roles query invalidate)
-                replyAssignedMutation.mutateAsync({
-                  id: row.id,
-                  reply: 'assign_role_pro',
-                }).then(() => {
-                  closeModal('AcceptModal')
-                })
+                replyAssignedMutation
+                  .mutateAsync({
+                    id: row.id,
+                    reply: 'assign_role_pro',
+                  })
+                  .then(() => {
+                    closeModal('AcceptModal')
+                  })
               }}
               rightButtonText='Accept'
             />

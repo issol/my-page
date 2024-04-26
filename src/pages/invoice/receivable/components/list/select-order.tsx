@@ -40,7 +40,7 @@ import {
 } from '@src/types/orders/order-list'
 import { Controller, useForm } from 'react-hook-form'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
-import NoList from '@src/pages/components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { addOrderToInvoice } from '@src/apis/invoice/common.api'

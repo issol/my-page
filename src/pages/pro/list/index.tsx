@@ -1,7 +1,11 @@
 import { Box } from '@mui/material'
 import ProListFilters from './list/filters'
-import { SyntheticEvent, useEffect, useState } from 'react'
-import { ProFilterType, ProListFilterType } from '@src/types/pro/list'
+import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
+import {
+  ProFilterType,
+  ProListFilterType,
+  ProListType,
+} from '@src/types/pro/list'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from 'react-query'
 import { RoleSelectType, SelectType } from '@src/types/onboarding/list'
@@ -22,6 +26,7 @@ import {
   getUserFilters,
   saveUserFilters,
 } from '@src/shared/filter-storage'
+import { DataGridProProps } from '@mui/x-data-grid-pro'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -57,7 +62,7 @@ const ProsList = () => {
     : null
 
   const [proListPage, setProListPage] = useState<number>(0)
-  const [proListPageSize, setProListPageSize] = useState<number>(10)
+  const [proListPageSize, setProListPageSize] = useState<number>(500)
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
@@ -69,6 +74,7 @@ const ProsList = () => {
   const [isHoverId, setIsHoverId] = useState(false)
   const [isDateHoverId, setIsDateHoverId] = useState(false)
   const [isSorting, setIsSorting] = useState<boolean>(false)
+  const [rows, setRows] = useState<ProListType[]>([])
 
   const [filters, setFilters] = useState<ProListFilterType | null>(null)
 
@@ -204,8 +210,14 @@ const ProsList = () => {
     }
   }, [savedFilter])
 
+  useEffect(() => {
+    if (proList && proList.data) {
+      setRows(prev => prev.concat(proList.data))
+    }
+  }, [proList])
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ width: '100%' }}>
         <ProListFilters
           control={control}
@@ -220,6 +232,7 @@ const ProsList = () => {
           onClickResetButton={onClickResetButton}
           handleFilterStateChange={handleFilterStateChange}
           expanded={expanded}
+          proListCount={proList?.totalCount!}
         />
       </Box>
       <Box sx={{ width: '100%' }}>
@@ -228,7 +241,7 @@ const ProsList = () => {
           setProListPage={setProListPage}
           proListPageSize={proListPageSize}
           setProListPageSize={setProListPageSize}
-          proList={proList?.data!}
+          proList={rows}
           proListCount={proList?.totalCount!}
           setFilters={setFilters}
           columns={getProListColumns(

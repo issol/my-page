@@ -11,7 +11,7 @@ import {
 } from 'src/shared/auth/storage'
 
 export const BASEURL =
-  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
+  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough.gloground.com'
 let isTokenRefreshing = false
 let refreshSubscribers: any = []
 

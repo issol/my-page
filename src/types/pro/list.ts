@@ -1,4 +1,4 @@
-import { JobInfoType } from '../sign/personalInfoTypes'
+import { CountryType, JobInfoType } from '../sign/personalInfoTypes'
 
 export type ProFilterType = {
   jobType: { label: string; value: string }[]
@@ -70,4 +70,5 @@ export type ProListType = {
   ongoingJobCount: number
   avgResponseTime: number // 분단위 표시
   ongoingJobList: string[]
+  timezone: CountryType
 }
