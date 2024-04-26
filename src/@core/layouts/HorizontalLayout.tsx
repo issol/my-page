@@ -145,6 +145,7 @@ const HorizontalLayout = (props: LayoutProps) => {
               minWidth: 1440,
               width: '100%',
             },
+            overflowY: 'none',
             alignItems: 'center',
             color: 'text.primary',
             justifyContent: 'center',
@@ -204,7 +205,7 @@ const HorizontalLayout = (props: LayoutProps) => {
                   },
                   minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
                   width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
-                  overflowX: 'auto' // 가로 스크롤을 활성화
+                  // overflowX: 'auto' // 가로 스크롤을 활성화
                 }}
             >
               <AppBarContent
@@ -251,7 +252,7 @@ const HorizontalLayout = (props: LayoutProps) => {
                     },
                     minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
                     width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
-                    overflowX: 'auto' // 가로 스크롤을 활성화
+                    // overflowX: 'auto' // 가로 스크롤을 활성화
                   }}
               >
                 {(userNavMenuContent && userNavMenuContent(props)) || (
