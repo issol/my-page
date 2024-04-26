@@ -33,6 +33,7 @@ import {
 import Image from 'next/image'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { v4 as uuidv4 } from 'uuid'
+
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import {
   JobsStatusChip,
@@ -721,6 +722,7 @@ const JobListCard = ({
                         value => value.id === isHoverJobId,
                       )
                     }
+                    console.log(mode)
 
                     return (
                       <>
@@ -889,14 +891,11 @@ const JobListCard = ({
                             align='right'
                           >
                             <Tooltip
-                              title={`${row.autoNextJob ? 'On' : 'Off'}
-                            ${row.autoNextJob ? `[${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}]` : ''},
+                              title={`${row.nextJobId ? 'On' : 'Off'}
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
                               Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
                             `}
                               placement='top'
-                              disableHoverListener={
-                                mode !== 'view' || !row.autoNextJob
-                              }
                             >
                               <Box
                                 display='flex'
@@ -911,7 +910,7 @@ const JobListCard = ({
                               >
                                 <Box
                                   visibility={
-                                    row.nextJobId && mode !== 'edit'
+                                    row.autoNextJob && mode !== 'edit'
                                       ? 'visible'
                                       : 'hidden'
                                   }
@@ -921,45 +920,7 @@ const JobListCard = ({
                                 </Box>
                                 <Box
                                   visibility={
-                                    row.nextJobId ? 'visible' : 'hidden'
-                                  }
-                                  margin={0}
-                                >
-                                  <TriggerSwitchStatus
-                                    variant='body2'
-                                    color={
-                                      row.autoNextJob
-                                        ? theme.palette.success.main
-                                        : '#BBBCC4'
-                                    }
-                                    bgcolor={
-                                      row.autoNextJob ? '#EEFBE5' : '#E9EAEC'
-                                    }
-                                  >
-                                    {row.autoNextJob ? 'On' : 'Off'}
-                                  </TriggerSwitchStatus>
-                                </Box>
-                                <Box
-                                  visibility={
-                                    row.nextJobId ? 'visible' : 'hidden'
-                                  }
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                  }}
-                                  margin={0}
-                                >
-                                  <Image
-                                    src='/images/icons/job-icons/file-share.svg'
-                                    alt=''
-                                    width={24}
-                                    height={24}
-                                  />
-                                </Box>
-                                <Box
-                                  visibility={
-                                    row.nextJobId && mode !== 'edit'
+                                    row.autoSharingFile && mode !== 'edit'
                                       ? 'visible'
                                       : 'hidden'
                                   }
@@ -967,18 +928,10 @@ const JobListCard = ({
                                 >
                                   <TriggerSwitchStatus
                                     variant='body2'
-                                    color={
-                                      row.autoSharingFile
-                                        ? theme.palette.success.main
-                                        : '#BBBCC4'
-                                    }
-                                    bgcolor={
-                                      row.autoSharingFile
-                                        ? '#EEFBE5'
-                                        : '#E9EAEC'
-                                    }
+                                    color={theme.palette.success.main}
+                                    bgcolor='#EEFBE5'
                                   >
-                                    {row.autoSharingFile ? 'On' : 'Off'}
+                                    On
                                   </TriggerSwitchStatus>
                                 </Box>
                               </Box>
@@ -1263,6 +1216,201 @@ const JobListCard = ({
                     )
                   })
                 : null}
+              {jobList.length > 0 ? (
+                jobList.map((row, index) => {
+                  const isItemSelected = isSelected(row.id)
+
+                  let isHighlighted = false
+                  if (row.templateId && row.triggerGroup && isHoverJobId) {
+                    isHighlighted = groupedJobs[
+                      `${row.templateId}-${row.triggerGroup}`
+                    ]?.some(value => value.id === isHoverJobId)
+                  }
+
+                  return (
+                    <TableRow
+                      component='tr'
+                      key={uuidv4()}
+                      sx={{
+                        background: isHighlighted
+                          ? 'rgba(76, 78, 100, 0.05)'
+                          : '#fff',
+                        '&:hover': {
+                          background: 'rgba(76, 78, 100, 0.05)',
+                        },
+                      }}
+                      onClick={() => {
+                        if (mode !== 'view') return
+                        onClickRow(row, info)
+                      }}
+                      selected={isItemSelected}
+                      aria-checked={isItemSelected}
+                      onMouseEnter={() => setIsHoverJobId(row.id)}
+                      onMouseLeave={() => setIsHoverJobId(null)}
+                    >
+                      {viewState && (
+                        <CustomTableCell padding='checkbox'>
+                          <Checkbox
+                            disabled={
+                              // row.id === Number(jobId!) ||
+                              mode === 'manageStatus'
+                                ? !isStatusChangeableJob(
+                                    row.status,
+                                    row.contactPerson?.userId!,
+                                  )
+                                : mode === 'delete'
+                                  ? !isDeletableJob(
+                                      row.status,
+                                      row.isJobRequestPresent,
+                                      row.contactPerson?.userId!,
+                                    )
+                                  : false
+                            }
+                            color='primary'
+                            checked={isItemSelected}
+                            onChange={event =>
+                              onSelectClick(event.target.checked, row.id)
+                            }
+                            inputProps={{
+                              'aria-labelledby': row.corporationId,
+                            }}
+                          />
+                        </CustomTableCell>
+                      )}
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {row.corporationId}
+                      </CustomTableCell>
+
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        <Box display='flex' alignItems='center' gap='8px'>
+                          <ServiceTypeChip
+                            size='small'
+                            label={row.serviceType}
+                          />
+                          {isTriggerJob(row.id) && (
+                            <Icon
+                              icon='ic:outline-people'
+                              fontSize={24}
+                              color='#8D8E9A'
+                            />
+                          )}
+                        </Box>
+                      </CustomTableCell>
+
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {JobsStatusChip(row.status as JobStatus, statusList!)}
+                      </CustomTableCell>
+
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        {row?.totalPrice
+                          ? formatCurrency(
+                              // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                              // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                              Number(row?.totalPrice) < 1000 &&
+                                row?.currency === 'KRW'
+                                ? 0
+                                : Number(row?.totalPrice),
+                              row?.currency!,
+                            )
+                          : '-'}
+                      </CustomTableCell>
+                      <CustomTableCell size='small' component='th' scope='row'>
+                        <Box>
+                          {row.assignedPro ? (
+                            <LegalName
+                              row={{
+                                isOnboarded: true,
+                                isActive: true,
+                                firstName: row.assignedPro.firstName,
+                                middleName: row.assignedPro.middleName,
+                                lastName: row.assignedPro.lastName,
+                                email: row.assignedPro.email,
+                              }}
+                            />
+                          ) : isUserInTeamMember || isMasterManagerUser ? (
+                            <Button
+                              variant='outlined'
+                              size='small'
+                              onClick={() => {}}
+                              disabled={
+                                mode !== 'view' ||
+                                !canUseRequestAssignButton(row)
+                              }
+                            >
+                              Request/Assign
+                            </Button>
+                          ) : (
+                            '-'
+                          )}
+                        </Box>
+                      </CustomTableCell>
+                      <CustomTableCell
+                        size='small'
+                        component='th'
+                        scope='row'
+                        align='right'
+                      >
+                        <Tooltip
+                          title={`${row.nextJobId ? 'On' : 'Off'}
+                              [${statusList?.find(status => status.value === row.statusCodeForAutoNextJob)?.label}],
+                              Auto file share [${row.autoSharingFile ? 'On' : 'Off'}]
+                            `}
+                          placement='top'
+                        >
+                          <Box
+                            display='flex'
+                            alignItems='center'
+                            justifyContent='flex-end'
+                            gap='8px'
+                            visibility={
+                              isTriggerJob(row.id) ? 'visible' : 'hidden'
+                            }
+                          >
+                            <Box
+                              visibility={
+                                row.autoNextJob ? 'visible' : 'hidden'
+                              }
+                              margin={0}
+                            >
+                              <TriggerIcon />
+                            </Box>
+                            <Box
+                              visibility={
+                                row.autoSharingFile ? 'visible' : 'hidden'
+                              }
+                              margin={0}
+                            >
+                              <TriggerSwitchStatus
+                                variant='body2'
+                                color={theme.palette.success.main}
+                                bgcolor='#EEFBE5'
+                              >
+                                On
+                              </TriggerSwitchStatus>
+                            </Box>
+                          </Box>
+                        </Tooltip>
+                      </CustomTableCell>
+                    </TableRow>
+                  )
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <Box
+                      sx={{
+                        height: '68px',
+                        width: '100%',
+                        justifyContent: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography>There are no jobs</Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>

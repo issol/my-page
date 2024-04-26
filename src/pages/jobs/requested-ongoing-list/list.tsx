@@ -45,7 +45,9 @@ const JobList = ({
         alignItems='center'
         padding='20px'
       >
-        <Typography variant='h6'>Jobs ({listCount && listCount > 0 ?listCount : 0})</Typography>
+        <Typography variant='h6'>
+          Jobs ({listCount && listCount > 0 ? listCount : 0})
+        </Typography>
         {type === 'delivered' && (
           <Button
             variant='contained'

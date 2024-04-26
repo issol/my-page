@@ -146,6 +146,8 @@ export const useGetMessage = (jobId: number, proId: number, type: string) => {
     () => getMessageList(jobId, proId, type),
     {
       staleTime: 10 * 100, // 1
+
+      suspense: false,
     },
   )
 }
