@@ -136,8 +136,8 @@ const HorizontalLayout = (props: LayoutProps) => {
           position={appBar === 'fixed' ? 'sticky' : 'static'}
           sx={{
             mx: 'auto',
-            '@media (min-width:1440px)': {
-              maxWidth: 1900,
+            '@media (min-width:1441px)': {
+              maxWidth: '100%',
               minWidth: 1440
             },
             '@media (max-width:1440px)': {
@@ -193,7 +193,7 @@ const HorizontalLayout = (props: LayoutProps) => {
               // }}
                 sx={{
                   mx: 'auto',
-                  '@media (min-width:1440px)': {
+                  '@media (min-width:1441px)': {
                     maxWidth: 1900,
                     minWidth: 1440
                   },
@@ -240,7 +240,7 @@ const HorizontalLayout = (props: LayoutProps) => {
                 // }}
                   sx={{
                     mx: 'auto',
-                    '@media (min-width:1440px)': {
+                    '@media (min-width:1441px)': {
                       maxWidth: 1900,
                       minWidth: 1440
                     },
@@ -285,7 +285,7 @@ const HorizontalLayout = (props: LayoutProps) => {
           // }}
             sx={{
               mx: 'auto',
-              '@media (min-width:1440px)': {
+              '@media (min-width:1441px)': {
                 maxWidth: 1900,
                 minWidth: 1440
               },
