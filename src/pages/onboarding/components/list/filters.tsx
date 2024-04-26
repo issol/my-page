@@ -39,7 +39,7 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import IconButton from '@mui/material/IconButton'
 import { FilterType } from '@src/types/onboarding/list'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
-import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinIcon from '@mui/icons-material/PushPin'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 export type CardProps = {
@@ -84,23 +84,27 @@ type Props = {
     label: GloLanguageEnum
   }[]
   timezoneList: {
-    id: number;
-    code: string;
-    label: string;
-    pinned: boolean;
+    id: number
+    code: string
+    label: string
+    pinned: boolean
   }[]
   timezone: {
-    offset: number;
-    offsetFormatted: string;
-    timezone: string;
-    timezoneCode: string;
+    offset: number
+    offsetFormatted: string
+    timezone: string
+    timezoneCode: string
   }[]
-  setTimezoneList: Dispatch<SetStateAction<{
-    id: number;
-    code: string;
-    label: string;
-    pinned: boolean;
-  }[]>>
+  setTimezoneList: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    >
+  >
   handleFilterStateChange: (
     panel: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => void
@@ -136,24 +140,27 @@ export default function Filters({
   }
 
   const handlePin = (option: {
-    id: number;
-    code: string;
-    label: string;
-    pinned: boolean;
+    id: number
+    code: string
+    label: string
+    pinned: boolean
   }) => {
-    const newOptions = timezoneList.map((opt) =>
-        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
-    );
-    setTimezoneList(newOptions);
-    localStorage.setItem('timezonePinnedOptions', JSON.stringify(newOptions)); 
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
+    setTimezoneList(newOptions)
+    localStorage.setItem('timezonePinnedOptions', JSON.stringify(newOptions))
   }
 
   const sortedOptions = timezoneList.sort((a, b) => {
-    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
-    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
-  });
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
 
-  const lastPinnedIndex = timezoneList.reduce((lastIndex, option, index) => option.pinned ? index : lastIndex, -1);
+  const lastPinnedIndex = timezoneList.reduce(
+    (lastIndex, option, index) => (option.pinned ? index : lastIndex),
+    -1,
+  )
 
   return (
     <>
@@ -216,8 +223,8 @@ export default function Filters({
                               // console.log(jobTypeValue)
 
                               /* @ts-ignore */
-                              const res = OnboardingListRolePair.filter(
-                                value => value.jobType.includes(jobTypeValue),
+                              const res = OnboardingListRolePair.filter(value =>
+                                value.jobType.includes(jobTypeValue),
                               )
 
                               arr.push(...res)
@@ -236,7 +243,11 @@ export default function Filters({
                         id='jobType'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Job type' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Job type'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -305,7 +316,11 @@ export default function Filters({
                         id='role'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Role' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Role'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -356,7 +371,11 @@ export default function Filters({
                         id='source'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Source' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Source'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -407,7 +426,11 @@ export default function Filters({
                         id='target'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Target' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Target'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -448,7 +471,11 @@ export default function Filters({
                         id='experience'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Experience' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Experience'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -489,7 +516,11 @@ export default function Filters({
                         id='testStatus'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Test status' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Test status'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -531,23 +562,48 @@ export default function Filters({
                         id='timezone'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label={`Pro's timeonze`} />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label={`Pro's timeonze`}
+                          />
                         )}
                         renderOption={(props, option, state) => (
-                          <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: state.index === lastPinnedIndex ? '1px solid #E9EAEC' : 'none' }}>
+                          <Box
+                            component='li'
+                            {...props}
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              borderBottom:
+                                state.index === lastPinnedIndex
+                                  ? '1px solid #E9EAEC'
+                                  : 'none',
+                            }}
+                          >
                             <Checkbox checked={state.selected} sx={{ mr: 2 }} />
-                            <Typography noWrap sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <Typography
+                              noWrap
+                              sx={{
+                                maxWidth: 300,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
                               {/* {option.label} */}
                               {timeZoneFormatter(option, timezone)}
                             </Typography>
                             <IconButton
-                              onClick={(event) => {
-                                  event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                  handlePin(option)
+                              onClick={event => {
+                                event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                handlePin(option)
                               }}
-                              size="small"
-                              style={{ color: option.pinned ? '#FFAF66' : undefined }} 
-                          >
+                              size='small'
+                              style={{
+                                color: option.pinned ? '#FFAF66' : undefined,
+                              }}
+                            >
                               <PushPinIcon />
                             </IconButton>
                           </Box>
@@ -567,7 +623,8 @@ export default function Filters({
                         <>
                           <InputLabel
                             sx={{ fontSize: 14, height: 40 }}
-                            htmlFor='icons-adornment-password'>
+                            htmlFor='icons-adornment-password'
+                          >
                             {onFocused
                               ? 'Search Pros'
                               : 'Search the legal name and email'}
@@ -608,7 +665,12 @@ export default function Filters({
                   >
                     Reset
                   </Button>
-                  <Button fullWidth variant='contained' size='medium' type='submit'>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    size='medium'
+                    type='submit'
+                  >
                     Search
                   </Button>
                 </Box>

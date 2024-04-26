@@ -1,7 +1,7 @@
 import { CountryType, JobInfoType } from '../sign/personalInfoTypes'
 
 export type ProFilterType = {
-  jobType: { label: string; value: string }[]
+  // jobType: { label: string; value: string }[]
   role: { label: string; value: string; jobType: string[] }[]
   source: { label: string; value: string }[]
   target: { label: string; value: string }[]
@@ -9,6 +9,7 @@ export type ProFilterType = {
   status: { label: string; value: string }[]
   clientId: { name: string; clientId: number }[]
   search: string
+  timezone: { id: number; label: string; code: string; pinned: boolean }[]
   sortId?: string
   sortDate?: string
 }
@@ -19,13 +20,14 @@ export type ProListFilterType = {
   status?: string[]
   clientId?: number[]
   role?: string[]
-  jobType?: string[]
+  // jobType?: string[]
   search?: string
   source?: string[]
   target?: string[]
   experience?: string[]
   sortId?: string
   sortDate?: string
+  timezone?: number[]
 }
 
 export interface ProListJobInfoType extends JobInfoType {

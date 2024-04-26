@@ -29,7 +29,8 @@ import {
 import { DataGridProProps } from '@mui/x-data-grid-pro'
 
 const defaultValues: ProFilterType = {
-  jobType: [],
+  // jobType: [],
+  timezone: [],
   role: [],
   source: [],
   target: [],
@@ -40,13 +41,14 @@ const defaultValues: ProFilterType = {
 }
 
 const defaultFilters: ProListFilterType = {
-  jobType: [],
+  // jobType: [],
   role: [],
   source: [],
   target: [],
   experience: [],
   status: [],
   clientId: [],
+  timezone: [],
   take: 500,
   skip: 0,
 }
@@ -56,6 +58,7 @@ const ProsList = () => {
   const languageList = getGloLanguage()
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const auth = useRecoilValueLoadable(authState)
+
   const { openModal, closeModal } = useModal()
   const savedFilter: ProFilterType | null = getUserFilters(FilterKey.PRO_LIST)
     ? JSON.parse(getUserFilters(FilterKey.PRO_LIST)!)
@@ -88,6 +91,15 @@ const ProsList = () => {
     mode: 'onSubmit',
   })
 
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
   const onClickResetButton = () => {
     setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
@@ -106,7 +118,7 @@ const ProsList = () => {
 
   const onSubmit = (data: ProFilterType) => {
     const {
-      jobType,
+      // jobType,
       role,
       source,
       target,
@@ -120,7 +132,7 @@ const ProsList = () => {
     setDefaultFilter(data)
 
     const filter = {
-      jobType: jobType.map(value => value.value),
+      // jobType: jobType.map(value => value.value),
       role: role.map(value => value.value),
       source: source.map(value => value.value),
       target: target.map(value => value.value),
@@ -162,6 +174,37 @@ const ProsList = () => {
     })
   }
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = localStorage.getItem('timezonePinnedOptions')
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+    console.log('timezoneList', timezoneList.length)
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   useEffect(() => {
     queryClient.invalidateQueries(['pro-list'])
     queryClient.invalidateQueries(['pro-overview'])
@@ -170,7 +213,8 @@ const ProsList = () => {
   useEffect(() => {
     if (savedFilter) {
       const {
-        jobType,
+        // jobType,
+        timezone,
         role,
         source,
         target,
@@ -183,7 +227,8 @@ const ProsList = () => {
       } = savedFilter
 
       const filter = {
-        jobType: jobType.map(value => value.value),
+        // jobType: jobType.map(value => value.value),
+        timezone: timezone.map(value => value.id),
         role: role.map(value => value.value),
         source: source.map(value => value.value),
         target: target.map(value => value.value),
@@ -233,6 +278,9 @@ const ProsList = () => {
           handleFilterStateChange={handleFilterStateChange}
           expanded={expanded}
           proListCount={proList?.totalCount ?? 0}
+          timezoneList={timezoneList}
+          setTimezoneList={setTimezoneList}
+          timezone={timezone.getValue()}
         />
       </Box>
       <Box sx={{ width: '100%' }}>

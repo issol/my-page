@@ -243,7 +243,7 @@ export const getProListColumns = (
           // 리스트에서 Job type/Role, Language Pair를 볼수있게 처리
           const sourceFilters = filters.source || []
           const targetFilters = filters.target || []
-          const jobTypeFilters = filters.jobType || []
+          // const jobTypeFilters = filters.jobType || []
           const roleFilters = filters.role || []
 
           row.jobInfo.some((value, idx) => {
@@ -254,8 +254,8 @@ export const getProListColumns = (
             if (
               (sourceFilters.length === 0 || sourceFilters.includes(source)) &&
               (targetFilters.length === 0 || targetFilters.includes(target)) &&
-              (jobTypeFilters.length === 0 ||
-                jobTypeFilters.includes(jobType)) &&
+              // (jobTypeFilters.length === 0 ||
+              //   jobTypeFilters.includes(jobType)) &&
               (roleFilters.length === 0 || roleFilters.includes(role))
             ) {
               const dummy = row.jobInfo[idx]
