@@ -1,4 +1,4 @@
-import { Grid, IconButton, Typography } from '@mui/material'
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material'
 
 import PageHeader from '@src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
@@ -48,6 +48,10 @@ import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
 import { useRouter } from 'next/router'
+import { v4 as uuidv4 } from 'uuid'
+import { GridColDef } from '@mui/x-data-grid-pro'
+import _ from 'lodash'
+import { getOnboardingProList } from '@src/apis/onboarding.api'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -68,7 +72,7 @@ const initialFilter: OnboardingFilterType = {
   target: [],
   experience: [],
   testStatus: [],
-  take: 10,
+  take: 500,
   skip: 0,
   order: 'desc',
 }
@@ -85,16 +89,19 @@ export default function Onboarding() {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const [rows, setRows] = useState<OnboardingListType[]>([])
 
   const { openModal, closeModal } = useModal()
 
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
-    useState<number>(10)
+    useState<number>(500)
   const [filters, setFilters] = useState<OnboardingFilterType | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
 
-  const { data: onboardingProList, isLoading } =
-    useGetOnboardingProList(filters)
+  // const { data: onboardingProList, isLoading } =
+  //   useGetOnboardingProList(filters)
 
   const { data: totalStatistics } = useGetStatistic()
   const { data: onboardingStatistic } = useGetOnboardingStatistic()
@@ -202,9 +209,9 @@ export default function Onboarding() {
     router.push(`/onboarding/detail/${id}`)
   }
 
-  const columns: GridColumns<OnboardingListType> = [
+  const columns: GridColDef[] = [
     {
-      flex: 0.1,
+      flex: 0.0567,
       field: 'id',
       minWidth: 120,
       headerName: 'No.',
@@ -246,7 +253,7 @@ export default function Onboarding() {
       ),
     },
     {
-      flex: 0.25,
+      flex: 0.1135,
       minWidth: 240,
       field: 'name',
       headerName: 'Legal name',
@@ -270,7 +277,7 @@ export default function Onboarding() {
       },
     },
     {
-      flex: 0.25,
+      flex: 0.1135,
       minWidth: 240,
       field: 'email',
       headerName: 'Email',
@@ -291,7 +298,7 @@ export default function Onboarding() {
       },
     },
     {
-      flex: 0.25,
+      flex: 0.0686,
       minWidth: 145,
       field: 'resume',
       headerName: 'Resume',
@@ -309,7 +316,7 @@ export default function Onboarding() {
       },
     },
     {
-      flex: 0.4,
+      flex: 0.1891,
       minWidth: 400,
       field: 'applicationInformation',
       headerName: 'Application information',
@@ -361,35 +368,56 @@ export default function Onboarding() {
           role: value.role,
           source: value.source,
           target: value.target,
+          testStatus: value.testStatus,
         }))
         return (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+          <Tooltip
+            title={
+              jobInfo.length > 0 ? (
+                <ul style={{ paddingLeft: '16px' }}>
+                  {jobInfo.map(value => {
+                    return (
+                      <li key={uuidv4()}>
+                        <span style={{ fontWeight: 600 }}>
+                          {value.source?.toUpperCase()} &rarr;{' '}
+                          {value.target?.toUpperCase()}&nbsp;
+                        </span>
+                        / {value.role} / {value.testStatus}
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : null
+            }
           >
-            <Typography
-              variant='body2'
-              fontWeight={400}
-              sx={{ color: '#4C4E64' }}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: '8px',
+              }}
             >
-              {jobInfo[0].source?.toUpperCase()} &rarr;{' '}
-              {jobInfo[0].target?.toUpperCase()}
-            </Typography>
-            <JobTypeRoleChips
-              jobType={jobInfo[0].jobType}
-              role={jobInfo[0].role}
-              visibleChip={'all'}
-            />
-          </Box>
+              <Typography
+                variant='body2'
+                fontWeight={600}
+                sx={{ color: '#4C4E64' }}
+              >
+                {jobInfo[0].source?.toUpperCase()} &rarr;{' '}
+                {jobInfo[0].target?.toUpperCase()}
+              </Typography>
+              <JobTypeRoleChips
+                jobType={jobInfo[0].jobType}
+                role={jobInfo[0].role}
+                visibleChip={'role'}
+              />
+            </Box>
+          </Tooltip>
         )
       },
     },
     {
-      flex: 0.4,
+      flex: 0.156,
       minWidth: 330,
       field: 'role',
       headerName: 'Roles',
@@ -444,7 +472,7 @@ export default function Onboarding() {
       },
     },
     {
-      flex: 0.15,
+      flex: 0.0898,
       minWidth: 190,
       field: 'experience',
       headerName: 'Years of experience',
@@ -465,7 +493,7 @@ export default function Onboarding() {
       },
     },
     {
-      flex: 0.15,
+      flex: 0.0946,
       minWidth: 200,
       field: 'timezone',
       headerName: `Pro's timezone`,
@@ -475,18 +503,27 @@ export default function Onboarding() {
       renderHeader: () => <Box>Pro's timezone</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         return (
-          <Typography
-            variant='body2'
-            fontWeight={400}
-            sx={{ color: '#4C4E64' }}
+          <Tooltip
+            title={timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
           >
-            {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
-          </Typography>
+            <Typography
+              variant='body2'
+              fontWeight={400}
+              sx={{
+                color: '#4C4E64',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+            </Typography>
+          </Tooltip>
         )
       },
     },
     {
-      flex: 0.17,
+      flex: 0.1182,
       field: 'enrollment',
       minWidth: 250,
       headerName: 'Date of Enrollment',
@@ -514,6 +551,7 @@ export default function Onboarding() {
   }, [])
 
   useEffect(() => {
+    let mounted = true
     if (savedFilter) {
       const { jobType, role, source, target, experience, testStatus, search } =
         savedFilter
@@ -526,8 +564,10 @@ export default function Onboarding() {
         testStatus: testStatus.map(value => value.value),
         experience: experience.map(value => value.value),
         search: search,
-        take: onboardingListPageSize,
-        skip: onboardingListPageSize * onboardingListPage,
+        take: 500,
+        skip: 0,
+        // take: onboardingListPageSize,
+        // skip: onboardingListPageSize * onboardingListPage,
         order: 'desc',
       }
 
@@ -541,6 +581,9 @@ export default function Onboarding() {
       }
     } else {
       setFilters(initialFilter)
+    }
+    return () => {
+      mounted = false
     }
   }, [savedFilter])
 
@@ -575,39 +618,66 @@ export default function Onboarding() {
     setTimezoneList(filteredTimezone)
   }, [timezone])
 
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      if (filters) {
+        setLoading(true)
+        const rows = await getOnboardingProList(filters!)
+        console.log(rows)
+
+        if (mounted) {
+          setLoading(false)
+          setRows(rows.data ?? [])
+          setTotalCount(rows.totalCount)
+        }
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [filters])
+
   return (
-    <Grid container spacing={0}>
-      <Filters
-        onboardingProListCount={onboardingProList?.totalCount || 0}
-        control={control}
-        handleSubmit={handleSubmit}
-        onSubmit={onSubmit}
-        trigger={trigger}
-        setJobTypeOptions={setJobTypeOptions}
-        setRoleOptions={setRoleOptions}
-        jobTypeOptions={jobTypeOptions}
-        roleOptions={roleOptions}
-        languageList={languageList}
-        timezoneList={timezoneList}
-        setTimezoneList={setTimezoneList}
-        timezone={timezone.getValue()}
-        onClickResetButton={onClickResetButton}
-        handleFilterStateChange={handleFilterStateChange}
-        expanded={expanded}
-      />
-      <OnboardingList
-        onboardingProListCount={onboardingProList?.totalCount || 0}
-        onboardingProList={onboardingProList?.data || []}
-        onboardingListPage={onboardingListPage}
-        setOnboardingListPage={setOnboardingListPage}
-        onboardingListPageSize={onboardingListPageSize}
-        setOnboardingListPageSize={setOnboardingListPageSize}
-        columns={columns}
-        setFilters={setFilters}
-        isLoading={isLoading}
-        handleRowClick={handleRowClick}
-      />
-    </Grid>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ width: '100%' }}>
+        <Filters
+          onboardingProListCount={totalCount}
+          control={control}
+          handleSubmit={handleSubmit}
+          onSubmit={onSubmit}
+          trigger={trigger}
+          setJobTypeOptions={setJobTypeOptions}
+          setRoleOptions={setRoleOptions}
+          jobTypeOptions={jobTypeOptions}
+          roleOptions={roleOptions}
+          languageList={languageList}
+          timezoneList={timezoneList}
+          setTimezoneList={setTimezoneList}
+          timezone={timezone.getValue()}
+          onClickResetButton={onClickResetButton}
+          handleFilterStateChange={handleFilterStateChange}
+          expanded={expanded}
+        />
+      </Box>
+      <Box sx={{ width: '100%' }}>
+        <OnboardingList
+          onboardingProListCount={totalCount}
+          onboardingProList={rows || []}
+          onboardingListPage={onboardingListPage}
+          setOnboardingListPage={setOnboardingListPage}
+          onboardingListPageSize={onboardingListPageSize}
+          setOnboardingListPageSize={setOnboardingListPageSize}
+          columns={columns}
+          setFilters={setFilters}
+          isLoading={loading}
+          handleRowClick={handleRowClick}
+          setRows={setRows}
+          filters={filters!}
+          setLoading={setLoading}
+        />
+      </Box>
+    </Box>
   )
 }
 

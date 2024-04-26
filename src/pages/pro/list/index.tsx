@@ -7,7 +7,7 @@ import {
   ProListType,
 } from '@src/types/pro/list'
 import { useForm } from 'react-hook-form'
-import { useQueryClient } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { RoleSelectType, SelectType } from '@src/types/onboarding/list'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { JobList } from '@src/shared/const/job/jobs'
@@ -26,7 +26,19 @@ import {
   getUserFilters,
   saveUserFilters,
 } from '@src/shared/filter-storage'
-import { DataGridProProps } from '@mui/x-data-grid-pro'
+import {
+  DataGridProProps,
+  GridFetchRowsParams,
+  useGridApiRef,
+} from '@mui/x-data-grid-pro'
+import _ from 'lodash'
+import { getProList } from '@src/apis/pro/pro-list.api'
+
+import {
+  createFakeServer,
+  loadServerRows,
+  UseDemoDataOptions,
+} from '@mui/x-data-grid-generator'
 
 const defaultValues: ProFilterType = {
   // jobType: [],
@@ -55,6 +67,8 @@ const defaultFilters: ProListFilterType = {
 
 const ProsList = () => {
   const queryClient = useQueryClient()
+  const apiRef = useGridApiRef()
+
   const languageList = getGloLanguage()
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const auth = useRecoilValueLoadable(authState)
@@ -78,13 +92,15 @@ const ProsList = () => {
   const [isDateHoverId, setIsDateHoverId] = useState(false)
   const [isSorting, setIsSorting] = useState<boolean>(false)
   const [rows, setRows] = useState<ProListType[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   const [filters, setFilters] = useState<ProListFilterType | null>(null)
 
   const [defaultFilter, setDefaultFilter] =
     useState<ProFilterType>(defaultValues)
 
-  const { data: proList, isLoading } = useGetProList(filters)
+  // const { data: proList, isLoading } = useGetProList(filters)
 
   const { control, handleSubmit, trigger, reset } = useForm<ProFilterType>({
     defaultValues: defaultFilter,
@@ -116,7 +132,7 @@ const ProsList = () => {
       setExpanded(isExpanded ? panel : false)
     }
 
-  const onSubmit = (data: ProFilterType) => {
+  const onSubmit = async (data: ProFilterType) => {
     const {
       // jobType,
       role,
@@ -130,6 +146,8 @@ const ProsList = () => {
 
     saveUserFilters(FilterKey.PRO_LIST, data)
     setDefaultFilter(data)
+    console.log(proListPageSize)
+    console.log(proListPage)
 
     const filter = {
       // jobType: jobType.map(value => value.value),
@@ -142,11 +160,13 @@ const ProsList = () => {
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
-      sortId: 'DESC',
+      // sortId: 'DESC',
       // sortDate: 'DESC',
     }
-
-    setFilters(filter)
+    setLoading(true)
+    const rows = await getProList(filter!)
+    setLoading(false)
+    setRows(rows.data ?? [])
     // queryClient.invalidateQueries(['pro-list', filter])
   }
 
@@ -205,13 +225,14 @@ const ProsList = () => {
     setTimezoneList(filteredTimezone)
   }, [timezone])
 
-  useEffect(() => {
-    queryClient.invalidateQueries(['pro-list'])
-    queryClient.invalidateQueries(['pro-overview'])
-  }, [])
+  // useEffect(() => {
+  //   queryClient.invalidateQueries(['pro-list'])
+  //   queryClient.invalidateQueries(['pro-overview'])
+  // }, [])
 
   useEffect(() => {
-    if (savedFilter) {
+    let mounted = true
+    if (savedFilter && mounted) {
       const {
         // jobType,
         timezone,
@@ -236,30 +257,62 @@ const ProsList = () => {
         experience: experience.map(value => value.value),
         clientId: clientId.map(value => value.clientId),
         search: search,
-        take: proListPageSize,
-        skip: proListPageSize * proListPage,
+        take: 500,
+        skip: 0,
+        // take: proListPageSize,
+        // skip: proListPageSize * proListPage,
         sortId: sortId,
         sortDate: sortDate,
       }
 
       if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
         setDefaultFilter(savedFilter)
-        setFilters(filter)
+        // setFilters(filter)
         reset(savedFilter)
       }
       if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        console.log(filters, 'filters')
         setFilters(filter)
       }
     } else {
+      console.log(filters, 'filters')
       setFilters(defaultFilters)
     }
-  }, [savedFilter])
 
-  useEffect(() => {
-    if (proList && proList.data) {
-      setRows(prev => prev.concat(proList.data))
+    return () => {
+      mounted = false
     }
-  }, [proList])
+  }, [savedFilter])
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      if (filters) {
+        console.log(filters, 'filters')
+
+        setLoading(true)
+        const rows = await getProList(filters!)
+
+        if (mounted) {
+          setLoading(false)
+          setRows(rows.data ?? [])
+          setTotalCount(rows.totalCount)
+        }
+      }
+    })()
+
+    return () => {
+      mounted = false
+    }
+  }, [filters])
+  // const handleFetchRows = useCallback(
+  //   async (params: ProListFilterType) => {
+  //     const { data, totalCount } = await fetchRow(params)
+
+  //     apiRef.current.unstable_replaceRows(0, data)
+  //     setRowCount(totalCount)
+  //   },
+  //   [apiRef, fetchRow],
+  // )
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -277,7 +330,7 @@ const ProsList = () => {
           onClickResetButton={onClickResetButton}
           handleFilterStateChange={handleFilterStateChange}
           expanded={expanded}
-          proListCount={proList?.totalCount ?? 0}
+          proListCount={totalCount}
           timezoneList={timezoneList}
           setTimezoneList={setTimezoneList}
           timezone={timezone.getValue()}
@@ -290,8 +343,11 @@ const ProsList = () => {
           proListPageSize={proListPageSize}
           setProListPageSize={setProListPageSize}
           proList={rows}
-          proListCount={proList?.totalCount!}
+          proListCount={totalCount}
           setFilters={setFilters}
+          setRows={setRows}
+          setLoading={setLoading}
+          filters={filters!}
           columns={getProListColumns(
             auth,
             timezone,
@@ -309,7 +365,7 @@ const ProsList = () => {
             defaultFilter,
             onClickFile,
           )}
-          isLoading={Boolean(isLoading || isSorting)}
+          isLoading={loading}
         />
       </Box>
     </Box>

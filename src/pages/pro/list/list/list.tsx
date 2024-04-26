@@ -16,6 +16,7 @@ import {
 } from '@mui/x-data-grid-pro'
 import { NoList } from '@src/pages/components/no-list'
 import { useRouter } from 'next/router'
+import { getProList } from '@src/apis/pro/pro-list.api'
 
 type Props = {
   proListPage: number
@@ -24,9 +25,12 @@ type Props = {
   setProListPageSize: Dispatch<SetStateAction<number>>
   proList: ProListType[]
   proListCount: number
+  filters: ProListFilterType
   setFilters: Dispatch<SetStateAction<ProListFilterType | null>>
   columns: GridColDef[]
   isLoading: boolean
+  setLoading: Dispatch<SetStateAction<boolean>>
+  setRows: Dispatch<SetStateAction<ProListType[]>>
 }
 
 const ProList = ({
@@ -36,18 +40,39 @@ const ProList = ({
   setProListPageSize,
   proList,
   proListCount,
+  filters,
   setFilters,
   columns,
   isLoading,
+  setLoading,
+  setRows,
 }: Props) => {
   const apiRef = useGridApiRef()
   const router = useRouter()
 
   const handleOnRowsScrollEnd = useCallback<
     NonNullable<DataGridProProps['onRowsScrollEnd']>
-  >(async params => {
-    setFilters(prev => ({ ...prev, skip: params.visibleRowsCount, take: 500 }))
-  }, [])
+  >(
+    async params => {
+      if (proListCount === proList.length) return
+
+      if (proListCount >= params.visibleRowsCount) {
+        setLoading(true)
+        const rows = await getProList({
+          ...filters,
+          skip: params.visibleRowsCount >= 500 ? params.visibleRowsCount : 0,
+          take: 500,
+        })
+        setLoading(false)
+        setRows(prevRows => prevRows.concat(rows.data))
+        setProListPage(
+          params.visibleRowsCount >= 500 ? params.visibleRowsCount : 0,
+        )
+        setProListPageSize(500)
+      }
+    },
+    [proList.length],
+  )
 
   return (
     <Card sx={{ borderRadius: '0' }}>
@@ -85,7 +110,7 @@ const ProList = ({
           rows={proList ?? []}
           // autoHeight
           // disableSelectionOnClick
-          paginationMode='server'
+          // paginationMode='server'
           // pageSize={proListPageSize}
           // rowsPerPageOptions={[5, 10, 25, 50]}
           // page={proListPage}

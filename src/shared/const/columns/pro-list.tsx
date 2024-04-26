@@ -241,10 +241,10 @@ export const getProListColumns = (
 
           // 필터에 Source, Target, jobType, role이 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시켜
           // 리스트에서 Job type/Role, Language Pair를 볼수있게 처리
-          const sourceFilters = filters.source || []
-          const targetFilters = filters.target || []
+          const sourceFilters = filters?.source || []
+          const targetFilters = filters?.target || []
           // const jobTypeFilters = filters.jobType || []
-          const roleFilters = filters.role || []
+          const roleFilters = filters?.role || []
 
           row.jobInfo.some((value, idx) => {
             const source = value.source || ''
@@ -273,7 +273,6 @@ export const getProListColumns = (
           jobType: value.jobType,
           role: value.role,
         }))
-        console.log(jobInfo)
 
         return <JobTypeRole jobInfo={jobInfo} visibleType='role' />
       },

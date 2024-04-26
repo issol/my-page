@@ -39,6 +39,7 @@
     "@mui/material": "5.15.4",
     "@mui/system": "5.15.4",
     "@mui/x-data-grid": "5.17.9",
+    "@mui/x-data-grid-generator": "^7.3.0",
     "@mui/x-data-grid-pro": "^7.3.0",
     "@popperjs/core": "2.11.8",
     "@react-pdf/renderer": "^3.3.4",
