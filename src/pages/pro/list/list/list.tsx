@@ -24,7 +24,7 @@ type Props = {
   setProListPageSize: Dispatch<SetStateAction<number>>
   proList: ProListType[]
   proListCount: number
-  setFilters: Dispatch<SetStateAction<ProListFilterType>>
+  setFilters: Dispatch<SetStateAction<ProListFilterType | null>>
   columns: GridColDef[]
   isLoading: boolean
 }

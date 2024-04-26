@@ -47,7 +47,7 @@ const defaultFilters: ProListFilterType = {
   experience: [],
   status: [],
   clientId: [],
-  take: 10,
+  take: 500,
   skip: 0,
 }
 
@@ -232,7 +232,7 @@ const ProsList = () => {
           onClickResetButton={onClickResetButton}
           handleFilterStateChange={handleFilterStateChange}
           expanded={expanded}
-          proListCount={proList?.totalCount!}
+          proListCount={proList?.totalCount ?? 0}
         />
       </Box>
       <Box sx={{ width: '100%' }}>

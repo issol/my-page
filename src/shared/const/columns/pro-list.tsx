@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   JobTypeChip,
@@ -229,7 +229,7 @@ export const getProListColumns = (
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Job type / Role</Box>,
+      renderHeader: () => <Box>Roles</Box>,
       renderCell: ({ row }: ProListCellType) => {
         if (row.jobInfo && row.jobInfo.length) {
           setIsSorting(true)
@@ -273,8 +273,9 @@ export const getProListColumns = (
           jobType: value.jobType,
           role: value.role,
         }))
+        console.log(jobInfo)
 
-        return <JobTypeRole jobInfo={jobInfo} />
+        return <JobTypeRole jobInfo={jobInfo} visibleType='role' />
       },
     },
     {
@@ -350,13 +351,22 @@ export const getProListColumns = (
       renderHeader: () => <Box>Pro's timezone</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <Typography
-            variant='body2'
-            fontWeight={400}
-            sx={{ color: '#4C4E64' }}
+          <Tooltip
+            title={timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
           >
-            {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
-          </Typography>
+            <Typography
+              variant='body2'
+              fontWeight={400}
+              sx={{
+                color: '#4C4E64',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+            </Typography>
+          </Tooltip>
         )
       },
     },
