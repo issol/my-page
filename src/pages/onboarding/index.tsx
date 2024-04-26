@@ -557,7 +557,6 @@ export default function Onboarding() {
   }
 
   useEffect(() => {
-    console.log('timezoneList', timezoneList.length)
     if (timezoneList.length !== 0) return
     const zoneList = timezone.getValue()
     const loadTimezonePinned = loadTimezonePin()
