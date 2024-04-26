@@ -63,8 +63,8 @@ const JobTypeRole = ({ jobInfo, visibleType }: Props) => {
 }
 
 const CountChip = styled('p')`
-  padding: 3px 4px;
   text-align: center;
+  height: 24px;
   width: 40px;
   background: linear-gradient(
       0deg,
@@ -76,6 +76,6 @@ const CountChip = styled('p')`
   border-radius: 16px;
   font-weight: 500;
   font-size: 0.813rem;
+}
 `
-
 export default JobTypeRole

@@ -13,7 +13,7 @@ export type OnboardingListType = Omit<
   // | 'timezone'
   | 'mobile'
   | 'phone'
-  | 'resume'
+  // | 'resume'
   | 'specialties'
   | 'notesFromPro'
   | 'contracts'
@@ -89,13 +89,14 @@ export type OnboardingUserType = {
   timezone: CountryType
   mobilePhone?: string | null
   telephone?: string | null
-  resume?: Array<{
-    id: number
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }>
+  // resume?: Array<{
+  //   id: number
+  //   url: string
+  //   filePath: string
+  //   fileName: string
+  //   fileExtension: string
+  // }>
+  resume: Array<string>
   contracts?: Array<{
     url: string
     filePath: string
@@ -140,7 +141,7 @@ export type FilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
-  timezone: { label: string; value: string }[]
+  timezone: { id: number, label: string; code: string, pinned: boolean }[]
   search: string
   order: 'desc' | 'asc'
 }

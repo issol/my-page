@@ -22,6 +22,7 @@ type Props = {
   setFilters: Dispatch<SetStateAction<OnboardingFilterType | null>>
   columns: GridColumns<OnboardingListType>
   isLoading: boolean
+  handleRowClick: (id: number) => void
 }
 
 export default function OnboardingList({
@@ -34,6 +35,7 @@ export default function OnboardingList({
   setFilters,
   columns,
   isLoading,
+  handleRowClick,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -58,6 +60,7 @@ export default function OnboardingList({
         >
           <DataGrid
             sx={{
+              cursor: 'pointer',
               '& .MuiDataGrid-columnHeaders': {
                 borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
               },
@@ -97,6 +100,9 @@ export default function OnboardingList({
                   </Box>
                 )
               },
+            }}
+            onCellClick={params => {
+              if (params.field !== 'resume')handleRowClick(params.row.userId)
             }}
             columns={columns}
             rowHeight={40}

@@ -43,6 +43,11 @@ import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import ListResume from '../pro/list/list/list-resume'
+import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import useModal from '@src/hooks/useModal'
+import { useRouter } from 'next/router'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -77,13 +82,16 @@ export default function Onboarding() {
     : null
 
   const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
+  const router = useRouter()
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const { openModal, closeModal } = useModal()
 
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
   const [filters, setFilters] = useState<OnboardingFilterType | null>(null)
-  const auth = useRecoilValueLoadable(authState)
-  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: onboardingProList, isLoading } =
     useGetOnboardingProList(filters)
@@ -94,6 +102,14 @@ export default function Onboarding() {
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
   )
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
   const [idOrder, setIdOrder] = useState(true)
   const [isHoverId, setIsHoverId] = useState(false)
 
@@ -116,8 +132,16 @@ export default function Onboarding() {
   }
 
   const onSubmit = (data: FilterType) => {
-    const { jobType, role, source, target, experience, testStatus, search } =
-      data
+    const {
+      jobType,
+      role,
+      source,
+      target,
+      experience,
+      testStatus,
+      timezone,
+      search,
+    } = data
 
     saveUserFilters(FilterKey.ONBOARDING_LIST, data)
     setDefaultFilter(data)
@@ -129,6 +153,7 @@ export default function Onboarding() {
       target: target.map(value => value.value),
       testStatus: testStatus.map(value => value.value),
       experience: experience.map(value => value.value),
+      timezone: timezone.map(value => value.code),
       search: search,
       take: onboardingListPageSize,
       skip: onboardingListPageSize * onboardingListPage,
@@ -148,6 +173,34 @@ export default function Onboarding() {
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
     }
+
+  const onClickFile = (
+    file: {
+      id: number
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => {
+    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
+      file.url = res.url
+      openModal({
+        type: 'FilePreviewDownloadModal',
+        children: (
+          <FilePreviewDownloadModal
+            onClose={() => closeModal('FilePreviewDownloadModal')}
+            docs={[file]}
+          />
+        ),
+      })
+    })
+  }
+
+  const handleRowClick = (id: number) => {
+    router.push(`/onboarding/detail/${id}`)
+  }
 
   const columns: GridColumns<OnboardingListType> = [
     {
@@ -247,7 +300,12 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Resume</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return null
+        return (
+          <ListResume
+            resume={row.resume}
+            onClickFile={onClickFile}
+          ></ListResume>
+        )
       },
     },
     {
@@ -332,7 +390,7 @@ export default function Onboarding() {
     },
     {
       flex: 0.4,
-      minWidth: 180,
+      minWidth: 330,
       field: 'role',
       headerName: 'Roles',
       hideSortIcons: true,
@@ -382,7 +440,7 @@ export default function Onboarding() {
           jobType: value.jobType,
           role: value.role,
         }))
-        return <JobTypeRole jobInfo={jobInfo} />
+        return <JobTypeRole jobInfo={jobInfo} visibleType='role' />
       },
     },
     {
@@ -486,6 +544,37 @@ export default function Onboarding() {
     }
   }, [savedFilter])
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = localStorage.getItem('timezonePinnedOptions')
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+    console.log('timezoneList', timezoneList.length)
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   return (
     <Grid container spacing={0}>
       <Filters
@@ -499,6 +588,9 @@ export default function Onboarding() {
         jobTypeOptions={jobTypeOptions}
         roleOptions={roleOptions}
         languageList={languageList}
+        timezoneList={timezoneList}
+        setTimezoneList={setTimezoneList}
+        timezone={timezone.getValue()}
         onClickResetButton={onClickResetButton}
         handleFilterStateChange={handleFilterStateChange}
         expanded={expanded}
@@ -513,6 +605,7 @@ export default function Onboarding() {
         columns={columns}
         setFilters={setFilters}
         isLoading={isLoading}
+        handleRowClick={handleRowClick}
       />
     </Grid>
   )

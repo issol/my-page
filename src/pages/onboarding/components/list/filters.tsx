@@ -39,9 +39,8 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 import IconButton from '@mui/material/IconButton'
 import { FilterType } from '@src/types/onboarding/list'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
-import Accordion from '@mui/material/Accordion'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import AccordionDetails from '@mui/material/AccordionDetails'
+import PushPinIcon from '@mui/icons-material/PushPin';
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -84,6 +83,24 @@ type Props = {
     value: string
     label: GloLanguageEnum
   }[]
+  timezoneList: {
+    id: number;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }[]
+  timezone: {
+    offset: number;
+    offsetFormatted: string;
+    timezone: string;
+    timezoneCode: string;
+  }[]
+  setTimezoneList: Dispatch<SetStateAction<{
+    id: number;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }[]>>
   handleFilterStateChange: (
     panel: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => void
@@ -102,6 +119,9 @@ export default function Filters({
   jobTypeOptions,
   roleOptions,
   languageList,
+  timezoneList,
+  timezone,
+  setTimezoneList,
   expanded,
   handleFilterStateChange,
 }: Props) {
@@ -114,6 +134,26 @@ export default function Filters({
   const onFocusSearchInput = () => {
     setOnFocused(true)
   }
+
+  const handlePin = (option: {
+    id: number;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions);
+    localStorage.setItem('timezonePinnedOptions', JSON.stringify(newOptions)); 
+  }
+
+  const sortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
+
+  const lastPinnedIndex = timezoneList.reduce((lastIndex, option, index) => option.pinned ? index : lastIndex, -1);
 
   return (
     <>
@@ -481,22 +521,36 @@ export default function Filters({
                           onChange(item)
                         }}
                         value={value}
+                        // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
+                        options={sortedOptions}
                         isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
+                          return option.id === newValue.id
                         }}
                         disableCloseOnSelect
                         limitTags={1}
-                        options={TestStatus}
                         id='timezone'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
                           <TextField {...params} autoComplete='off' label={`Pro's timeonze`} />
                         )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
+                        renderOption={(props, option, state) => (
+                          <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: state.index === lastPinnedIndex ? '1px solid #E9EAEC' : 'none' }}>
+                            <Checkbox checked={state.selected} sx={{ mr: 2 }} />
+                            <Typography noWrap sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {/* {option.label} */}
+                              {timeZoneFormatter(option, timezone)}
+                            </Typography>
+                            <IconButton
+                              onClick={(event) => {
+                                  event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                                  handlePin(option)
+                              }}
+                              size="small"
+                              style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                          >
+                              <PushPinIcon />
+                            </IconButton>
+                          </Box>
                         )}
                       />
                     )}

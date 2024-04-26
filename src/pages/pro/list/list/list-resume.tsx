@@ -109,6 +109,44 @@ const ListResume = ({ resume, onClickFile }: Props) => {
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,
   }
+
+  const extractFileName = (path: string) => {
+    return path.split('/').pop();
+  }
+
+  const extractFileExtension = (path: string) => {
+    const fileName = extractFileName(path)
+    const fileExtension = fileName 
+      ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+      : 'default'
+
+    switch (fileExtension) {
+      case 'doc':
+      case 'docx':
+        return 'doc'
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return 'excel'
+      case 'pdf':
+        return 'pdf'
+      case 'ppt':
+      case 'pptx':
+        return 'ppt'
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+        return 'img'
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+        return 'video'
+      default:
+        return 'default'
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -150,7 +188,7 @@ const ListResume = ({ resume, onClickFile }: Props) => {
             return (
               <Tooltip
                 key={uuidv4()}
-                title={`${value}`}
+                title={`${extractFileName(value)}`}
               >
                 <Box
                   sx={{
@@ -179,7 +217,7 @@ const ListResume = ({ resume, onClickFile }: Props) => {
                     }}
                   >
                     <img
-                      src={`/images/icons/file-icons/list-resume.svg`}
+                      src={`/images/icons/file-icons/${extractFileExtension(value)}.svg`}
                       style={{
                         width: '24px',
                         height: '24px',
