@@ -24,7 +24,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatus } from '@src/types/common/status.type'
-import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail, { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useRouter } from 'next/router'
 import {
@@ -598,7 +598,7 @@ const JobListCard = ({
                         >
                           <Box>
                             {row.assignedPro ? (
-                              <LegalName
+                              <LegalNameEmail
                                 row={{
                                   isOnboarded: true,
                                   isActive: true,
