@@ -12,7 +12,7 @@ export type RecruitingFormType = {
   targetLanguage: { label: string; value: string }
   openings?: number
   dueDate?: string
-  dueDateTimezone?: CountryType
+  dueDateTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
   jobPostLink?: string
 }
 
@@ -51,9 +51,10 @@ export const recruitingFormSchema = yup.object().shape({
   dueDate: yup.string().nullable(),
   //   dueDateTimezone: yup.string().nullable(),
   dueDateTimezone: yup.object().shape({
+    id: yup.number().nullable(),
     code: yup.string().nullable(),
     label: yup.string().nullable(),
-    phone: yup.string().nullable(),
+    pinned: yup.boolean().nullable(),
   }),
   jobPostLink: yup.string().nullable(),
 })

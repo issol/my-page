@@ -1,7 +1,14 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, Grid, Typography, LinearProgress } from '@mui/material'
 
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import {
+  DataGridPro,
+  DataGridProProps,
+  GridColDef,
+  GridSlots,
+  useGridApiRef,
+} from '@mui/x-data-grid-pro'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
 
@@ -11,6 +18,7 @@ import {
   OnboardingFilterType,
   OnboardingListType,
 } from '@src/types/onboarding/list'
+import { NoList } from '@src/pages/components/no-list'
 
 type Props = {
   onboardingListPage: number
@@ -20,7 +28,7 @@ type Props = {
   onboardingProList: OnboardingListType[]
   onboardingProListCount: number
   setFilters: Dispatch<SetStateAction<OnboardingFilterType | null>>
-  columns: GridColumns<OnboardingListType>
+  columns: GridColDef[]
   isLoading: boolean
   handleRowClick: (id: number) => void
 }
@@ -37,6 +45,8 @@ export default function OnboardingList({
   isLoading,
   handleRowClick,
 }: Props) {
+  const apiRef = useGridApiRef()
+
   return (
     <Grid item xs={12}>
       <Card
@@ -51,78 +61,101 @@ export default function OnboardingList({
             '& .MuiDataGrid-columnHeaderTitle': {
               textTransform: 'none',
             },
+            '& .MuiDataGrid-cell': {
+              padding: '0 20px !important',
+              justifyContent: 'center',
+              alignContent: 'center',
+            },
           }}
         >
-          <DataGrid
+          <DataGridPro
+            apiRef={apiRef}
             sx={{
               cursor: 'pointer',
               '& .MuiDataGrid-columnHeaders': {
                 borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
               },
-            }}
-            components={{
-              NoRowsOverlay: () => {
-                return (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Typography variant='subtitle1'>
-                      There are no Pros
-                    </Typography>
-                  </Box>
-                )
+              '& .MuiDataGrid-cell--pinnedLeft.highlight-cell': {
+                backgroundColor: '#FFF2F2',
               },
-              NoResultsOverlay: () => {
-                return (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Typography variant='subtitle1'>
-                      There are no Pros
-                    </Typography>
-                  </Box>
-                )
+              '& .MuiDataGrid-cell--pinnedLeft': {
+                backgroundColor: '#FFF',
+              },
+              '& .MuiDataGrid-filler--pinnedLeft': {
+                backgroundColor: '#FFF',
               },
             }}
+            slots={{
+              noRowsOverlay: () => NoList('There are no Pros'),
+              loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
+            }}
+            // components={{
+            //   NoRowsOverlay: () => {
+            //     return (
+            //       <Box
+            //         sx={{
+            //           width: '100%',
+            //           height: '100%',
+            //           display: 'flex',
+            //           justifyContent: 'center',
+            //           alignItems: 'center',
+            //         }}
+            //       >
+            //         <Typography variant='subtitle1'>
+            //           There are no Pros
+            //         </Typography>
+            //       </Box>
+            //     )
+            //   },
+            //   NoResultsOverlay: () => {
+            //     return (
+            //       <Box
+            //         sx={{
+            //           width: '100%',
+            //           height: '100%',
+            //           display: 'flex',
+            //           justifyContent: 'center',
+            //           alignItems: 'center',
+            //         }}
+            //       >
+            //         <Typography variant='subtitle1'>
+            //           There are no Pros
+            //         </Typography>
+            //       </Box>
+            //     )
+            //   },
+            // }}
             onCellClick={params => {
-              if (params.field !== 'resume')handleRowClick(params.row.userId)
+              if (params.field !== 'resume') handleRowClick(params.row.userId)
+            }}
+            initialState={{
+              pinnedColumns: { left: ['id', 'name'], right: ['actions'] },
             }}
             columns={columns}
             rowHeight={40}
             loading={isLoading}
             rows={onboardingProList ?? []}
-            disableSelectionOnClick
+            // disableSelectionOnClick
             paginationMode='server'
-            pageSize={onboardingListPageSize}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            page={onboardingListPage}
+            // pageSize={onboardingListPageSize}
+            // rowsPerPageOptions={[5, 10, 25, 50]}
+            // page={onboardingListPage}
             rowCount={onboardingProListCount}
-            onPageChange={(newPage: number) => {
-              setFilters((prevState: OnboardingFilterType | null) => ({
-                ...prevState!,
-                skip: newPage * onboardingListPageSize,
-              }))
-              setOnboardingListPage(newPage)
-            }}
-            onPageSizeChange={(newPageSize: number) => {
-              setFilters((prevState: OnboardingFilterType | null) => ({
-                ...prevState!,
-                take: newPageSize,
-              }))
-              setOnboardingListPageSize(newPageSize)
-            }}
+            hideFooter
+            // onPageChange={(newPage: number) => {
+            //   setFilters((prevState: OnboardingFilterType | null) => ({
+            //     ...prevState!,
+            //     skip: newPage * onboardingListPageSize,
+            //   }))
+            //   setOnboardingListPage(newPage)
+            // }}
+            // onPageSizeChange={(newPageSize: number) => {
+            //   setFilters((prevState: OnboardingFilterType | null) => ({
+            //     ...prevState!,
+            //     take: newPageSize,
+            //   }))
+            //   setOnboardingListPageSize(newPageSize)
+            // }}
           />
         </Box>
       </Card>

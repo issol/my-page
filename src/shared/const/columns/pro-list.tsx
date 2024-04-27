@@ -122,7 +122,7 @@ export const getProListColumns = (
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      cellClassName: 'onboarding-name-cell',
+      cellClassName: 'highlight-cell',
       renderHeader: () => <Box>Legal name</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
@@ -160,7 +160,7 @@ export const getProListColumns = (
       },
     },
     {
-      minWidth: 145,
+      minWidth: 155,
       flex: 0.0616,
       field: 'resume',
       headerName: 'Resume',
@@ -204,7 +204,11 @@ export const getProListColumns = (
         <Box>
           {row.jobInfo && row.jobInfo.length ? (
             <Box key={row.id}>
-              <Typography variant='body1' sx={{ fontWeight: 600 }}>
+              <Typography
+                variant='body2'
+                fontWeight={400}
+                sx={{ color: '#4C4E64' }}
+              >
                 {row.jobInfo[0].source && row.jobInfo[0].target ? (
                   <>
                     {row.jobInfo[0].source.toUpperCase()} &rarr;{' '}
@@ -270,12 +274,18 @@ export const getProListColumns = (
           setIsSorting(false)
         }
         const jobInfo = row.jobInfo.map(value => ({
-          jobType: value.jobType,
+          jobType: '',
           role: value.role,
         }))
-        console.log(jobInfo)
-
-        return <JobTypeRole jobInfo={jobInfo} visibleType='role' />
+        const seenRoles = new Set();
+        const uniqueJobInfo = jobInfo.filter(item => {
+          if (!seenRoles.has(item.role)) {
+            seenRoles.add(item.role);
+            return true;
+          }
+          return false;
+        });
+        return <JobTypeRole jobInfo={uniqueJobInfo} visibleType='role' />
       },
     },
     {
@@ -337,7 +347,11 @@ export const getProListColumns = (
       sortable: false,
       renderHeader: () => <Box>Years of experience</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        return <Typography variant='body1'>{row.experience}</Typography>
+        return <Typography
+          variant='body2'
+          fontWeight={400}
+          sx={{ color: '#4C4E64' }}
+        >{row.experience}</Typography>
       },
     },
     {
@@ -419,7 +433,11 @@ export const getProListColumns = (
       ),
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <Typography variant='body1'>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.onboardedAt,
               auth.getValue().user?.timezone!,

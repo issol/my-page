@@ -48,6 +48,8 @@ import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
 import { useRouter } from 'next/router'
+import { GridColDef } from '@mui/x-data-grid-pro'
+import { getTimezonePin } from '@src/shared/auth/storage'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -202,7 +204,7 @@ export default function Onboarding() {
     router.push(`/onboarding/detail/${id}`)
   }
 
-  const columns: GridColumns<OnboardingListType> = [
+  const columns: GridColDef[] = [
     {
       flex: 0.1,
       field: 'id',
@@ -253,7 +255,7 @@ export default function Onboarding() {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      cellClassName: 'onboarding-name-cell',
+      cellClassName: 'highlight-cell',
       renderHeader: () => <Box>Legal name</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         return (
@@ -552,7 +554,7 @@ export default function Onboarding() {
         pinned: boolean
       }[]
     | null => {
-    const storedOptions = localStorage.getItem('timezonePinnedOptions')
+    const storedOptions = getTimezonePin()
     return storedOptions ? JSON.parse(storedOptions) : null
   }
 

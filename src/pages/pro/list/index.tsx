@@ -27,12 +27,14 @@ import {
   saveUserFilters,
 } from '@src/shared/filter-storage'
 import { DataGridProProps } from '@mui/x-data-grid-pro'
+import { getTimezonePin } from '@src/shared/auth/storage'
 
 const defaultValues: ProFilterType = {
   jobType: [],
   role: [],
   source: [],
   target: [],
+  timezone: [],
   experience: [],
   status: [],
   clientId: [],
@@ -67,6 +69,14 @@ const ProsList = () => {
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
   )
+  const [timezoneList, setTimezoneList] = useState<
+  {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }[]
+>([])
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
   const [idOrder, setIdOrder] = useState(true)
@@ -216,6 +226,36 @@ const ProsList = () => {
     }
   }, [proList])
 
+  const loadTimezonePin = ():
+  | {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  | null => {
+  const storedOptions = getTimezonePin()
+  return storedOptions ? JSON.parse(storedOptions) : null
+}
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ width: '100%' }}>
@@ -233,6 +273,9 @@ const ProsList = () => {
           handleFilterStateChange={handleFilterStateChange}
           expanded={expanded}
           proListCount={proList?.totalCount ?? 0}
+          timezoneList={timezoneList}
+          setTimezoneList={setTimezoneList}
+          timezone={timezone.getValue()}
         />
       </Box>
       <Box sx={{ width: '100%' }}>

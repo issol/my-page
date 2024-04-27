@@ -407,7 +407,7 @@ export default function OrdersFilters({
                       />
                     </Box>
                   </Grid>
-                  <Grid item xs={2.5}>
+                  <Grid item xs={3}>
                     <Box className='filterFormAutoCompleteV2'>
                       <Controller
                         control={control}
@@ -445,7 +445,7 @@ export default function OrdersFilters({
                       />
                     </Box>
                   </Grid>
-                  <Grid item xs={2.5}>
+                  <Grid item xs={3}>
                     <Box className='filterFormAutoCompleteV2'>
                       <Controller
                         control={control}
@@ -484,7 +484,7 @@ export default function OrdersFilters({
                     </Box>
                   </Grid>
                   {role.name === 'CLIENT' ? null : (
-                    <Grid item xs={2.5}>
+                    <Grid item xs={2}>
                       <Box className='filterFormAutoCompleteV2'>
                         <Controller
                           control={control}
@@ -531,7 +531,7 @@ export default function OrdersFilters({
                     </Grid>
                   )}
 
-                  <Grid item xs={role.name === 'CLIENT' ? 6 : 2.5}>
+                  <Grid item xs={role.name === 'CLIENT' ? 6 : 2}>
                     <Box className='filterFormAutoCompleteV2'>
                       <FormControl fullWidth>
                         <Controller
