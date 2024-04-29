@@ -34,9 +34,9 @@ export type AddJobInfoFormType = {
   source: string | null
   target: string | null
   startedAt?: Date
-  startTimezone?: CountryType
+  startTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
   dueAt: Date
-  dueTimezone: CountryType
+  dueTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
   description?: string
   isShowDescription: boolean
 }

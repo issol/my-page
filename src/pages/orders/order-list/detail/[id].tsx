@@ -129,6 +129,7 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import { ReasonType } from '@src/types/quotes/quote'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { timezoneSelector } from '@src/states/permission'
+import { get } from 'lodash'
 
 interface Detail {
   id: number
@@ -199,6 +200,31 @@ const OrderDetail = () => {
   const { id } = router.query
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  // 여기서 timezoneList는 서버에서 처음 데이터를 불러왔을대 setValue를 해주기 위한 용도로만 사용함
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned: false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const currentRole = getCurrentRole()
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
@@ -477,12 +503,18 @@ const OrderDetail = () => {
         getProjectInfo().orderedAt.toISOString(),
         getProjectInfo().orderTimezone,
       ),
+      orderTimezone: getProjectInfo().orderTimezone
+        ? { label: getProjectInfo().orderTimezone.label, code: getProjectInfo().orderTimezone.code }
+        : '',
       projectDueAt: getProjectInfo().projectDueAt
         ? changeTimeZoneOffset(
             getProjectInfo().projectDueAt.toISOString(),
             getProjectInfo().projectDueTimezone,
           )
         : null,
+      projectDueTimezone: getProjectInfo().projectDueTimezone
+        ? { label: getProjectInfo().projectDueTimezone.label, code: getProjectInfo().projectDueTimezone.code }
+        : '',
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
