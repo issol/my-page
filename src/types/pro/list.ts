@@ -6,7 +6,7 @@ export type ProFilterType = {
   source: { label: string; value: string }[]
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
-  timezone: { id: number; label: string; code: string; pinned: boolean }[]
+  timezones: { id: number; label: string; code: string; pinned: boolean }[]
   status: { label: string; value: string }[]
   clientId: { name: string; clientId: number }[]
   search: string
@@ -28,7 +28,7 @@ export type ProListFilterType = {
   experience?: string[]
   sortId?: string
   sortDate?: string
-  timezone?: string[]
+  timezones?: string[]
 }
 
 export interface ProListJobInfoType extends JobInfoType {
