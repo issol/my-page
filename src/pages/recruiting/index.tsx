@@ -160,7 +160,7 @@ export default function Recruiting() {
         title={<Typography variant='h5'>Recruiting info</Typography>}
       />
 
-      <RecruitingDashboard counts={counts as RecruitingCountType} />
+      {/* <RecruitingDashboard counts={counts as RecruitingCountType} /> */}
 
       <Filters
         filter={filter}
