@@ -360,3 +360,53 @@ export type JobPrevNextItem = {
   dueAt: Date
   dueTimezone: CountryType
 }
+
+export type JobRequestHistoryType = {
+  corporationId: string
+  round: number
+  name: string
+  requestType: string
+  historyId: number
+  requestNumber: number
+  requestedAt: string
+  requestor: string
+}
+
+export type JobRequestedProHistoryType = {
+  type: string
+  round: number
+  interval: number
+  requestCompleted: boolean
+  pros: {
+    jobRequestId: number
+    userId: number
+    firstName: string
+    middleName: string
+    lastName: string
+    email: string
+    assignmentStatus: number
+    responseStatusCodeOfPro: number
+    assignmentStatusUpdatedAt: string
+    order: number
+    isOnboarded: boolean
+    isActive: boolean
+  }[]
+  unassignedPros: {
+    jobRequestId: number
+    userId: number
+    firstName: string
+    middleName: string
+    lastName: string
+    email: string
+    assignmentStatus: number
+    assignmentStatusUpdatedAt: string
+    unassignedAt: string
+    order: number
+    files: Array<{
+      name: string
+      size: number
+      file: string // s3 key
+      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+    }>
+  }[]
+}

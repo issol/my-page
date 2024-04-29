@@ -458,23 +458,12 @@ const AddNewJobTemplate = () => {
     if (Object.keys(errors).includes('options')) {
       const firstErrorIndex = Object.keys(errors.options || {}).sort()[0]
       errorRefs.current[Number(firstErrorIndex)]?.focus()
-      // setFocus('options')
-      // return
     } else {
       const firstErrorName: keyof JobTemplateFormType = Object.keys(
         errors,
       )[0] as keyof JobTemplateFormType
       setFocus(firstErrorName)
-      // trigger(firstErrorName)
     }
-
-    // const firstErrorName: keyof JobTemplateFormType = Object.keys(
-    //   errors,
-    // )[0] as keyof JobTemplateFormType
-    // console.log(firstErrorName)
-
-    // setFocus(firstErrorName)
-    // trigger(firstErrorName)
   }
 
   useEffect(() => {
