@@ -299,7 +299,6 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
         }
 
         let downloadFile = pdf.output('blob')
-
         let data = new FormData()
 
         if (downloadFile) {
