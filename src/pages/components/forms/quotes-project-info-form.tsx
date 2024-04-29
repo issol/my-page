@@ -187,7 +187,7 @@ export default function ProjectInfoForm({
     if (clientTimezone && timezoneList) {
       const timezoneLabel = clientTimezone.label
       const getClientTimezone = timezoneList.find(
-        (zone) => zone.label === clientTimezone.label
+        (zone) => zone.label === timezoneLabel
       )
       ;[
         'quoteDate.timezone',
@@ -221,7 +221,7 @@ export default function ProjectInfoForm({
       timezoneList.length > 0
     ) {
       const getUserTimezone = timezoneList.find(
-        (zone) => zone.code === getClientValue('contacts.timezone')?.code
+        (zone) => zone.label === getClientValue('contacts.timezone')?.label
       ) ?? { id: undefined, code: '', label: '', pinned: false }
       setValue(
         'quoteDate.timezone',

@@ -619,22 +619,18 @@ export default function AddNewOrder() {
           formatISO(rawProjectInfo.orderedAt),
           rawProjectInfo.orderTimezone,
         ),
-        orderTimezone: {
-          ...rawProjectInfo.orderTimezone,
-          code: '',
-          phone: '',
-        },
+        orderTimezone: rawProjectInfo.orderTimezone
+          ? { label: rawProjectInfo.orderTimezone.label, code: rawProjectInfo.orderTimezone.code}
+          : '',
         projectDueAt: rawProjectInfo.projectDueAt
           ? changeTimeZoneOffset(
               formatISO(rawProjectInfo.projectDueAt),
               rawProjectInfo.projectDueTimezone,
             )
           : undefined,
-        projectDueTimezone: {
-          ...rawProjectInfo.projectDueTimezone,
-          code: '',
-          phone: '',
-        },
+        projectDueTimezone: rawProjectInfo.projectDueTimezone
+          ? { label: rawProjectInfo.projectDueTimezone.label, code: rawProjectInfo.projectDueTimezone.code}
+          : '',
         isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
         tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
         subtotal: subPrice,
@@ -966,7 +962,9 @@ export default function AddNewOrder() {
                   )!,
                 )
               : undefined,
-            projectDueTimezone: res?.projectDueTimezone ?? {
+            projectDueTimezone: res?.projectDueTimezone 
+            ? { label: res?.projectDueTimezone.label, code: res?.projectDueTimezone.code }
+            : {
               label: '',
               code: '',
             },
@@ -1135,10 +1133,12 @@ export default function AddNewOrder() {
                   )!,
                 )
               : undefined,
-            projectDueTimezone: res?.projectDueTimezone ?? {
-              label: '',
-              code: '',
-            },
+            projectDueTimezone: res?.projectDueTimezone 
+              ? { label: res?.projectDueTimezone.label, code: res?.projectDueTimezone.code }
+              : {
+                label: '',
+                code: '',
+              },
 
             isTaxable: res.isTaxable,
             tax: res.tax ?? null,
