@@ -524,7 +524,7 @@ export default function Filters({
               <Box className='filterFormAutoCompleteV2'>
                 <Controller
                   control={control}
-                  name='timezone'
+                  name='timezones'
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
                       multiple
