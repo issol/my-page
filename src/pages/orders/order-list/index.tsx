@@ -34,6 +34,7 @@ import {
   getUserFilters,
   saveUserFilters,
 } from '@src/shared/filter-storage'
+import { getOrderList } from '@src/apis/order/order-list.api'
 
 export type FilterType = {
   orderDate: Date[]
@@ -68,7 +69,7 @@ const defaultValues: FilterType = {
 }
 
 const defaultFilters: OrderListFilterType = {
-  take: 10,
+  take: 500,
   skip: 0,
   search: '',
   status: [],
@@ -97,13 +98,17 @@ export default function OrderList() {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const [orderListPage, setOrderListPage] = useState(0)
-  const [orderListRowsPerPage, setOrderListRowsPerPage] = useState(10)
+  const [orderListRowsPerPage, setOrderListRowsPerPage] = useState(500)
 
   const [hideCompletedOrders, setHideCompletedOrders] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
 
   const [filters, setFilters] = useState<OrderListFilterType | null>(null)
   const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
+
+  const [rows, setRows] = useState<OrderListType[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -120,11 +125,12 @@ export default function OrderList() {
     }[]
   >([])
 
-  const {
-    data: orderList,
-    isLoading,
-    isFetched,
-  } = useGetOrderList(filters, 'order')
+  // const {
+  //   data: orderList,
+  //   isLoading,
+  //   isFetched,
+  // } = useGetOrderList(filters, 'order')
+
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
@@ -159,12 +165,12 @@ export default function OrderList() {
     })
     setFilters(defaultFilters)
 
-    queryClient.invalidateQueries([
-      'orderList',
-      { type: 'list' },
-      defaultFilters,
-      'order',
-    ])
+    // queryClient.invalidateQueries([
+    //   'orderList',
+    //   { type: 'list' },
+    //   defaultFilters,
+    //   'order',
+    // ])
   }
 
   const handleRowClick = (row: OrderListType) => {
@@ -201,7 +207,7 @@ export default function OrderList() {
     })
   }
 
-  const onSubmit = (data: FilterType) => {
+  const onSubmit = async (data: FilterType) => {
     const {
       orderDate,
       projectDueDate,
@@ -233,13 +239,18 @@ export default function OrderList() {
       sort: 'corporationId',
     }
 
-    setFilters(filter)
-    queryClient.invalidateQueries([
-      'orderList',
-      { type: 'list' },
-      filter,
-      'order',
-    ])
+    // setFilters(filter)
+    // queryClient.invalidateQueries([
+    //   'orderList',
+    //   { type: 'list' },
+    //   filter,
+    //   'order',
+    // ])
+
+    setLoading(true)
+    const rows = await getOrderList(filter!)
+    setLoading(false)
+    setRows(rows.data ?? [])
   }
 
   useEffect(() => {
@@ -264,13 +275,14 @@ export default function OrderList() {
     }
   }, [companies, companiesListLoading])
 
-  useEffect(() => {
-    queryClient.invalidateQueries(['orderList'])
-    queryClient.invalidateQueries(['orderDetail'])
-  }, [])
+  // useEffect(() => {
+  //   queryClient.invalidateQueries(['orderList'])
+  //   queryClient.invalidateQueries(['orderDetail'])
+  // }, [])
 
   useEffect(() => {
-    if (savedFilter) {
+    let mounted = true
+    if (savedFilter && mounted) {
       const {
         orderDate,
         projectDueDate,
@@ -297,8 +309,10 @@ export default function OrderList() {
         projectDueDateTo: projectDueDate[1]?.toISOString() ?? '',
         lsp: lsp?.map(value => value.label),
         search: search,
-        take: orderListRowsPerPage,
-        skip: orderListRowsPerPage * orderListPage,
+        take: 500,
+        skip: 0,
+        // take: orderListRowsPerPage,
+        // skip: orderListRowsPerPage * orderListPage,
         ordering: 'desc',
         sort: 'corporationId',
         hideCompleted: hideCompleted,
@@ -317,7 +331,33 @@ export default function OrderList() {
     } else {
       setFilters({ ...defaultFilters })
     }
+
+    return () => {
+      mounted = true
+    }
   }, [savedFilter])
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      if (filters) {
+        console.log(filters, 'filters')
+
+        setLoading(true)
+        const rows = await getOrderList(filters!)
+
+        if (mounted) {
+          setLoading(false)
+          setRows(rows.data ?? [])
+          setTotalCount(rows.totalCount)
+        }
+      }
+    })()
+
+    return () => {
+      mounted = false
+    }
+  }, [filters])
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
@@ -340,7 +380,7 @@ export default function OrderList() {
               role={currentRole!}
               menu={menu}
               setMenu={setMenu}
-              listCount={orderList?.totalCount!}
+              listCount={totalCount ?? 0}
             />
 
             <OrdersList
@@ -349,10 +389,11 @@ export default function OrderList() {
               rowsPerPage={orderListRowsPerPage}
               setRowsPerPage={setOrderListRowsPerPage}
               user={auth.getValue().user!}
-              list={orderList?.data!}
-              listCount={orderList?.totalCount!}
-              isLoading={isLoading}
+              list={rows || []}
+              listCount={totalCount ?? 0}
+              isLoading={loading}
               setFilters={setFilters}
+              filters={filters!}
               isCardHeader={true}
               handleRowClick={handleRowClick}
               role={currentRole!}
@@ -361,10 +402,12 @@ export default function OrderList() {
               handleSeeMyOrders={handleSeeMyOrders}
               hideCompletedOrders={hideCompletedOrders}
               handleHideCompletedOrders={handleHideCompletedOrders}
+              setRows={setRows}
+              setLoading={setLoading}
             />
           </Box>
         ) : (
-          <OrderListCalendar />
+          <OrderListCalendar menu={menu} setMenu={setMenu} />
         )}
       </Box>
     </Box>

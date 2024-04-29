@@ -138,7 +138,7 @@ const HorizontalLayout = (props: LayoutProps) => {
             mx: 'auto',
             '@media (min-width:1441px)': {
               maxWidth: '100%',
-              minWidth: 1440
+              minWidth: 1440,
             },
             '@media (max-width:1440px)': {
               maxWidth: 1440,
@@ -192,21 +192,22 @@ const HorizontalLayout = (props: LayoutProps) => {
               //       (theme.mixins.toolbar.minHeight as number) - 1
               //     }px !important`,
               // }}
-                sx={{
-                  mx: 'auto',
-                  '@media (min-width:1441px)': {
-                    maxWidth: 1900,
-                    minWidth: 1440
-                  },
-                  '@media (max-width:1440px)': {
-                    maxWidth: 1440,
-                    minWidth: 1440,
-                    width: '100%',
-                  },
-                  minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
-                  width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
-                  // overflowX: 'auto' // 가로 스크롤을 활성화
-                }}
+              sx={{
+                mx: 'auto',
+                '@media (min-width:1441px)': {
+                  maxWidth: 1900,
+                  minWidth: 1440,
+                },
+                '@media (max-width:1440px)': {
+                  maxWidth: 1440,
+                  minWidth: 1440,
+                  width: '100%',
+                },
+                minHeight: theme =>
+                  `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
+                width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
+                // overflowX: 'auto' // 가로 스크롤을 활성화
+              }}
             >
               <AppBarContent
                 {...props}
@@ -239,24 +240,22 @@ const HorizontalLayout = (props: LayoutProps) => {
                 //       (skin === 'bordered' ? 1 : 0)
                 //     }px !important`,
                 // }}
-                  sx={{
-                    mx: 'auto',
-                    '@media (min-width:1441px)': {
-                      maxWidth: 1900,
-                      minWidth: 1440
-                    },
-                    '@media (max-width:1440px)': {
-                      maxWidth: 1440,
-                      minWidth: 1440,
-                      width: '100%',
-                    },
-                    minHeight: theme =>
-                      `${
-                        (theme.mixins.toolbar.minHeight as number) -
-                        (skin === 'bordered' ? 1 : 0)
-                      }px !important`,
-                    width: '100vw',
-                  }}
+                sx={{
+                  mx: 'auto',
+                  '@media (min-width:1441px)': {
+                    maxWidth: 1900,
+                    minWidth: 1440,
+                  },
+                  '@media (max-width:1440px)': {
+                    maxWidth: 1440,
+                    minWidth: 1440,
+                    width: '100%',
+                  },
+                  minHeight: theme =>
+                    `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
+                  width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
+                  // overflowX: 'auto' // 가로 스크롤을 활성화
+                }}
               >
                 {(userNavMenuContent && userNavMenuContent(props)) || (
                   <Navigation
@@ -287,22 +286,23 @@ const HorizontalLayout = (props: LayoutProps) => {
           //     '@media (min-width:1200px)': { maxWidth: '100%' },
           //   }),
           // }}
-            sx={{
-              ...(contentHeightFixed && { display: 'flex', overflow: 'hidden' }),
-              mx: 'auto',
-              '@media (min-width:1441px)': {
-                maxWidth: 1900,
-                minWidth: 1440
-              },
-              '@media (max-width:1440px)': {
-                maxWidth: 1440,
-                minWidth: 1440,
-                width: '100%',
-              },
-              // minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
-              width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
-              // overflowX: 'auto',
-            }}
+          sx={{
+            mx: 'auto',
+            '@media (min-width:1441px)': {
+              maxWidth: 1900,
+              minWidth: 1440,
+            },
+            '@media (max-width:1440px)': {
+              maxWidth: 1440,
+              minWidth: 1440,
+              width: '100%',
+            },
+            minHeight: theme =>
+              `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
+            width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
+            // overflowX: 'auto', // 가로 스크롤을 활성화
+            // paddingTop: '150px',
+          }}
         >
           {children}
         </ContentWrapper>

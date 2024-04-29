@@ -9,7 +9,13 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import {
   Control,
   useFieldArray,
@@ -72,6 +78,7 @@ type Props = {
       groupName?: string | undefined
     },
   ) => LanguagePairListType | undefined
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const Row = ({
@@ -92,6 +99,7 @@ const Row = ({
   currentOrderItemId,
   useUnitPriceOverrideInPrice,
   findMatchedLanguagePairInItems,
+  errorRefs,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -273,7 +281,10 @@ const Row = ({
     const data = getItem(itemName)
 
     if (data?.length) {
-      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
+      const itemPrices = data.map(value => Number(value.prices))
+      console.log(itemPrices)
+      const price = itemPrices.reduce((res, item) => res + item, 0)
+
       if (isNaN(price)) return
 
       if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
@@ -295,64 +306,9 @@ const Row = ({
     }
     if (total === itemData.totalPrice) return
 
+    console.log(total, itemData.totalPrice, 'totalPrice')
+
     setItem(`items.${0}.totalPrice`, total, setValueOptions)
-  }
-
-  function getEachPrice(index: number, isNotApplicable?: boolean) {
-    // setPriceData(getPriceData())
-    const data = getItem(itemName)
-    if (!data?.length) return
-    let prices = 0
-    const detail = data?.[index]
-    if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity ?? 1
-
-      const itemMinimumPrice = getItem(`items.${0}.minimumPrice`)
-      const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
-      if (itemMinimumPrice && showMinimum) {
-        prices = (percentQuantity / 100) * itemMinimumPrice
-      } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
-        generalPrices.forEach(item => {
-          prices += item.unitPrice ?? 1
-        })
-        prices *= percentQuantity / 100
-      }
-    } else {
-      const unitPrice = detail.unitPrice ?? 1
-      const quantity = detail.quantity ?? 1
-      prices = unitPrice * quantity
-    }
-
-    // if (prices === data[index].prices) return
-
-    //isNotApplicable이 true이면 폼에서 선택된 currency가 설정되도록 한다.
-    const currency = isNotApplicable
-      ? getItem()?.items?.[0]?.detail?.[0]?.currency!
-      : selectedPrice && selectedPrice.currency
-        ? selectedPrice.currency
-        : getItem(`items.${0}.initialPrice.currency`)
-    const roundingPrice = formatByRoundingProcedure(
-      prices,
-      priceData()?.decimalPlace!
-        ? priceData()?.decimalPlace!
-        : currency === 'USD' || currency === 'SGD'
-          ? 2
-          : 1,
-      priceData()?.roundingProcedure! ?? 0,
-      currency,
-    )
-    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
-    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-    setItem(`items.${0}.detail.${index}.currency`, currency, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
-    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-    setItem(`items.${0}.detail.${index}.prices`, roundingPrice, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
   }
 
   const onChangeCurrency = (
@@ -381,20 +337,7 @@ const Row = ({
   }
 
   return (
-    <Box
-      style={
-        setDarkMode
-          ? {
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-          : {
-              border: '1px solid #F5F5F7',
-              borderRadius: '8px',
-              marginBottom: '14px',
-            }
-      }
-    >
+    <Box sx={{ height: '100%' }}>
       {/* price unit start */}
       <ItemPriceUnitForm
         control={itemControl}
@@ -425,6 +368,8 @@ const Row = ({
         onChangeCurrency={onChangeCurrency}
         setValue={setItem}
         onDeleteNoPriceUnit={onDeleteNoPriceUnit}
+        errorRefs={errorRefs}
+        itemTrigger={itemTrigger}
       />
       {/* price unit end */}
     </Box>

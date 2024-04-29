@@ -1,5 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Autocomplete, Box, Button, Card, Grid, TextField } from '@mui/material'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  TextField,
+  Typography,
+} from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
@@ -27,9 +36,16 @@ import {
 } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import {
   Control,
+  Controller,
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
@@ -50,6 +66,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { set } from 'lodash'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   row: JobType
@@ -100,6 +117,8 @@ type Props = {
   prices?: StandardPriceListType[]
   orderItems: ItemType[]
   setPriceId: Dispatch<SetStateAction<number | null>>
+  setIsNotApplicable: Dispatch<SetStateAction<boolean>>
+  errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
 }
 
 const EditPrices = ({
@@ -120,8 +139,11 @@ const EditPrices = ({
   prices,
   orderItems,
   setPriceId,
+  setIsNotApplicable,
+  errorRefs,
 }: Props) => {
   const queryClient = useQueryClient()
+  console.log(getItem(), 'get Item')
 
   // const [success, setSuccess] = useState(false)
 
@@ -266,28 +288,20 @@ const EditPrices = ({
 
   return (
     <>
-      {/* {success && (
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: 40,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          padding: '20px',
 
-            background: ' #FFFFFF',
-
-            boxShadow: '0px 4px 8px -4px rgba(76, 78, 100, 0.42)',
-            borderRadius: '8px',
-            padding: '12px 10px',
-          }}
-        >
-          <img src='/images/icons/order-icons/success.svg' alt='' />
-          Saved successfully123
-        </Box>
-      )} */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          height: 'calc(100% - 100px)',
+        }}
+      >
+        <Typography fontSize={20} fontWeight={500}>
+          {row.corporationId}
+        </Typography>
+        <Divider sx={{ my: '5px !important' }} />
         <Box sx={{ display: 'flex', gap: '20px' }}>
           <Box sx={{ flex: 1 }}>
             <Autocomplete
@@ -329,71 +343,88 @@ const EditPrices = ({
             />
           </Box>
           <Box sx={{ flex: 1 }}>
-            <Autocomplete
-              fullWidth
-              value={price ?? null}
-              options={options}
-              groupBy={option => option?.groupName ?? ''}
-              onChange={(e, v) => {
-                if (v) {
-                  console.log(v)
-
-                  setPrice(v)
-                  setItem(`items.${0}.priceId`, v.id, { shouldValidate: true })
-                  // if (v?.languagePairs[0]?.minimumPrice)
-                  const matchedLanguagePair = findMatchedLanguagePairInItems(v)
-                  if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
-                    openMinimumPriceModal(v)
-                  setOverridePriceUnit(true)
-                  setPriceId(v.id)
-                  itemTrigger()
-                } else {
-                  setPrice(null)
-                }
-              }}
-              id='autocomplete-controlled'
-              getOptionLabel={option => option.priceName}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  autoComplete='off'
-                  placeholder='Price*'
+            <Controller
+              name='items.0.priceId'
+              control={itemControl}
+              render={({
+                field: { value, onChange },
+                formState: { isSubmitted },
+              }) => (
+                <Autocomplete
+                  fullWidth
+                  value={options.find(option => option.id === value) ?? null}
+                  options={options}
+                  groupBy={option => option?.groupName ?? ''}
+                  onChange={(e, v) => {
+                    if (v) {
+                      onChange(v.id)
+                      setPrice(v)
+                      const matchedLanguagePair =
+                        findMatchedLanguagePairInItems(v)
+                      if (
+                        matchedLanguagePair &&
+                        matchedLanguagePair.minimumPrice
+                      )
+                        openMinimumPriceModal(v)
+                      setOverridePriceUnit(true)
+                      setPriceId(v.id)
+                      setIsNotApplicable(v.id === NOT_APPLICABLE ? true : false)
+                      itemTrigger()
+                    } else {
+                      onChange(null)
+                      setPrice(null)
+                    }
+                  }}
+                  id='autocomplete-controlled'
+                  getOptionLabel={option => option.priceName}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      autoComplete='off'
+                      placeholder='Price*'
+                      error={
+                        isSubmitted && Boolean(itemErrors.items?.[0]?.priceId)
+                      }
+                      helperText={
+                        isSubmitted &&
+                        Boolean(itemErrors.items?.[0]?.priceId) &&
+                        FormErrors.required
+                      }
+                      inputRef={ref => {
+                        if (errorRefs) errorRefs.current[0] = ref
+                      }}
+                    />
+                  )}
                 />
               )}
             />
           </Box>
         </Box>
 
-        <Box sx={{ width: '100%' }}>
-          <Box
-            sx={{
-              border: ' 1px solid rgba(76, 78, 100, 0.22)',
-              borderRadius: '10px',
-              height: '482px',
-              maxHeight: '482px',
-            }}
-          >
-            <Row
-              getItem={getItem}
-              getPriceOptions={getPriceOptions}
-              itemControl={itemControl}
-              showMinimum={showMinimum}
-              setItem={setItem}
-              setShowMinimum={setShowMinimum}
-              openModal={openModal}
-              closeModal={closeModal}
-              priceUnitsList={priceUnitsList}
-              itemTrigger={itemTrigger}
-              selectedPrice={price}
-              useUnitPriceOverrideInPrice={overridePriceUnit}
-              findMatchedLanguagePairInItems={findMatchedLanguagePairInItems}
-              type='edit'
-              orderItems={orderItems}
-              currentOrderItemId={item?.id}
-            />
-          </Box>
+        <Box sx={{ width: '100%', height: '100%' }}>
+          <Row
+            getItem={getItem}
+            getPriceOptions={getPriceOptions}
+            itemControl={itemControl}
+            showMinimum={showMinimum}
+            setItem={setItem}
+            setShowMinimum={setShowMinimum}
+            openModal={openModal}
+            closeModal={closeModal}
+            priceUnitsList={priceUnitsList}
+            itemTrigger={itemTrigger}
+            selectedPrice={price}
+            useUnitPriceOverrideInPrice={overridePriceUnit}
+            findMatchedLanguagePairInItems={findMatchedLanguagePairInItems}
+            type='job-edit'
+            orderItems={orderItems}
+            currentOrderItemId={item?.id}
+            errorRefs={errorRefs}
+          />
+          {/* </Box> */}
         </Box>
       </Box>
+
       {/* <Box
         mt='20px'
         sx={{

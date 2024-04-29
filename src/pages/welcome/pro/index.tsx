@@ -864,7 +864,7 @@ const PersonalInfoPro = () => {
                                 style: { height: '46px', padding: '0 14px' },
                               }}
                               error={Boolean(errors.firstName)}
-                              placeholder='First name*'
+                              // placeholder='First name*'
                             />
                           )}
                         />
@@ -900,7 +900,7 @@ const PersonalInfoPro = () => {
                                 },
                               }}
                               error={Boolean(errors.middleName)}
-                              placeholder='Middle name'
+                              // placeholder='Middle name'
                             />
                           )}
                         />
@@ -939,7 +939,7 @@ const PersonalInfoPro = () => {
                                 },
                               }}
                               error={Boolean(errors.lastName)}
-                              placeholder='Last name*'
+                              // placeholder='Last name*'
                             />
                           )}
                         />
@@ -1018,7 +1018,7 @@ const PersonalInfoPro = () => {
                                   },
                                 }}
                                 error={Boolean(errors.legalNamePronunciation)}
-                                placeholder='Pronunciation'
+                                // placeholder='Pronunciation'
                               />
                             )}
                           />
