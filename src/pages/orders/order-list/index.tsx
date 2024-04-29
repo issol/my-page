@@ -239,7 +239,7 @@ export default function OrderList() {
       sort: 'corporationId',
     }
 
-    // setFilters(filter)
+    setFilters(filter)
     // queryClient.invalidateQueries([
     //   'orderList',
     //   { type: 'list' },
@@ -247,10 +247,10 @@ export default function OrderList() {
     //   'order',
     // ])
 
-    setLoading(true)
-    const rows = await getOrderList(filter!)
-    setLoading(false)
-    setRows(rows.data ?? [])
+    // setLoading(true)
+    // const rows = await getOrderList(filter!)
+    // setLoading(false)
+    // setRows(rows.data ?? [])
   }
 
   useEffect(() => {
