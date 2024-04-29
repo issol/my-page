@@ -53,7 +53,7 @@ type Props = {
   role: UserRoleType
   columns: GridColumns<RequestListType>
   type: 'list' | 'calendar'
-  defaultFilter: FilterType
+  defaultFilter?: FilterType
 }
 
 export default function List({
@@ -103,11 +103,12 @@ export default function List({
             sort: value.field,
             ordering: value.sort,
           }))
-          saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
-            ...defaultFilter,
-            sort: value.field,
-            ordering: value.sort,
-          })
+          defaultFilter &&
+            saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
+              ...defaultFilter!,
+              sort: value.field,
+              ordering: value.sort,
+            })
         }
       }}
       onRowClick={e => onRowClick(e.row.id)}

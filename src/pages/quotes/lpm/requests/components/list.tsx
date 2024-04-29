@@ -29,7 +29,7 @@ type Props = {
   pageSize: number
   setPage: (num: number) => void
   setPageSize: (num: number) => void
-  defaultFilter: FilterType
+  defaultFilter?: FilterType
   filters: RequestFilterType
   setFilters: Dispatch<SetStateAction<RequestFilterType | null>>
   list: {
@@ -99,7 +99,7 @@ export default function List({
             ordering: value.sort,
           }))
           saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
-            ...defaultFilter,
+            ...defaultFilter!,
             sort: value.field,
             ordering: value.sort,
           })
