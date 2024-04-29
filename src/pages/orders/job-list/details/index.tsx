@@ -513,7 +513,7 @@ const JobDetails = () => {
           bgcolor='#fff'
           sx={{
             position: 'sticky',
-            zIndex: 9999,
+            zIndex: 1000,
             top: header
               ? `${header?.getBoundingClientRect().height + 0.5}px`
               : '128px',
