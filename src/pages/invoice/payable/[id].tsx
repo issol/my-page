@@ -44,6 +44,7 @@ import {
   InvoicePayableDetailType,
   InvoicePayableDownloadData,
   PayableFormType,
+  PayablePatchType,
 } from '@src/types/invoice/payable.type'
 
 // ** apis
@@ -118,7 +119,7 @@ export default function PayableDetail() {
   }, [menu, id])
 
   const updateMutation = useMutation(
-    (form: PayableFormType) => updateInvoicePayable(Number(id), form),
+    (form: PayablePatchType) => updateInvoicePayable(Number(id), form),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })

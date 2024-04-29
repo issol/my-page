@@ -16,13 +16,13 @@ export type InvoiceProjectInfoFormType = {
   genre?: Array<string>
   revenueFrom: RevenueFormType
   invoiceDate: Date
-  invoiceDateTimezone: CountryType
-  paymentDueDate: { date: string; timezone: CountryType }
-  invoiceConfirmDate?: { date: string | null; timezone: CountryType | null }
-  taxInvoiceDueDate?: { date: string | null; timezone: CountryType | null }
-  paymentDate?: { date: string | null; timezone: CountryType | null }
-  taxInvoiceIssuanceDate?: { date: string | null; timezone: CountryType }
-  salesRecognitionDate?: { date: string | null; timezone: CountryType }
+  invoiceDateTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
+  paymentDueDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  invoiceConfirmDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
+  taxInvoiceDueDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
+  paymentDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
+  taxInvoiceIssuanceDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  salesRecognitionDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
   salesCategory?: string
   taxInvoiceIssued: boolean
   setReminder: boolean
