@@ -143,29 +143,6 @@ const ProListFilters = ({
 
   const { data: clientList } = useGetSimpleClientList()
 
-  const handlePin = (option: {
-    id: number
-    code: string
-    label: string
-    pinned: boolean
-  }) => {
-    const newOptions = timezoneList.map(opt =>
-      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
-    )
-    setTimezoneList(newOptions)
-    localStorage.setItem('timezonePinnedOptions', JSON.stringify(newOptions))
-  }
-
-  const sortedOptions = timezoneList.sort((a, b) => {
-    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
-    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
-  })
-
-  const lastPinnedIndex = timezoneList.reduce(
-    (lastIndex, option, index) => (option.pinned ? index : lastIndex),
-    -1,
-  )
-
   const handleTimezonePin = (option: {
     id: number
     code: string
@@ -386,7 +363,7 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.4}>
             <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
@@ -440,7 +417,6 @@ const ProListFilters = ({
                             textOverflow: 'ellipsis',
                           }}
                         >
-                          {/* {option.label} */}
                           {timeZoneFormatter(option, timezone)}
                         </Typography>
                         <IconButton
@@ -462,7 +438,7 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2.4}>
             <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
@@ -531,7 +507,7 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={2.5}>
+          <Grid item xs={2.4}>
             <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
@@ -576,7 +552,7 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={2.5}>
+          {/* <Grid item xs={2.5}>
             <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
@@ -634,7 +610,6 @@ const ProListFilters = ({
                             textOverflow: 'ellipsis',
                           }}
                         >
-                          {/* {option.label} */}
                           {timeZoneFormatter(option, timezone)}
                         </Typography>
                         <IconButton
@@ -655,9 +630,9 @@ const ProListFilters = ({
                 )}
               />
             </Box>
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={2.5}>
+          <Grid item xs={2.4}>
             <FormControl fullWidth className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
@@ -695,7 +670,7 @@ const ProListFilters = ({
               />
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={12} md={2}>
+          <Grid item xs={12} sm={12} md={2.4}>
             <Box
               sx={{
                 display: 'flex',

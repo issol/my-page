@@ -133,11 +133,12 @@ export default function OrdersFilters({
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
-        <Card           
+        <Card
           sx={{
             borderRadius: '16px 16px 0 0',
             paddingBottom: 0,
-          }}>
+          }}
+        >
           <Box
             display='flex'
             width={'100%'}
@@ -147,9 +148,7 @@ export default function OrdersFilters({
               padding: '16px 20px 0px 20px',
             }}
           >
-            <Typography variant='h6'>
-              Orders ({listCount ?? 0})
-            </Typography>
+            <Typography variant='h6'>Orders ({listCount ?? 0})</Typography>
             <ButtonGroup variant='outlined'>
               <CustomBtn
                 value='list'
@@ -568,7 +567,13 @@ export default function OrdersFilters({
                       >
                         Reset
                       </Button>
-                      <Button fullWidth variant='contained' size='medium' type='submit'>
+                      <Button
+                        fullWidth
+                        variant='contained'
+                        size='medium'
+                        type='submit'
+                        color='secondary'
+                      >
                         Search
                       </Button>
                     </Box>

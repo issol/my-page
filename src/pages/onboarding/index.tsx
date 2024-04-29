@@ -105,8 +105,6 @@ export default function Onboarding() {
   // const { data: onboardingProList, isLoading } =
   //   useGetOnboardingProList(filters)
 
-  const { data: totalStatistics } = useGetStatistic()
-  const { data: onboardingStatistic } = useGetOnboardingStatistic()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
