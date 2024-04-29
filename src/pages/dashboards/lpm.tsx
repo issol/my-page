@@ -323,7 +323,7 @@ const LPMDashboards = () => {
             csvHeader={CSVHeader}
           />
 
-          <Grid container gap='24px' mt='14px'>
+          <Grid container gap='24px'>
             {onboardingStatistic && totalStatistics ? (
               <GridItem height={87}>
                 <UserStatistic
