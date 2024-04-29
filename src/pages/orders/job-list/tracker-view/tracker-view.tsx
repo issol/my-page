@@ -19,6 +19,11 @@ import { ClientRowType } from '@src/apis/client.api'
 import JobsTrackerList from './list'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { useGetJobsTrackerList } from '@src/queries/jobs/jobs.query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   client?: string[]
@@ -43,18 +48,23 @@ type Props = {
   onCreateNewJob: () => void
 }
 export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.JOB_TRACKER_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.JOB_TRACKER_LIST)!)
+    : null
+
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
-  const [activeFilter, setActiveFilter] = useState<FilterType>({
-    ...initialFilter,
-  })
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null)
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
+
   const [serviceTypeOptions, setServiceTypeOptions] = useState<
     Array<ConstType>
   >([])
 
   const { data: list, isLoading } = useGetJobsTrackerList(activeFilter)
-
-  // console.log(list)
 
   useEffect(() => {
     const newFilter = findServiceTypeFilter()
@@ -69,16 +79,22 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
   }, [filter.category])
 
   function onSearch() {
-    setActiveFilter({
-      ...filter,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
-    })
+    if (activeFilter) {
+      const postFilter = {
+        ...filter,
+        skip: skip * activeFilter.take,
+        take: activeFilter.take,
+      }
+      saveUserFilters(FilterKey.JOB_TRACKER_LIST, postFilter)
+      setDefaultFilter(postFilter)
+      setActiveFilter(postFilter)
+    }
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    saveUserFilters(FilterKey.JOB_TRACKER_LIST, initialFilter)
   }
 
   function findServiceTypeFilter() {
@@ -95,6 +111,19 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
 
     return uniqueCategory.length ? uniqueCategory : ServiceTypeList
   }
+
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <Box
@@ -133,14 +162,17 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
           <JobsTrackerList
             isLoading={isLoading}
             list={list || { data: [], totalCount: 0 }}
-            pageSize={activeFilter.take}
+            pageSize={activeFilter?.take ?? 10}
             skip={skip}
             setSkip={(n: number) => {
               setSkip(n)
-              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+              setActiveFilter({
+                ...activeFilter!,
+                skip: n * (activeFilter?.take ?? 10),
+              })
             }}
             setPageSize={(n: number) =>
-              setActiveFilter({ ...activeFilter, take: n })
+              setActiveFilter({ ...activeFilter!, take: n })
             }
           />
         </Card>

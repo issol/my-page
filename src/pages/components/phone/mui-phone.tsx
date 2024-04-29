@@ -48,7 +48,7 @@ export default function MuiPhone({
       }}
       autoComplete='off'
       variant='outlined'
-      label='Phone number'
+      // label='Phone number'
       color='primary'
       placeholder='Phone number'
       value={inputValue}
@@ -56,6 +56,10 @@ export default function MuiPhone({
       type='tel'
       inputRef={inputRef}
       InputProps={{
+        style: {
+          height: '46px',
+          padding: '0 14px',
+        },
         startAdornment: (
           <InputAdornment position='start'>
             <Select

@@ -1497,15 +1497,10 @@ const JobDetail = () => {
                     } else {
                       router.push({
                         pathname: '/orders/job-list/details/',
-                        query:
-                          jobId.length === 1
-                            ? {
-                                orderId: orderId,
-                                jobId: jobId[0],
-                              }
-                            : {
-                                orderId: orderId,
-                              },
+                        query: {
+                          orderId: orderId,
+                          jobId: selectedJobId,
+                        },
                       })
                     }
                   }}

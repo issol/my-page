@@ -21,6 +21,11 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useQueryClient } from 'react-query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type ConstType = {
   label: string
@@ -53,6 +58,14 @@ export default function ClientGuidLines() {
     ...initialFilter,
   })
 
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.CLIENT_GUIDELINE_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.CLIENT_GUIDELINE_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
+
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
   const auth = useRecoilValueLoadable(authState)
 
@@ -61,19 +74,15 @@ export default function ClientGuidLines() {
   function onSearch() {
     setActiveFilter({
       ...filter,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
     })
-    queryClient.invalidateQueries([
-      'get-guideline',
-      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
-    ])
+    saveUserFilters(FilterKey.CLIENT_GUIDELINE_LIST, { ...filter })
+    setDefaultFilter({ ...filter })
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
-    queryClient.invalidateQueries(['get-guideline', { ...initialFilter }])
+    saveUserFilters(FilterKey.CLIENT_GUIDELINE_LIST, { ...initialFilter })
   }
 
   function findServiceTypeFilter() {
@@ -117,6 +126,19 @@ export default function ClientGuidLines() {
     queryClient.invalidateQueries(['get-guideline'])
     queryClient.invalidateQueries(['get-guideline/detail'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <>

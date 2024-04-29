@@ -1,4 +1,4 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, Grid, IconButton, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
@@ -18,6 +18,7 @@ import { JobList } from '@src/shared/const/job/jobs'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { ProStatus, TestStatus } from '@src/shared/const/status/statuses'
 import { ExperiencedYearsForFilter } from '@src/shared/const/experienced-years'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 import {
   useState,
@@ -39,6 +40,8 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import { ProFilterType } from '@src/types/pro/list'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetSimpleClientList } from '@src/queries/common.query'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { setTimezonePin } from '@src/shared/auth/storage'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -85,6 +88,29 @@ type Props = {
     panel: string,
   ) => (event: SyntheticEvent, isExpanded: boolean) => void
   expanded: string | false
+  proListCount: number
+  timezoneList: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }[]
+  timezone: {
+    offset: number
+    offsetFormatted: string
+    timezone: string
+    timezoneCode: string
+  }[]
+  setTimezoneList: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    >
+  >
 }
 
 const ProListFilters = ({
@@ -100,6 +126,10 @@ const ProListFilters = ({
   languageList,
   expanded,
   handleFilterStateChange,
+  proListCount,
+  timezoneList,
+  timezone,
+  setTimezoneList,
 }: Props) => {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
@@ -113,12 +143,33 @@ const ProListFilters = ({
 
   const { data: clientList } = useGetSimpleClientList()
 
+  const handleTimezonePin = (option: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }) => {
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
+
   return (
-    <Card sx={{ padding: '24px' }}>
+    <Card sx={{ padding: '24px', borderRadius: '16px 16px 0 0' }}>
+      <Typography variant='h6' sx={{ mb: '20px' }}>
+        Pros ({proListCount.toLocaleString()})
+      </Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container xs={12} spacing={6} rowSpacing={4}>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='status'
@@ -157,7 +208,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='clientId'
@@ -203,7 +254,7 @@ const ProListFilters = ({
           </Grid>
 
           <Grid item xs={3}>
-            <Box className='filterFormSoloAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='source'
@@ -258,7 +309,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormSoloAutoComplete'>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='target'
@@ -312,11 +363,11 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+          <Grid item xs={2.4}>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
-                name='jobType'
+                name='timezone'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     multiple
@@ -327,62 +378,68 @@ const ProListFilters = ({
                     onOpen={() => {
                       setInputStyle(true)
                     }}
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(event, item) => {
                       onChange(item)
-
-                      if (item.length) {
-                        const arr: {
-                          label: string
-                          value: string
-                          jobType: string[]
-                        }[] = []
-                        item.map((data, idx) => {
-                          const jobTypeValue = data?.value
-                          // console.log(jobTypeValue)
-
-                          /* @ts-ignore */
-                          const res = OnboardingListRolePair.filter(value =>
-                            value.jobType.includes(jobTypeValue),
-                          )
-
-                          arr.push(...res)
-
-                          trigger('role')
-                        })
-                        setRoleOptions(arr)
-                      } else {
-                        setRoleOptions(OnboardingListRolePair)
-                      }
                     }}
                     value={value}
+                    // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
+                    options={pinSortedOptions}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.id === newValue.id
+                    }}
                     disableCloseOnSelect
                     limitTags={1}
-                    options={jobTypeOptions}
-                    id='jobType'
+                    id='timezone'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
                         autoComplete='off'
-                        label='Job type'
+                        label={`Pro's timezone`}
                       />
                     )}
-                    renderOption={(props, option, { selected }) => (
-                      <li {...props}>
-                        <Checkbox checked={selected} sx={{ mr: 2 }} />
-                        {option.label}
-                      </li>
+                    renderOption={(props, option, state) => (
+                      <Box
+                        component='li'
+                        {...props}
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Checkbox checked={state.selected} sx={{ mr: 2 }} />
+                        <Typography
+                          noWrap
+                          sx={{
+                            width: '100%',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {timeZoneFormatter(option, timezone)}
+                        </Typography>
+                        <IconButton
+                          onClick={event => {
+                            event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                            handleTimezonePin(option)
+                          }}
+                          size='small'
+                          style={{
+                            color: option.pinned ? '#FFAF66' : undefined,
+                          }}
+                        >
+                          <PushPinIcon />
+                        </IconButton>
+                      </Box>
                     )}
                   />
                 )}
               />
             </Box>
           </Grid>
-          <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+          <Grid item xs={2.4}>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='role'
@@ -422,7 +479,7 @@ const ProListFilters = ({
                               data => data.value === value,
                             )
                             arr.push(...jobType)
-                            trigger('jobType')
+                            // trigger('jobType')
                           })
                         })
                         setJobTypeOptions(_.uniqBy(arr, 'value'))
@@ -450,8 +507,8 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-          <Grid item xs={2}>
-            <Box className='filterFormAutoComplete'>
+          <Grid item xs={2.4}>
+            <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='experience'
@@ -495,9 +552,88 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
+          {/* <Grid item xs={2.5}>
+            <Box className='filterFormAutoCompleteV2'>
+              <Controller
+                control={control}
+                name='timezone'
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onClose={() => {
+                      setInputStyle(false)
+                    }}
+                    onOpen={() => {
+                      setInputStyle(true)
+                    }}
+                    onChange={(event, item) => {
+                      onChange(item)
+                    }}
+                    value={value}
+                    // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
+                    options={sortedOptions}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.id === newValue.id
+                    }}
+                    disableCloseOnSelect
+                    limitTags={1}
+                    id='timezone'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label={`Pro's timezone`}
+                      />
+                    )}
+                    renderOption={(props, option, state) => (
+                      <Box
+                        component='li'
+                        {...props}
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          borderBottom:
+                            state.index === lastPinnedIndex
+                              ? '1px solid #E9EAEC'
+                              : 'none',
+                        }}
+                      >
+                        <Checkbox checked={state.selected} sx={{ mr: 2 }} />
+                        <Typography
+                          noWrap
+                          sx={{
+                            maxWidth: 300,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {timeZoneFormatter(option, timezone)}
+                        </Typography>
+                        <IconButton
+                          onClick={event => {
+                            event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                            handlePin(option)
+                          }}
+                          size='small'
+                          style={{
+                            color: option.pinned ? '#FFAF66' : undefined,
+                          }}
+                        >
+                          <PushPinIcon />
+                        </IconButton>
+                      </Box>
+                    )}
+                  />
+                )}
+              />
+            </Box>
+          </Grid> */}
 
-          <Grid item xs={2}>
-            <FormControl fullWidth className='filterFormControl'>
+          <Grid item xs={2.4}>
+            <FormControl fullWidth className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}
                 name='search'
@@ -534,12 +670,12 @@ const ProListFilters = ({
               />
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={12} md={2}>
+          <Grid item xs={12} sm={12} md={2.4}>
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                height: '46px',
+                height: '40px',
                 gap: '16px',
               }}
             >

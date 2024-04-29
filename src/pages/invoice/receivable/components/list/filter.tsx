@@ -57,8 +57,6 @@ import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 // ** types
 
 type Props = {
-  filter: InvoiceReceivableFilterType
-  setFilter: Dispatch<SetStateAction<InvoiceReceivableFilterType>>
   onReset: () => void
   onSubmit: (data: FilterType) => void
   serviceTypeList: {
@@ -105,8 +103,6 @@ type Props = {
 }
 
 export default function Filter({
-  filter,
-  setFilter,
   onReset,
   onSubmit,
   serviceTypeList,
@@ -136,8 +132,13 @@ export default function Filter({
     disableCloseOnSelect: true,
   }
 
-  const dateValue = (startDate: Date, endDate: Date) => {
-    return startDate.toDateString() === endDate?.toDateString()
+  const dateValue = (
+    startDate: Date | string | null,
+    endDate: Date | string | null,
+  ) => {
+    if (startDate === null || endDate === null) return ''
+
+    return startDate === endDate
       ? dayjs(startDate).format('MM/DD/YYYY')
       : `${dayjs(startDate).format('MM/DD/YYYY')}${
           endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''

@@ -1,15 +1,8 @@
 import { useRouter } from 'next/router'
 
 // ** style components
-import { Box, Tooltip, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
-import { TableTitleTypography } from '@src/@core/styles/typography'
-import {
-  ExtraNumberChip,
-  InvoiceReceivableChip,
-  JobTypeChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
 
 // ** types
 import {
@@ -20,10 +13,8 @@ import {
 // ** helpers
 
 // ** contexts
-import { Dispatch, SetStateAction, useContext } from 'react'
-import { useRecoilValueLoadable } from 'recoil'
-import { authState } from '@src/states/auth'
-import { useGetStatusList } from '@src/queries/common.query'
+import { Dispatch, SetStateAction } from 'react'
+
 import { UserRoleType } from '@src/context/types'
 import NoList from '@src/pages/components/no-list'
 
@@ -41,7 +32,7 @@ type Props = {
   isLoading: boolean
   role: UserRoleType
 
-  setFilters: Dispatch<SetStateAction<InvoiceReceivableFilterType>>
+  setFilters: Dispatch<SetStateAction<InvoiceReceivableFilterType | null>>
   columns: GridColumns<InvoiceReceivableListType>
   type: 'list' | 'calendar'
 }
@@ -100,15 +91,15 @@ export default function ReceivableList({
         disableSelectionOnClick
         hideFooter={type === 'calendar'}
         onPageChange={(newPage: number) => {
-          setFilters((prevState: InvoiceReceivableFilterType) => ({
-            ...prevState,
+          setFilters((prevState: InvoiceReceivableFilterType | null) => ({
+            ...prevState!,
             skip: newPage * pageSize!,
           }))
           setPage!(newPage)
         }}
         onPageSizeChange={(newPageSize: number) => {
-          setFilters((prevState: InvoiceReceivableFilterType) => ({
-            ...prevState,
+          setFilters((prevState: InvoiceReceivableFilterType | null) => ({
+            ...prevState!,
             take: newPageSize,
           }))
           setPageSize!(newPageSize)

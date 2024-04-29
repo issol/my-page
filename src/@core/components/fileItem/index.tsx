@@ -53,7 +53,9 @@ export default function FileItem({
       {onClear && (
         <IconButton
           onClick={event => {
-            onClear && onClear(file)
+            console.log(event)
+
+            onClear(file)
           }}
         >
           <Icon icon='mdi:close' fontSize={20} />

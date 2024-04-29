@@ -40,7 +40,9 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatus } from '@src/types/common/status.type'
-import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail, {
+  LegalName,
+} from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useRouter } from 'next/router'
 import {
@@ -251,6 +253,7 @@ const JobListCard = ({
 
   const router = useRouter()
   const { orderId } = router.query
+  const { jobId } = router.query
 
   const { isOpen, onOpen, onClose } = useDialog()
 
@@ -864,7 +867,6 @@ const JobListCard = ({
                                     firstName: row.assignedPro.firstName,
                                     middleName: row.assignedPro.middleName,
                                     lastName: row.assignedPro.lastName,
-                                    email: row.assignedPro.email,
                                   }}
                                 />
                               ) : isUserInTeamMember || isMasterManagerUser ? (
@@ -1324,7 +1326,6 @@ const JobListCard = ({
                                 firstName: row.assignedPro.firstName,
                                 middleName: row.assignedPro.middleName,
                                 lastName: row.assignedPro.lastName,
-                                email: row.assignedPro.email,
                               }}
                             />
                           ) : isUserInTeamMember || isMasterManagerUser ? (

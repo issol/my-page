@@ -32,6 +32,11 @@ import moment from 'moment'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { StatusItem } from '@src/types/common/status.type'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   status?: number[]
@@ -69,8 +74,7 @@ export const initialFilter: FilterType = {
   startedAt: [null, null],
   dueAt: [null, null],
   search: '',
-  isMyJobs: '0',
-  isHidePaid: '0',
+
   skip: 0,
   take: 10,
 }
@@ -88,10 +92,18 @@ export default function JobListView({
 }: Props) {
   const user = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
+  const savedFilter: FilterType | null = getUserFilters(FilterKey.JOB_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.JOB_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
+
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
-  const [activeFilter, setActiveFilter] = useState<FilterType>({
-    ...initialFilter,
-  })
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null)
+
+  const [hidePaid, setHidePaid] = useState<boolean>(false)
+  const [seeMyJob, setSeeMyJob] = useState<boolean>(false)
+
   const [serviceTypeOptions, setServiceTypeOptions] = useState<
     Array<ConstType>
   >([])
@@ -116,26 +128,36 @@ export default function JobListView({
   }, [filter.category])
 
   function onSearch() {
-    setActiveFilter({
-      ...filter,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
-      startedAt: filter.startedAt?.map(item => {
-        return item
-          ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
-          : null
-      }),
-      dueAt: filter.dueAt?.map(item => {
-        return item
-          ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
-          : null
-      }),
-    })
+    if (activeFilter) {
+      const postFilter = {
+        ...filter,
+        skip: skip * activeFilter.take,
+        take: activeFilter.take,
+        startedAt: filter.startedAt?.map(item => {
+          return item
+            ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
+            : null
+        }),
+        dueAt: filter.dueAt?.map(item => {
+          return item
+            ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
+            : null
+        }),
+      }
+      saveUserFilters(FilterKey.JOB_LIST, postFilter)
+      setDefaultFilter(postFilter)
+      setActiveFilter(postFilter)
+    }
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    saveUserFilters(FilterKey.JOB_LIST, {
+      ...initialFilter,
+      isHidePaid: hidePaid ? '1' : '0',
+      isMyJobs: seeMyJob ? '1' : '0',
+    })
   }
 
   function findServiceTypeFilter() {
@@ -152,6 +174,21 @@ export default function JobListView({
 
     return uniqueCategory.length ? uniqueCategory : ServiceTypeList
   }
+
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+        setHidePaid(savedFilter.isHidePaid === '1')
+        setSeeMyJob(savedFilter.isMyJobs === '1')
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -175,25 +212,35 @@ export default function JobListView({
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
           <Switch
-            checked={activeFilter.isMyJobs === '1'}
-            onChange={e =>
+            checked={seeMyJob}
+            onChange={e => {
+              setSeeMyJob(e.target.checked)
               setActiveFilter({
-                ...activeFilter,
+                ...activeFilter!,
                 isMyJobs: e.target.checked ? '1' : '0',
               })
-            }
+              saveUserFilters(FilterKey.JOB_LIST, {
+                ...defaultFilter,
+                isMyJobs: e.target.checked ? '1' : '0',
+              })
+            }}
           />
         </Box>
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>Hide paid jobs</Typography>
           <Switch
-            checked={activeFilter.isHidePaid === '1'}
-            onChange={e =>
+            checked={hidePaid}
+            onChange={e => {
+              setHidePaid(e.target.checked)
               setActiveFilter({
-                ...activeFilter,
+                ...activeFilter!,
                 isHidePaid: e.target.checked ? '1' : '0',
               })
-            }
+              saveUserFilters(FilterKey.JOB_LIST, {
+                ...defaultFilter,
+                isHidePaid: e.target.checked ? '1' : '0',
+              })
+            }}
           />
         </Box>
       </Box>
@@ -216,14 +263,17 @@ export default function JobListView({
           <JobsList
             isLoading={isLoading}
             list={list || { data: [], totalCount: 0 }}
-            pageSize={activeFilter.take}
+            pageSize={activeFilter?.take ?? 10}
             skip={skip}
             setSkip={(n: number) => {
               setSkip(n)
-              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+              setActiveFilter({
+                ...activeFilter!,
+                skip: n * (activeFilter?.take ?? 10),
+              })
             }}
             setPageSize={(n: number) =>
-              setActiveFilter({ ...activeFilter, take: n })
+              setActiveFilter({ ...activeFilter!, take: n })
             }
             statusList={statusList!}
           />

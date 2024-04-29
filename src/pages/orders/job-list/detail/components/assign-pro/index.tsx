@@ -723,7 +723,9 @@ const AssignPro = ({
               job =>
                 job.pros &&
                 Array.isArray(job.pros) &&
-                job.pros.some(pro => [70300, 70350].includes(pro.assignmentStatus))
+                job.pros.some(pro =>
+                  [70300, 70350].includes(pro.assignmentStatus),
+                ),
             ) || !selectedJobUpdatable ? null : (
               <Button
                 variant='outlined'
@@ -766,7 +768,8 @@ const AssignPro = ({
                       ? `Mass request (Manual assignment) (${selectedAssign?.pros.length ?? 0})`
                       : ''}{' '}
               </Typography>
-              {(selectedAssign.requestCompleted && jobInfo.pro) || !selectedJobUpdatable ? null : (
+              {(selectedAssign.requestCompleted && jobInfo.pro) ||
+              !selectedJobUpdatable ? null : (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}

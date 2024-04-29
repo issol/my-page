@@ -75,31 +75,67 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
       type === 'join'
         ? yup.date().required(FormErrors.required)
         : yup.date().nullable(),
-    addresses: yup
-      .array()
-      .of(
-        yup.object().shape({
-          addressType: yup
-            .string()
-            .oneOf(['billing', 'shipping', 'additional'])
+
+    address:
+      type === 'join'
+        ? yup.object().nullable()
+        : yup
+            .object()
+            .shape({
+              addressType: yup
+                .string()
+                .oneOf(['billing', 'shipping', 'additional'])
+                .nullable(),
+              name: yup
+                .string()
+                .nullable()
+                .when('addressType', ([addressType], schema) =>
+                  addressType === 'additional'
+                    ? yup.string().required(FormErrors.required)
+                    : schema,
+                ),
+              baseAddress: yup.string().required(FormErrors.required),
+              detailAddress: yup.string().nullable(),
+              city: yup.string().required(FormErrors.required),
+              state: yup.string().nullable(),
+              country: yup.string().required(FormErrors.required),
+              zipCode: yup.string().required(FormErrors.required),
+            })
             .nullable(),
-          name: yup
+
+    addressType:
+      type === 'join'
+        ? yup.string().oneOf(['billing', 'shipping', 'additional']).nullable()
+        : yup.string().nullable(),
+    name:
+      type === 'join'
+        ? yup
             .string()
             .nullable()
             .when('addressType', ([addressType], schema) =>
               addressType === 'additional'
                 ? yup.string().required(FormErrors.required)
                 : schema,
-            ),
-          baseAddress: yup.string().required(FormErrors.required),
-          detailAddress: yup.string().nullable(),
-          city: yup.string().required(FormErrors.required),
-          state: yup.string().nullable(),
-          country: yup.string().required(FormErrors.required),
-          zipCode: yup.string().required(FormErrors.required),
-        }),
-      )
-      .nullable(),
+            )
+        : yup.string().nullable(),
+    baseAddress:
+      type === 'join'
+        ? yup.string().required(FormErrors.required)
+        : yup.string().nullable(),
+    detailAddress: yup.string().nullable(),
+    city:
+      type === 'join'
+        ? yup.string().required(FormErrors.required)
+        : yup.string().nullable(),
+    state: yup.string().nullable(),
+    country:
+      type === 'join'
+        ? yup.string().required(FormErrors.required)
+        : yup.string().nullable(),
+    zipCode:
+      type === 'join'
+        ? yup.string().required(FormErrors.required)
+        : yup.string().nullable(),
   })
 }
 

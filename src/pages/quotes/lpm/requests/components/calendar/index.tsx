@@ -57,7 +57,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
-  const [filter, setFilter] = useState<RequestFilterType>({
+  const [filter, setFilter] = useState<RequestFilterType | null>({
     mine: '0',
     hideCompleted: '0',
     skip: 0,
@@ -67,7 +67,7 @@ const CalendarContainer = () => {
   const { data, isLoading } = useGetClientRequestCalendarData(
     year,
     month,
-    filter,
+    filter!,
   )
 
   const { data: statusList, isLoading: statusListLoading } =
@@ -149,7 +149,7 @@ const CalendarContainer = () => {
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
-            filter={filter}
+            filter={filter!}
             setFilter={setFilter}
             containerWidth={containerWidth}
           />
@@ -163,7 +163,9 @@ const CalendarContainer = () => {
             setPage={setSkip}
             pageSize={pageSize}
             setPageSize={setPageSize}
+            filters={filter!}
             setFilters={setFilter}
+            statusList={statusList || []}
             list={
               currentList?.length
                 ? {
@@ -176,12 +178,6 @@ const CalendarContainer = () => {
             onRowClick={onRowClick}
             isLoading={isLoading}
             role={currentRole!}
-            columns={getRequestListColumns(
-              statusList!,
-              currentRole!,
-              auth,
-              timezone.getValue(),
-            )}
             type='calendar'
           />
         </Card>

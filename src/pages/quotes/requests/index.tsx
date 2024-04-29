@@ -39,6 +39,11 @@ import { useQueryClient } from 'react-query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { timezoneSelector } from '@src/states/permission'
 import { useGetStatusList } from '@src/queries/common.query'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 // ** components
 export type FilterType = {
@@ -50,6 +55,10 @@ export type FilterType = {
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
   search: string
+  ordering?: 'asc' | 'desc'
+  sort?: 'corporationId' | 'requestDate' | 'desiredDueDate'
+  mine: '0' | '1'
+  hideCompleted: '0' | '1'
 }
 
 const defaultValues: FilterType = {
@@ -61,6 +70,8 @@ const defaultValues: FilterType = {
   search: '',
   lsp: [],
   client: [],
+  hideCompleted: '0',
+  mine: '0',
 }
 
 export const defaultFilters: RequestFilterType = {
@@ -89,6 +100,12 @@ export default function Requests() {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.CLIENT_REQUEST_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.CLIENT_REQUEST_LIST)!)
+    : null
+
   const [requestListPage, setRequestListPage] = useState<number>(0)
   const [requestListPageSize, setRequestPageSize] = useState<number>(10)
 
@@ -96,7 +113,8 @@ export default function Requests() {
     useState<boolean>(false)
   const [seeMyRequests, setSeeMyRequests] = useState<boolean>(false)
 
-  const [filters, setFilters] = useState<RequestFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<RequestFilterType | null>(null)
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -139,7 +157,7 @@ export default function Requests() {
     trigger,
     reset: filterReset,
   } = useForm<FilterType>({
-    defaultValues,
+    defaultValues: defaultFilter,
     mode: 'onSubmit',
   })
 
@@ -147,7 +165,7 @@ export default function Requests() {
     const {
       requestDate,
       desiredDueDate,
-      client,
+
       status,
 
       serviceType,
@@ -155,7 +173,8 @@ export default function Requests() {
       search,
       lsp,
     } = data
-
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, data)
+    setDefaultFilter(data)
     const filter: RequestFilterType = {
       status: status.map(value => value.value),
 
@@ -180,8 +199,27 @@ export default function Requests() {
   console.log('default filter', getValues())
 
   function onReset() {
-    filterReset()
+    filterReset({
+      requestDate: [],
+      desiredDueDate: [],
+      status: [],
+      category: [],
+      serviceType: [],
+      search: '',
+      lsp: [],
+    })
     setFilters({ ...defaultFilters })
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
+      requestDate: [],
+      desiredDueDate: [],
+      status: [],
+      category: [],
+      serviceType: [],
+      search: '',
+      lsp: [],
+      hideCompleted: hideCompletedRequests ? '1' : '0',
+      mine: seeMyRequests ? '1' : '0',
+    })
     queryClient.invalidateQueries([
       'request/client/list',
       { ...defaultFilters },
@@ -197,18 +235,28 @@ export default function Requests() {
   ) => {
     setHideCompletedRequests(event.target.checked)
     setFilters(prevState => ({
-      ...prevState,
+      ...prevState!,
       hideCompleted: event.target.checked ? '1' : '0',
     }))
+
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
+      ...defaultFilter,
+      hideCompleted: event.target.checked ? '1' : '0',
+    })
   }
 
   const handleSeeMyRequests = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSeeMyRequests(event.target.checked)
 
     setFilters(prevState => ({
-      ...prevState,
+      ...prevState!,
       mine: event.target.checked ? '1' : '0',
     }))
+
+    saveUserFilters(FilterKey.CLIENT_REQUEST_LIST, {
+      ...defaultFilter,
+      mine: event.target.checked ? '1' : '0',
+    })
   }
 
   useEffect(() => {
@@ -237,6 +285,55 @@ export default function Requests() {
     queryClient.invalidateQueries(['request/client/calendar'])
     queryClient.invalidateQueries(['request/client/detail'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        requestDate,
+        desiredDueDate,
+        lsp,
+        status,
+        ordering,
+        sort,
+        serviceType,
+        category,
+        search,
+        hideCompleted,
+        mine,
+      } = savedFilter
+
+      const filter: RequestFilterType = {
+        status: status.map(value => value.value),
+
+        serviceType: serviceType.map(value => value.value),
+        category: category.map(value => value.value),
+        requestDateFrom: requestDate[0]?.toISOString() ?? '',
+        requestDateTo: requestDate[1]?.toISOString() ?? '',
+        desiredDueDateFrom: desiredDueDate[0]?.toISOString() ?? '',
+        desiredDueDateTo: desiredDueDate[1]?.toISOString() ?? '',
+        lsp: lsp?.map(value => value.label),
+        search: search,
+        take: requestListPageSize,
+        skip: requestListPageSize * requestListPage,
+        ordering: ordering,
+        sort: sort,
+        hideCompleted: hideCompleted,
+        mine: mine,
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        filterReset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+      setHideCompletedRequests(hideCompleted === '1')
+      setSeeMyRequests(mine === '1')
+    } else {
+      setFilters({ ...defaultFilters })
+    }
+  }, [savedFilter])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -283,7 +380,7 @@ export default function Requests() {
               setServiceTypeList={setServiceTypeList}
               categoryList={categoryList}
               setCategoryList={setCategoryList}
-              filters={filters}
+              filters={filters!}
               setFilters={setFilters}
               onReset={onReset}
               onSubmit={onSubmit}
@@ -360,6 +457,7 @@ export default function Requests() {
                     timezone.getValue(),
                   )}
                   type='list'
+                  defaultFilter={defaultFilter}
                 />
               </Card>
             </Grid>

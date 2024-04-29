@@ -98,8 +98,10 @@ const ProCertificationTest = () => {
           nda={ndaData!}
           language={ndaLanguage}
           setLanguage={setNdaLanguage}
+          signNDA={signNDA}
           setSignNDA={setSignNDA}
           auth={auth}
+          type='certi'
         />
       ) : signContract &&
         privacyContractData &&

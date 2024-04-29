@@ -42,7 +42,6 @@ const Pro = () => {
           justifyContent: 'space-between',
         }}
       >
-        <Typography variant='h5'>Pros</Typography>
         {/* {value === 'linguistList' ? (
           <ButtonGroup variant='outlined'>
             <CustomBtn
@@ -62,7 +61,7 @@ const Pro = () => {
           </ButtonGroup>
         ) : null} */}
       </Box>
-      <Box sx={{ mt: 4 }}>
+      <Box>
         <TabContext value={value}>
           <TabList
             onChange={handleTabChange}

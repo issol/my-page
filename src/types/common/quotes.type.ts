@@ -19,11 +19,11 @@ export type QuotesProjectInfoFormType = {
   category: string
   serviceType: Array<string>
   genre?: Array<string>
-  quoteDate: { date: string; timezone: CountryType }
-  projectDueDate: { date: string; timezone: CountryType }
-  quoteDeadline: { date: string; timezone: CountryType }
-  quoteExpiryDate: { date: string; timezone: CountryType }
-  estimatedDeliveryDate: { date: string; timezone: CountryType }
+  quoteDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  projectDueDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteDeadline: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteExpiryDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  estimatedDeliveryDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
   showDescription: '1' | '0'
   tax: number | null
   isTaxable: '1' | '0'
@@ -38,11 +38,11 @@ export type QuotesProjectInfoAddNewType = {
   category: string
   serviceType: Array<string>
   genre?: Array<string>
-  quoteDate: { date: Date; timezone: CountryType }
-  projectDueDate: { date: Date; timezone: CountryType }
-  quoteDeadline: { date: Date; timezone: CountryType }
-  quoteExpiryDate: { date: Date; timezone: CountryType }
-  estimatedDeliveryDate: { date: Date; timezone: CountryType }
+  quoteDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  projectDueDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteDeadline: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteExpiryDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  estimatedDeliveryDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
   showDescription: boolean
   tax: number | null
   isTaxable: boolean

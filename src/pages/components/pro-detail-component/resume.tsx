@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { OnboardingProDetailsType } from '@src/types/onboarding/details'
 
 import Slider from 'react-slick'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
@@ -34,6 +34,38 @@ type Props = {
 
 export default function Resume({ userInfo, onClickResume }: Props) {
   const [page, setPage] = useState(0)
+  const [resumeObj, setResumeObj] = useState<{
+    url: string
+    filePath: string
+    fileName: string
+    fileExtension: string
+  }[]>([])
+
+  useEffect(() => {
+    const resumeData: {   
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    }[] = []
+    if (!userInfo) return
+    if (userInfo.resume && userInfo.resume.length) {
+      userInfo.resume.map((value) => {
+        if (typeof value === 'string') {
+          resumeData.push({
+            url: value,
+            filePath: value,
+            fileName: extractFileName(value),
+            fileExtension: extractFileExtension(value),
+          })
+        } else {
+          resumeData.push(value)
+        }
+      })
+    }
+    setResumeObj(resumeData)
+
+  }, [userInfo])
 
   const DownloadAllFile = (
     file:
@@ -144,15 +176,55 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     dots: true,
     speed: 500,
     slidesToShow:
-      userInfo.resume && userInfo.resume.length && userInfo.resume.length < 6
-        ? userInfo.resume.length
-        : userInfo.resume?.length === 0
+      resumeObj && resumeObj.length && resumeObj.length < 6
+        ? resumeObj.length
+        : resumeObj?.length === 0
           ? 1
           : 6,
     slidesToScroll: 6,
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,
   }
+
+  const extractFileName = (path: string) => {
+    console.log("extractFileName",path)
+    if (!path) return ''
+    return path.split('/').pop() ?? ''
+  }
+
+  const extractFileExtension = (path: string) => {
+    const fileName = extractFileName(path)
+    const fileExtension = fileName 
+      ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+      : 'default'
+
+    switch (fileExtension) {
+      case 'doc':
+      case 'docx':
+        return 'doc'
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return 'excel'
+      case 'pdf':
+        return 'pdf'
+      case 'ppt':
+      case 'pptx':
+        return 'ppt'
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+        return 'img'
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+        return 'video'
+      default:
+        return 'default'
+    }
+  }
+
   return (
     <Card sx={{ padding: '20px 20px 0 20px', height: '100%' }}>
       <TypoGraphy
@@ -169,8 +241,8 @@ export default function Resume({ userInfo, onClickResume }: Props) {
           sx={{ padding: 0 }}
           onClick={() =>
             DownloadAllFile(
-              userInfo.resume && userInfo.resume.length
-                ? userInfo.resume
+              resumeObj && resumeObj.length
+                ? resumeObj.map((value) => (value))
                 : null,
             )
           }
@@ -181,8 +253,8 @@ export default function Resume({ userInfo, onClickResume }: Props) {
       <CardContent sx={{ padding: 0 }}>
         <Box sx={{ margin: 1 }}>
           <Slider {...settings}>
-            {userInfo.resume && userInfo.resume.length ? (
-              userInfo.resume?.map(value => {
+            {resumeObj && resumeObj.length ? (
+              resumeObj?.map(value => {
                 return (
                   <Box
                     key={uuidv4()}
@@ -196,7 +268,8 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickResume(value, S3FileType.RESUME)}
+                    onClick={() => onClickResume(value, S3FileType.RESUME)
+                    }
                   >
                     <Box
                       sx={{
@@ -206,7 +279,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       }}
                     >
                       <img
-                        src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
+                        src={`/images/icons/file-icons/${value.fileExtension}.svg`}
                         style={{
                           width: '40px',
                           height: '40px',

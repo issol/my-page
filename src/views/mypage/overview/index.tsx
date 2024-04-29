@@ -136,6 +136,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       ? userInfo.resume.map(item => `${item.fileName}.${item.fileExtension}`)
       : [],
   )
+
   //pagination
   const [rolePage, setRolePage] = useState(0)
   const roleRowsPerPage = 4
@@ -848,11 +849,9 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                   title='Resume'
                   fileList={userInfo.resume ?? []}
                   accept={{
-                    'image/*': ['.png', '.jpg', '.jpeg'],
-                    'text/csv': ['.cvs'],
+                    // 'image/*': ['.png', '.jpg', '.jpeg'],
+                    'text/csv': ['.csv'],
                     'application/pdf': ['.pdf'],
-                    'text/plain': ['.txt'],
-                    'application/vnd.ms-powerpoint': ['.ppt'],
                     'application/msword': ['.doc'],
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                       ['.docx'],

@@ -5,9 +5,6 @@ import useModal from '@src/hooks/useModal'
 
 // ** style components
 
-import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
-import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import {
   Box,
   Dialog,
@@ -32,7 +29,6 @@ import OrderList from './components/order-list'
 import { useGetStatusList } from '@src/queries/common.query'
 import TabContext from '@mui/lab/TabContext'
 
-import { Icon } from '@iconify/react'
 import TabPanel from '@mui/lab/TabPanel'
 import JobTemplateView from './job-template'
 import TabList from '@mui/lab/TabList'
@@ -42,7 +38,8 @@ type tabMenu = 'list' | 'tracker' | 'template'
 export default function JobList() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
-  const { data: statusList, refetch: statusListRefetch } = useGetStatusList('Job')
+  const { data: statusList, refetch: statusListRefetch } =
+    useGetStatusList('Job')
   const tabQuery = router.query.tab as tabMenu
 
   const [value, setValue] = useState<tabMenu>('list')
@@ -51,32 +48,16 @@ export default function JobList() {
     router.push({ pathname: '/orders/job-list/', query: { tab: newValue } })
   }
 
-  const { data: clients, refetch: clientsRefetch } = useGetClientList({ take: 1000, skip: 0 })
+  const { data: clients, refetch: clientsRefetch } = useGetClientList({
+    take: 1000,
+    skip: 0,
+  })
 
   // 페이지가 처음 로딩될때 필요한 데이터를 모두 리패치 한다
   useEffect(() => {
     statusListRefetch()
     clientsRefetch()
   }, [])
-  
-  // const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
-  //   marginBottom: '24px',
-  //   '& .MuiTabs-indicator': {
-  //     display: 'none',
-  //   },
-  //   '& .Mui-selected': {
-  //     backgroundColor: theme.palette.primary.main,
-  //     color: `${theme.palette.common.white} !important`,
-  //   },
-  //   '& .MuiTab-root': {
-  //     minHeight: 38,
-  //     minWidth: 110,
-  //     borderRadius: 8,
-  //     paddingTop: theme.spacing(2),
-  //     paddingBottom: theme.spacing(2),
-  //     textTransform: 'none',
-  //   },
-  // }))
 
   useEffect(() => {
     if (tabQuery && ['list', 'tracker', 'template'].includes(tabQuery))
