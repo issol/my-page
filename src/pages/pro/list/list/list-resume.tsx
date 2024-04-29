@@ -9,14 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
-  // resume: Array<{
-  //   id: number
-  //   fileName: string
-  //   filePath: string
-  //   url: string
-  //   fileExtension: string
-  // }>
-  resume: Array<string>
+  resume: string[]
   onClickFile: (
     file: {
       id: number
@@ -111,7 +104,7 @@ const ListResume = ({ resume, onClickFile }: Props) => {
   }
 
   const extractFileName = (path: string) => {
-    return path.split('/').pop();
+    return path.split('/').pop() ?? ''
   }
 
   const extractFileExtension = (path: string) => {
@@ -201,8 +194,8 @@ const ListResume = ({ resume, onClickFile }: Props) => {
                       id: 0,
                       url: value,
                       filePath: value,
-                      fileName: value,
-                      fileExtension: value,
+                      fileName: extractFileName(value),
+                      fileExtension: extractFileExtension(value),
                     }, S3FileType.RESUME)
                   }
                 >

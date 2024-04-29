@@ -53,6 +53,8 @@ import { GridColDef } from '@mui/x-data-grid-pro'
 import _ from 'lodash'
 import { getOnboardingProList } from '@src/apis/onboarding.api'
 
+import { getTimezonePin } from '@src/shared/auth/storage'
+
 const defaultValues: FilterType = {
   jobType: [],
   role: [],
@@ -260,7 +262,7 @@ export default function Onboarding() {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      cellClassName: 'onboarding-name-cell',
+      cellClassName: 'highlight-cell',
       renderHeader: () => <Box>Legal name</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         return (
@@ -604,12 +606,11 @@ export default function Onboarding() {
         pinned: boolean
       }[]
     | null => {
-    const storedOptions = localStorage.getItem('timezonePinnedOptions')
+    const storedOptions = getTimezonePin()
     return storedOptions ? JSON.parse(storedOptions) : null
   }
 
   useEffect(() => {
-    console.log('timezoneList', timezoneList.length)
     if (timezoneList.length !== 0) return
     const zoneList = timezone.getValue()
     const loadTimezonePinned = loadTimezonePin()

@@ -5,7 +5,7 @@ import {
   JobOpeningListType,
 } from '@src/types/pro/pro-job-openings'
 import { Dispatch, SetStateAction } from 'react'
-import NoList from '../components/no-list'
+import { NoList } from '@src/pages/components/no-list'
 import { getJobOpeningsColumn } from '@src/shared/const/columns/job-openings'
 import { useRouter } from 'next/router'
 

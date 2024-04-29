@@ -42,6 +42,7 @@ import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import PushPinIcon from '@mui/icons-material/PushPin'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import Link from 'next/link'
+import { setTimezonePin } from '@src/shared/auth/storage'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -162,6 +163,24 @@ export default function Filters({
     (lastIndex, option, index) => (option.pinned ? index : lastIndex),
     -1,
   )
+
+  const handleTimezonePin = (option: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }) => {
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
 
   return (
     <>
@@ -545,7 +564,8 @@ export default function Filters({
                 />
               </Box>
             </Grid>
-            <Grid item xs={2.4}>
+
+            <Grid item xs={3}>
               <Box className='filterFormAutoCompleteV2'>
                 <Controller
                   control={control}
@@ -565,7 +585,7 @@ export default function Filters({
                       }}
                       value={value}
                       // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
-                      options={sortedOptions}
+                      options={pinSortedOptions}
                       isOptionEqualToValue={(option, newValue) => {
                         return option.id === newValue.id
                       }}
@@ -588,17 +608,13 @@ export default function Filters({
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            borderBottom:
-                              state.index === lastPinnedIndex
-                                ? '1px solid #E9EAEC'
-                                : 'none',
                           }}
                         >
                           <Checkbox checked={state.selected} sx={{ mr: 2 }} />
                           <Typography
                             noWrap
                             sx={{
-                              maxWidth: 300,
+                              width: '100%',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                             }}
@@ -609,7 +625,7 @@ export default function Filters({
                           <IconButton
                             onClick={event => {
                               event.stopPropagation() // 드롭다운이 닫히는 것 방지
-                              handlePin(option)
+                              handleTimezonePin(option)
                             }}
                             size='small'
                             style={{
@@ -625,7 +641,97 @@ export default function Filters({
                 />
               </Box>
             </Grid>
-            <Grid item xs={2.4}>
+            <Grid item xs={3}>
+              <Box className='filterFormAutoCompleteV2'>
+                <Controller
+                  control={control}
+                  name='experience'
+                  render={({ field: { onChange, value } }) => (
+                    <Autocomplete
+                      multiple
+                      fullWidth
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
+                      }}
+                      value={value}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      disableCloseOnSelect
+                      limitTags={1}
+                      options={ExperiencedYearsForFilter}
+                      id='experience'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Experience'
+                        />
+                      )}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
+                          {option.label}
+                        </li>
+                      )}
+                    />
+                  )}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={2}>
+              <Box className='filterFormAutoCompleteV2'>
+                <Controller
+                  control={control}
+                  name='testStatus'
+                  render={({ field: { onChange, value } }) => (
+                    <Autocomplete
+                      multiple
+                      fullWidth
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
+                      }}
+                      value={value}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      disableCloseOnSelect
+                      limitTags={1}
+                      options={TestStatus}
+                      id='testStatus'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Test status'
+                        />
+                      )}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
+                          {option.label}
+                        </li>
+                      )}
+                    />
+                  )}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={2}>
               <Box className='filterFormAutoCompleteV2'>
                 <FormControl fullWidth>
                   <Controller
@@ -637,17 +743,15 @@ export default function Filters({
                           sx={{ fontSize: 14, height: 40 }}
                           htmlFor='icons-adornment-password'
                         >
-                          {/* {onFocused
-                              ? 'Search Pros'
-                              : 'Search the legal name and email'} */}
-                          Search Pros
+                          {onFocused
+                            ? 'Search Pros'
+                            : 'Search the legal name and email'}
                         </InputLabel>
                         <OutlinedInput
                           label={
-                            // onFocused
-                            //   ? 'Search Pros'
-                            //   : 'Search the legal name and email'
-                            'Search Pros'
+                            onFocused
+                              ? 'Search Pros'
+                              : 'Search the legal name and email'
                           }
                           value={value}
                           id='icons-adornment-password'
@@ -667,8 +771,8 @@ export default function Filters({
                 </FormControl>
               </Box>
             </Grid>
-            <Grid item xs={2.4}>
-              <Box display='flex' gap='16px'>
+            <Grid item xs>
+              <Box display='flex' gap='15px'>
                 <Button
                   fullWidth
                   variant='outlined'
@@ -682,9 +786,9 @@ export default function Filters({
                 <Button
                   fullWidth
                   variant='contained'
+                  color='secondary'
                   size='medium'
                   type='submit'
-                  color='secondary'
                 >
                   Search
                 </Button>

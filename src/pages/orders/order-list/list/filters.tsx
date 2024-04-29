@@ -6,6 +6,7 @@ import FormControl from '@mui/material/FormControl'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { Box } from '@mui/system'
+import ButtonGroup from '@mui/material/ButtonGroup'
 import Collapse from '@mui/material/Collapse'
 import CardContent from '@mui/material/CardContent'
 import {
@@ -18,13 +19,15 @@ import {
   InputAdornment,
   InputLabel,
   OutlinedInput,
+  Typography,
   useTheme,
 } from '@mui/material'
 
 // ** Icon Imports
 import Icon from '@src/@core/components/icon'
 
-import { FilterType } from '..'
+import { FilterType, MenuType } from '..'
+import { styled } from '@mui/system'
 
 import {
   Control,
@@ -90,6 +93,9 @@ type Props = {
   >
   statusList: { value: number; label: string }[]
   role: UserRoleType
+  menu: MenuType
+  setMenu: Dispatch<SetStateAction<MenuType>>
+  listCount: number
 }
 
 export default function OrdersFilters({
@@ -106,6 +112,9 @@ export default function OrdersFilters({
   companiesList,
   statusList,
   role,
+  menu,
+  setMenu,
+  listCount,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -124,23 +133,40 @@ export default function OrdersFilters({
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
-        <Card style={{ overflow: 'visible' }}>
-          <CardHeader
-            title='Search Filters'
-            action={
-              <IconButton
-                size='small'
-                aria-label='collapse'
-                sx={{ color: 'text.secondary' }}
-                onClick={() => setCollapsed(!collapsed)}
+        <Card           
+          sx={{
+            borderRadius: '16px 16px 0 0',
+            paddingBottom: 0,
+          }}>
+          <Box
+            display='flex'
+            width={'100%'}
+            alignItems='center'
+            justifyContent='space-between'
+            sx={{
+              padding: '16px 20px 0px 20px',
+            }}
+          >
+            <Typography variant='h6'>
+              Orders ({listCount ?? 0})
+            </Typography>
+            <ButtonGroup variant='outlined'>
+              <CustomBtn
+                value='list'
+                $focus={menu === 'list'}
+                onClick={e => setMenu(e.currentTarget.value as MenuType)}
               >
-                <Icon
-                  fontSize={20}
-                  icon={!collapsed ? 'mdi:chevron-down' : 'mdi:chevron-up'}
-                />
-              </IconButton>
-            }
-          />
+                List view
+              </CustomBtn>
+              <CustomBtn
+                $focus={menu === 'calendar'}
+                value='calendar'
+                onClick={e => setMenu(e.currentTarget.value as MenuType)}
+              >
+                Calendar view
+              </CustomBtn>
+            </ButtonGroup>
+          </Box>
           <Collapse in={collapsed}>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)}>
@@ -151,47 +177,10 @@ export default function OrdersFilters({
                   sx={{ padding: '0' }}
                 >
                   <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={statusList}
-                          id='status'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              autoComplete='off'
-                              label='Status'
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    {role.name !== 'CLIENT' ? (
+                    <Box className='filterFormAutoCompleteV2'>
                       <Controller
                         control={control}
-                        name='client'
+                        name='status'
                         render={({ field: { onChange, value } }) => (
                           <Autocomplete
                             multiple
@@ -205,14 +194,14 @@ export default function OrdersFilters({
                             }}
                             disableCloseOnSelect
                             limitTags={1}
-                            options={clientList}
-                            id='client'
+                            options={statusList}
+                            id='status'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
                               <TextField
                                 {...params}
                                 autoComplete='off'
-                                label='Client'
+                                label='Status'
                               />
                             )}
                             renderOption={(props, option, { selected }) => (
@@ -224,31 +213,129 @@ export default function OrdersFilters({
                           />
                         )}
                       />
-                    ) : (
+                    </Box>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Box className='filterFormAutoCompleteV2'>
+                      {role.name !== 'CLIENT' ? (
+                        <Controller
+                          control={control}
+                          name='client'
+                          render={({ field: { onChange, value } }) => (
+                            <Autocomplete
+                              multiple
+                              fullWidth
+                              onChange={(event, item) => {
+                                onChange(item)
+                              }}
+                              value={value}
+                              isOptionEqualToValue={(option, newValue) => {
+                                return option.value === newValue.value
+                              }}
+                              disableCloseOnSelect
+                              limitTags={1}
+                              options={clientList}
+                              id='client'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  autoComplete='off'
+                                  label='Client'
+                                />
+                              )}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                  {option.label}
+                                </li>
+                              )}
+                            />
+                          )}
+                        />
+                      ) : (
+                        <Controller
+                          control={control}
+                          name='lsp'
+                          render={({ field: { onChange, value } }) => (
+                            <Autocomplete
+                              multiple
+                              fullWidth
+                              onChange={(event, item) => {
+                                onChange(item)
+                              }}
+                              value={value}
+                              isOptionEqualToValue={(option, newValue) => {
+                                return option.value === newValue.value
+                              }}
+                              disableCloseOnSelect
+                              limitTags={1}
+                              options={companiesList || []}
+                              id='lsp'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  autoComplete='off'
+                                  label='LSP'
+                                />
+                              )}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                  {option.label}
+                                </li>
+                              )}
+                            />
+                          )}
+                        />
+                      )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Box className='filterFormAutoCompleteV2'>
                       <Controller
                         control={control}
-                        name='lsp'
+                        name='category'
                         render={({ field: { onChange, value } }) => (
                           <Autocomplete
-                            multiple
                             fullWidth
-                            onChange={(event, item) => {
-                              onChange(item)
-                            }}
-                            value={value}
+                            multiple
+                            limitTags={1}
                             isOptionEqualToValue={(option, newValue) => {
                               return option.value === newValue.value
                             }}
                             disableCloseOnSelect
-                            limitTags={1}
-                            options={companiesList || []}
-                            id='lsp'
+                            onChange={(event, item) => {
+                              onChange(item)
+                              if (item.length) {
+                                const arr: {
+                                  label: ServiceType
+                                  value: ServiceType
+                                }[] = []
+
+                                item.map(value => {
+                                  /* @ts-ignore */
+                                  const res = ServiceTypePair[value.value]
+                                  arr.push(...res)
+                                })
+
+                                setServiceTypeList(_.uniqBy(arr, 'value'))
+                                trigger('serviceType')
+                              } else {
+                                setServiceTypeList(ServiceTypeList)
+                                trigger('serviceType')
+                              }
+                            }}
+                            value={value}
+                            options={categoryList}
+                            id='category'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
                               <TextField
                                 {...params}
                                 autoComplete='off'
-                                label='LSP'
+                                label='Category'
                               />
                             )}
                             renderOption={(props, option, { selected }) => (
@@ -260,263 +347,219 @@ export default function OrdersFilters({
                           />
                         )}
                       />
-                    )}
+                    </Box>
                   </Grid>
                   <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='category'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          fullWidth
-                          multiple
-                          limitTags={1}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          onChange={(event, item) => {
-                            onChange(item)
-                            if (item.length) {
-                              const arr: {
-                                label: ServiceType
-                                value: ServiceType
-                              }[] = []
+                    <Box className='filterFormAutoCompleteV2'>
+                      <Controller
+                        control={control}
+                        name='serviceType'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            fullWidth
+                            multiple
+                            disableCloseOnSelect
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            onChange={(event, item) => {
+                              onChange(item)
 
-                              item.map(value => {
-                                /* @ts-ignore */
-                                const res = ServiceTypePair[value.value]
-                                arr.push(...res)
-                              })
+                              if (item.length) {
+                                const arr: {
+                                  label: Category
+                                  value: Category
+                                }[] = []
 
-                              setServiceTypeList(_.uniqBy(arr, 'value'))
-                              trigger('serviceType')
-                            } else {
-                              setServiceTypeList(ServiceTypeList)
-                              trigger('serviceType')
-                            }
-                          }}
-                          value={value}
-                          options={categoryList}
-                          id='category'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              autoComplete='off'
-                              label='Category'
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='serviceType'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          fullWidth
-                          multiple
-                          disableCloseOnSelect
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          onChange={(event, item) => {
-                            onChange(item)
+                                item.map(value => {
+                                  /* @ts-ignore */
+                                  const res = CategoryListPair[value.value]
+                                  arr.push(...res)
+                                })
 
-                            if (item.length) {
-                              const arr: {
-                                label: Category
-                                value: Category
-                              }[] = []
-
-                              item.map(value => {
-                                /* @ts-ignore */
-                                const res = CategoryListPair[value.value]
-                                arr.push(...res)
-                              })
-
-                              setCategoryList(arr)
-                              trigger('category')
-                            } else {
-                              setCategoryList(CategoryList)
-                              trigger('category')
-                            }
-                          }}
-                          value={value}
-                          options={serviceTypeList}
-                          id='ServiceType'
-                          limitTags={1}
-                          getOptionLabel={option => option.label || ''}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              autoComplete='off'
-                              label='Service type'
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='orderDate'
-                      render={({ field: { onChange, value } }) => (
-                        <Box sx={{ width: '100%' }}>
-                          <DatePicker
-                            selectsRange
-                            autoComplete='off'
-                            monthsShown={2}
-                            endDate={value[1]}
-                            selected={value[0]}
-                            startDate={value[0]}
-                            shouldCloseOnSelect={false}
-                            id='date-range-picker-months'
-                            onChange={onChange}
-                            popperPlacement={popperPlacement}
-                            customInput={
-                              <Box>
-                                <CustomInput
-                                  label='Order date'
-                                  icon='calendar'
-                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                  value={
-                                    value.length > 0
-                                      ? dateValue(value[0], value[1])
-                                      : ''
-                                  }
-                                />
-                              </Box>
-                            }
+                                setCategoryList(arr)
+                                trigger('category')
+                              } else {
+                                setCategoryList(CategoryList)
+                                trigger('category')
+                              }
+                            }}
+                            value={value}
+                            options={serviceTypeList}
+                            id='ServiceType'
+                            limitTags={1}
+                            getOptionLabel={option => option.label || ''}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                autoComplete='off'
+                                label='Service type'
+                              />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
                           />
-                        </Box>
-                      )}
-                    />
+                        )}
+                      />
+                    </Box>
                   </Grid>
                   <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='projectDueDate'
-                      render={({ field: { onChange, value } }) => (
-                        <Box sx={{ width: '100%' }}>
-                          <DatePicker
-                            selectsRange
-                            autoComplete='off'
-                            monthsShown={2}
-                            endDate={value[1]}
-                            selected={value[0]}
-                            startDate={value[0]}
-                            shouldCloseOnSelect={false}
-                            id='date-range-picker-months'
-                            onChange={onChange}
-                            popperPlacement={popperPlacement}
-                            customInput={
-                              <Box>
-                                <CustomInput
-                                  label='Project due date'
-                                  icon='calendar'
-                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                  value={
-                                    value.length > 0
-                                      ? dateValue(value[0], value[1])
-                                      : ''
-                                  }
-                                />
-                              </Box>
-                            }
-                          />
-                        </Box>
-                      )}
-                    />
+                    <Box className='filterFormAutoCompleteV2'>
+                      <Controller
+                        control={control}
+                        name='orderDate'
+                        render={({ field: { onChange, value } }) => (
+                          <Box sx={{ width: '100%' }}>
+                            <DatePicker
+                              selectsRange
+                              autoComplete='off'
+                              monthsShown={2}
+                              endDate={value[1]}
+                              selected={value[0]}
+                              startDate={value[0]}
+                              shouldCloseOnSelect={false}
+                              id='date-range-picker-months'
+                              onChange={onChange}
+                              popperPlacement={popperPlacement}
+                              customInput={
+                                <Box>
+                                  <CustomInput
+                                    label='Order date'
+                                    icon='calendar'
+                                    placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                                    value={
+                                      value.length > 0
+                                        ? dateValue(value[0], value[1])
+                                        : ''
+                                    }
+                                  />
+                                </Box>
+                              }
+                            />
+                          </Box>
+                        )}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Box className='filterFormAutoCompleteV2'>
+                      <Controller
+                        control={control}
+                        name='projectDueDate'
+                        render={({ field: { onChange, value } }) => (
+                          <Box sx={{ width: '100%' }}>
+                            <DatePicker
+                              selectsRange
+                              autoComplete='off'
+                              monthsShown={2}
+                              endDate={value[1]}
+                              selected={value[0]}
+                              startDate={value[0]}
+                              shouldCloseOnSelect={false}
+                              id='date-range-picker-months'
+                              onChange={onChange}
+                              popperPlacement={popperPlacement}
+                              customInput={
+                                <Box>
+                                  <CustomInput
+                                    label='Project due date'
+                                    icon='calendar'
+                                    placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                                    value={
+                                      value.length > 0
+                                        ? dateValue(value[0], value[1])
+                                        : ''
+                                    }
+                                  />
+                                </Box>
+                              }
+                            />
+                          </Box>
+                        )}
+                      />
+                    </Box>
                   </Grid>
                   {role.name === 'CLIENT' ? null : (
-                    <Grid item xs={3}>
-                      <Controller
-                        control={control}
-                        name='revenueFrom'
-                        render={({ field: { onChange, value } }) => (
-                          <Autocomplete
-                            multiple
-                            fullWidth
-                            onChange={(event, item) => {
-                              onChange(item)
-                            }}
-                            value={value}
-                            isOptionEqualToValue={(option, newValue) => {
-                              return option.value === newValue.value
-                            }}
-                            disableCloseOnSelect
-                            limitTags={1}
-                            options={RevenueFrom.sort((a, b) =>
-                              a.value > b.value
-                                ? 1
-                                : b.value > a.value
-                                  ? -1
-                                  : 0,
-                            )}
-                            id='revenueFrom'
-                            getOptionLabel={option => option.label}
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                autoComplete='off'
-                                label='Revenue from'
-                              />
-                            )}
-                            renderOption={(props, option, { selected }) => (
-                              <li {...props}>
-                                <Checkbox checked={selected} sx={{ mr: 2 }} />
-                                {option.label}
-                              </li>
-                            )}
-                          />
-                        )}
-                      />
+                    <Grid item xs={2}>
+                      <Box className='filterFormAutoCompleteV2'>
+                        <Controller
+                          control={control}
+                          name='revenueFrom'
+                          render={({ field: { onChange, value } }) => (
+                            <Autocomplete
+                              multiple
+                              fullWidth
+                              onChange={(event, item) => {
+                                onChange(item)
+                              }}
+                              value={value}
+                              isOptionEqualToValue={(option, newValue) => {
+                                return option.value === newValue.value
+                              }}
+                              disableCloseOnSelect
+                              limitTags={1}
+                              options={RevenueFrom.sort((a, b) =>
+                                a.value > b.value
+                                  ? 1
+                                  : b.value > a.value
+                                    ? -1
+                                    : 0,
+                              )}
+                              id='revenueFrom'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  autoComplete='off'
+                                  label='Revenue from'
+                                />
+                              )}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                  {option.label}
+                                </li>
+                              )}
+                            />
+                          )}
+                        />
+                      </Box>
                     </Grid>
                   )}
 
-                  <Grid item xs={role.name === 'CLIENT' ? 6 : 3}>
-                    <FormControl fullWidth>
-                      <Controller
-                        control={control}
-                        name='search'
-                        render={({ field: { onChange, value } }) => (
-                          <>
-                            <InputLabel>Search projects</InputLabel>
-                            <OutlinedInput
-                              label='Search projects'
-                              value={value}
-                              onChange={onChange}
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <Icon icon='mdi:magnify' />
-                                </InputAdornment>
-                              }
-                            />
-                          </>
-                        )}
-                      />
-                    </FormControl>
+                  <Grid item xs={role.name === 'CLIENT' ? 6 : 2}>
+                    <Box className='filterFormAutoCompleteV2'>
+                      <FormControl fullWidth>
+                        <Controller
+                          control={control}
+                          name='search'
+                          render={({ field: { onChange, value } }) => (
+                            <>
+                              <InputLabel>Search projects</InputLabel>
+                              <OutlinedInput
+                                label='Search projects'
+                                value={value}
+                                onChange={onChange}
+                                endAdornment={
+                                  <InputAdornment position='end'>
+                                    <Icon icon='mdi:magnify' />
+                                  </InputAdornment>
+                                }
+                              />
+                            </>
+                          )}
+                        />
+                      </FormControl>
+                    </Box>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs>
                     <Box display='flex' justifyContent='flex-end' gap='15px'>
                       <Button
+                        fullWidth
                         variant='outlined'
                         size='medium'
                         color='secondary'
@@ -525,7 +568,7 @@ export default function OrdersFilters({
                       >
                         Reset
                       </Button>
-                      <Button variant='contained' size='medium' type='submit'>
+                      <Button fullWidth variant='contained' size='medium' type='submit'>
                         Search
                       </Button>
                     </Box>
@@ -539,3 +582,8 @@ export default function OrdersFilters({
     </DatePickerWrapper>
   )
 }
+
+const CustomBtn = styled(Button)<{ $focus: boolean }>`
+  width: 145px;
+  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
+`

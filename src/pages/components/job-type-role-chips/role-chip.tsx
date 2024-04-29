@@ -37,7 +37,8 @@ const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
           type='role'
           label={role}
           /* @ts-ignore */
-          customcolor={RoleColor[role]}
+          // customcolor={RoleColor[role]}
+          customcolor='#666CFF'
           sx={{
             textTransform: 'capitalize',
             '& .MuiChip-label': { lineHeight: '18px' },

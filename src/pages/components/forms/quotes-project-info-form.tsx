@@ -24,7 +24,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useEffect, useRef, useState } from 'react'
+import { Fragment, ReactNode, useEffect, useRef, useState, Dispatch, SetStateAction } from 'react'
 
 // ** react hook form
 import {
@@ -72,6 +72,8 @@ import { addWorkName } from '@src/apis/common.api'
 import dayjs from 'dayjs'
 
 import { timezoneSelector } from '@src/states/permission'
+import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
@@ -97,26 +99,45 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const [timeZoneList, setTimeZoneList] = useState<
+  const [timezoneList, setTimezoneList] = useState<
     {
+      id: number
       code: string
       label: string
-      phone: string
+      pinned: boolean
     }[]
   >([])
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
   useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
       return {
+        id: idx,
         code: list.timezoneCode,
         label: list.timezone,
-        phone: '',
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimezoneList(filteredTimezone)
   }, [timezone])
 
   const auth = useRecoilValueLoadable(authState)
@@ -163,7 +184,11 @@ export default function ProjectInfoForm({
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   useEffect(() => {
-    if (clientTimezone) {
+    if (clientTimezone && timezoneList) {
+      const timezoneLabel = clientTimezone.label
+      const getClientTimezone = timezoneList.find(
+        (zone) => zone.label === clientTimezone.label
+      )
       ;[
         'quoteDate.timezone',
         'projectDueDate.timezone',
@@ -171,10 +196,10 @@ export default function ProjectInfoForm({
         'quoteExpiryDate.timezone',
         'estimatedDeliveryDate.timezone',
       ].forEach((item: any) => {
-        setValue(item, clientTimezone, setValueOptions)
+        setValue(item, getClientTimezone, setValueOptions)
       })
     }
-  }, [clientTimezone])
+  }, [clientTimezone, timezoneList])
 
   useEffect(() => {
     if (isSuccess) {
@@ -192,11 +217,15 @@ export default function ProjectInfoForm({
   useEffect(() => {
     if (
       getClientValue('contacts.timezone') &&
-      !getValues('quoteDate.timezone')
+      !getValues('quoteDate.timezone') &&
+      timezoneList.length > 0
     ) {
+      const getUserTimezone = timezoneList.find(
+        (zone) => zone.code === getClientValue('contacts.timezone')?.code
+      ) ?? { id: undefined, code: '', label: '', pinned: false }
       setValue(
         'quoteDate.timezone',
-        getClientValue('contacts.timezone')!,
+        getUserTimezone,
         setValueOptions,
       )
     }
@@ -285,6 +314,24 @@ export default function ProjectInfoForm({
     return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
 
+  const handleTimezonePin = (option: {
+    id: number | undefined;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -326,16 +373,28 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -717,17 +776,29 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -795,17 +866,29 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -856,17 +939,29 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -917,17 +1012,29 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (

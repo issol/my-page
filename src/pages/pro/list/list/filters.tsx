@@ -41,6 +41,7 @@ import { ProFilterType } from '@src/types/pro/list'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetSimpleClientList } from '@src/queries/common.query'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { setTimezonePin } from '@src/shared/auth/storage'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -94,6 +95,12 @@ type Props = {
     label: string
     pinned: boolean
   }[]
+  timezone: {
+    offset: number
+    offsetFormatted: string
+    timezone: string
+    timezoneCode: string
+  }[]
   setTimezoneList: Dispatch<
     SetStateAction<
       {
@@ -104,12 +111,6 @@ type Props = {
       }[]
     >
   >
-  timezone: {
-    offset: number
-    offsetFormatted: string
-    timezone: string
-    timezoneCode: string
-  }[]
 }
 
 const ProListFilters = ({
@@ -127,8 +128,8 @@ const ProListFilters = ({
   handleFilterStateChange,
   proListCount,
   timezoneList,
-  setTimezoneList,
   timezone,
+  setTimezoneList,
 }: Props) => {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
@@ -165,8 +166,26 @@ const ProListFilters = ({
     -1,
   )
 
+  const handleTimezonePin = (option: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }) => {
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
+
   return (
-    <Card sx={{ padding: '24px', borderRadius: '0' }}>
+    <Card sx={{ padding: '24px', borderRadius: '16px 16px 0 0' }}>
       <Typography variant='h6' sx={{ mb: '20px' }}>
         Pros ({proListCount.toLocaleString()})
       </Typography>
@@ -367,8 +386,83 @@ const ProListFilters = ({
               />
             </Box>
           </Grid>
-
-          <Grid item xs={2.5}>
+          <Grid item xs={3}>
+            <Box className='filterFormAutoCompleteV2'>
+              <Controller
+                control={control}
+                name='timezone'
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onClose={() => {
+                      setInputStyle(false)
+                    }}
+                    onOpen={() => {
+                      setInputStyle(true)
+                    }}
+                    onChange={(event, item) => {
+                      onChange(item)
+                    }}
+                    value={value}
+                    // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
+                    options={pinSortedOptions}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.id === newValue.id
+                    }}
+                    disableCloseOnSelect
+                    limitTags={1}
+                    id='timezone'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label={`Pro's timezone`}
+                      />
+                    )}
+                    renderOption={(props, option, state) => (
+                      <Box
+                        component='li'
+                        {...props}
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Checkbox checked={state.selected} sx={{ mr: 2 }} />
+                        <Typography
+                          noWrap
+                          sx={{
+                            width: '100%',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {/* {option.label} */}
+                          {timeZoneFormatter(option, timezone)}
+                        </Typography>
+                        <IconButton
+                          onClick={event => {
+                            event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                            handleTimezonePin(option)
+                          }}
+                          size='small'
+                          style={{
+                            color: option.pinned ? '#FFAF66' : undefined,
+                          }}
+                        >
+                          <PushPinIcon />
+                        </IconButton>
+                      </Box>
+                    )}
+                  />
+                )}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={3}>
             <Box className='filterFormAutoCompleteV2'>
               <Controller
                 control={control}

@@ -39,6 +39,7 @@ import { StatusItem } from '@src/types/common/status.type'
 
 import {
   JobAssignProRequestsType,
+  JobPricesDetailType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
@@ -84,6 +85,13 @@ type Props = {
     unknown
   >
   selectedJobUpdatable: boolean
+  jobDetail: {
+    jobId: number;
+    jobInfo: JobType | undefined;
+    jobPrices: JobPricesDetailType | undefined;
+    jobAssign: JobAssignProRequestsType[];
+    jobAssignDefaultRound: number;
+  }[]
 }
 
 const JobInfo = ({
@@ -96,6 +104,7 @@ const JobInfo = ({
   setJobId,
   setJobStatusMutation,
   selectedJobUpdatable,
+  jobDetail,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()

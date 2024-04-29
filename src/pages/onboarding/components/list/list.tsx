@@ -1,7 +1,8 @@
-import { Card, Grid, LinearProgress, Typography } from '@mui/material'
+import { Card, Grid, Typography, LinearProgress } from '@mui/material'
 
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
 
@@ -166,6 +167,11 @@ export default function OnboardingList({
                   <Typography variant='subtitle1'>There are no Pros</Typography>
                 </Box>
               )
+            },
+            '& .MuiDataGrid-cell': {
+              padding: '0 20px !important',
+              justifyContent: 'center',
+              alignContent: 'center',
             },
           }}
           onCellClick={params => {

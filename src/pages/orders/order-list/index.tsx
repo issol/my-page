@@ -82,7 +82,7 @@ const defaultFilters: OrderListFilterType = {
   projectDueDateTo: '',
 }
 
-type MenuType = 'list' | 'calendar'
+export type MenuType = 'list' | 'calendar'
 
 export default function OrderList() {
   const currentRole = getCurrentRole()
@@ -321,34 +321,9 @@ export default function OrderList() {
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
-      <Box
-        display='flex'
-        width={'100%'}
-        alignItems='center'
-        justifyContent='space-between'
-        padding='10px 0 24px'
-      >
-        <PageHeader title={<Typography variant='h5'>Order list</Typography>} />
-        <ButtonGroup variant='outlined'>
-          <CustomBtn
-            value='list'
-            $focus={menu === 'list'}
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
-          >
-            List view
-          </CustomBtn>
-          <CustomBtn
-            $focus={menu === 'calendar'}
-            value='calendar'
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
-          >
-            Calendar view
-          </CustomBtn>
-        </ButtonGroup>
-      </Box>
       <Box>
         {menu === 'list' ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             <OrdersFilters
               control={control}
               onReset={onClickResetButton}
@@ -363,26 +338,11 @@ export default function OrderList() {
               companiesList={companiesList}
               statusList={statusList!}
               role={currentRole!}
+              menu={menu}
+              setMenu={setMenu}
+              listCount={orderList?.totalCount!}
             />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '24px',
-              }}
-            >
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>See only my orders</Typography>
-                <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
-              </Box>
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>Hide completed orders</Typography>
-                <Switch
-                  checked={hideCompletedOrders}
-                  onChange={handleHideCompletedOrders}
-                />
-              </Box>
-            </Box>
+
             <OrdersList
               page={orderListPage}
               setPageSize={setOrderListPage}
@@ -397,6 +357,10 @@ export default function OrderList() {
               handleRowClick={handleRowClick}
               role={currentRole!}
               defaultFilter={defaultFilter}
+              seeMyOrders={seeMyOrders}
+              handleSeeMyOrders={handleSeeMyOrders}
+              hideCompletedOrders={hideCompletedOrders}
+              handleHideCompletedOrders={handleHideCompletedOrders}
             />
           </Box>
         ) : (
@@ -406,11 +370,6 @@ export default function OrderList() {
     </Box>
   )
 }
-
-const CustomBtn = styled(Button)<{ $focus: boolean }>`
-  width: 145px;
-  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
-`
 
 OrderList.acl = {
   subject: 'order',

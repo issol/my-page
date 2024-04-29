@@ -153,6 +153,44 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,
   }
+
+  const extractFileName = (path: string) => {
+    return path.split('/').pop() ?? ''
+  }
+
+  const extractFileExtension = (path: string) => {
+    const fileName = extractFileName(path)
+    const fileExtension = fileName 
+      ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+      : 'default'
+
+    switch (fileExtension) {
+      case 'doc':
+      case 'docx':
+        return 'doc'
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return 'excel'
+      case 'pdf':
+        return 'pdf'
+      case 'ppt':
+      case 'pptx':
+        return 'ppt'
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+        return 'img'
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+        return 'video'
+      default:
+        return 'default'
+    }
+  }
+
   return (
     <Card sx={{ padding: '20px 20px 0 20px', height: '100%' }}>
       <TypoGraphy
@@ -170,7 +208,12 @@ export default function Resume({ userInfo, onClickResume }: Props) {
           onClick={() =>
             DownloadAllFile(
               userInfo.resume && userInfo.resume.length
-                ? userInfo.resume
+                ? userInfo.resume.map((url) => ({
+                    url,
+                    filePath: url,
+                    fileName: extractFileName(url),
+                    fileExtension: extractFileExtension(url),
+                  }))
                 : null,
             )
           }
@@ -196,7 +239,13 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickResume(value, S3FileType.RESUME)}
+                    onClick={() => onClickResume({
+                        url: value,
+                        filePath: value,
+                        fileName: extractFileName(value),
+                        fileExtension: extractFileExtension(value),
+                      }, S3FileType.RESUME)
+                    }
                   >
                     <Box
                       sx={{
@@ -206,7 +255,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       }}
                     >
                       <img
-                        src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
+                        src={`/images/icons/file-icons/${extractFileExtension(value)}.svg`}
                         style={{
                           width: '40px',
                           height: '40px',
@@ -215,7 +264,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       ></img>
                     </Box>
 
-                    <ResumeFileName>{value.fileName}</ResumeFileName>
+                    <ResumeFileName>{extractFileName(value)}</ResumeFileName>
                   </Box>
                 )
               })

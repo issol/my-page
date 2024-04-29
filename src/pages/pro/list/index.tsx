@@ -26,19 +26,11 @@ import {
   getUserFilters,
   saveUserFilters,
 } from '@src/shared/filter-storage'
-import {
-  DataGridProProps,
-  GridFetchRowsParams,
-  useGridApiRef,
-} from '@mui/x-data-grid-pro'
+import { useGridApiRef } from '@mui/x-data-grid-pro'
 import _ from 'lodash'
 import { getProList } from '@src/apis/pro/pro-list.api'
 
-import {
-  createFakeServer,
-  loadServerRows,
-  UseDemoDataOptions,
-} from '@mui/x-data-grid-generator'
+import { getTimezonePin } from '@src/shared/auth/storage'
 
 const defaultValues: ProFilterType = {
   // jobType: [],
@@ -46,6 +38,7 @@ const defaultValues: ProFilterType = {
   role: [],
   source: [],
   target: [],
+
   experience: [],
   status: [],
   clientId: [],
@@ -84,6 +77,7 @@ const ProsList = () => {
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
   )
+
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
   const [idOrder, setIdOrder] = useState(true)
@@ -196,37 +190,6 @@ const ProsList = () => {
     })
   }
 
-  const loadTimezonePin = ():
-    | {
-        id: number
-        code: string
-        label: string
-        pinned: boolean
-      }[]
-    | null => {
-    const storedOptions = localStorage.getItem('timezonePinnedOptions')
-    return storedOptions ? JSON.parse(storedOptions) : null
-  }
-
-  useEffect(() => {
-    console.log('timezoneList', timezoneList.length)
-    if (timezoneList.length !== 0) return
-    const zoneList = timezone.getValue()
-    const loadTimezonePinned = loadTimezonePin()
-    const filteredTimezone = zoneList.map((list, idx) => {
-      return {
-        id: idx,
-        code: list.timezoneCode,
-        label: list.timezone,
-        pinned:
-          loadTimezonePinned && loadTimezonePinned.length > 0
-            ? loadTimezonePinned[idx].pinned
-            : false,
-      }
-    })
-    setTimezoneList(filteredTimezone)
-  }, [timezone])
-
   // useEffect(() => {
   //   queryClient.invalidateQueries(['pro-list'])
   //   queryClient.invalidateQueries(['pro-overview'])
@@ -315,6 +278,36 @@ const ProsList = () => {
   //   },
   //   [apiRef, fetchRow],
   // )
+
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>

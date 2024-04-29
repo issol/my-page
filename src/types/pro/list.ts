@@ -6,6 +6,7 @@ export type ProFilterType = {
   source: { label: string; value: string }[]
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
+  timezone: { id: number, label: string; code: string, pinned: boolean }[]
   status: { label: string; value: string }[]
   clientId: { name: string; clientId: number }[]
   search: string

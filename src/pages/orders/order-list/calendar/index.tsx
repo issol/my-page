@@ -202,6 +202,10 @@ const OrderListCalendar = () => {
           isLoading={isLoading}
           isCardHeader={false}
           role={currentRole!}
+          seeMyOrders={seeMyOrders}
+          handleSeeMyOrders={handleSeeMyOrders}
+          hideCompletedOrders={hideCompletedOrders}
+          handleHideCompletedOrders={handleHideCompletedOrders}
         />
       ) : null}
     </Box>

@@ -75,7 +75,7 @@ const ProList = ({
   )
 
   return (
-    <Card sx={{ borderRadius: '0' }}>
+    <Card sx={{ borderRadius: '0 0 16px 16px', }}>
       <Box
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
@@ -86,22 +86,33 @@ const ProList = ({
             justifyContent: 'center',
             alignContent: 'center',
           },
-          height: {
-            lg: 'calc(97vh - 323px)', // 1075px 이상
-            md: 'calc(97vh - 398px)', // 1075px 이하
-            sm: 'calc(97vh - 398px)', // 1075px 이하
-            xs: 'calc(97vh - 500px)', // 1075px 이하
-          },
+          height: 'calc(97vh - 420px)',
         }}
       >
         <DataGridPro
           rowHeight={40}
           apiRef={apiRef}
+          sx={{
+            cursor: 'pointer',
+            '& .MuiDataGrid-columnHeaders': {
+              borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
+            },
+            '& .MuiDataGrid-cell--pinnedLeft.highlight-cell': {
+              backgroundColor: '#FFF2F2',
+            },
+            '& .MuiDataGrid-cell--pinnedLeft': {
+              backgroundColor: '#FFF',
+            },
+            '& .MuiDataGrid-filler--pinnedLeft': {
+              backgroundColor: '#FFF',
+            },
+            borderRadius: 'none',
+          }}
           slots={{
             noRowsOverlay: () => NoList('There are no Pros'),
             loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
           }}
-          sx={{ overflowX: 'scroll' }}
+          // sx={{ overflowX: 'scroll' }}
           initialState={{
             pinnedColumns: { left: ['id', 'name'], right: ['actions'] },
           }}
@@ -119,7 +130,7 @@ const ProList = ({
           scrollEndThreshold={200}
           hideFooter
           onCellClick={params => {
-            router.push(`/pro/list/detail/${params.row.userId}`)
+            if (params.field !== 'resume') router.push(`/pro/list/detail/${params.row.userId}`)
           }}
           // onPageChange={(newPage: number) => {
           //   setFilters((prevState: ProListFilterType) => ({

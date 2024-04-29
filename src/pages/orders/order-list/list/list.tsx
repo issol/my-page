@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Button, Card, Grid, Typography, Switch } from '@mui/material'
 
 import { Box } from '@mui/system'
 import {
@@ -48,6 +48,10 @@ type Props = {
   isCardHeader: boolean
   role: UserRoleType
   defaultFilter?: FilterType
+  seeMyOrders: boolean
+  handleSeeMyOrders: (event: React.ChangeEvent<HTMLInputElement>) => void
+  hideCompletedOrders: boolean
+  handleHideCompletedOrders: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export default function OrdersList({
@@ -64,6 +68,10 @@ export default function OrdersList({
   isCardHeader,
   role,
   defaultFilter,
+  seeMyOrders,
+  handleSeeMyOrders,
+  hideCompletedOrders,
+  handleHideCompletedOrders,
 }: Props) {
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
@@ -78,7 +86,7 @@ export default function OrdersList({
         <Box
           sx={{
             display: 'flex',
-            minWidth: 80,
+            minWidth: 120,
             width: '100%',
             alignItems: 'center',
           }}
@@ -111,29 +119,50 @@ export default function OrdersList({
     },
     {
       flex: 0.1,
-      minWidth: 260,
+      minWidth: 240,
       field: 'name',
-      headerName: `${role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email`,
+      headerName: `${role.name === 'CLIENT' ? 'LSP' : 'Client'}`,
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => (
-        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email</Box>
+        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Client'}</Box>
       ),
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>
-              {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
-            </Typography>
-            <Typography variant='body2'>
-              {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
-            </Typography>
-          </Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
+          </Typography>
         )
       },
     },
-
+    {
+      flex: 0.1,
+      minWidth: 240,
+      field: 'email',
+      headerName: 'Email',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Box>Email</Box>
+      ),
+      renderCell: ({ row }: OrderListCellType) => {
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
+          </Typography>
+        )
+      },
+    },
     {
       flex: 0.1,
       minWidth: 290,
@@ -144,7 +173,15 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Project name</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return <Box>{row.projectName}</Box>
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {row.projectName}
+          </Typography>
+        )
       },
     },
     {
@@ -197,13 +234,17 @@ export default function OrdersList({
       renderHeader: () => <Box>Order date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.orderedAt,
               user.timezone,
               timezone.getValue(),
             )}
-          </Box>
+          </Typography>
         )
       },
     },
@@ -219,13 +260,17 @@ export default function OrdersList({
       renderHeader: () => <Box>Project due date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.projectDueAt,
               user.timezone,
               timezone.getValue(),
             )}
-          </Box>
+          </Typography>
         )
       },
     },
@@ -241,13 +286,17 @@ export default function OrdersList({
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {!row.currency
               ? row.subtotal
                 ? row.subtotal
                 : '-'
               : formatCurrency(Number(row.subtotal), row.currency)}
-          </Box>
+          </Typography  >
         )
       },
     },
@@ -272,11 +321,21 @@ export default function OrdersList({
   return (
     <Grid item xs={12}>
       {isCardHeader ? (
-        <Card>
+        <Card
+          sx={{
+            borderRadius: '0 0 16px 16px',
+            
+          }}
+        >
           <CardHeader
             title={
-              <Box display='flex' justifyContent='space-between'>
-                <Typography variant='h6'>Orders ({listCount ?? 0})</Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '24px',
+                }}
+              >                
                 {role.name === 'CLIENT' ? null : (
                   <Button variant='contained'>
                     <StyledNextLink href='/orders/add-new' color='white'>
@@ -284,19 +343,33 @@ export default function OrdersList({
                     </StyledNextLink>
                   </Button>
                 )}
+                <Box sx={{ display: 'flex', }}>
+                  <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <Typography>See only my orders</Typography>
+                    <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <Typography>Hide completed orders</Typography>
+                    <Switch
+                      checked={hideCompletedOrders}
+                      onChange={handleHideCompletedOrders}
+                    />
+                  </Box>
+                </Box>
               </Box>
             }
-            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' }, paddingTop: '16px', }}
           ></CardHeader>
           <Box
             sx={{
+              width: '100%',
+              height: 'calc(97vh - 391px)',
               '& .MuiDataGrid-columnHeaderTitle': {
                 textTransform: 'none',
               },
             }}
           >
             <DataGrid
-              autoHeight
               components={{
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
@@ -338,6 +411,7 @@ export default function OrdersList({
               }}
               columns={columns}
               rows={list ?? []}
+              rowHeight={40}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
@@ -383,13 +457,14 @@ export default function OrdersList({
         <Card sx={{ padding: '0 !important' }}>
           <Box
             sx={{
+              width: '100%',
+              height: 'calc(97vh - 391px)',
               '& .MuiDataGrid-columnHeaderTitle': {
                 textTransform: 'none',
               },
             }}
           >
             <DataGrid
-              autoHeight
               // getRowId={row => row?.orderId}
               components={{
                 NoRowsOverlay: () => NoList(),
@@ -405,6 +480,7 @@ export default function OrdersList({
               }}
               columns={columns}
               rows={list ?? []}
+              rowHeight={40}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
