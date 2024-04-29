@@ -14,7 +14,7 @@ import {
   GridSlots,
   useGridApiRef,
 } from '@mui/x-data-grid-pro'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { useRouter } from 'next/router'
 import { getProList } from '@src/apis/pro/pro-list.api'
 
@@ -75,7 +75,7 @@ const ProList = ({
   )
 
   return (
-    <Card sx={{ borderRadius: '0 0 16px 16px', }}>
+    <Card sx={{ borderRadius: '0 0 16px 16px' }}>
       <Box
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
@@ -130,7 +130,8 @@ const ProList = ({
           scrollEndThreshold={200}
           hideFooter
           onCellClick={params => {
-            if (params.field !== 'resume') router.push(`/pro/list/detail/${params.row.userId}`)
+            if (params.field !== 'resume')
+              router.push(`/pro/list/detail/${params.row.userId}`)
           }}
           // onPageChange={(newPage: number) => {
           //   setFilters((prevState: ProListFilterType) => ({

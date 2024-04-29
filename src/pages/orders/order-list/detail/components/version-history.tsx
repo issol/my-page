@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { VersionHistoryType } from '@src/types/orders/order-detail'
 import { Dispatch, SetStateAction } from 'react'
 

@@ -22,7 +22,7 @@ import {
   GridSelectionModel,
   gridClasses,
 } from '@mui/x-data-grid'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import { useRouter } from 'next/router'
 import { ProJobListType } from '@src/types/jobs/jobs.type'

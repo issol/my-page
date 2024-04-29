@@ -24,7 +24,7 @@ import {
   GridCallbackDetails,
   GridSelectionModel,
 } from '@mui/x-data-grid'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { Icon } from '@iconify/react'
 
 import {

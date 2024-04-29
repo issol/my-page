@@ -1,6 +1,6 @@
 import { Box, Button, Card, Typography } from '@mui/material'
 import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { Dispatch, SetStateAction } from 'react'
 

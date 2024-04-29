@@ -28,7 +28,7 @@ import {
 } from '@src/pages/orders/job-list/job-template'
 import { DataGrid, GridSelectionModel } from '@mui/x-data-grid'
 import { getAddJobTemplateColumns } from '@src/shared/const/columns/job-template'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { UseMutationResult } from 'react-query'
 import { displayCustomToast } from '@src/shared/utils/toast'
 

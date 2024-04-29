@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
 import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid'
 
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 import { useRouter } from 'next/router'

@@ -16,7 +16,7 @@ import {
 import { Dispatch, SetStateAction } from 'react'
 
 import { UserRoleType } from '@src/context/types'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   page: number

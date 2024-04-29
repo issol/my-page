@@ -16,7 +16,7 @@ import StatusHistoryModal from './modal/status-history-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import ReasonModal from './modal/reson-modal'
 import TestGuidelineModal from './modal/test-guideline-modal'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { useMutation, useQueryClient } from 'react-query'
 import { patchAppliedRole, patchTestStatus } from '@src/apis/onboarding.api'
 

@@ -14,7 +14,7 @@ import {
   AppliedRoleType,
   CertifiedRoleType,
 } from '@src/types/onboarding/details'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   certifiedRoleInfo: Array<CertifiedRoleType>

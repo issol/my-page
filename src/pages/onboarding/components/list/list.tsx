@@ -19,7 +19,7 @@ import {
   GridSlots,
   useGridApiRef,
 } from '@mui/x-data-grid-pro'
-import { NoList } from '@src/pages/components/no-list'
+import NoList from '@src/pages/components/no-list'
 import { useRouter } from 'next/router'
 import { getOnboardingProList } from '@src/apis/onboarding.api'
 
