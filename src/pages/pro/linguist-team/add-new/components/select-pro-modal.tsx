@@ -32,7 +32,9 @@ import { getLinguistTeamProColumns } from '@src/shared/const/columns/linguist-te
 import { ExperiencedYearsForFilter } from '@src/shared/const/experienced-years'
 import { JobList } from '@src/shared/const/job/jobs'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import { timezoneSelector } from '@src/states/permission'
 import { RoleSelectType, SelectType } from '@src/types/onboarding/list'
 import {
   LinguistTeamFormType,
@@ -42,6 +44,8 @@ import { ProListFilterType, ProListType } from '@src/types/pro/list'
 import _ from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { UseFormGetValues } from 'react-hook-form'
+import { useRecoilValueLoadable } from 'recoil'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 type Props = {
   onClose: () => void
@@ -56,6 +60,7 @@ export const initialFilter: LinguistTeamProListFilterType = {
   source: [],
   target: [],
   experience: [],
+  timezone: [],
   search: '',
   skip: 0,
   take: 8,
@@ -63,6 +68,7 @@ export const initialFilter: LinguistTeamProListFilterType = {
 
 const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
   const { openModal, closeModal } = useModal()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [exposedModal, setExposedModal] = useState(false)
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     jobType: [],
@@ -72,6 +78,7 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
     experience: [],
     status: [],
     clientId: getValues('clientId') ? [getValues('clientId')] : [],
+    timezone: [],
     take: 8,
     skip: 0,
   })
@@ -85,9 +92,49 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       experience: [],
       status: [],
       clientId: getValues('clientId') ? [getValues('clientId')] : [],
+      timezone: [],
       take: 8,
       skip: 0,
     })
+
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = localStorage.getItem('timezonePinnedOptions')
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
 
   const { data: proList, isLoading } = useGetProList(activeFilter)
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
@@ -125,6 +172,29 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       take: activeFilter.take,
     })
   }
+
+  const handlePin = (option: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }) => {
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
+    setTimezoneList(newOptions)
+    localStorage.setItem('timezonePinnedOptions', JSON.stringify(newOptions))
+  }
+
+  const sortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
+
+  const lastPinnedIndex = timezoneList.reduce(
+    (lastIndex, option, index) => (option.pinned ? index : lastIndex),
+    -1,
+  )
 
   const setWarningLanguagePair = (
     type: 'source' | 'target',
@@ -321,60 +391,7 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
             />
           </Box>
         </Grid>
-        <Grid item xs={6} md={4} lg={3}>
-          <Box className='filterFormAutoComplete'>
-            <Autocomplete
-              multiple
-              fullWidth
-              isOptionEqualToValue={(option, newValue) => {
-                return option.value === newValue.value
-              }}
-              onChange={(event, item) => {
-                setFilter({
-                  ...filter,
-                  jobType: item.map(i => i.value),
-                })
 
-                if (item.length) {
-                  const arr: {
-                    label: string
-                    value: string
-                    jobType: string[]
-                  }[] = []
-                  item.map((data, idx) => {
-                    const jobTypeValue = data?.value
-
-                    const res = OnboardingListRolePair.filter(value =>
-                      value.jobType.includes(jobTypeValue),
-                    )
-
-                    arr.push(...res)
-                  })
-                  setRoleOptions(arr)
-                } else {
-                  setRoleOptions(OnboardingListRolePair)
-                }
-              }}
-              value={jobTypeOptions.filter(jobType =>
-                filter.jobType?.includes(jobType.value),
-              )}
-              disableCloseOnSelect
-              limitTags={1}
-              options={jobTypeOptions}
-              id='jobType'
-              getOptionLabel={option => option.label}
-              renderInput={params => (
-                <TextField {...params} autoComplete='off' label='Job type' />
-              )}
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox checked={selected} sx={{ mr: 2 }} />
-                  {option.label}
-                </li>
-              )}
-            />
-          </Box>
-        </Grid>
         <Grid item xs={6} md={4} lg={3}>
           <Box className='filterFormAutoComplete'>
             <Autocomplete
@@ -433,6 +450,135 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
                 </li>
               )}
             />
+          </Box>
+        </Grid>
+        <Grid item xs={6} md={4} lg={3}>
+          <Box className='filterFormAutoComplete'>
+            <Autocomplete
+              multiple
+              fullWidth
+              // onClose={() => {
+              //   setInputStyle(false)
+              // }}
+              // onOpen={() => {
+              //   setInputStyle(true)
+              // }}
+              onChange={(event, item) => {
+                setFilter({
+                  ...filter,
+                  timezone: item.map(value => value.label),
+                })
+              }}
+              value={sortedOptions.filter(value =>
+                filter.timezone?.includes(value.label),
+              )}
+              // options={timezoneList.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))}
+              options={sortedOptions}
+              isOptionEqualToValue={(option, newValue) => {
+                return option.id === newValue.id
+              }}
+              disableCloseOnSelect
+              limitTags={1}
+              id='timezone'
+              getOptionLabel={option => option.label}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  autoComplete='off'
+                  label={`Pro's timezone`}
+                />
+              )}
+              renderOption={(props, option, state) => (
+                <Box
+                  component='li'
+                  {...props}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom:
+                      state.index === lastPinnedIndex
+                        ? '1px solid #E9EAEC'
+                        : 'none',
+                  }}
+                >
+                  <Checkbox checked={state.selected} sx={{ mr: 2 }} />
+                  <Typography
+                    noWrap
+                    sx={{
+                      maxWidth: 300,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {/* {option.label} */}
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={event => {
+                      event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                      handlePin(option)
+                    }}
+                    size='small'
+                    style={{
+                      color: option.pinned ? '#FFAF66' : undefined,
+                    }}
+                  >
+                    <PushPinIcon />
+                  </IconButton>
+                </Box>
+              )}
+            />
+            {/* <Autocomplete
+              multiple
+              fullWidth
+              isOptionEqualToValue={(option, newValue) => {
+                return option.value === newValue.value
+              }}
+              onChange={(event, item) => {
+                setFilter({
+                  ...filter,
+                  jobType: item.map(i => i.value),
+                })
+
+                if (item.length) {
+                  const arr: {
+                    label: string
+                    value: string
+                    jobType: string[]
+                  }[] = []
+                  item.map((data, idx) => {
+                    const jobTypeValue = data?.value
+
+                    const res = OnboardingListRolePair.filter(value =>
+                      value.jobType.includes(jobTypeValue),
+                    )
+
+                    arr.push(...res)
+                  })
+                  setRoleOptions(arr)
+                } else {
+                  setRoleOptions(OnboardingListRolePair)
+                }
+              }}
+              value={jobTypeOptions.filter(jobType =>
+                filter.jobType?.includes(jobType.value),
+              )}
+              disableCloseOnSelect
+              limitTags={1}
+              options={jobTypeOptions}
+              id='jobType'
+              getOptionLabel={option => option.label}
+              renderInput={params => (
+                <TextField {...params} autoComplete='off' label='Job type' />
+              )}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                  {option.label}
+                </li>
+              )}
+            /> */}
           </Box>
         </Grid>
         <Grid item xs={6} md={4} lg={3}>
@@ -535,7 +681,7 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
             NoRowsOverlay: () => NoList('There are no pros'),
             NoResultsOverlay: () => NoList('There are no pros'),
           }}
-          columns={getLinguistTeamProColumns(false, true, 'detail')}
+          columns={getLinguistTeamProColumns(false, true, 'detail', timezone)}
           checkboxSelection
           selectionModel={selectionModel}
           onSelectionModelChange={handleSelectionModelChange}

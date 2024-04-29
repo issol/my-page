@@ -160,7 +160,7 @@ export default function Onboarding() {
       target: target.map(value => value.value),
       testStatus: testStatus.map(value => value.value),
       experience: experience.map(value => value.value),
-      timezone: timezone.map(value => value.code),
+      timezone: timezone.map(value => value.label),
       search: search,
       take: onboardingListPageSize,
       skip: onboardingListPageSize * onboardingListPage,
@@ -553,8 +553,16 @@ export default function Onboarding() {
   useEffect(() => {
     let mounted = true
     if (savedFilter) {
-      const { jobType, role, source, target, experience, testStatus, search } =
-        savedFilter
+      const {
+        jobType,
+        role,
+        source,
+        target,
+        experience,
+        testStatus,
+        search,
+        timezone,
+      } = savedFilter
 
       const filter = {
         jobType: jobType.map(value => value.value),
@@ -563,6 +571,7 @@ export default function Onboarding() {
         target: target.map(value => value.value),
         testStatus: testStatus.map(value => value.value),
         experience: experience.map(value => value.value),
+        timezone: timezone.map(value => value.label),
         search: search,
         take: 500,
         skip: 0,

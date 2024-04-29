@@ -25,6 +25,7 @@ const JobTypeRole = ({ jobInfo, visibleType }: Props) => {
           </ul>
         ) : null
       }
+      placement='bottom-start'
     >
       <Box
         sx={{

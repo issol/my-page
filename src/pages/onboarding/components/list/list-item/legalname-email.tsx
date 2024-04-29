@@ -3,6 +3,11 @@ import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
 import { Tooltip } from '@mui/material'
+import {
+  getCurrentRole,
+  getUserDataFromBrowser,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
 
 interface LegalNameEmailProps {
   row: {
@@ -55,7 +60,21 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
 
       <Box whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
         {link ? (
-          <Link href={link} style={{ textDecoration: 'none' }}>
+          <Link
+            href={{
+              pathname: link,
+              query: {
+                accessToken: getUserTokenFromBrowser(),
+                userData: getUserDataFromBrowser(),
+                currentRole: JSON.stringify(getCurrentRole()!),
+              },
+            }}
+            style={{ textDecoration: 'none' }}
+            target='_blank'
+            onClick={event => {
+              event.stopPropagation()
+            }}
+          >
             <Typography
               variant='body1'
               whiteSpace='nowrap'
@@ -63,6 +82,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
               textOverflow='ellipsis'
               fontWeight={600}
               color='rgba(76, 78, 100, 0.87)'
+              sx={{ textDecoration: 'underline' }}
             >
               {getLegalName({
                 firstName: row.firstName,

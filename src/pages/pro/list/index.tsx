@@ -142,6 +142,7 @@ const ProsList = () => {
       status,
       clientId,
       search,
+      timezone,
     } = data
 
     saveUserFilters(FilterKey.PRO_LIST, data)
@@ -157,6 +158,7 @@ const ProsList = () => {
       status: status.map(value => value.value),
       experience: experience.map(value => value.value),
       clientId: clientId.map(value => value.clientId),
+      timezone: timezone.map(value => value.label),
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
@@ -249,7 +251,7 @@ const ProsList = () => {
 
       const filter = {
         // jobType: jobType.map(value => value.value),
-        timezone: timezone.map(value => value.id),
+        timezone: timezone.map(value => value.label),
         role: role.map(value => value.value),
         source: source.map(value => value.value),
         target: target.map(value => value.value),

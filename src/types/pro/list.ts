@@ -27,7 +27,7 @@ export type ProListFilterType = {
   experience?: string[]
   sortId?: string
   sortDate?: string
-  timezone?: number[]
+  timezone?: string[]
 }
 
 export interface ProListJobInfoType extends JobInfoType {

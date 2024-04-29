@@ -8,11 +8,15 @@ import { useRouter } from 'next/router'
 
 import {
   getUserDataFromBrowser,
+  saveUserDataToBrowser,
+  saveUserTokenToBrowser,
   setRedirectPath,
 } from '@src/shared/auth/storage'
 
-import { useRecoilValueLoadable } from 'recoil'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { UserDataType } from '@src/context/types'
+import { currentRoleSelector } from '@src/states/permission'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -21,7 +25,9 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
-  const auth = useRecoilValueLoadable(authState)
+  const [auth, setAuth] = useRecoilStateLoadable(authState)
+  const [currentRole, setCurrentRole] =
+    useRecoilStateLoadable(currentRoleSelector)
   const router = useRouter()
 
   useEffect(
@@ -30,12 +36,33 @@ const AuthGuard = (props: AuthGuardProps) => {
       // if (!router.isReady) {
       //   return
       // }
+      console.log(auth.getValue())
 
       if (
         auth.state === 'hasValue' &&
         auth.getValue().user === null &&
         !getUserDataFromBrowser()
       ) {
+        if (router.query.accessToken) {
+          console.log(router.query)
+          const accessToken = router.query.accessToken as string
+          const userData = JSON?.parse(router.query.userData as string)
+          const currentRole = JSON?.parse(router.query.currentRole as string)
+          saveUserTokenToBrowser(accessToken)
+          saveUserDataToBrowser(userData as UserDataType)
+          setCurrentRole(currentRole)
+
+          setAuth(prev => ({ ...prev, loading: true }))
+          setAuth(prev => ({
+            ...prev,
+            user: userData,
+          }))
+          setAuth(prev => ({ ...prev, loading: false }))
+          const parsePath = router.asPath.split('?')
+          router.push(parsePath[0])
+          setRedirectPath(parsePath[0])
+          return
+        }
         if (router.asPath !== '/') {
           router.push('/login')
         } else {
