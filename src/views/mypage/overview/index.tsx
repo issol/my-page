@@ -131,12 +131,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [experience, setExperience] = useState(userInfo.experience)
   const [specialties, setSpecialties] = useState(userInfo?.specialties ?? [])
-  // const [resume, setResume] = useState(
-  //   userInfo.resume
-  //     ? userInfo.resume.map(item => `${item.fileName}.${item.fileExtension}`)
-  //     : [],
-  // )
-  const [resume, setResume] = useState([])
+  const [resume, setResume] = useState(
+    userInfo.resume
+      ? userInfo.resume.map(item => `${item.fileName}.${item.fileExtension}`)
+      : [],
+  )
+
   //pagination
   const [rolePage, setRolePage] = useState(0)
   const roleRowsPerPage = 4
@@ -522,7 +522,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
             fileData.push(file.name)
           })
       })
-      // setResume(fileData)
+      setResume(fileData)
       Promise.all(promiseArr)
         .then(res => {
           onResumeSave(fileData)
@@ -540,11 +540,11 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onClickDeleteResume = (fileName: string) => {
-    // if (resume.includes(fileName)) {
-    //   const updatedResume = resume.filter(item => item !== fileName)
-    //   setResume(updatedResume)
-    //   onResumeSave(updatedResume)
-    // }
+    if (resume.includes(fileName)) {
+      const updatedResume = resume.filter(item => item !== fileName)
+      setResume(updatedResume)
+      onResumeSave(updatedResume)
+    }
   }
 
   const onDeleteFile = (file: FileItemType) => {
@@ -842,7 +842,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
               >
                 <FileInfo
                   title='Resume'
-                  fileList={[]}
+                  fileList={userInfo.resume ?? []}
                   accept={{
                     // 'image/*': ['.png', '.jpg', '.jpeg'],
                     'text/csv': ['.csv'],
