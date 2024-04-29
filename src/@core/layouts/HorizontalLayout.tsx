@@ -252,7 +252,10 @@ const HorizontalLayout = (props: LayoutProps) => {
                     width: '100%',
                   },
                   minHeight: theme =>
-                    `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
+                    `${
+                      (theme.mixins.toolbar.minHeight as number) -
+                      (skin === 'bordered' ? 1 : 0)
+                    }px !important`,
                   width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
                   // overflowX: 'auto' // 가로 스크롤을 활성화
                 }}
@@ -287,6 +290,7 @@ const HorizontalLayout = (props: LayoutProps) => {
           //   }),
           // }}
           sx={{
+            ...(contentHeightFixed && { display: 'flex', overflow: 'hidden' }),
             mx: 'auto',
             '@media (min-width:1441px)': {
               maxWidth: 1900,
@@ -297,11 +301,7 @@ const HorizontalLayout = (props: LayoutProps) => {
               minWidth: 1440,
               width: '100%',
             },
-            minHeight: theme =>
-              `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
-            width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
-            // overflowX: 'auto', // 가로 스크롤을 활성화
-            // paddingTop: '150px',
+            width: '100vw',
           }}
         >
           {children}
