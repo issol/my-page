@@ -50,7 +50,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     }[] = []
     if (!userInfo) return
     if (userInfo.resume && userInfo.resume.length) {
-      userInfo.resume.map((value: string) => {
+      userInfo.resume.map((value) => {
         if (typeof value === 'string') {
           resumeData.push({
             url: value,
