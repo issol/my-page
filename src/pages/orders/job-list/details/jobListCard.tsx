@@ -151,12 +151,9 @@ const JobListCard = ({
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
-    const jobId =
-      row.templateId && row.triggerGroup
-        ? groupedJobs[`${row.templateId}-${row.triggerGroup}`].map(
-            value => value.id,
-          )
-        : row.id
+    const jobId = row.triggerGroup
+      ? groupedJobs[`${row.triggerGroup}`].map(value => value.id)
+      : row.id
 
     router.push({
       pathname: '/orders/job-list/detail/',
@@ -478,10 +475,10 @@ const JobListCard = ({
                   const isItemSelected = isSelected(row.id)
 
                   let isHighlighted = false
-                  if (row.templateId && row.triggerGroup && isHoverJobId) {
-                    isHighlighted = groupedJobs[
-                      `${row.templateId}-${row.triggerGroup}`
-                    ]?.some(value => value.id === isHoverJobId)
+                  if (row.triggerGroup && isHoverJobId) {
+                    isHighlighted = groupedJobs[`${row.triggerGroup}`]?.some(
+                      value => value.id === isHoverJobId,
+                    )
                   }
 
                   return (
@@ -491,7 +488,9 @@ const JobListCard = ({
                       sx={{
                         background: isHighlighted
                           ? 'rgba(76, 78, 100, 0.05)'
-                          : '#fff',
+                          : row.id === Number(jobId!)
+                            ? '#F7F8FF'
+                            : '#fff',
                         '&:hover': {
                           background: 'rgba(76, 78, 100, 0.05)',
                         },
@@ -504,6 +503,9 @@ const JobListCard = ({
                       aria-checked={isItemSelected}
                       onMouseEnter={() => setIsHoverJobId(row.id)}
                       onMouseLeave={() => setIsHoverJobId(null)}
+                      ref={
+                        jobId && row.id === Number(jobId) ? tableRowRef : null
+                      }
                     >
                       {viewState && (
                         <CustomTableCell padding='checkbox'>
