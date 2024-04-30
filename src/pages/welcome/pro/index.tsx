@@ -117,7 +117,9 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
-import MuiPhone from '@src/pages/components/phone/mui-phone'
+import MuiPhone, {
+  CountryIso2Values,
+} from '@src/pages/components/phone/mui-phone'
 import { currentRoleSelector, timezoneSelector } from '@src/states/permission'
 import Stepper from '@src/pages/components/stepper'
 import { Icon } from '@iconify/react'
@@ -130,6 +132,7 @@ import { saveUserDataToBrowser } from '@src/shared/auth/storage'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import axios from 'axios'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -215,6 +218,7 @@ const PersonalInfoPro = () => {
   const setAuth = useAuth()
   const setAuthState = useSetRecoilState(authState)
   const [loading, setLoading] = useState(false)
+  const [defaultCountry, setDefaultCountry] = useState('kr')
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -770,6 +774,19 @@ const PersonalInfoPro = () => {
     }
   }, [router.isReady, activeStep])
 
+  useEffect(() => {
+    const res = axios.get('https://geolocation-db.com/json/').then(res => {
+      const countryCode = res.data.country_code as string
+      if (countryCode) {
+        const lower = countryCode.toLowerCase()
+        const code = Object.keys(CountryIso2Values)
+        if (code.includes(lower)) {
+          setDefaultCountry(lower)
+        }
+      }
+    })
+  }, [])
+
   return (
     <>
       {loading ? <OverlaySpinner /> : null}
@@ -1230,7 +1247,7 @@ const PersonalInfoPro = () => {
 
                     <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
                       <FormControl fullWidth>
-                        <Typography fontSize={14} fontWeight={600}>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
                           Mobile phone
                           <Typography
                             component={'span'}
@@ -1245,7 +1262,7 @@ const PersonalInfoPro = () => {
                             <MuiPhone
                               value={value || ''}
                               onChange={onChange}
-
+                              defaultValue={defaultCountry}
                               // label={'Mobile phone'}
                             />
                           )}
@@ -1258,7 +1275,7 @@ const PersonalInfoPro = () => {
                       </FormControl>
 
                       <FormControl fullWidth>
-                        <Typography fontSize={14} fontWeight={600}>
+                        <Typography fontSize={14} fontWeight={600} mb='8px'>
                           Telephone
                           <Typography
                             component={'span'}
@@ -1273,6 +1290,7 @@ const PersonalInfoPro = () => {
                             <MuiPhone
                               value={value || ''}
                               onChange={onChange}
+                              defaultValue={defaultCountry}
                               // label={'Telephone'}
                             />
                           )}
