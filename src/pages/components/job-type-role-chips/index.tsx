@@ -17,7 +17,7 @@ const JobTypeRole = ({ jobInfo, visibleType }: Props) => {
   return (
     <Tooltip
       title={
-        jobInfo.length > 2 ? (
+        jobInfo.length > 0 ? (
           <ul style={{ paddingLeft: '16px' }}>
             {jobInfo.map(value => {
               return <li key={uuidv4()}>{value.role}</li>

@@ -10,6 +10,7 @@ import {
   InvoicePayableListType,
   PayableFormType,
   PayableHistoryType,
+  PayablePatchType,
 } from '@src/types/invoice/payable.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { AxiosError } from 'axios'
@@ -111,7 +112,7 @@ export const getInvoicePayableJobList = async (
 }
 export const updateInvoicePayable = async (
   payableId: number,
-  form: PayableFormType,
+  form: PayablePatchType,
 ) => {
   const { data } = await axios.patch(
     `/api/enough/u/invoice/payable/${payableId}`,

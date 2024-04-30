@@ -429,11 +429,9 @@ export default function AddNewInvoice() {
         formatISO(projectInfo.invoiceDate),
         projectInfo.invoiceDateTimezone,
       )!,
-      invoicedTimezone: {
-        ...projectInfo.invoiceDateTimezone,
-        code: '',
-        phone: '',
-      },
+      invoicedTimezone: projectInfo.invoiceDateTimezone
+        ? { label: projectInfo.invoiceDateTimezone.label, code: projectInfo.invoiceDateTimezone.code }
+        : null,
       payDueAt: projectInfo.paymentDueDate.date
         ? changeTimeZoneOffset(
             formatISO(new Date(projectInfo.paymentDueDate.date)),
@@ -446,11 +444,9 @@ export default function AddNewInvoice() {
       tax: projectInfo.tax ? projectInfo.tax.toString() : '',
       isTaxable: projectInfo.isTaxable ? '1' : '0',
       addressType: clients.addressType,
-      payDueTimezone: {
-        ...projectInfo.paymentDueDate.timezone,
-        code: '',
-        phone: '',
-      },
+      payDueTimezone: projectInfo.paymentDueDate.timezone
+        ? { label: projectInfo.paymentDueDate.timezone.label, code: projectInfo.paymentDueDate.timezone.code }
+        : null,
       salesCategory: projectInfo.salesCategory,
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
@@ -460,7 +456,7 @@ export default function AddNewInvoice() {
       invoiceDescription: projectInfo.invoiceDescription,
       setReminder: projectInfo.setReminder ? '1' : '0',
     }
-    console.log('res', res)
+
     openModal({
       type: 'CreateInvoiceModal',
       children: (

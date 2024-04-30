@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect } from 'react'
+import { Fragment, useContext, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -23,6 +23,7 @@ import InvoiceDetailInfoForm from '@src/pages/components/forms/invoice-detail-in
 import {
   InvoicePayableDetailType,
   PayableFormType,
+  PayablePatchType,
   PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import {
@@ -47,7 +48,7 @@ import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** values
-import { getCurrentRole } from '@src/shared/auth/storage'
+import { getCurrentRole, getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -57,7 +58,7 @@ import { InvoicePayableStatus } from '@src/types/common/status.type'
 
 type Props = {
   isUpdatable: boolean
-  updatePayable?: UseMutationResult<any, unknown, PayableFormType, unknown>
+  updatePayable?: UseMutationResult<any, unknown, PayablePatchType, unknown>
   data: InvoicePayableDetailType | PayableHistoryType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
@@ -85,6 +86,45 @@ export default function InvoiceDetailCard({
 
   const isAccountManager = ability?.can('read', 'account_manage')
 
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+  if (timezoneList.length !== 0) return
+  const zoneList = timezone.getValue()
+  const loadTimezonePinned = loadTimezonePin()
+  const filteredTimezone = zoneList.map((list, idx) => {
+    return {
+      id: idx,
+      code: list.timezoneCode,
+      label: list.timezone,
+      pinned:
+        loadTimezonePinned && loadTimezonePinned.length > 0
+          ? loadTimezonePinned[idx].pinned
+          : false,
+    }
+  })
+  setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const {
     control,
     getValues,
@@ -101,19 +141,34 @@ export default function InvoiceDetailCard({
   })
 
   useEffect(() => {
-    if (data) {
+    const defaultTimezone = {
+      id: undefined,
+      code: '',
+      label: '',
+      pinned: false,
+    }
+
+    if (data && timezoneList.length > 0) {
       reset({
         taxInfo: data.taxInfo,
         taxRate: data.taxRate,
         invoiceStatus: data.invoiceStatus as InvoicePayableStatus,
         payDueAt: data.payDueAt,
-        payDueTimezone: data.payDueTimezone,
+        payDueTimezone: data.payDueTimezone
+          ? timezoneList.find(
+            (zone) => zone.label === data.payDueTimezone?.label
+          )!
+          : defaultTimezone,
         paidAt: data.paidAt,
-        paidDateTimezone: data.paidDateTimezone,
+        paidDateTimezone: data.paidDateTimezone
+          ? timezoneList.find(  
+            (zone) => zone.label === data.paidDateTimezone?.label
+          )!
+          : defaultTimezone,
         description: data.description,
       })
     }
-  }, [data])
+  }, [data, timezoneList])
 
   const changedDataChecker = () => {
     const saveData = getValues()
@@ -143,7 +198,17 @@ export default function InvoiceDetailCard({
           onClose={() => closeModal('save')}
           onSave={() => {
             if (!updatePayable) return
-            updatePayable.mutate(getValues())
+            const getInvoiceData = getValues()
+            const res = {
+              ...getInvoiceData,
+              payDueTimezone: getInvoiceData.payDueTimezone?.label && getInvoiceData.payDueTimezone?.code
+                ? { label: getInvoiceData.payDueTimezone.label, code: getInvoiceData.payDueTimezone.code }
+                : null,
+              paidDateTimezone: getInvoiceData.paidDateTimezone?.label && getInvoiceData.paidDateTimezone?.code
+                ? { label: getInvoiceData.paidDateTimezone.label, code: getInvoiceData.paidDateTimezone.code }
+                : null,
+            }
+            updatePayable.mutate(res)
             // Save 할때 status를 under revision으로 변경해 준다
             // 만약 계정이 Accounting팀 계정이고
             // payDueAt, payDueTimezone, paidAt, paidDateTimezone중 하나라도 변경되었을 경우엔 status를 변경하지 않는다
@@ -229,6 +294,12 @@ export default function InvoiceDetailCard({
                         onClose={() => closeModal('discard')}
                         onClick={() => {
                           setEditInfo(false)
+                          const defaultTimezone = {
+                            id: undefined,
+                            code: '',
+                            label: '',
+                            pinned: false,
+                          }
                           if (data) {
                             reset({
                               taxInfo: data.taxInfo,
@@ -236,9 +307,19 @@ export default function InvoiceDetailCard({
                               invoiceStatus:
                                 data.invoiceStatus as InvoicePayableStatus,
                               payDueAt: data.payDueAt,
-                              payDueTimezone: data.payDueTimezone,
+                              payDueTimezone: data.payDueTimezone
+                                ? timezoneList.find(
+                                  (zone) =>
+                                    zone.label === data.payDueTimezone?.label
+                                )!
+                                : defaultTimezone,
                               paidAt: data.paidAt,
-                              paidDateTimezone: data.paidDateTimezone,
+                              paidDateTimezone: data.paidDateTimezone
+                                ? timezoneList.find(
+                                  (zone) =>
+                                    zone.label === data.paidDateTimezone?.label
+                                )!
+                                : defaultTimezone,
                               description: data.description,
                             })
                           }

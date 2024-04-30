@@ -25,6 +25,7 @@ import {
   InvoicePayableDetailType,
   InvoicePayableJobType,
   PayableFormType,
+  PayablePatchType,
 } from '@src/types/invoice/payable.type'
 
 // ** hooks
@@ -45,7 +46,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 type Props = {
   payableId: number
   isUpdatable: boolean
-  updateMutation: UseMutationResult<any, unknown, PayableFormType, unknown>
+  updateMutation: UseMutationResult<any, unknown, PayablePatchType, unknown>
   data: InvoicePayableDetailType | undefined
   jobList: {
     count: number

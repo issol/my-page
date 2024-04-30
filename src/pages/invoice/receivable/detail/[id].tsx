@@ -141,6 +141,30 @@ const ReceivableInvoiceDetail = () => {
     null,
   )
 
+  // 여기서 timezoneList는 서버에서 처음 데이터를 불러왔을대 setValue를 해주기 위한 용도로만 사용함
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned: false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const [invoiceLanguageItem, setInvoiceLanguageItem] =
     useState<InvoiceLanguageItemType | null>(null)
 
@@ -709,6 +733,13 @@ const ReceivableInvoiceDetail = () => {
   }
   
   useEffect(() => {
+    const defaultTimezone = {
+      id: undefined,
+      code: '',
+      label: '',
+      pinned: false,
+    }
+
     if (langItem && prices && invoiceInfo && client) {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
@@ -782,7 +813,11 @@ const ReceivableInvoiceDetail = () => {
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
-        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
+        invoiceDateTimezone: invoiceInfo.invoicedTimezone && timezoneList.length > 0
+          ? timezoneList.find(
+            (zone) => zone.code === invoiceInfo.invoicedTimezone.code
+          )!
+          : defaultTimezone,
         // invoiceDate: new Date(invoiceInfo.invoicedAt),
         invoiceDate: new Date(
           convertTimeToTimezone(
@@ -801,7 +836,15 @@ const ReceivableInvoiceDetail = () => {
             timezone.getValue(),
             true,
           )!,
-          timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
+          timezone: invoiceInfo.payDueTimezone && timezoneList.length > 0
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.payDueTimezone?.code
+            )!
+            : clientTimezone
+              ? timezoneList.find(
+                (zone) => zone.code === clientTimezone.code
+              )!
+              : defaultTimezone,
         },
         invoiceConfirmDate: {
           date:
@@ -813,13 +856,11 @@ const ReceivableInvoiceDetail = () => {
                   true,
                 )!
               : null,
-          timezone: invoiceInfo.clientConfirmTimezone
-            ? {
-                ...invoiceInfo.clientConfirmTimezone,
-                code: '',
-                phone: '',
-              }
-            : null,
+          timezone: invoiceInfo.clientConfirmTimezone && timezoneList.length > 0
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.clientConfirmTimezone?.code
+            )!
+            : defaultTimezone,
         },
         taxInvoiceDueDate: {
           date:
@@ -831,13 +872,11 @@ const ReceivableInvoiceDetail = () => {
                   true,
                 )!
               : null,
-          timezone: invoiceInfo.taxInvoiceDueTimezone
-            ? {
-                ...invoiceInfo.taxInvoiceDueTimezone,
-                code: '',
-                phone: '',
-              }
-            : null,
+          timezone: invoiceInfo.taxInvoiceDueTimezone && timezoneList.length > 0
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.taxInvoiceDueTimezone?.code
+            )!
+            : defaultTimezone,
         },
         paymentDate: {
           date:
@@ -849,7 +888,11 @@ const ReceivableInvoiceDetail = () => {
                   true,
                 )!
               : null,
-          timezone: invoiceInfo.paidDateTimezone ?? null,
+          timezone: invoiceInfo.paidDateTimezone && timezoneList.length > 0
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.paidDateTimezone?.code
+            )!
+            : defaultTimezone,
         },
         taxInvoiceIssuanceDate: {
           date:
@@ -862,7 +905,11 @@ const ReceivableInvoiceDetail = () => {
                   true,
                 )!
               : null,
-          timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? null!,
+          timezone: invoiceInfo.taxInvoiceIssuedDateTimezone && timezoneList.length > 0
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.taxInvoiceIssuedDateTimezone?.code
+            )!
+            : defaultTimezone,
         },
         salesRecognitionDate: {
           date:
@@ -875,7 +922,11 @@ const ReceivableInvoiceDetail = () => {
                   true,
                 )!
               : null,
-          timezone: invoiceInfo.salesCheckedDateTimezone! ?? null,
+          timezone: invoiceInfo.salesCheckedDateTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === invoiceInfo.salesCheckedDateTimezone?.code
+            )!
+            : defaultTimezone,
         },
 
         salesCategory: invoiceInfo.salesCategory,

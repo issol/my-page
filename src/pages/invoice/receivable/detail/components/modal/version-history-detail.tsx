@@ -92,6 +92,30 @@ const InvoiceVersionHistoryModal = ({
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  // 여기서 timezoneList는 서버에서 처음 데이터를 불러왔을대 setValue를 해주기 위한 용도로만 사용함
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned: false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -238,6 +262,13 @@ const InvoiceVersionHistoryModal = ({
   // }, [history.client, clientReset])
 
   useEffect(() => {
+    const defaultTimezone = {
+      id: undefined,
+      code: '',
+      label: '',
+      pinned: false,
+    }
+
     if (history) {
       checkEditable(history.projectInfo.id).then(res => {
         setIsUserInTeamMember(res)
@@ -317,33 +348,61 @@ const InvoiceVersionHistoryModal = ({
       const res: InvoiceProjectInfoFormType = {
         ...history.projectInfo,
         invoiceDescription: history.projectInfo.description,
-        invoiceDateTimezone: history.projectInfo.invoicedTimezone,
+        invoiceDateTimezone: history.projectInfo.invoicedTimezone
+          ? timezoneList.find(
+            (zone) => zone.code === history.projectInfo.invoicedTimezone.code
+          )!
+          : defaultTimezone,
         invoiceDate: new Date(history.projectInfo.invoicedAt),
         taxInvoiceIssued: history.projectInfo.taxInvoiceIssued,
         showDescription: history.projectInfo.showDescription,
         paymentDueDate: {
           date: history.projectInfo.payDueAt,
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
         invoiceConfirmDate: {
           date: history.projectInfo.invoiceConfirmedAt ?? null,
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
         taxInvoiceDueDate: {
           date: history.projectInfo.taxInvoiceDueAt ?? null,
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
         paymentDate: {
           date: history.projectInfo.paidAt,
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
         taxInvoiceIssuanceDate: {
           date: history.projectInfo.taxInvoiceIssuedAt ?? '',
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
         salesRecognitionDate: {
           date: history.projectInfo.salesCheckedAt ?? '',
-          timezone: clientTimezone!,
+          timezone: clientTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === clientTimezone.code
+            )!
+            : defaultTimezone,
         },
 
         salesCategory: history.projectInfo.salesCategory,
@@ -439,6 +498,12 @@ const InvoiceVersionHistoryModal = ({
   }, [history])
 
   useEffect(() => {
+    const defaultTimezone = {
+      id: undefined,
+      code: '',
+      label: '',
+      pinned: false,
+    }
     if (history) {
       const { projectInfo, clientInfo, members, items } = history
 
@@ -489,9 +554,9 @@ const InvoiceVersionHistoryModal = ({
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(projectInfo.id!),
-        adminCompanyName: 'GloZ Inc.',
+        adminCompanyName: invoiceInfo?.adminCompanyName!,
         corporationId: invoiceInfo?.corporationId!,
-        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+        companyAddress: '',
         orderCorporationId: projectInfo!.linkedOrders.map(
           value => value.corporationId,
         ),
@@ -500,7 +565,11 @@ const InvoiceVersionHistoryModal = ({
         invoicedAt: projectInfo!.invoicedAt,
         paymentDueAt: {
           date: projectInfo!.payDueAt,
-          timezone: projectInfo!.payDueTimezone,
+          timezone: projectInfo!.payDueTimezone
+            ? timezoneList.find(
+              (zone) => zone.code === projectInfo!.payDueTimezone.code
+            )!
+            : defaultTimezone,
         },
         pm: {
           firstName: pm?.firstName!,
