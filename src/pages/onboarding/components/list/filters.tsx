@@ -565,7 +565,7 @@ export default function Filters({
               </Box>
             </Grid>
 
-            <Grid item xs={3}>
+            <Grid item xs={2.4}>
               <Box className='filterFormAutoCompleteV2'>
                 <Controller
                   control={control}
@@ -641,96 +641,8 @@ export default function Filters({
                 />
               </Box>
             </Grid>
-            <Grid item xs={3}>
-              <Box className='filterFormAutoCompleteV2'>
-                <Controller
-                  control={control}
-                  name='experience'
-                  render={({ field: { onChange, value } }) => (
-                    <Autocomplete
-                      multiple
-                      fullWidth
-                      onClose={() => {
-                        setInputStyle(false)
-                      }}
-                      onOpen={() => {
-                        setInputStyle(true)
-                      }}
-                      onChange={(event, item) => {
-                        onChange(item)
-                      }}
-                      value={value}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      disableCloseOnSelect
-                      limitTags={1}
-                      options={ExperiencedYearsForFilter}
-                      id='experience'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          autoComplete='off'
-                          label='Experience'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  )}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={2}>
-              <Box className='filterFormAutoCompleteV2'>
-                <Controller
-                  control={control}
-                  name='testStatus'
-                  render={({ field: { onChange, value } }) => (
-                    <Autocomplete
-                      multiple
-                      fullWidth
-                      onClose={() => {
-                        setInputStyle(false)
-                      }}
-                      onOpen={() => {
-                        setInputStyle(true)
-                      }}
-                      onChange={(event, item) => {
-                        onChange(item)
-                      }}
-                      value={value}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      disableCloseOnSelect
-                      limitTags={1}
-                      options={TestStatus}
-                      id='testStatus'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          autoComplete='off'
-                          label='Test status'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  )}
-                />
-              </Box>
-            </Grid>
+            
+            
             <Grid item xs={2}>
               <Box className='filterFormAutoCompleteV2'>
                 <FormControl fullWidth>
