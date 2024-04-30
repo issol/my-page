@@ -34,7 +34,7 @@ import { getTimezonePin } from '@src/shared/auth/storage'
 
 const defaultValues: ProFilterType = {
   // jobType: [],
-  timezone: [],
+  timezones: [],
   role: [],
   source: [],
   target: [],
@@ -53,7 +53,7 @@ const defaultFilters: ProListFilterType = {
   experience: [],
   status: [],
   clientId: [],
-  timezone: [],
+  timezones: [],
   take: 500,
   skip: 0,
 }
@@ -136,7 +136,7 @@ const ProsList = () => {
       status,
       clientId,
       search,
-      timezone,
+      timezones,
     } = data
 
     saveUserFilters(FilterKey.PRO_LIST, data)
@@ -152,18 +152,18 @@ const ProsList = () => {
       status: status.map(value => value.value),
       experience: experience.map(value => value.value),
       clientId: clientId.map(value => value.clientId),
-      timezone: timezone.map(value => value.label),
+      timezones: timezones.map(value => value.label),
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
       // sortId: 'DESC',
       // sortDate: 'DESC',
     }
-    setLoading(true)
-    const rows = await getProList(filter!)
-    setLoading(false)
-    setRows(rows.data ?? [])
-    // queryClient.invalidateQueries(['pro-list', filter])
+    setFilters(filter)
+    // setLoading(true)
+    // const rows = await getProList(filter!)
+    // setLoading(false)
+    // setRows(rows.data ?? [])
   }
 
   const onClickFile = (
@@ -200,7 +200,7 @@ const ProsList = () => {
     if (savedFilter && mounted) {
       const {
         // jobType,
-        timezone,
+        timezones,
         role,
         source,
         target,
@@ -214,7 +214,7 @@ const ProsList = () => {
 
       const filter = {
         // jobType: jobType.map(value => value.value),
-        timezone: timezone.map(value => value.label),
+        timezones: timezones.map(value => value.label),
         role: role.map(value => value.value),
         source: source.map(value => value.value),
         target: target.map(value => value.value),
@@ -269,15 +269,6 @@ const ProsList = () => {
       mounted = false
     }
   }, [filters])
-  // const handleFetchRows = useCallback(
-  //   async (params: ProListFilterType) => {
-  //     const { data, totalCount } = await fetchRow(params)
-
-  //     apiRef.current.unstable_replaceRows(0, data)
-  //     setRowCount(totalCount)
-  //   },
-  //   [apiRef, fetchRow],
-  // )
 
   const loadTimezonePin = ():
     | {

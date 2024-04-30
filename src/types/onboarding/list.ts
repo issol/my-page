@@ -142,7 +142,7 @@ export type FilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
-  timezone: { id: number, label: string; code: string, pinned: boolean }[]
+  timezones: { id: number; label: string; code: string; pinned: boolean }[]
   search: string
   order: 'desc' | 'asc'
 }

@@ -13,6 +13,7 @@ import {
   removeRedirectPath,
   getCompanyDataFromBrowser,
   removeCompanyDataFromBrowser,
+  setRedirectPath,
 } from '@src/shared/auth/storage'
 
 import { useGetClientUserInfo } from '@src/queries/common.query'
@@ -65,6 +66,8 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
+    console.log(router.pathname)
+
     if (
       auth.state === 'hasValue' &&
       roles.state === 'hasValue' &&
@@ -77,6 +80,8 @@ const AuthProvider = ({ children }: Props) => {
       const roleNames = roles.getValue().map(item => item.name)
 
       const redirectPath = getRedirectPath()
+      console.log(redirectPath)
+
       const storageRole = currentRole.getValue()
       if (!storageRole) {
         const TADRole =
@@ -115,6 +120,10 @@ const AuthProvider = ({ children }: Props) => {
             auth.getValue().user?.firstName &&
             auth.getValue().user?.firstName != ''
           ) {
+            if (redirectPath) {
+              router.replace(redirectPath)
+              removeRedirectPath()
+            }
             return
           } else {
             router.replace('/welcome/manager')
@@ -138,7 +147,7 @@ const AuthProvider = ({ children }: Props) => {
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
-        return
+        // return
       } else if (router.pathname === '/') {
         router.push(`/dashboards`)
       }
@@ -162,6 +171,8 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = getUserTokenFromBrowser()!
 
       if (storedToken) {
+        console.log(storedToken)
+
         setAuth(prev => ({ ...prev, loading: true }))
         const browserUserData = getUserDataFromBrowser()
         const browserCompanyData = getCompanyDataFromBrowser()
@@ -173,6 +184,16 @@ const AuthProvider = ({ children }: Props) => {
         }))
         setAuth(prev => ({ ...prev, loading: false }))
       } else {
+        const parsePath = () => {
+          if (router.asPath.includes('[id]')) {
+            const { id } = router.query
+            return `${router.asPath.replace('[id]', '')}${id}`
+          }
+          return null
+        }
+
+        console.log(parsePath())
+        parsePath() !== null && setRedirectPath(parsePath()!)
         removeUserDataFromBrowser()
         removeCompanyDataFromBrowser()
         setAuth(prev => ({ ...prev, loading: false }))
