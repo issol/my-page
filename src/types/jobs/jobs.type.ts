@@ -191,6 +191,7 @@ export type JobsFileType = {
   updatedAt?: string
   savedAt?: string
   isDownloaded?: boolean
+  downloadAvailable?: boolean
 }
 
 export type ProJobDetailType = {

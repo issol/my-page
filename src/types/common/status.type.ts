@@ -46,6 +46,7 @@ export type JobStatus =
   | 70100 // Awaiting approval (Request accepted)
   | 70200 // Declined (Request rejected)
   | 70300 // In progress (Assigned)
+  | 70350 // Awaiting prior job
   | 70400 // Canceled
   | 70500 // Unassigned
   | 70600 // Unassigned
