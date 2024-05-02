@@ -369,13 +369,6 @@ export default function OrdersList({
                   gap: '24px',
                 }}
               >
-                {role.name === 'CLIENT' ? null : (
-                  <Button variant='contained'>
-                    <StyledNextLink href='/orders/add-new' color='white'>
-                      Create new order
-                    </StyledNextLink>
-                  </Button>
-                )}
                 <Box sx={{ display: 'flex' }}>
                   <Box
                     sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}
@@ -396,6 +389,13 @@ export default function OrdersList({
                     />
                   </Box>
                 </Box>
+                {role.name === 'CLIENT' ? null : (
+                  <Button variant='contained'>
+                    <StyledNextLink href='/orders/add-new' color='white'>
+                      Create new order
+                    </StyledNextLink>
+                  </Button>
+                )}
               </Box>
             }
             sx={{

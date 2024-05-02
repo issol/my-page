@@ -47,6 +47,7 @@ import { useGetWorkNameList } from '@src/queries/pro/pro-project.query'
 import useModal from '@src/hooks/useModal'
 
 // ** components
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 // ** values
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -71,6 +72,7 @@ import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 import dayjs from 'dayjs'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -101,25 +103,44 @@ export default function InvoiceProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const [timeZoneList, setTimeZoneList] = useState<
+  const [timezoneList, setTimezoneList] = useState<
     {
+      id: number
       code: string
       label: string
-      phone: string
+      pinned: boolean
     }[]
   >([])
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
   useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
       return {
+        id: idx,
         code: list.timezoneCode,
         label: list.timezone,
-        phone: '',
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimezoneList(filteredTimezone)
   }, [timezone])
 
   const defaultValue = { value: '', label: '' }
@@ -149,13 +170,16 @@ export default function InvoiceProjectInfoForm({
   }
 
   useEffect(() => {
-    if (clientTimezone && type === 'create') {
-      setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
-      setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
-      setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
-      setValue('invoiceDateTimezone', clientTimezone, setValueOptions)
+    if (clientTimezone && type === 'create' && timezoneList.length > 0) {
+      const getClientTimezone = timezoneList.find(
+        (zone) => zone.label === clientTimezone.label
+      ) ?? { id: undefined, code: '', label: '', pinned: false }
+      setValue('paymentDueDate.timezone', getClientTimezone, setValueOptions)
+      setValue('invoiceConfirmDate.timezone', getClientTimezone, setValueOptions)
+      setValue('taxInvoiceDueDate.timezone', getClientTimezone, setValueOptions)
+      setValue('invoiceDateTimezone', getClientTimezone, setValueOptions)
     }
-  }, [clientTimezone])
+  }, [clientTimezone, timezoneList])
 
   useEffect(() => {
     setValue('setReminder', true, setValueOptions)
@@ -176,6 +200,24 @@ export default function InvoiceProjectInfoForm({
   const dateValue = (date: Date) => {
     return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
+
+  const handleTimezonePin = (option: {
+    id: number | undefined;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
 
   return (
     <Fragment>
@@ -256,16 +298,28 @@ export default function InvoiceProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -653,16 +707,28 @@ export default function InvoiceProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -723,34 +789,46 @@ export default function InvoiceProjectInfoForm({
               name='invoiceConfirmDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value ? undefined : field.value
-                const clientConfirmedTimezone =
-                  !invoiceInfo?.clientConfirmTimezone
-                    ? undefined
-                    : invoiceInfo?.clientConfirmTimezone
+                const selected = !field.value 
+                  ? { id: undefined, code: '', label: '', pinned: false } 
+                  : field.value
+                const clientConfirmedTimezone = timezoneList.find(
+                  (zone) => zone.label === invoiceInfo?.clientConfirmTimezone?.label
+                ) ?? { id: undefined, code: '', label: '', pinned: false }
+                const initValue = !client || field.value
+                  ? selected
+                  : isClientRegistered
+                    ? clientConfirmedTimezone
+                    : selected
 
                 return (
                   <Autocomplete
                     autoHighlight
                     fullWidth
                     {...field}
-                    value={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                          ? clientConfirmedTimezone
-                          : selected
-                    }
+                    value={initValue}
                     disabled={!isClientRegistered}
-                    options={timeZoneList as CountryType[]}
+                    options={pinSortedOptions}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option =>
                       timeZoneFormatter(option, timezone.getValue()) ?? ''
                     }
                     renderOption={(props, option) => (
-                      <Box component='li' {...props} key={uuidv4()}>
+                      <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {timeZoneFormatter(option, timezone.getValue())}
-                      </Box>
+                      </Typography>
+                      <IconButton
+                        onClick={(event) => {
+                            event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                            handleTimezonePin(option)
+                        }}
+                        size="small"
+                        style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                      >
+                        <PushPinIcon />
+                      </IconButton>
+                    </Box>
                     )}
                     renderInput={params => (
                       <TextField
@@ -811,22 +889,34 @@ export default function InvoiceProjectInfoForm({
               name='taxInvoiceDueDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value ? undefined : field.value
+                const selected = !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
                 return (
                   <Autocomplete
                     autoHighlight
                     fullWidth
                     {...field}
                     value={selected}
-                    options={timeZoneList as CountryType[]}
+                    options={pinSortedOptions}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option =>
                       timeZoneFormatter(option, timezone.getValue()) ?? ''
                     }
                     renderOption={(props, option) => (
-                      <Box component='li' {...props} key={uuidv4()}>
+                      <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {timeZoneFormatter(option, timezone.getValue())}
-                      </Box>
+                      </Typography>
+                      <IconButton
+                        onClick={(event) => {
+                            event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                            handleTimezonePin(option)
+                        }}
+                        size="small"
+                        style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                      >
+                        <PushPinIcon />
+                      </IconButton>
+                    </Box>
                     )}
                     renderInput={params => (
                       <TextField

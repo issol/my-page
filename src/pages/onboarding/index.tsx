@@ -411,6 +411,7 @@ export default function Onboarding() {
                 role={jobInfo[0].role}
                 visibleChip={'role'}
               />
+              <TestStatus testStatus={[jobInfo[0].testStatus]} />
             </Box>
           </Tooltip>
         )
@@ -464,11 +465,8 @@ export default function Onboarding() {
           }
           return false
         })
-        const jobInfo = row.jobInfo.map(value => ({
-          jobType: value.jobType,
-          role: value.role,
-        }))
-        return <JobTypeRole jobInfo={jobInfo} visibleType='role' />
+        const uniqueRole = _.uniqBy(row.jobInfo, 'role');
+        return <JobTypeRole jobInfo={uniqueRole} visibleType='role' />
       },
     },
     {

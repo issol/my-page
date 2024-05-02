@@ -440,12 +440,16 @@ const InvoiceInfo = ({
                 data.invoiceDate.toISOString(),
                 data.invoiceDateTimezone,
               )!,
-              invoicedTimezone: data.invoiceDateTimezone,
+              invoicedTimezone: data.invoiceDateTimezone
+                ? { label: data.invoiceDateTimezone.label, code: data.invoiceDateTimezone.code }
+                : null,
               payDueAt: changeTimeZoneOffset(
                 new Date(data.paymentDueDate.date).toISOString(),
                 data.paymentDueDate.timezone,
               )!,
-              payDueTimezone: data.paymentDueDate.timezone,
+              payDueTimezone: data.paymentDueDate.timezone
+                ? { label: data.paymentDueDate.timezone.label, code: data.paymentDueDate.timezone.code }  
+                : null,
               invoiceDescription: data.invoiceDescription,
               description: data.invoiceDescription,
               showDescription: data.showDescription ? '1' : '0',
@@ -460,7 +464,9 @@ const InvoiceInfo = ({
                       data.invoiceConfirmDate?.timezone,
                     )
                   : null,
-              clientConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              clientConfirmTimezone: data.invoiceConfirmDate?.timezone
+                ? { label: data.invoiceConfirmDate?.timezone.label, code: data.invoiceConfirmDate?.timezone.code }
+                : null,
               taxInvoiceDueAt:
                 data.taxInvoiceDueDate?.date && data.taxInvoiceDueDate?.timezone
                   ? changeTimeZoneOffset(
@@ -468,7 +474,9 @@ const InvoiceInfo = ({
                       data.taxInvoiceDueDate?.timezone,
                     )
                   : null,
-              taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
+              taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone
+                ? { label: data.taxInvoiceDueDate?.timezone.label, code: data.taxInvoiceDueDate?.timezone.code }
+                : null,
             }
           : {
               paidAt:
@@ -478,7 +486,9 @@ const InvoiceInfo = ({
                       data.paymentDate?.timezone,
                     )
                   : null,
-              paidDateTimezone: data.paymentDate?.timezone,
+              paidDateTimezone: data.paymentDate?.timezone
+                ? { label: data.paymentDate?.timezone.label, code: data.paymentDate?.timezone.code }
+                : null,
               taxInvoiceIssuedAt:
                 data.taxInvoiceIssuanceDate?.date &&
                 data.taxInvoiceIssuanceDate?.date !== '' &&
@@ -488,8 +498,9 @@ const InvoiceInfo = ({
                       data.taxInvoiceIssuanceDate?.timezone,
                     )!
                   : undefined,
-              taxInvoiceIssuedDateTimezone:
-                data.taxInvoiceIssuanceDate?.timezone,
+              taxInvoiceIssuedDateTimezone: data.taxInvoiceIssuanceDate?.timezone
+                ? { label: data.taxInvoiceIssuanceDate?.timezone.label, code: data.taxInvoiceIssuanceDate?.timezone.code }
+                : null,
               salesCheckedAt:
                 data.salesRecognitionDate?.date &&
                 data.salesRecognitionDate?.date !== '' &&
@@ -499,7 +510,9 @@ const InvoiceInfo = ({
                       data.salesRecognitionDate?.timezone,
                     )!
                   : undefined,
-              salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
+              salesCheckedDateTimezone: data.salesRecognitionDate?.timezone
+                ? { label: data.salesRecognitionDate?.timezone.label, code: data.salesRecognitionDate?.timezone.code }
+                : null,
               notes: data.notes,
               salesCategory: data?.salesCategory,
             }

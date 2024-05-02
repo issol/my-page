@@ -41,7 +41,23 @@ export type PayableFormType = {
   taxRate?: string | null
   invoiceStatus?: InvoicePayableStatus
   payDueAt?: string
-  payDueTimezone?: CountryType
+  payDueTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+  paidAt?: string | null
+  paidDateTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean } | null
+  description?: string
+  subtotal?: number
+  totalPrice?: number
+  tax?: string | null
+  invoiceConfirmedAt?: string
+  invoiceConfirmTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+}
+
+export type PayablePatchType = {
+  taxInfo?: string
+  taxRate?: string | null
+  invoiceStatus?: InvoicePayableStatus
+  payDueAt?: string
+  payDueTimezone?: CountryType | null
   paidAt?: string | null
   paidDateTimezone?: CountryType | null
   description?: string
@@ -49,7 +65,7 @@ export type PayableFormType = {
   totalPrice?: number
   tax?: string | null
   invoiceConfirmedAt?: string
-  invoiceConfirmTimezone?: CountryType
+  invoiceConfirmTimezone?: CountryType | null
 }
 
 export type InvoicePayableDetailType = {
