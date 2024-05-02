@@ -352,6 +352,7 @@ export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
     70100: '#6D788D', // 'Awaiting approval (Request accepted)'
     70200: '#6D788D', // 'Declined (Request rejected)'
     70300: '#6D788D', // 'In progress (Assigned)'
+    70350: '#6D788D', // Awaiting prior job
     70400: '#6D788D', // 'Canceled'
     70500: '#6D788D', // 'Unassigned'
     70600: '#6D788D', // 'Unassigned'
