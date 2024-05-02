@@ -1018,11 +1018,10 @@ const ProDetailOverview = () => {
   }
 
   return (
-    <Grid container xs={12} spacing={6}>
+    <Grid container spacing={6}>
       {isFetched && !isError ? (
         <>
           <Grid
-            container
             item
             xs={12}
             md={6}

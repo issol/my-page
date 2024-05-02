@@ -1,3 +1,4 @@
+import { GridSortDirection } from '@mui/x-data-grid'
 import { ItemType } from '../common/item.type'
 
 import { CountryType } from '../sign/personalInfoTypes'
@@ -8,7 +9,7 @@ export type OrderListFilterType = {
   take?: number
   skip?: number
   search?: string
-  ordering?: 'desc' | 'asc'
+  ordering?: GridSortDirection
   sort?: 'corporationId' | 'projectDueDate' | 'orderDate' | 'totalPrice'
   status?: number[]
   client?: string[]

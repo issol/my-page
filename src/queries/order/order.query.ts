@@ -21,7 +21,7 @@ import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
 export const useGetOrderList = (
-  filter: OrderListFilterType | InvoiceOrderListFilterType,
+  filter: OrderListFilterType | InvoiceOrderListFilterType | null,
   type: 'invoice' | 'order',
 ) => {
   return useQuery(
@@ -35,6 +35,7 @@ export const useGetOrderList = (
     {
       staleTime: 1 * 1000,
       suspense: true,
+      enabled: !!filter,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

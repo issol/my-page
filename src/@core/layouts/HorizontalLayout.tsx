@@ -28,13 +28,15 @@ import { currentRoleSelector, permissionState } from '@src/states/permission'
 
 const HorizontalLayoutWrapper = styled('div')({
   height: '100%',
+  width: '100%',
   display: 'flex',
-  ...(themeConfig.horizontalMenuAnimation && { overflow: 'clip' }),
+  ...(themeConfig.horizontalMenuAnimation && { overflow: 'visible' }),
 })
 
 const MainContentWrapper = styled(Box)<BoxProps>({
   flexGrow: 1,
   minWidth: 0,
+  width: '100%',
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column',
@@ -133,6 +135,17 @@ const HorizontalLayout = (props: LayoutProps) => {
           className='layout-navbar-and-nav-container'
           position={appBar === 'fixed' ? 'sticky' : 'static'}
           sx={{
+            mx: 'auto',
+            '@media (min-width:1441px)': {
+              maxWidth: '100%',
+              minWidth: 1440,
+            },
+            '@media (max-width:1440px)': {
+              maxWidth: 1440,
+              minWidth: 1440,
+              width: '100%',
+            },
+            overflowY: 'none',
             alignItems: 'center',
             color: 'text.primary',
             justifyContent: 'center',
@@ -168,15 +181,32 @@ const HorizontalLayout = (props: LayoutProps) => {
           >
             <Toolbar
               className='navbar-content-container'
+              // sx={{
+              //   mx: 'auto',
+              //   ...(contentWidth === 'boxed' && {
+              //     '@media (min-width:1440px)': { maxWidth: 1900 },
+              //     // '@media (min-width:1440px)': { maxWidth: 1440 },
+              //   }),
+              //   minHeight: theme =>
+              //     `${
+              //       (theme.mixins.toolbar.minHeight as number) - 1
+              //     }px !important`,
+              // }}
               sx={{
                 mx: 'auto',
-                ...(contentWidth === 'boxed' && {
-                  '@media (min-width:1440px)': { maxWidth: 1440 },
-                }),
+                '@media (min-width:1441px)': {
+                  maxWidth: 1900,
+                  minWidth: 1440,
+                },
+                '@media (max-width:1440px)': {
+                  maxWidth: 1440,
+                  minWidth: 1440,
+                  width: '100%',
+                },
                 minHeight: theme =>
-                  `${
-                    (theme.mixins.toolbar.minHeight as number) - 1
-                  }px !important`,
+                  `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`,
+                width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
+                // overflowX: 'auto' // 가로 스크롤을 활성화
               }}
             >
               <AppBarContent
@@ -198,16 +228,36 @@ const HorizontalLayout = (props: LayoutProps) => {
             >
               <Toolbar
                 className='horizontal-nav-content-container'
+                // sx={{
+                //   mx: 'auto',
+                //   ...(contentWidth === 'boxed' && {
+                //     '@media (min-width:1440px)': { maxWidth: 1900 },
+                //     // '@media (min-width:1440px)': { maxWidth: 1440 },
+                //   }),
+                //   minHeight: theme =>
+                //     `${
+                //       (theme.mixins.toolbar.minHeight as number) -
+                //       (skin === 'bordered' ? 1 : 0)
+                //     }px !important`,
+                // }}
                 sx={{
                   mx: 'auto',
-                  ...(contentWidth === 'boxed' && {
-                    '@media (min-width:1440px)': { maxWidth: 1440 },
-                  }),
+                  '@media (min-width:1441px)': {
+                    maxWidth: 1900,
+                    minWidth: 1440,
+                  },
+                  '@media (max-width:1440px)': {
+                    maxWidth: 1440,
+                    minWidth: 1440,
+                    width: '100%',
+                  },
                   minHeight: theme =>
                     `${
                       (theme.mixins.toolbar.minHeight as number) -
                       (skin === 'bordered' ? 1 : 0)
                     }px !important`,
+                  width: '100vw', // 전체 뷰포트 너비를 사용하도록 설정
+                  // overflowX: 'auto' // 가로 스크롤을 활성화
                 }}
               >
                 {(userNavMenuContent && userNavMenuContent(props)) || (
@@ -230,13 +280,28 @@ const HorizontalLayout = (props: LayoutProps) => {
         {/* Content */}
         <ContentWrapper
           className='layout-page-content'
+          // sx={{
+          //   ...(contentHeightFixed && { display: 'flex', overflow: 'hidden' }),
+          //   ...(contentWidth === 'boxed' && {
+          //     mx: 'auto',
+          //     '@media (min-width:1440px)': { maxWidth: 1900 },
+          //     // '@media (min-width:1440px)': { maxWidth: 1440 },
+          //     '@media (min-width:1200px)': { maxWidth: '100%' },
+          //   }),
+          // }}
           sx={{
             ...(contentHeightFixed && { display: 'flex', overflow: 'hidden' }),
-            ...(contentWidth === 'boxed' && {
-              mx: 'auto',
-              '@media (min-width:1440px)': { maxWidth: 1440 },
-              '@media (min-width:1200px)': { maxWidth: '100%' },
-            }),
+            mx: 'auto',
+            '@media (min-width:1441px)': {
+              maxWidth: 1900,
+              minWidth: 1440,
+            },
+            '@media (max-width:1440px)': {
+              maxWidth: 1440,
+              minWidth: 1440,
+              width: '100%',
+            },
+            width: '100vw',
           }}
         >
           {children}

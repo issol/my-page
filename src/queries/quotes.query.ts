@@ -47,16 +47,17 @@ export const useGetMemberList = () => {
   )
 }
 
-export const useGetQuotesList = (filter: QuotesFilterType) => {
+export const useGetQuotesList = (filter: QuotesFilterType | null) => {
   return useQuery(
     ['quotesList', { type: 'list' }, filter],
     () => {
-      return getQuotesList(filter)
+      return getQuotesList(filter!)
     },
     {
       suspense: true,
       staleTime: 1 * 1000,
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }

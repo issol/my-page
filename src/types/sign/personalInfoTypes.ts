@@ -1,4 +1,4 @@
-import { ClientAddressType } from '../schema/client-address.schema'
+import { AddressType, ClientAddressType } from '../schema/client-address.schema'
 
 export type PronounceType = 'SHE' | 'HE' | 'THEY' | 'NONE'
 
@@ -40,6 +40,34 @@ export interface PersonalInfo {
   specialties: Array<{ label: string; value: string }>
   birthday?: Date | null
   address: ClientAddressType<string>
+}
+
+export interface ProPersonalInfo {
+  firstName: string
+  middleName?: string
+  lastName: string
+  legalNamePronunciation?: string
+  pronounce?: PronounceType | null
+  havePreferred: boolean
+  preferredName?: string
+  preferredNamePronunciation?: string
+  timezone: CountryType
+  mobile?: string
+  phone?: string
+  jobInfo: Array<JobInfoType>
+  experience: string
+  resume: Array<File> | null
+  specialties: Array<{ label: string; value: string }>
+  birthday?: Date | null
+
+  addressType?: AddressType
+  name?: string | null
+  baseAddress?: string | null //street1
+  detailAddress?: string | null //street2
+  city?: string | null
+  state?: string | null
+  country?: string | null
+  zipCode?: string | null
 }
 
 export type ProUserInfoType = {

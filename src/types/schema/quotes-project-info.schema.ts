@@ -23,36 +23,46 @@ export const quotesProjectInfoSchema = yup.object().shape({
   quoteDate: yup.object().shape({
     date: yup.date().required(FormErrors.required),
     timezone: yup.object().shape({
+      id: yup.number().nullable(),
       code: yup.string().nullable(),
       label: yup.string().required(),
+      pinned: yup.boolean().nullable(),
     }),
   }),
   projectDueDate: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
+      id: yup.number().nullable(),
       code: yup.string().nullable(),
       label: yup.string().nullable(),
+      pinned: yup.boolean().nullable(),
     }),
   }),
   quoteDeadline: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
+      id: yup.number().nullable(),
       code: yup.string().nullable(),
       label: yup.string().nullable(),
+      pinned: yup.boolean().nullable(),
     }),
   }),
   quoteExpiryDate: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
+      id: yup.number().nullable(),
       code: yup.string().nullable(),
       label: yup.string().nullable(),
+      pinned: yup.boolean().nullable(),
     }),
   }),
   estimatedDeliveryDate: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
+      id: yup.number().nullable(),
       code: yup.string().nullable(),
       label: yup.string().nullable(),
+      pinned: yup.boolean().nullable(),
     }),
   }),
   showDescription: yup.boolean().required(),

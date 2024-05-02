@@ -86,12 +86,7 @@ export default function Filters({
                   // filterSelectedOptions
                   getOptionLabel={option => option?.name}
                   renderInput={params => (
-                    <TextField
-                      {...params}
-                      autoComplete='off'
-                      label='Client'
-                      placeholder='Client'
-                    />
+                    <TextField {...params} autoComplete='off' label='Client' />
                   )}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>

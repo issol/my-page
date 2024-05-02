@@ -61,6 +61,13 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { TryAgain } from '@src/views/dashboard/suspense'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Headers } from 'react-csv/lib/core'
+import {
+  useGetOnboardingStatistic,
+  useGetStatistic,
+} from '@src/queries/onboarding/onboarding-query'
+import UserStatistic from '@src/views/dashboard/user'
+import { useGetRecruitingCount } from '@src/queries/recruiting.query'
+import RecruitingStatistic from '@src/views/dashboard/recruting'
 
 dayjs.extend(weekday)
 
@@ -141,6 +148,10 @@ const LPMDashboards = () => {
     from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
+
+  const { data: totalStatistics } = useGetStatistic()
+  const { data: onboardingStatistic } = useGetOnboardingStatistic()
+  const { data: recruitingStatistic } = useGetRecruitingCount()
 
   useEffect(() => {
     console.log(data)
@@ -313,6 +324,19 @@ const LPMDashboards = () => {
           />
 
           <Grid container gap='24px'>
+            {onboardingStatistic && totalStatistics ? (
+              <GridItem height={87}>
+                <UserStatistic
+                  onboardingStatistic={onboardingStatistic}
+                  totalStatistics={totalStatistics}
+                />
+              </GridItem>
+            ) : null}
+            {recruitingStatistic ? (
+              <GridItem height={87}>
+                <RecruitingStatistic recruitingData={recruitingStatistic} />
+              </GridItem>
+            ) : null}
             {!isShowMemberView && (
               <GridItem width={300} height={362}>
                 <Box

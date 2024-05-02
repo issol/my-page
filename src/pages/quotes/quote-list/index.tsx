@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form'
 
 // ** types
 import { UserDataType } from '@src/context/types'
-import { QuotesFilterType } from '@src/types/quotes/quote'
+import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 
 // ** values
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
@@ -33,6 +33,11 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useQueryClient } from 'react-query'
 import dayjs from 'dayjs'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -41,13 +46,16 @@ export type FilterType = {
   estimatedDeliveryDate?: Date[]
   projectDueDate?: Date[]
   lsp?: Array<{ label: string; value: string }>
-
+  ordering?: 'asc' | 'desc'
+  sort?: SortType
   status: Array<{ label: string; value: number }>
   client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
   search: string
+  hideCompletedQuotes: 0 | 1
+  seeMyQuotes: 0 | 1
 }
 
 const defaultValues: FilterType = {
@@ -62,6 +70,8 @@ const defaultValues: FilterType = {
   category: [],
   serviceType: [],
   search: '',
+  hideCompletedQuotes: 0,
+  seeMyQuotes: 0,
 }
 
 const defaultFilters: QuotesFilterType = {
@@ -89,6 +99,9 @@ type MenuType = 'list' | 'calendar'
 export default function Quotes({ id, user }: Props) {
   const { data: statusList } = useGetStatusList('Quote')
   const queryClient = useQueryClient()
+  const savedFilter: FilterType | null = getUserFilters(FilterKey.QUOTE_LIST)
+    ? JSON.parse(getUserFilters(FilterKey.QUOTE_LIST)!)
+    : null
 
   const [menu, setMenu] = useState<MenuType>('list')
 
@@ -98,7 +111,8 @@ export default function Quotes({ id, user }: Props) {
   const [hideCompletedQuotes, setHideCompletedQuotes] = useState(false)
   const [seeMyQuotes, setSeeMyQuotes] = useState(false)
 
-  const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<QuotesFilterType | null>(null)
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const [clientList, setClientList] = useState<
@@ -116,11 +130,7 @@ export default function Quotes({ id, user }: Props) {
 
   const currentRole = getCurrentRole()
 
-  const { data: list, isLoading } = useGetQuotesList({
-    ...filters,
-    skip: quoteListPage * quoteListPageSize,
-    take: quoteListPageSize,
-  })
+  const { data: list, isLoading } = useGetQuotesList(filters)
 
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
@@ -135,7 +145,7 @@ export default function Quotes({ id, user }: Props) {
 
   const { control, handleSubmit, trigger, reset, watch, getValues } =
     useForm<FilterType>({
-      defaultValues,
+      defaultValues: defaultFilter,
       mode: 'onSubmit',
     })
 
@@ -153,7 +163,21 @@ export default function Quotes({ id, user }: Props) {
       lsp: [],
       search: '',
     })
-
+    saveUserFilters(FilterKey.QUOTE_LIST, {
+      quoteDate: [],
+      quoteDeadline: [],
+      quoteExpiryDate: [],
+      status: [],
+      client: [],
+      category: [],
+      serviceType: [],
+      estimatedDeliveryDate: [],
+      projectDueDate: [],
+      lsp: [],
+      search: '',
+      hideCompletedQuotes: hideCompletedQuotes ? 1 : 0,
+      seeMyQuotes: seeMyQuotes ? 1 : 0,
+    })
     setFilters(defaultFilters)
     queryClient.invalidateQueries([
       'quotesList',
@@ -171,6 +195,11 @@ export default function Quotes({ id, user }: Props) {
       ...prevState,
       hideCompletedQuotes: checked ? 1 : 0,
     }))
+
+    saveUserFilters(FilterKey.QUOTE_LIST, {
+      ...defaultFilter,
+      hideCompletedQuotes: checked ? 1 : 0,
+    })
   }
 
   const handleSeeMyQuotes = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,6 +209,11 @@ export default function Quotes({ id, user }: Props) {
       ...prevState,
       seeMyQuotes: checked ? 1 : 0,
     }))
+
+    saveUserFilters(FilterKey.QUOTE_LIST, {
+      ...defaultFilter,
+      seeMyQuotes: checked ? 1 : 0,
+    })
   }
 
   const onSubmit = (data: FilterType) => {
@@ -195,10 +229,11 @@ export default function Quotes({ id, user }: Props) {
       estimatedDeliveryDate,
       projectDueDate,
       lsp,
+      hideCompletedQuotes,
+      seeMyQuotes,
     } = data
-
-    console.log(data)
-
+    saveUserFilters(FilterKey.QUOTE_LIST, data)
+    setDefaultFilter(data)
     const filter: QuotesFilterType = {
       quoteDate:
         quoteDate.length > 0
@@ -260,9 +295,12 @@ export default function Quotes({ id, user }: Props) {
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
+      hideCompletedQuotes: hideCompletedQuotes,
+      seeMyQuotes: seeMyQuotes,
     }
 
     setFilters(filter)
+
     queryClient.invalidateQueries(['quotesList', { type: 'list' }, filter])
   }
 
@@ -296,6 +334,108 @@ export default function Quotes({ id, user }: Props) {
     queryClient.invalidateQueries(['quotesDetail'])
   }, [])
 
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        quoteDate,
+        quoteDeadline,
+        quoteExpiryDate,
+        status,
+        client,
+        serviceType,
+        category,
+        search,
+        estimatedDeliveryDate,
+        projectDueDate,
+        lsp,
+        seeMyQuotes,
+        hideCompletedQuotes,
+        ordering,
+        sort,
+      } = savedFilter
+
+      const filter: QuotesFilterType = {
+        quoteDate:
+          quoteDate.length > 0
+            ? [
+                dayjs(quoteDate[0])
+                  .startOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                dayjs(quoteDate[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+              ]
+            : undefined,
+        quoteDeadline:
+          quoteDeadline && quoteDeadline.length > 0
+            ? [
+                dayjs(quoteDeadline[0])
+                  .startOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                dayjs(quoteDeadline[1])
+                  .endOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+              ]
+            : undefined,
+        quoteExpiryDate:
+          quoteExpiryDate && quoteExpiryDate.length > 0
+            ? [
+                dayjs(quoteExpiryDate[0])
+                  .startOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                dayjs(quoteExpiryDate[1])
+                  .endOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+              ]
+            : undefined,
+        status: status.map(value => value.value),
+        // client: client?.map(value => value.label),
+        clientId: client?.map(value => value.value),
+        serviceType: serviceType.map(value => value.value),
+        category: category.map(value => value.value),
+        estimatedDeliveryDate:
+          estimatedDeliveryDate && estimatedDeliveryDate.length > 0
+            ? [
+                dayjs(estimatedDeliveryDate[0])
+                  .startOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                dayjs(estimatedDeliveryDate[1])
+                  .endOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+              ]
+            : undefined,
+        projectDueDate:
+          projectDueDate && projectDueDate.length > 0
+            ? [
+                dayjs(projectDueDate[0])
+                  .startOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+                dayjs(projectDueDate[1])
+                  .endOf('day')
+                  .format('YYYY-MM-DD HH:mm:ss'),
+              ]
+            : undefined,
+        companyId: lsp?.map(value => value.label),
+        search: search,
+        take: quoteListPageSize,
+        skip: quoteListPageSize * quoteListPage,
+        seeMyQuotes: seeMyQuotes,
+        hideCompletedQuotes: hideCompletedQuotes,
+        ordering: ordering,
+        sort: sort,
+      }
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+      setHideCompletedQuotes(hideCompletedQuotes === 1)
+      setSeeMyQuotes(seeMyQuotes === 1)
+    } else {
+      setFilters(defaultFilters)
+    }
+  }, [savedFilter])
+
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -328,7 +468,7 @@ export default function Quotes({ id, user }: Props) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Suspense>
               <QuotesFilters
-                filter={filters}
+                filter={filters!}
                 control={control}
                 setFilter={setFilters}
                 onReset={onClickResetButton}
@@ -394,10 +534,11 @@ export default function Quotes({ id, user }: Props) {
                   setPageSize={setClientInvoiceListPageSize}
                   list={list || { data: [], totalCount: 0 }}
                   isLoading={isLoading}
-                  filter={filters}
+                  filter={filters!}
                   setFilter={setFilters}
                   role={currentRole!}
                   type='list'
+                  defaultFilter={defaultFilter}
                 />
               </Card>
             </Grid>

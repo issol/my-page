@@ -28,17 +28,22 @@ const Chip = (props: CustomChipProps) => {
   }
 
   const getSx = () => {
+    const defaultOptions = {
+      height: 24,
+    }
     if (skin === 'light' && color) {
       return Object.assign(colors[color], sx)
     } else if (customcolor) {
       if (type === 'jobType') {
         return {
+          ...defaultOptions,
           backgroundColor: customcolor,
           color: 'rgba(17, 17, 17, 0.87)',
           fontSize: '13px',
         }
       } else if (type === 'role') {
         return {
+          ...defaultOptions,
           background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customcolor}`,
           border: `1px solid ${customcolor}`,
           color: 'rgba(17, 17, 17, 0.87)',
@@ -46,6 +51,7 @@ const Chip = (props: CustomChipProps) => {
         }
       } else if (type === 'testStatus') {
         return {
+          ...defaultOptions,
           background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customcolor}`,
           color: customcolor,
           fontSize: '13px',
@@ -53,6 +59,7 @@ const Chip = (props: CustomChipProps) => {
         }
       } else if (type?.split('-')[0] === 'testType') {
         return {
+          ...defaultOptions,
           background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customcolor}`,
           color: 'rgba(17, 17, 17, 0.87)',
           border: `1px solid ${

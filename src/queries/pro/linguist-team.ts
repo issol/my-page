@@ -5,15 +5,16 @@ import {
 import { FilterType } from '@src/pages/pro/linguist-team'
 import { useQuery } from 'react-query'
 
-export const useGetLinguistTeam = (filter: FilterType) => {
+export const useGetLinguistTeam = (filter: FilterType | null) => {
   return useQuery(
     ['linguistTeam', filter],
     () => {
-      return getLinguistTeamList(filter)
+      return getLinguistTeamList(filter!)
     },
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }

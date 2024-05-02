@@ -39,6 +39,13 @@ import {
 import Notice from '@src/views/dashboard/notice'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import find from 'lodash/find'
+import {
+  useGetOnboardingStatistic,
+  useGetStatistic,
+} from '@src/queries/onboarding/onboarding-query'
+import UserStatistic from '@src/views/dashboard/user'
+import { useGetRecruitingCount } from '@src/queries/recruiting.query'
+import RecruitingStatistic from '@src/views/dashboard/recruting'
 
 dayjs.extend(weekday)
 
@@ -82,6 +89,10 @@ const TADDashboards = () => {
   const [roles, setRoles] = useState<CSVDataType>([])
   const [sourceLanguages, setSourceLanguages] = useState<CSVDataType>([])
   const [targetLanguages, setTargetLanguages] = useState<CSVDataType>([])
+
+  const { data: totalStatistics } = useGetStatistic()
+  const { data: onboardingStatistic } = useGetOnboardingStatistic()
+  const { data: recruitingStatistic } = useGetRecruitingCount()
 
   useEffect(() => {
     let Onboarding: TADOnboardingResult = {
@@ -208,6 +219,19 @@ const TADDashboards = () => {
           </Grid>
 
           <Grid container gap='24px'>
+            {onboardingStatistic && totalStatistics ? (
+              <GridItem height={87}>
+                <UserStatistic
+                  onboardingStatistic={onboardingStatistic}
+                  totalStatistics={totalStatistics}
+                />
+              </GridItem>
+            ) : null}
+            {recruitingStatistic ? (
+              <GridItem height={87}>
+                <RecruitingStatistic recruitingData={recruitingStatistic} />
+              </GridItem>
+            ) : null}
             <GridItem width={490} height={267}>
               <OnboardingList setOpenInfoDialog={setOpenInfoDialog} />
             </GridItem>

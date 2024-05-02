@@ -19,6 +19,11 @@ import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -28,10 +33,31 @@ const defaultValues: TestMaterialFilterType = {
   target: [],
 }
 
+const initialFilter: TestMaterialFilterPayloadType = {
+  jobType: [],
+  testType: [],
+  role: [],
+  source: [],
+  target: [],
+  take: 10,
+  skip: 0,
+  userCompany: 'GloZ',
+  sort: 'desc',
+}
+
 const CertificationTest = () => {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const savedFilter: TestMaterialFilterType | null = getUserFilters(
+    FilterKey.CERTIFICATION_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.CERTIFICATION_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] =
+    useState<TestMaterialFilterType>(defaultValues)
 
   const queryClient = useQueryClient()
 
@@ -40,17 +66,9 @@ const CertificationTest = () => {
   const [testMaterialListPageSize, setTestMaterialListPageSize] =
     useState<number>(10)
 
-  const [filters, setFilters] = useState<TestMaterialFilterPayloadType>({
-    jobType: [],
-    testType: [],
-    role: [],
-    source: [],
-    target: [],
-    take: testMaterialListPageSize,
-    skip: testMaterialListPageSize * testMaterialListPage,
-    userCompany: 'GloZ',
-    sort: 'desc',
-  })
+  const [filters, setFilters] = useState<TestMaterialFilterPayloadType | null>(
+    null,
+  )
 
   const { data: testMaterialList } = useGetTestMaterialList(filters)
 
@@ -65,7 +83,7 @@ const CertificationTest = () => {
 
   const { control, handleSubmit, trigger, reset, getValues: getFilterValues } =
     useForm<TestMaterialFilterType>({
-      defaultValues,
+      defaultValues: defaultFilter,
       mode: 'onSubmit',
     })
 
@@ -73,38 +91,13 @@ const CertificationTest = () => {
     setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
     reset({
-      testType: [],
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
+      ...defaultValues,
     })
 
     setFilters({
-      testType: [],
-      jobType: [],
-      role: [],
-      source: [],
-      target: [],
-      take: testMaterialListPageSize,
-      skip: testMaterialListPageSize * testMaterialListPage,
-      userCompany: 'GloZ',
-      sort: 'asc',
+      ...initialFilter,
     })
-    queryClient.invalidateQueries([
-      'test-material-list',
-      {
-        testType: [],
-        jobType: [],
-        role: [],
-        source: [],
-        target: [],
-        take: testMaterialListPageSize,
-        skip: testMaterialListPageSize * testMaterialListPage,
-        userCompany: 'GloZ',
-        sort: 'asc',
-      },
-    ])
+    saveUserFilters(FilterKey.CERTIFICATION_LIST, { ...initialFilter })
   }
 
   const onSubmit = (data: TestMaterialFilterType) => {
@@ -121,9 +114,10 @@ const CertificationTest = () => {
       userCompany: 'GloZ',
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
-      sort: 'asc',
+      sort: 'desc',
     }
-
+    saveUserFilters(FilterKey.CERTIFICATION_LIST, data)
+    setDefaultFilter(data)
     setFilters(filter)
     queryClient.invalidateQueries(['test-material-list', filter])
   }
@@ -137,6 +131,37 @@ const CertificationTest = () => {
     queryClient.invalidateQueries(['test-material-list'])
     queryClient.invalidateQueries(['test-detail'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      const { jobType, role, source, target, testType } = savedFilter
+
+      const filter = {
+        testType: testType.map(value =>
+          value.label === 'Basic test' ? 'basic' : 'skill',
+        ),
+        jobType: jobType.map(value => value.value),
+        role: role.map(value => value.value),
+        source: source.map(value => value.value),
+        target: target.map(value => value.value),
+        userCompany: 'GloZ',
+        take: testMaterialListPageSize,
+        skip: testMaterialListPageSize * testMaterialListPage,
+        sort: 'desc',
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+
+        reset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+    } else {
+      setFilters(initialFilter)
+    }
+  }, [savedFilter])
   return (
     <>
       {auth.state === 'hasValue' && (

@@ -9,15 +9,16 @@ import {
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useQuery } from 'react-query'
 
-export const useGetPayableList = (filter: InvoicePayableFilterType) => {
+export const useGetPayableList = (filter: InvoicePayableFilterType | null) => {
   return useQuery(
     ['invoice/payable/list', filter],
-    () => getPayableList(filter),
+    () => getPayableList(filter!),
     {
       staleTime: 60 * 1000, // 1
 
       suspense: false,
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }

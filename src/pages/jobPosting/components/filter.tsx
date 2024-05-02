@@ -117,7 +117,6 @@ export default function Filters({
                           {...params}
                           autoComplete='off'
                           label='Job type'
-                          placeholder='Job type'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -147,7 +146,7 @@ export default function Filters({
                     id='role'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Role' placeholder='Role' />
+                      <TextField {...params} autoComplete='off' label='Role' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -182,7 +181,6 @@ export default function Filters({
                         {...params}
                         autoComplete='off'
                         label='Years of experience'
-                        placeholder='Years of experience'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
@@ -215,7 +213,6 @@ export default function Filters({
                         {...params}
                         autoComplete='off'
                         label='Source'
-                        placeholder='Source'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
@@ -248,7 +245,6 @@ export default function Filters({
                         {...params}
                         autoComplete='off'
                         label='Target'
-                        placeholder='Target'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (

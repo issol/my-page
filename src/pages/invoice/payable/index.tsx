@@ -44,6 +44,11 @@ import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-
 import { timezoneSelector } from '@src/states/permission'
 import ModalWithDatePicker from '@src/pages/client/components/modals/modal-with-datepicker'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -65,6 +70,12 @@ export default function Payable() {
   const user = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const savedFilter: InvoicePayableFilterType | null = getUserFilters(
+    FilterKey.INVOICE_PAYABLE_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.INVOICE_PAYABLE_LIST)!)
+    : null
+
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const { openModal, closeModal } = useModal()
@@ -74,9 +85,14 @@ export default function Payable() {
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
   const [skip, setSkip] = useState(0)
+  const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
+  const [seeMyInvoices, setSeeMyInvoices] = useState(false)
+
+  const [defaultFilter, setDefaultFilter] =
+    useState<InvoicePayableFilterType>(initialFilter)
   const [filter, setFilter] = useState<InvoicePayableFilterType>(initialFilter)
   const [activeFilter, setActiveFilter] =
-    useState<InvoicePayableFilterType>(initialFilter)
+    useState<InvoicePayableFilterType | null>(null)
 
   const [statuses, setStatuses] = useState<number[]>([])
 
@@ -88,64 +104,65 @@ export default function Payable() {
   }, [user])
 
   const onSearch = () => {
-    setActiveFilter({
-      ...filter,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
-      invoicedDateFrom: filter.invoicedDateFrom
-        ? convertLocalToUtc(
-            moment(filter.invoicedDateFrom).format('YYYY-MM-DD'),
-            userTimezone,
-          )
-        : undefined,
-      invoicedDateTo: filter.invoicedDateTo
-        ? convertLocalToUtc(
-            moment(filter.invoicedDateTo).add(1, 'day').format(),
-            userTimezone,
-            true,
-          )
-        : undefined,
-      payDueDateFrom: filter.payDueDateFrom
-        ? convertLocalToUtc(
-            moment(filter.payDueDateFrom).format(),
-            userTimezone,
-          )
-        : undefined,
-      payDueDateTo: filter.payDueDateTo
-        ? convertLocalToUtc(
-            moment(filter.payDueDateTo).add(1, 'day').format(),
-            userTimezone,
-            true,
-          )
-        : undefined,
-      paidDateFrom: filter.paidDateFrom
-        ? convertLocalToUtc(moment(filter.paidDateFrom).format(), userTimezone)
-        : undefined,
-      paidDateTo: filter.paidDateTo
-        ? convertLocalToUtc(
-            moment(filter.paidDateTo).add(1, 'day').format(),
-            userTimezone,
-            true,
-          )
-        : undefined,
-    })
-    queryClient.invalidateQueries([
-      'invoice/payable/list',
-      {
+    if (activeFilter) {
+      const postFilter = {
         ...filter,
         skip: skip * activeFilter.take,
         take: activeFilter.take,
-      },
-    ])
+        invoicedDateFrom: filter.invoicedDateFrom
+          ? convertLocalToUtc(
+              moment(filter.invoicedDateFrom).format('YYYY-MM-DD'),
+              userTimezone,
+            )
+          : undefined,
+        invoicedDateTo: filter.invoicedDateTo
+          ? convertLocalToUtc(
+              moment(filter.invoicedDateTo).add(1, 'day').format(),
+              userTimezone,
+              true,
+            )
+          : undefined,
+        payDueDateFrom: filter.payDueDateFrom
+          ? convertLocalToUtc(
+              moment(filter.payDueDateFrom).format(),
+              userTimezone,
+            )
+          : undefined,
+        payDueDateTo: filter.payDueDateTo
+          ? convertLocalToUtc(
+              moment(filter.payDueDateTo).add(1, 'day').format(),
+              userTimezone,
+              true,
+            )
+          : undefined,
+        paidDateFrom: filter.paidDateFrom
+          ? convertLocalToUtc(
+              moment(filter.paidDateFrom).format(),
+              userTimezone,
+            )
+          : undefined,
+        paidDateTo: filter.paidDateTo
+          ? convertLocalToUtc(
+              moment(filter.paidDateTo).add(1, 'day').format(),
+              userTimezone,
+              true,
+            )
+          : undefined,
+      }
+      setActiveFilter(postFilter)
+      saveUserFilters(FilterKey.INVOICE_PAYABLE_LIST, postFilter)
+      setDefaultFilter(postFilter)
+    }
   }
 
   const onReset = () => {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
-    queryClient.invalidateQueries([
-      'invoice/payable/list',
-      { ...initialFilter },
-    ])
+    saveUserFilters(FilterKey.INVOICE_PAYABLE_LIST, {
+      ...initialFilter,
+      isHidePaid: hidePaidInvoices ? '1' : '0',
+      isMyJobs: seeMyInvoices ? '1' : '0',
+    })
   }
 
   const updateInvoicePaidStatusMutation = useMutation(
@@ -212,6 +229,21 @@ export default function Payable() {
     queryClient.invalidateQueries(['invoice/payable/history'])
   }, [])
 
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+        setHidePaidInvoices(savedFilter.hidePaid === '1')
+        setSeeMyInvoices(savedFilter.mine === '1')
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
+
   return (
     <Grid container spacing={6}>
       <Grid
@@ -246,25 +278,35 @@ export default function Payable() {
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>See only my invoices</Typography>
               <Switch
-                checked={activeFilter.mine === '1'}
-                onChange={e =>
+                checked={seeMyInvoices}
+                onChange={e => {
+                  setSeeMyInvoices(e.target.checked)
                   setActiveFilter({
-                    ...activeFilter,
+                    ...activeFilter!,
                     mine: e.target.checked ? '1' : '0',
                   })
-                }
+                  saveUserFilters(FilterKey.INVOICE_PAYABLE_LIST, {
+                    ...defaultFilter,
+                    mine: e.target.checked ? '1' : '0',
+                  })
+                }}
               />
             </Box>
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={activeFilter.hidePaid === '1'}
-                onChange={e =>
+                checked={hidePaidInvoices}
+                onChange={e => {
+                  setHidePaidInvoices(e.target.checked)
                   setActiveFilter({
-                    ...activeFilter,
+                    ...activeFilter!,
                     hidePaid: e.target.checked ? '1' : '0',
                   })
-                }
+                  saveUserFilters(FilterKey.INVOICE_PAYABLE_LIST, {
+                    ...defaultFilter,
+                    hidePaid: e.target.checked ? '1' : '0',
+                  })
+                }}
               />
             </Box>
           </Grid>
@@ -301,17 +343,17 @@ export default function Payable() {
                 setStatuses={setStatuses}
                 isLoading={isLoading}
                 isAccountManager={isAccountManager}
-                pageSize={activeFilter.take}
+                pageSize={activeFilter?.take ?? 10}
                 skip={skip}
                 setSkip={(n: number) => {
                   setSkip(n)
                   setActiveFilter({
-                    ...activeFilter,
-                    skip: n * activeFilter.take!,
+                    ...activeFilter!,
+                    skip: n * (activeFilter?.take ?? 10),
                   })
                 }}
                 setPageSize={(n: number) =>
-                  setActiveFilter({ ...activeFilter, take: n })
+                  setActiveFilter({ ...activeFilter!, take: n })
                 }
                 type='list'
                 columns={getInvoicePayableListColumns(

@@ -70,7 +70,7 @@ const CalendarContainer = () => {
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
-  const [filter, setFilter] = useState<InvoiceReceivableFilterType>({
+  const [filter, setFilter] = useState<InvoiceReceivableFilterType | null>({
     mine: '0',
     hidePaid: '0',
     skip: 0,
@@ -82,7 +82,7 @@ const CalendarContainer = () => {
   const { data, refetch, isLoading } = useGetReceivableCalendar(
     year,
     month,
-    filter,
+    filter!,
   )
 
   const [event, setEvent] = useState<
@@ -154,7 +154,7 @@ const CalendarContainer = () => {
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
-            filter={filter}
+            filter={filter!}
             setFilter={setFilter}
             containerWidth={containerWidth}
           />

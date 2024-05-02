@@ -69,6 +69,8 @@ import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
 
 import { timezoneSelector } from '@src/states/permission'
+import PushPinIcon from '@mui/icons-material/PushPin'
+import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -93,15 +95,48 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const [timeZoneList, setTimeZoneList] = useState<
+  const [timezoneList, setTimezoneList] = useState<
     {
+      id: number
       code: string
       label: string
-      phone: string
+      pinned: boolean
     }[]
   >([])
 
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const auth = useRecoilValueLoadable(authState)
+
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const [newWorkName, setNewWorkName] = useState('')
 
   const addWorkNameMutation = useMutation(
@@ -133,35 +168,29 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const timezone = useRecoilValueLoadable(timezoneSelector)
-
   useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
-      return {
-        code: list.timezoneCode,
-        label: list.timezone,
-        phone: '',
-      }
-    })
-    setTimeZoneList(filteredTimezone)
-  }, [timezone])
-
-  useEffect(() => {
-    if (clientTimezone && !getValues().projectDueTimezone) {
-      setValue('projectDueTimezone', clientTimezone, setValueOptions)
+    if (clientTimezone && !getValues().projectDueTimezone && timezoneList.length > 0) {
+      const timezoneLabel = clientTimezone.label
+      const getClientTimezone = timezoneList.find(
+        (zone) => zone.label === timezoneLabel
+      ) ?? { id: undefined, code: '', label: '', pinned: false }
+      setValue('projectDueTimezone', getClientTimezone, setValueOptions)
     }
-  }, [clientTimezone, getValues])
+  }, [clientTimezone, getValues, timezoneList])
 
   useEffect(() => {
-    if (getClientValue() && !getValues('orderTimezone')) {
+    if (getClientValue() && !getValues('orderTimezone') && timezoneList.length > 0) {
+      const timezoneLabel = getClientValue('contacts.timezone')?.label!
+      const getContactsTimezone = timezoneList.find(
+        (zone) => zone.label === timezoneLabel
+      ) ?? { id: undefined, code: '', label: '', pinned: false }
       setValue(
         'orderTimezone',
-        getClientValue('contacts.timezone')!,
+        getContactsTimezone,
         setValueOptions,
       )
     }
-  }, [getClientValue, getValues])
+  }, [getClientValue, getValues, timezoneList])
 
   useEffect(() => {
     if (isSuccess && data) {
@@ -235,6 +264,24 @@ export default function ProjectInfoForm({
     return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
 
+  const handleTimezonePin = (option: {
+    id: number | undefined;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -276,16 +323,28 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (
@@ -642,16 +701,28 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
+                !field.value ? { id: undefined, code: '', label: '', pinned: false } : field.value
               }
-              options={timeZoneList as CountryType[]}
+              options={pinSortedOptions}
               onChange={(e, v) => field.onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option, timezone.getValue())}
+                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {timeZoneFormatter(option, timezone.getValue())}
+                  </Typography>
+                  <IconButton
+                    onClick={(event) => {
+                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                        handleTimezonePin(option)
+                    }}
+                    size="small"
+                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                  >
+                    <PushPinIcon />
+                  </IconButton>
                 </Box>
               )}
               renderInput={params => (

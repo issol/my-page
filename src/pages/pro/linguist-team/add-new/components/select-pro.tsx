@@ -29,6 +29,10 @@ import {
 } from '@src/@core/components/chips/chips'
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { Dispatch, SetStateAction } from 'react'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import JobTypeRole from '@src/pages/components/job-type-role-chips'
 
 type Props = {
   onClickSelectProsHelperIcon: () => void
@@ -59,6 +63,8 @@ const SelectPro = ({
   setExpandSelectProArea,
   expandSelectProArea,
 }: Props) => {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
   const getClientName = (
     clients: Array<{
       id: number
@@ -183,6 +189,7 @@ const SelectPro = ({
               ? true
               : false,
             type,
+            timezone,
           )}
           hideFooter
         />
@@ -306,6 +313,7 @@ const SelectPro = ({
                           lastName: value.lastName,
                           email: value.email,
                         }}
+                        link={`/pro/list/detail/${value.userId}`}
                       />
                     </Box>
                     <Box
@@ -377,29 +385,33 @@ const SelectPro = ({
                             : 0.264,
                         alignItems: 'center',
                         paddingLeft: '20px',
+                        overflow: 'hidden',
                       }}
                     >
-                      <Box sx={{ display: 'flex', gap: '8px' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '8px',
+                        }}
+                      >
                         {value.jobInfo && value.jobInfo.length ? (
                           <>
-                            <JobTypeChip
+                            {/* <JobTypeChip
                               type={value.jobInfo[0]?.jobType}
                               label={value.jobInfo[0]?.jobType}
                             />
                             <RoleChip
                               type={value.jobInfo[0]?.role}
                               label={value.jobInfo[0]?.role}
+                            /> */}
+                            <JobTypeRole
+                              jobInfo={value.jobInfo}
+                              visibleType='role'
                             />
                           </>
                         ) : (
                           '-'
                         )}
-                        {value.jobInfo?.length > 1 ? (
-                          <ExtraNumberChip
-                            label={`+${value.jobInfo?.slice(1).length}`}
-                            size='small'
-                          />
-                        ) : null}
                       </Box>
                     </Box>
                     <Box
@@ -417,9 +429,31 @@ const SelectPro = ({
                         paddingLeft: '20px',
                       }}
                     >
-                      <Typography variant='body1'>
-                        {value.experience}
-                      </Typography>
+                      <Tooltip
+                        title={
+                          timeZoneFormatter(
+                            value.timezone,
+                            timezone.getValue(),
+                          ) || '-'
+                        }
+                      >
+                        <Typography
+                          variant='body2'
+                          fontWeight={400}
+                          sx={{
+                            width: '100%',
+                            color: '#4C4E64',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            // whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {timeZoneFormatter(
+                            value.timezone,
+                            timezone.getValue(),
+                          ) || '-'}
+                        </Typography>
+                      </Tooltip>
                     </Box>
                     {type === 'detail' ? null : (
                       <Box

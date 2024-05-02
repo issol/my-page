@@ -5,14 +5,15 @@ import {
 import { JobListFilterType } from '@src/types/jobs/job-template.type'
 import { useQuery } from 'react-query'
 
-export const useGetJobTemplate = (filter: JobListFilterType) => {
+export const useGetJobTemplate = (filter: JobListFilterType | null) => {
   return useQuery(
     ['jobTemplateList', filter],
-    () => getJobTemplateList(filter),
+    () => getJobTemplateList(filter!),
     {
       staleTime: 60 * 1000, // 1
       suspense: false,
       keepPreviousData: true,
+      enabled: !!filter,
     },
   )
 }
