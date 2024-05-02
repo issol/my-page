@@ -31,16 +31,20 @@ export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
     payDueTimezone: yup
       .object()
       .shape({
+        id: yup.number().nullable(),
         code: yup.string().nullable(),
         label: yup.string().nullable(),
+        pinned: yup.boolean().nullable(),
       })
       .nullable(),
     paidAt: yup.date().nullable(),
     paidDateTimezone: yup
       .object()
       .shape({
+        id: yup.number().nullable(),
         code: yup.string().nullable(),
         label: yup.string().nullable(),
+        pinned: yup.boolean().nullable(),
       })
       .nullable(),
 

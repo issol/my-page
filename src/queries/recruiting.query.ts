@@ -18,16 +18,17 @@ export const useGetRecruitingCount = () => {
     },
   )
 }
-export const useGetRecruitingList = (filter: FilterType) => {
+export const useGetRecruitingList = (filter: FilterType | null) => {
   return useQuery(
     ['get-recruiting/list', filter],
     () => {
-      return getRecruitingList(filter)
+      return getRecruitingList(filter!)
     },
     {
       suspense: true,
       staleTime: 60 * 1000,
       keepPreviousData: true,
+      enabled: !!filter,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

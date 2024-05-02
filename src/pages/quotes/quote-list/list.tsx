@@ -12,12 +12,15 @@ import { authState } from '@src/states/auth'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
 import { getQuoteListColumns } from '@src/shared/const/columns/quote-list'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
+import { FilterType } from '.'
 
 type Props = {
   skip: number
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
+  defaultFilter?: FilterType
   list: {
     data: Array<QuotesListType> | []
     totalCount: number
@@ -40,6 +43,7 @@ export default function QuotesList({
   setFilter,
   role,
   type,
+  defaultFilter,
 }: Props) {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
@@ -86,6 +90,11 @@ export default function QuotesList({
                   }
                   setFilter({
                     ...filter,
+                    sort: value.field,
+                    ordering: value.sort,
+                  })
+                  saveUserFilters(FilterKey.QUOTE_LIST, {
+                    ...defaultFilter,
                     sort: value.field,
                     ordering: value.sort,
                   })

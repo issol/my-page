@@ -22,14 +22,17 @@ import { DetailUserType } from '@src/types/common/detail-user.type'
 
 import _ from 'lodash'
 
-export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
+export const useGetOnboardingProList = (
+  filters: OnboardingFilterType | null,
+) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
     ['onboarding-pro-list', filters],
-    () => getOnboardingProList(filters),
+    () => getOnboardingProList(filters!),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
+      enabled: !!filters,
 
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },

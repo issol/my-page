@@ -5,24 +5,24 @@ import { v4 as uuidv4 } from 'uuid'
 import Chip from '@src/@core/components/mui/chip'
 
 const TestStatus = ({
-  row,
+  testStatus,
 }: {
-  row: { jobInfo: Array<{ testStatus: string }> }
+  testStatus: string[]
 }) => {
   return (
     <Box>
-      {!row?.jobInfo.length
+      {!testStatus.length
         ? '-'
-        : row?.jobInfo.map(
+        : testStatus.map(
             (item, idx) =>
               idx === 0 && (
                 <Chip
                   size='medium'
                   key={uuidv4()}
                   type='testStatus'
-                  label={item.testStatus}
+                  label={item}
                   /* @ts-ignore */
-                  customcolor={TestStatusColor[item.testStatus]}
+                  customcolor={TestStatusColor[item]}
                   sx={{
                     textTransform: 'capitalize',
                     '& .MuiChip-label': { lineHeight: '18px' },

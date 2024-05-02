@@ -1,12 +1,15 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
-import { ConstType } from '@src/pages/onboarding/client-guideline'
-import { JobStatus } from '@src/types/common/status.type'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Filters from './filter'
 import JobTemplateList from './list'
 import { useGetJobTemplate } from '@src/queries/jobs/job-template.query'
 import { useGetServiceType } from '@src/queries/common.query'
 import { useRouter } from 'next/router'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 export type FilterType = {
   serviceType?: number[]
@@ -17,37 +20,65 @@ export type FilterType = {
 
 export const initialFilter: FilterType = {
   serviceType: [],
-
   search: '',
-
   skip: 0,
   take: 10,
 }
 
 const JobTemplateView = () => {
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.JOB_TEMPLATE_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.JOB_TEMPLATE_LIST)!)
+    : null
+
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(initialFilter)
+
   const router = useRouter()
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
-  const [activeFilter, setActiveFilter] = useState<FilterType>({
-    ...initialFilter,
-  })
+  const [activeFilter, setActiveFilter] = useState<FilterType | null>(null)
 
   const { data, isLoading } = useGetJobTemplate(activeFilter)
   const { data: serviceTypeList } = useGetServiceType()
 
   const onSearch = () => {
-    setActiveFilter({
-      ...filter,
-      skip: filter.skip * activeFilter.take,
-      take: activeFilter.take,
-    })
+    if (activeFilter) {
+      setActiveFilter({
+        ...filter,
+        skip: filter.skip * activeFilter.take,
+        take: activeFilter.take,
+      })
+      saveUserFilters(FilterKey.JOB_TEMPLATE_LIST, {
+        ...filter,
+        skip: filter.skip * activeFilter.take,
+        take: activeFilter.take,
+      })
+      setDefaultFilter({
+        ...filter,
+        skip: filter.skip * activeFilter.take,
+        take: activeFilter.take,
+      })
+    }
   }
 
   const onReset = () => {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    saveUserFilters(FilterKey.JOB_TEMPLATE_LIST, { ...initialFilter })
   }
 
-  console.log(activeFilter)
+  useEffect(() => {
+    if (savedFilter) {
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        setFilter(savedFilter)
+        setActiveFilter(savedFilter)
+      }
+    } else {
+      setFilter(initialFilter)
+      setActiveFilter(initialFilter)
+    }
+  }, [savedFilter])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -86,13 +117,16 @@ const JobTemplateView = () => {
             list={data || { data: [], totalCount: 0 }}
             isLoading={isLoading}
             skip={filter.skip}
-            pageSize={activeFilter.take}
+            pageSize={activeFilter?.take ?? 10}
             setSkip={(n: number) => {
               setFilter({ ...filter, skip: n })
-              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+              setActiveFilter({
+                ...activeFilter!,
+                skip: n * (activeFilter?.take ?? 10),
+              })
             }}
             setPageSize={(n: number) =>
-              setActiveFilter({ ...activeFilter, take: n })
+              setActiveFilter({ ...activeFilter!, take: n })
             }
             serviceTypeList={serviceTypeList || []}
           />

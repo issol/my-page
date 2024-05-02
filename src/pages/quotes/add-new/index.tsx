@@ -572,29 +572,35 @@ export default function AddNewQuote() {
       //   date: rawProjectInfo.quoteDate.date.toISOString(),
       // },
       quoteDate: {
-        ...rawProjectInfo.quoteDate,
         date: changeTimeZoneOffset(
           formatISO(rawProjectInfo.quoteDate.date),
           rawProjectInfo.quoteDate.timezone,
         ),
+        timezone: rawProjectInfo.quoteDate.timezone
+          ? {label: rawProjectInfo.quoteDate.timezone.label, code: rawProjectInfo.quoteDate.timezone.code }
+          : ''
       },
       projectDueDate: {
-        ...rawProjectInfo.projectDueDate,
         date: rawProjectInfo.projectDueDate.date
           ? changeTimeZoneOffset(
               formatISO(rawProjectInfo.projectDueDate.date),
               rawProjectInfo.projectDueDate.timezone,
             )
           : null,
+        timezone: rawProjectInfo.projectDueDate.timezone
+          ? {label: rawProjectInfo.projectDueDate.timezone.label, code: rawProjectInfo.projectDueDate.timezone.code }
+          : ''
       },
       quoteDeadline: {
-        ...rawProjectInfo.quoteDeadline,
         date: rawProjectInfo.quoteDeadline.date
           ? changeTimeZoneOffset(
               formatISO(rawProjectInfo.quoteDeadline.date),
               rawProjectInfo.quoteDeadline.timezone,
             )
           : null,
+        timezone: rawProjectInfo.quoteDeadline.timezone
+          ? {label: rawProjectInfo.quoteDeadline.timezone.label, code: rawProjectInfo.quoteDeadline.timezone.code }
+          : ''
       },
       quoteExpiryDate: {
         ...rawProjectInfo.quoteExpiryDate,
@@ -604,6 +610,9 @@ export default function AddNewQuote() {
               rawProjectInfo.quoteExpiryDate.timezone,
             )
           : null,
+        timezone: rawProjectInfo.quoteExpiryDate.timezone
+          ? {label: rawProjectInfo.quoteExpiryDate.timezone.label, code: rawProjectInfo.quoteExpiryDate.timezone.code }
+          : ''
       },
       estimatedDeliveryDate: {
         ...rawProjectInfo.estimatedDeliveryDate,
@@ -613,6 +622,9 @@ export default function AddNewQuote() {
               rawProjectInfo.estimatedDeliveryDate.timezone,
             )
           : null,
+        timezone: rawProjectInfo.estimatedDeliveryDate.timezone
+          ? {label: rawProjectInfo.estimatedDeliveryDate.timezone.label, code: rawProjectInfo.estimatedDeliveryDate.timezone.code }
+          : ''
       },
       subtotal: subPrice,
     }
@@ -664,7 +676,6 @@ export default function AddNewQuote() {
       // },
       requestId: requestId ?? null,
     }
-
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {

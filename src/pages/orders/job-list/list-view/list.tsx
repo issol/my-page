@@ -58,9 +58,6 @@ export default function JobsList({
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
 
-  console.log('list', list)
-  console.log(auth.getValue().user?.timezone)
-
   const columns: GridColumns<JobsListType> = [
     {
       field: 'corporationId',

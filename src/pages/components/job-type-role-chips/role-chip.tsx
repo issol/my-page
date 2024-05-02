@@ -15,7 +15,7 @@ type Props = {
 const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
   return (
     <Box sx={{ display: 'flex', gap: '8px' }}>
-      {!visibleChip || (visibleChip === 'jobType' || visibleChip === 'all') && (
+      {(!visibleChip || visibleChip === 'jobType' || visibleChip === 'all') && (
         <Chip
           key={uuidv4()}
           size='medium'
@@ -28,9 +28,9 @@ const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
             '& .MuiChip-label': { lineHeight: '18px' },
             mr: 1,
           }}
-        />)
-      }
-      {!visibleChip || (visibleChip === 'role' || visibleChip === 'all') && (
+        />
+      )}
+      {(!visibleChip || visibleChip === 'role' || visibleChip === 'all') && (
         <Chip
           key={uuidv4()}
           size='medium'
@@ -38,13 +38,14 @@ const JobTypeRoleChips = ({ jobType, role, visibleChip }: Props) => {
           label={role}
           /* @ts-ignore */
           customcolor={RoleColor[role]}
+          // customcolor='#666CFF'
           sx={{
             textTransform: 'capitalize',
             '& .MuiChip-label': { lineHeight: '18px' },
             mr: 1,
           }}
-        />)
-      }
+        />
+      )}
     </Box>
   )
 }

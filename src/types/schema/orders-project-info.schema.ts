@@ -39,13 +39,17 @@ export const orderProjectInfoSchema = yup.object().shape({
     .required(FormErrors.required),
   orderedAt: yup.date().required(FormErrors.required),
   orderTimezone: yup.object().shape({
+    id: yup.number().nullable(),
     code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
+    pinned: yup.boolean().nullable(),
   }),
   projectDueAt: yup.date().nullable(),
   projectDueTimezone: yup.object().shape({
+    id: yup.number().nullable(),
     code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
+    pinned: yup.boolean().nullable(),
   }),
   showDescription: yup.boolean().required(),
 

@@ -5,15 +5,16 @@ import { ProListFilterType, ProListType } from '@src/types/pro/list'
 import { useQuery } from 'react-query'
 
 export const useGetProList = (
-  filters: ProListFilterType | LinguistTeamProListFilterType,
+  filters: ProListFilterType | LinguistTeamProListFilterType | null,
 ) => {
   return useQuery<{ data: ProListType[]; totalCount: number }>(
     ['pro-list', filters],
-    () => getProList(filters),
+    () => getProList(filters!),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
+      enabled: !!filters,
 
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },

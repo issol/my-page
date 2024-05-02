@@ -3,6 +3,11 @@ import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
 import { Tooltip } from '@mui/material'
+import {
+  getCurrentRole,
+  getUserDataFromBrowser,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
 
 interface LegalNameEmailProps {
   row: {
@@ -12,6 +17,17 @@ interface LegalNameEmailProps {
     middleName?: string | null
     lastName: string
     email: string
+  }
+  link?: string
+}
+
+interface LegalNameProps {
+  row: {
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string | null
+    lastName: string
   }
   link?: string
 }
@@ -44,7 +60,21 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
 
       <Box whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
         {link ? (
-          <Link href={link} style={{ textDecoration: 'none' }}>
+          <Link
+            href={{
+              pathname: link,
+              query: {
+                accessToken: getUserTokenFromBrowser(),
+                userData: getUserDataFromBrowser(),
+                currentRole: JSON.stringify(getCurrentRole()!),
+              },
+            }}
+            style={{ textDecoration: 'none' }}
+            target='_blank'
+            onClick={event => {
+              event.stopPropagation()
+            }}
+          >
             <Typography
               variant='body1'
               whiteSpace='nowrap'
@@ -52,6 +82,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
               textOverflow='ellipsis'
               fontWeight={600}
               color='rgba(76, 78, 100, 0.87)'
+              sx={{ textDecoration: 'underline' }}
             >
               {getLegalName({
                 firstName: row.firstName,
@@ -92,7 +123,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
   )
 }
 
-export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
+export const LegalName = ({ row }: LegalNameProps) => {
   return (
     <Box
       display='flex'
@@ -102,7 +133,7 @@ export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
       overflow='hidden'
       textOverflow='ellipsis'
     >
-      <Box display='flex' width='32px' height='32px'>
+      <Box display='flex' width='24px' height='24px'>
         <img
           alt=''
           aria-hidden
@@ -124,8 +155,8 @@ export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
           whiteSpace='nowrap'
           overflow='hidden'
           textOverflow='ellipsis'
-          fontWeight={600}
-          sx={{ color: `#4C4E64DE` }}
+          fontWeight={400}
+          sx={{ color: `#4C4E64` }}
         >
           {getLegalName({
             firstName: row.firstName,

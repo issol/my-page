@@ -57,6 +57,7 @@ import ReactHotToast from '@src/@core/styles/libs/react-hot-toast'
 
 // ** Utils Imports
 import { createEmotionCache } from '@src/@core/utils/create-emotion-cache'
+import { LicenseInfo } from '@mui/x-license'
 
 // ** Prismjs Styles
 import 'prismjs'
@@ -195,6 +196,10 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
     return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
   }
 }
+
+LicenseInfo.setLicenseKey(
+  'ccaead50add37276cc074074759a257bTz04ODY5NSxFPTE3NDUwMjg3NjYwMDAsUz1wcm8sTE09c3Vic2NyaXB0aW9uLEtWPTI=',
+)
 
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {

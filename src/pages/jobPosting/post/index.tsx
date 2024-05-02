@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   FormHelperText,
+  IconButton,
   TextField,
 } from '@mui/material'
 import { Box } from '@mui/system'
@@ -78,7 +79,8 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { timezoneSelector } from '@src/states/permission'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-
+import PushPinIcon from '@mui/icons-material/PushPin'
+import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 export default function JobPostingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
@@ -91,26 +93,44 @@ export default function JobPostingPost() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [link, setLink] = useState<Array<LinkType>>([])
-  const [timeZoneList, setTimeZoneList] = useState<
+  const [timezoneList, setTimezoneList] = useState<
     {
+      id: number
       code: string
       label: string
-      phone: string
+      pinned: boolean
     }[]
   >([])
-
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
   useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
       return {
+        id: idx,
         code: list.timezoneCode,
         label: list.timezone,
-        phone: '',
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimezoneList(filteredTimezone)
   }, [timezone])
 
   const defaultValues = {
@@ -123,7 +143,7 @@ export default function JobPostingPost() {
     postLink: [],
     openings: undefined,
     dueDate: '',
-    dueDateTimezone: { code: '', label: '' },
+    dueDateTimezone: { id: undefined, code: '', label: '', pinned: false },
     jobPostLink: '',
   }
 
@@ -146,18 +166,22 @@ export default function JobPostingPost() {
     if (!currDueDate) {
       setValue(
         'dueDateTimezone',
-        { code: '', label: '', phone: '' },
+        { id: undefined, code: '', label: '', pinned: false },
         setValueOptions,
       )
     } else if (
       currDueDate &&
       !watch('dueDateTimezone')?.code &&
       auth.state === 'hasValue' &&
-      auth.getValue().user
+      auth.getValue().user &&
+      timezoneList.length > 0
     ) {
+      const getUserTimezone = timezoneList.find(
+        (zone) => zone.code === auth.getValue().user?.timezone?.code
+      )
       setValue(
         'dueDateTimezone',
-        auth.getValue().user?.timezone,
+        getUserTimezone,
         setValueOptions,
       )
     }
@@ -273,7 +297,9 @@ export default function JobPostingPost() {
       yearsOfExperience: data?.yearsOfExperience?.value ?? '',
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone ?? null,
+      dueDateTimezone: data.dueDateTimezone 
+        ? { label: data.dueDateTimezone.label, code: data.dueDateTimezone.code }
+        : '',
       postLink: data.postLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
@@ -288,6 +314,24 @@ export default function JobPostingPost() {
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }
+
+  const handleTimezonePin = (option: {
+    id: number | undefined;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
 
   return (
     <>
@@ -626,16 +670,25 @@ export default function JobPostingPost() {
                               autoHighlight
                               fullWidth
                               value={value}
-                              options={timeZoneList as CountryType[]}
+                              options={pinSortedOptions}
                               onChange={(e, v) => onChange(v)}
                               // disableClearable
                               disabled={!currDueDate}
                               renderOption={(props, option) => (
-                                <Box component='li' {...props} key={uuidv4()}>
-                                  {timeZoneFormatter(
-                                    option,
-                                    timezone.getValue(),
-                                  )}
+                                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {timeZoneFormatter(option, timezone.getValue())}
+                                  </Typography>
+                                  <IconButton
+                                    onClick={(event) => {
+                                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                                        handleTimezonePin(option)
+                                    }}
+                                    size="small"
+                                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                                  >
+                                    <PushPinIcon />
+                                  </IconButton>
                                 </Box>
                               )}
                               renderInput={params => (

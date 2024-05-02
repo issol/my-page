@@ -47,7 +47,7 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       timezone: { code: '', label: '' },
     },
     mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('edit')) as Resolver<
+    resolver: yupResolver(getProfileSchema('edit')) as unknown as Resolver<
       Omit<PersonalInfo, 'address'>
     >,
   })

@@ -34,6 +34,7 @@ export type LinguistTeamProListFilterType = {
   serviceTypeId?: number[]
   category?: string[]
   hide?: '1' | '0'
+  timezone?: string[]
 }
 
 export type LinguistTeamFormType = {

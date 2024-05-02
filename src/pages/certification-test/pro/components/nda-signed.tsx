@@ -44,6 +44,8 @@ import { useRouter } from 'next/router'
 import { authState } from '@src/states/auth'
 import FallbackSpinner from '@src/@core/components/spinner'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { UseFormGetValues } from 'react-hook-form'
+import { ProPersonalInfo } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   nda: currentVersionType
@@ -54,10 +56,34 @@ type Props = {
     company: ClientUserType | null | undefined
     loading: boolean
   }>
+  signNDA: boolean
   setSignNDA: Dispatch<SetStateAction<boolean>>
+  type: 'additional' | 'certi'
+  address?: {
+    baseAddress: string | null //street1
+    detailAddress: string | null //street2
+    city: string | null
+    state: string | null
+    country: string | null
+    zipCode: string | null
+  }
+  user?: {
+    name: string
+    birthday: string | null
+  }
 }
 
-const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
+const NDASigned = ({
+  nda,
+  language,
+  setLanguage,
+  auth,
+  signNDA,
+  setSignNDA,
+  type,
+  address,
+  user,
+}: Props) => {
   const { openModal, closeModal } = useModal()
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const editorRef = useRef<HTMLElement | null>(null)
@@ -111,9 +137,12 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
   )
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked)
+    type === 'certi'
+      ? setChecked(event.target.checked)
+      : setSignNDA(event.target.checked)
   }
   const getAddress = (address: any) => {
+    if (!address) return ''
     const state1 = address.baseAddress ? `${address.baseAddress}, ` : ''
 
     const state2 = address.detailAddress ? `${address.detailAddress}, ` : ''
@@ -146,40 +175,112 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
   }
   useEffect(() => {
     if (nda?.content) {
-      const copyContent = { ...nda.content }
       const now = dayjs(new Date()).format('MM/DD/YYYY')
-      for (let i = 0; i < copyContent?.blocks?.length; i++) {
-        // if (!copyContent?.blocks[i]?.text.includes('{Legal name}')) continue
-        // if (!copyContent?.blocks[i]?.text.includes('{Address}')) continue
-        // if (!copyContent?.blocks[i]?.text.includes('{Date of birth}')) continue
-        // if (!copyContent?.blocks[i]?.text.includes('Signature date: ')) continue
+      const addresses =
+        type === 'certi'
+          ? auth.getValue().user?.addresses![0]
+          : address
+            ? address
+            : null
 
+      const name =
+        type === 'certi'
+          ? auth.getValue().user?.username ?? ''
+          : user
+            ? user.name
+            : ''
+
+      const birthday =
+        type === 'certi'
+          ? auth.getValue().user?.birthday ?? ''
+          : user
+            ? user.birthday ?? ''
+            : ''
+      const additionalResult = {
+        ...nda,
+        content: {
+          ...nda.content,
+          blocks: [
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 12 + name.length,
+                  offset: 0,
+                },
+              ],
+              text: `Legal name: ${name}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 19 + getAddress(addresses).length ?? 0,
+                  offset: 0,
+                },
+              ],
+              text: `Permanent address: ${getAddress(addresses)}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 15 + birthday.length,
+                  offset: 0,
+                },
+              ],
+              text: `Date of birth: ${birthday}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [],
+              text: '',
+              type: 'unstyled',
+            },
+            ...nda.content.blocks,
+          ],
+        },
+      }
+      console.log(additionalResult)
+
+      const copyContent =
+        type === 'certi' ? { ...nda.content } : { ...additionalResult.content }
+      let i = type === 'certi' ? 0 : 3
+
+      for (i; i < copyContent?.blocks?.length; i++) {
         copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
           '{Legal name}',
-          auth.getValue().user?.username,
+          name,
         )
         copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
           '{Address}',
-          getAddress(auth.getValue().user?.addresses![0]),
+          getAddress(addresses),
         )
         copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
           '{Date of birth}',
-          auth.getValue().user?.birthday,
+          birthday,
         )
 
-        let nameIndex = getAllIndexes(
-          copyContent?.blocks[i]?.text!,
-          auth.getValue().user?.username!,
-        )
+        let nameIndex = getAllIndexes(copyContent?.blocks[i]?.text!, name)
 
         let addressIndex = getAllIndexes(
           copyContent?.blocks[i]?.text!,
-          getAddress(auth.getValue().user?.addresses![0]),
+          getAddress(addresses),
         )
 
         let dateOfBirthIndex = getAllIndexes(
           copyContent?.blocks[i]?.text!,
-          auth.getValue().user?.birthday!,
+          birthday,
         )
 
         let signatureDateIndex = getAllIndexes(
@@ -189,19 +290,37 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
 
         let nameStyle = nameIndex.map(value => ({
           style: 'color-#666CFF',
-          length: auth.getValue().user?.username?.length,
+          length: name.length,
+          offset: value,
+        }))
+
+        let nameBoldStyle = nameIndex.map(value => ({
+          style: 'BOLD',
+          length: name.length,
           offset: value,
         }))
 
         let addressStyle = addressIndex.map(value => ({
           style: 'color-#666CFF',
-          length: getAddress(auth.getValue().user?.addresses![0]).length,
+          length: getAddress(addresses).length,
+          offset: value,
+        }))
+
+        let addressBoldStyle = addressIndex.map(value => ({
+          style: 'BOLD',
+          length: getAddress(addresses).length,
           offset: value,
         }))
 
         let dateOfBirthStyle = dateOfBirthIndex.map(value => ({
           style: 'color-#666CFF',
-          length: auth.getValue().user?.birthday?.length! + 1,
+          length: birthday.length! + 1,
+          offset: value,
+        }))
+
+        let dateOfBirthBoldStyle = dateOfBirthIndex.map(value => ({
+          style: 'BOLD',
+          length: birthday.length! + 1,
           offset: value,
         }))
 
@@ -215,8 +334,11 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
         copyContent.blocks[i].inlineStyleRanges = [
           ...copyContent.blocks[i].inlineStyleRanges,
           ...nameStyle,
+          ...nameBoldStyle,
           ...addressStyle,
+          ...addressBoldStyle,
           ...dateOfBirthStyle,
+          ...dateOfBirthBoldStyle,
           ...signatureDateStyle,
         ]
 
@@ -228,7 +350,7 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
       const editorState = EditorState.createWithContent(content)
       setMainContent(editorState)
     }
-  }, [nda, language])
+  }, [nda, language, address, user])
 
   const onClickClose = () => {
     openModal({
@@ -269,28 +391,26 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
       const cloneCopy = draftEditor.cloneNode(true) as HTMLElement
       const printFrame = document.createElement('div')
       printFrame.id = 'draftEditor'
-      const frameHeight = draftEditor.scrollHeight
-      const frameWidth = draftEditor.offsetWidth
-      printFrame.setAttribute('style', 'position:absolute; left:-99999999px')
+      printFrame.style.position = 'absolute'
+      printFrame.style.left = '-9999px'
+      printFrame.style.display = 'block'
+      printFrame.style.width = '19.5cm'
+      printFrame.style.padding = '0 10px'
       printFrame.append(cloneCopy)
-      root.append(printFrame)
+      root.appendChild(printFrame)
 
-      html2canvas(printFrame, {
-        width: frameWidth,
-        height: frameHeight,
-      }).then(canvas => {
+      html2canvas(printFrame).then(canvas => {
         const imgData = canvas.toDataURL('image/png')
-        console.log(imgData)
 
-        const pdf = new jsPDF('p', 'mm', 'a4')
+        const pdf = new jsPDF('p', 'mm')
 
-        const imgWidth = 190
+        const imgWidth = 210
         const imgHeight = (canvas.height * imgWidth) / canvas.width
         const pageHeight = 297
         let heightLeft = imgHeight
         let position = 0
         heightLeft -= pageHeight
-        pdf.addImage(imgData, 'JPEG', 10, 0, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight)
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
@@ -299,7 +419,6 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
         }
 
         let downloadFile = pdf.output('blob')
-
         let data = new FormData()
 
         if (downloadFile) {
@@ -348,21 +467,23 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
   return (
     <>
       {loading ? <OverlaySpinner /> : null}
-      <Box
-        sx={{
-          width: '782px',
-          margin: '0 auto',
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <Box
+          sx={{
+            width: type === 'certi' ? '782px' : '100%',
+            margin: type === 'certi' ? '0 auto' : 0,
 
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-        }}
-      >
-        <StyledViewer>
-          <Card>
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            border: '1px solid #D8D8DD',
+            borderRadius: '10px',
+            padding: '20px',
+          }}
+        >
+          <StyledViewer id='downloadItem'>
             <Box
               sx={{
-                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 // gap: '20px',
@@ -370,58 +491,68 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
             >
               <Box
                 sx={{
+                  // padding: '20px',
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '20px',
+                  flexDirection: 'column',
+                  // gap: '20px',
                 }}
               >
-                <Typography variant='h6'>[{language} NDA]</Typography>
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '4px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '20px',
                   }}
                 >
-                  <Typography
-                    fontSize={14}
-                    fontWeight={language === 'KOR' ? 400 : 600}
-                    color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
-                  >
-                    English
-                  </Typography>
-                  <Switch
-                    checked={language === 'KOR'}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      setLanguage(event.target.checked ? 'KOR' : 'ENG')
-                    }}
-                    inputProps={{ 'aria-label': 'controlled' }}
+                  <Typography variant='h6'>[{language} NDA]</Typography>
+                  <Box
                     sx={{
-                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                        color: '#666CFF',
-                        '.MuiSwitch-thumb': {
-                          color: '#666CFF',
-                        },
-                      },
-                      '.MuiSwitch-track': {
-                        backgroundColor: '#666CFF',
-                      },
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                  />
-                  <Typography
-                    fontSize={14}
-                    fontWeight={language === 'KOR' ? 600 : 400}
-                    color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
                   >
-                    Korean
-                  </Typography>
+                    <Typography
+                      fontSize={14}
+                      fontWeight={language === 'KOR' ? 400 : 600}
+                      color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
+                    >
+                      English
+                    </Typography>
+                    <Switch
+                      checked={language === 'KOR'}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        setLanguage(event.target.checked ? 'KOR' : 'ENG')
+                      }}
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                    />
+                    <Typography
+                      fontSize={14}
+                      fontWeight={language === 'KOR' ? 600 : 400}
+                      color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
+                    >
+                      Korean
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
               <Divider />
               <Box
                 id='downloadItem'
-                ref={editorRef}
                 sx={{
                   maxHeight: '570px',
                   overflowY: 'scroll',
@@ -435,51 +566,82 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
                   },
                 }}
               >
-                <ReactDraftWysiwyg
-                  editorState={mainContent}
-                  readOnly={true}
-
-                  // editorRef={ref => {
-                  //   if (ref) {
-                  //     editorRef = ref
-                  //   }
-                  // }}
-                />
+                <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
               </Box>
             </Box>
-          </Card>
-        </StyledViewer>
+          </StyledViewer>
+          {type === 'certi' ? null : <Divider />}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+              width: '100%',
+            }}
+          >
+            <Typography
+              variant={type === 'certi' ? 'body2' : 'body1'}
+              fontSize={14}
+            >
+              After the initial agreement, you can access the signed NDA on My
+              page.
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Checkbox
+                checked={type === 'certi' ? checked : signNDA}
+                onChange={handleChange}
+              />
+              <Typography
+                variant='body1'
+                fontWeight={type === 'certi' ? 500 : 600}
+              >
+                I agree to the terms and conditions.
+              </Typography>
+            </Box>
+          </Box>
+          {type === 'certi' ? (
+            <Box
+              sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
+            >
+              <Button variant='outlined' onClick={onClickClose}>
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!checked}
+                onClick={onClickSubmit}
+              >
+                Submit
+              </Button>
+            </Box>
+          ) : null}
+        </Box>
+
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            width: '100%',
+            padding: '10px 20px',
+            background: '#FFF6E5',
+            borderRadius: '10px',
           }}
         >
-          <Typography variant='body2'>
-            After the initial agreement, you can access the signed NDA on My
-            page.
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Checkbox checked={checked} onChange={handleChange} />
-            <Typography variant='body1'>
-              I agree to the terms and conditions.
-            </Typography>
-          </Box>
-        </Box>
-        <Box sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
-          <Button variant='outlined' onClick={onClickClose}>
-            Close
-          </Button>
-          <Button
-            variant='contained'
-            disabled={!checked || loading}
-            onClick={onClickSubmit}
-          >
-            Submit
-          </Button>
+          <ul style={{ margin: '0 !important', paddingLeft: '20px' }}>
+            <li>
+              <Typography fontSize={14} fontWeight={600}>
+                {language === 'ENG'
+                  ? 'This NDA is a document that must be signed before taking a test.'
+                  : '본 NDA는 추후에 테스트를 진행하기 위해 사전에 작성하는 서류이며, '}
+              </Typography>
+            </li>
+            <li>
+              <Typography fontSize={14}>
+                {language === 'ENG'
+                  ? 'Completing the NDA does not guarantee that you will be able to take a test or onboard immediately.'
+                  : 'NDA를 작성해도 바로 테스트 응시나 온보딩이 가능한 것은 아닙니다.'}
+              </Typography>
+            </li>
+          </ul>
         </Box>
       </Box>
     </>

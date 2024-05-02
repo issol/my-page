@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, Typography } from '@mui/material'
+import { Box, Tooltip, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   JobTypeChip,
@@ -7,9 +7,12 @@ import {
   RoleChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
+import JobTypeRole from '@src/pages/components/job-type-role-chips'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { LinguistTeamListType } from '@src/types/pro/linguist-team'
 import { ProListCellType, ProListType } from '@src/types/pro/list'
+import { Loadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 
 type CellType = {
@@ -100,11 +103,12 @@ export const getLinguistTeamColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body1'>{
-          clientList?.find(
-            value => value.clientId === row.clientId,
-          )?.name ?? '-'
-        }</Typography>
+        return (
+          <Typography variant='body1'>
+            {clientList?.find(value => value.clientId === row.clientId)?.name ??
+              '-'}
+          </Typography>
+        )
       },
     },
     {
@@ -180,6 +184,14 @@ export const getLinguistTeamProColumns = (
   isPriorityMode: boolean,
   modal: boolean = false,
   type: 'create' | 'edit' | 'detail',
+  timezone: Loadable<
+    {
+      offset: number
+      offsetFormatted: string
+      timezone: string
+      timezoneCode: string
+    }[]
+  >,
 ) => {
   const columns: GridColumns<ProListType> = [
     {
@@ -213,7 +225,9 @@ export const getLinguistTeamProColumns = (
               lastName: row.lastName,
               email: row.email,
             }}
-            // link={`/pro/detail/${row.userId}`}
+            link={
+              type === 'detail' ? `/pro/list/detail/${row.userId}` : undefined
+            }
           />
         )
       },
@@ -289,7 +303,7 @@ export const getLinguistTeamProColumns = (
       sortable: false,
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Job type / Role
+          Roles
         </Typography>
       ),
       renderCell: ({ row }: ProListCellType) => {
@@ -297,14 +311,15 @@ export const getLinguistTeamProColumns = (
           <Box sx={{ display: 'flex', gap: '8px' }}>
             {row.jobInfo && row.jobInfo.length ? (
               <>
-                <JobTypeChip
+                {/* <JobTypeChip
                   type={row.jobInfo[0]?.jobType}
                   label={row.jobInfo[0]?.jobType}
-                />
-                <RoleChip
+                /> */}
+                {/* <RoleChip
                   type={row.jobInfo[0]?.role}
                   label={row.jobInfo[0]?.role}
-                />
+                /> */}
+                <JobTypeRole jobInfo={row.jobInfo} visibleType='role' />
               </>
             ) : (
               '-'
@@ -330,11 +345,28 @@ export const getLinguistTeamProColumns = (
             height: '100%',
           }}
         >
-          Years of experience
+          Pro's timezone
         </Typography>
       ),
       renderCell: ({ row }: ProListCellType) => {
-        return <Typography variant='body1'>{row.experience}</Typography>
+        return (
+          <Tooltip
+            title={timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+          >
+            <Typography
+              variant='body2'
+              fontWeight={400}
+              sx={{
+                color: '#4C4E64',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+            </Typography>
+          </Tooltip>
+        )
       },
     },
     {

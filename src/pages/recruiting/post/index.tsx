@@ -78,31 +78,52 @@ import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { timezoneSelector } from '@src/states/permission'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 export default function RecruitingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
 
-  const [timeZoneList, setTimeZoneList] = useState<
+  const [timezoneList, setTimezoneList] = useState<
     {
+      id: number
       code: string
       label: string
-      phone: string
+      pinned: boolean
     }[]
   >([])
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  const loadTimezonePin = ():
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }[]
+    | null => {
+    const storedOptions = getTimezonePin()
+    return storedOptions ? JSON.parse(storedOptions) : null
+  }
+
   useEffect(() => {
-    const timezoneList = timezone.getValue()
-    const filteredTimezone = timezoneList.map(list => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const loadTimezonePinned = loadTimezonePin()
+    const filteredTimezone = zoneList.map((list, idx) => {
       return {
+        id: idx,
         code: list.timezoneCode,
         label: list.timezone,
-        phone: '',
+        pinned:
+          loadTimezonePinned && loadTimezonePinned.length > 0
+            ? loadTimezonePinned[idx].pinned
+            : false,
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimezoneList(filteredTimezone)
   }, [timezone])
 
   /* dialog states */
@@ -118,7 +139,7 @@ export default function RecruitingPost() {
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    () => clientData?.data?.map(i => ({ label: i.name, value: String(i.clientId) })) || [],
     [clientData],
   )
 
@@ -138,7 +159,7 @@ export default function RecruitingPost() {
     targetLanguage: { value: '', label: '' },
     openings: undefined,
     dueDate: '',
-    dueDateTimezone: { code: '', label: '', phone: '' },
+    dueDateTimezone: { id: undefined, code: '', label: '', pinned: false },
     jobPostLink: '',
   }
 
@@ -164,13 +185,16 @@ export default function RecruitingPost() {
     if (!currDueDate) {
       setValue(
         'dueDateTimezone',
-        { code: '', label: '', phone: '' },
+        { id: undefined, code: '', label: '', pinned: false },
         setValueOptions,
       )
-    } else if (currDueDate && !watch('dueDateTimezone')?.label) {
+    } else if (currDueDate && !watch('dueDateTimezone')?.label && timezoneList.length > 0) {
+      const getUserTimezone = timezoneList.find(
+        (zone) => zone.code === auth.getValue().user?.timezone?.code
+      )
       setValue(
         'dueDateTimezone',
-        auth.getValue().user?.timezone,
+        getUserTimezone,
         setValueOptions,
       )
     }
@@ -231,16 +255,20 @@ export default function RecruitingPost() {
   })
   const onSubmit = () => {
     const data = getValues()
+
     const finalForm = {
       status: data.status.value,
-      client: data.client.value,
+      client: data.client.label,
+      clientId: Number(data.client.value),
       jobType: data.jobType.value,
       role: data.role.value,
       sourceLanguage: data.sourceLanguage.value,
       targetLanguage: data.targetLanguage.value,
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone ?? '',
+      dueDateTimezone: data.dueDateTimezone 
+        ? { label: data.dueDateTimezone.label, code: data.dueDateTimezone.code }
+        : '',
       jobPostLink: data.jobPostLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
@@ -251,7 +279,6 @@ export default function RecruitingPost() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
-    console.log('filteredForm', filteredForm)
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }
@@ -283,6 +310,24 @@ export default function RecruitingPost() {
     const newFilter = findDynamicFilterOptions('role')
     setJobTypeOption(newFilter)
   }, [currRole])
+
+  const handleTimezonePin = (option: {
+    id: number | undefined;
+    code: string;
+    label: string;
+    pinned: boolean;
+  }) => {
+    const newOptions = timezoneList.map((opt) =>
+        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
+    );
+    setTimezoneList(newOptions)
+    setTimezonePin(newOptions)
+  }
+
+  const pinSortedOptions = timezoneList.sort((a, b) => {
+    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
+  });
 
   return (
     <DatePickerWrapper>
@@ -619,14 +664,26 @@ export default function RecruitingPost() {
                           <Autocomplete
                             autoHighlight
                             fullWidth
-                            value={value || { code: '', label: '', phone: '' }}
+                            value={value}
                             disabled={!currDueDate}
-                            options={timeZoneList as CountryType[]}
+                            options={pinSortedOptions}
                             onChange={(e, v) => onChange(v)}
                             disableClearable
-                            renderOption={(props, option) => (
-                              <Box component='li' {...props} key={uuidv4()}>
-                                {timeZoneFormatter(option, timezone.getValue())}
+                            renderOption={(props, option, state) => (
+                              <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {timeZoneFormatter(option, timezone.getValue())}
+                                </Typography>
+                                <IconButton
+                                  onClick={(event) => {
+                                      event.stopPropagation(); // 드롭다운이 닫히는 것 방지
+                                      handleTimezonePin(option)
+                                  }}
+                                  size="small"
+                                  style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                                >
+                                  <PushPinIcon />
+                                </IconButton>
                               </Box>
                             )}
                             renderInput={params => (

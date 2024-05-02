@@ -1,7 +1,19 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  Grid,
+  Typography,
+  Switch,
+  LinearProgress,
+} from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridSortDirection,
+  gridClasses,
+} from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import {
   ExtraNumberChip,
@@ -18,10 +30,22 @@ import {
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType, UserRoleType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useCallback } from 'react'
 import { useGetStatusList } from '@src/queries/common.query'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { FilterType } from '..'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
+import {
+  DataGridPro,
+  DataGridProProps,
+  GridColDef,
+  GridSlots,
+  useGridApiRef,
+} from '@mui/x-data-grid-pro'
+import { getOrderList } from '@src/apis/order/order-list.api'
+import NoList from '@src/pages/components/no-list'
+import { useRouter } from 'next/router'
 
 type OrderListCellType = {
   row: OrderListType
@@ -32,14 +56,24 @@ type Props = {
   rowsPerPage?: number
   setPageSize?: Dispatch<SetStateAction<number>>
   setRowsPerPage?: Dispatch<SetStateAction<number>>
-  setFilters?: Dispatch<SetStateAction<OrderListFilterType>>
+  filters?: OrderListFilterType
+  setFilters?: Dispatch<SetStateAction<OrderListFilterType | null>>
   handleRowClick: (row: OrderListType) => void
   user: UserDataType
   list: Array<OrderListType>
+  setRows?: Dispatch<SetStateAction<OrderListType[]>>
   listCount: number
   isLoading: boolean
   isCardHeader: boolean
   role: UserRoleType
+  defaultFilter?: FilterType
+  setLoading?: Dispatch<SetStateAction<boolean>>
+  seeMyOrders: boolean
+  handleSeeMyOrders: (event: React.ChangeEvent<HTMLInputElement>) => void
+  hideCompletedOrders: boolean
+  handleHideCompletedOrders: (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => void
 }
 
 export default function OrdersList({
@@ -50,16 +84,50 @@ export default function OrdersList({
   list,
   listCount,
   isLoading,
+  filters,
   setFilters,
   handleRowClick,
   user,
   isCardHeader,
   role,
+  defaultFilter,
+  seeMyOrders,
+  handleSeeMyOrders,
+  hideCompletedOrders,
+  handleHideCompletedOrders,
+  setLoading,
+  setRows,
 }: Props) {
-  const { data: statusList } = useGetStatusList('Order')
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const router = useRouter()
+  const apiRef = useGridApiRef()
 
-  const columns: GridColumns<OrderListType> = [
+  const handleOnRowsScrollEnd = useCallback<
+    NonNullable<DataGridProProps['onRowsScrollEnd']>
+  >(
+    async params => {
+      if (listCount === list.length) return
+
+      if (listCount >= params.visibleRowsCount) {
+        setLoading && setLoading(true)
+        const rows = await getOrderList({
+          ...filters,
+          skip: params.visibleRowsCount >= 500 ? params.visibleRowsCount : 0,
+          take: 500,
+        })
+        setLoading && setLoading(false)
+        setRows && setRows(prevRows => prevRows.concat(rows.data))
+        setPageSize &&
+          setPageSize(
+            params.visibleRowsCount >= 500 ? params.visibleRowsCount : 0,
+          )
+        setRowsPerPage && setRowsPerPage(500)
+      }
+    },
+    [list.length],
+  )
+
+  const columns: GridColDef[] = [
     {
       field: 'corporationId',
       flex: 0.05,
@@ -70,7 +138,7 @@ export default function OrdersList({
         <Box
           sx={{
             display: 'flex',
-            minWidth: 80,
+            minWidth: 120,
             width: '100%',
             alignItems: 'center',
           }}
@@ -103,29 +171,48 @@ export default function OrdersList({
     },
     {
       flex: 0.1,
-      minWidth: 260,
+      minWidth: 240,
       field: 'name',
-      headerName: `${role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email`,
+      headerName: `${role.name === 'CLIENT' ? 'LSP' : 'Client'}`,
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => (
-        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email</Box>
+        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Client'}</Box>
       ),
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>
-              {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
-            </Typography>
-            <Typography variant='body2'>
-              {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
-            </Typography>
-          </Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
+          </Typography>
         )
       },
     },
-
+    {
+      flex: 0.1,
+      minWidth: 240,
+      field: 'email',
+      headerName: 'Email',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Email</Box>,
+      renderCell: ({ row }: OrderListCellType) => {
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
+          </Typography>
+        )
+      },
+    },
     {
       flex: 0.1,
       minWidth: 290,
@@ -136,7 +223,15 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Project name</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return <Box>{row.projectName}</Box>
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {row.projectName}
+          </Typography>
+        )
       },
     },
     {
@@ -189,13 +284,17 @@ export default function OrdersList({
       renderHeader: () => <Box>Order date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.orderedAt,
               user.timezone,
               timezone.getValue(),
             )}
-          </Box>
+          </Typography>
         )
       },
     },
@@ -211,13 +310,17 @@ export default function OrdersList({
       renderHeader: () => <Box>Project due date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.projectDueAt,
               user.timezone,
               timezone.getValue(),
             )}
-          </Box>
+          </Typography>
         )
       },
     },
@@ -233,42 +336,59 @@ export default function OrdersList({
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {!row.currency
               ? row.subtotal
                 ? row.subtotal
                 : '-'
               : formatCurrency(Number(row.subtotal), row.currency)}
-          </Box>
+          </Typography>
         )
       },
     },
   ]
 
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>There are no orders</Typography>
-      </Box>
-    )
-  }
-
   return (
     <Grid item xs={12}>
       {isCardHeader ? (
-        <Card>
+        <Card
+          sx={{
+            borderRadius: '0 0 16px 16px',
+          }}
+        >
           <CardHeader
             title={
-              <Box display='flex' justifyContent='space-between'>
-                <Typography variant='h6'>Orders ({listCount ?? 0})</Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '24px',
+                }}
+              >
+                <Box sx={{ display: 'flex' }}>
+                  <Box
+                    sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}
+                  >
+                    <Typography>See only my orders</Typography>
+                    <Switch
+                      checked={seeMyOrders}
+                      onChange={handleSeeMyOrders}
+                    />
+                  </Box>
+                  <Box
+                    sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}
+                  >
+                    <Typography>Hide completed orders</Typography>
+                    <Switch
+                      checked={hideCompletedOrders}
+                      onChange={handleHideCompletedOrders}
+                    />
+                  </Box>
+                </Box>
                 {role.name === 'CLIENT' ? null : (
                   <Button variant='contained'>
                     <StyledNextLink href='/orders/add-new' color='white'>
@@ -278,22 +398,127 @@ export default function OrdersList({
                 )}
               </Box>
             }
-            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+            sx={{
+              pb: 4,
+              '& .MuiCardHeader-title': { letterSpacing: '.15px' },
+              paddingTop: '16px',
+            }}
           ></CardHeader>
           <Box
             sx={{
+              width: '100%',
+              height: 'calc(97vh - 391px)',
               '& .MuiDataGrid-columnHeaderTitle': {
                 textTransform: 'none',
               },
+              '& .MuiDataGrid-cell': {
+                padding: '0 20px !important',
+                justifyContent: 'center',
+                alignContent: 'center',
+              },
             }}
           >
-            <DataGrid
-              autoHeight
+            <DataGridPro
+              rowHeight={40}
+              apiRef={apiRef}
+              sx={{
+                cursor: 'pointer',
+                '& .MuiDataGrid-columnHeaders': {
+                  borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
+                },
+
+                [`& .${gridClasses.row}.disabled`]: {
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
+                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                  // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                },
+
+                borderRadius: 'none',
+              }}
+              getRowClassName={params =>
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
+                  ? 'disabled'
+                  : 'normal'
+              }
+              isRowSelectable={params =>
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
+              }
+              slots={{
+                noRowsOverlay: () => NoList('There are no orders'),
+                loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
+              }}
+              // sortingMode='server'
+              // onSortModelChange={e => {
+              //   if (e.length) {
+              //     const value = e[0] as {
+              //       field:
+              //         | 'corporationId'
+              //         | 'projectDueDate'
+              //         | 'orderDate'
+              //         | 'totalPrice'
+              //       sort: GridSortDirection
+              //     }
+              //     setFilters &&
+              //       setFilters((prevState: OrderListFilterType | null) => ({
+              //         ...prevState!,
+              //         sort: value.field,
+              //         ordering: value.sort,
+              //       }))
+              //     defaultFilter &&
+              //       saveUserFilters(FilterKey.ORDER_LIST, {
+              //         ...defaultFilter,
+              //         sort: value.field,
+              //         ordering: value.sort,
+              //       })
+              //   }
+              // }}
+              columns={columns}
+              loading={isLoading}
+              rows={list ?? []}
+              rowCount={listCount}
+              onRowsScrollEnd={handleOnRowsScrollEnd}
+              scrollEndThreshold={200}
+              hideFooter
+              onCellClick={params => {
+                if (
+                  role.name === 'CLIENT' &&
+                  params.row.status === 'Under revision'
+                )
+                  return
+                handleRowClick(params.row)
+              }}
+            />
+            {/* <DataGrid
               components={{
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              // sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sortingMode='server'
+              onSortModelChange={e => {
+                if (e.length) {
+                  const value = e[0] as {
+                    field:
+                      | 'corporationId'
+                      | 'projectDueDate'
+                      | 'orderDate'
+                      | 'totalPrice'
+                    sort: GridSortDirection
+                  }
+                  setFilters &&
+                    setFilters((prevState: OrderListFilterType | null) => ({
+                      ...prevState!,
+                      sort: value.field,
+                      ordering: value.sort,
+                    }))
+                  defaultFilter &&
+                    saveUserFilters(FilterKey.ORDER_LIST, {
+                      ...defaultFilter,
+                      sort: value.field,
+                      ordering: value.sort,
+                    })
+                }
+              }}
               sx={{
                 overflowX: 'scroll',
                 cursor: 'pointer',
@@ -306,6 +531,7 @@ export default function OrdersList({
               }}
               columns={columns}
               rows={list ?? []}
+              rowHeight={40}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
@@ -330,39 +556,112 @@ export default function OrdersList({
               pageSize={rowsPerPage}
               paginationMode='server'
               onPageChange={(newPage: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   skip: newPage * rowsPerPage!,
                 }))
                 setPageSize!(newPage)
               }}
               onPageSizeChange={(newPageSize: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   take: newPageSize,
                 }))
                 setRowsPerPage!(newPageSize)
               }}
               disableSelectionOnClick
-            />
+            /> */}
           </Box>
         </Card>
       ) : (
         <Card sx={{ padding: '0 !important' }}>
           <Box
             sx={{
+              width: '100%',
+              height: '100%',
+              // height: 'calc(97vh - 391px)',
               '& .MuiDataGrid-columnHeaderTitle': {
                 textTransform: 'none',
               },
             }}
           >
-            <DataGrid
-              autoHeight
-              // getRowId={row => row?.orderId}
-              components={{
-                NoRowsOverlay: () => NoList(),
-                NoResultsOverlay: () => NoList(),
+            <DataGridPro
+              rowHeight={40}
+              apiRef={apiRef}
+              sx={{
+                cursor: 'pointer',
+                '& .MuiDataGrid-columnHeaders': {
+                  borderTop: '1px solid #4C4E6412', // 회색 상단 보더 설정
+                },
+
+                [`& .${gridClasses.row}.disabled`]: {
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
+                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                  // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                },
+
+                borderRadius: 'none',
               }}
+              getRowClassName={params =>
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
+                  ? 'disabled'
+                  : 'normal'
+              }
+              isRowSelectable={params =>
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
+              }
+              slots={{
+                noRowsOverlay: () => NoList('There are no orders'),
+                loadingOverlay: LinearProgress as GridSlots['loadingOverlay'],
+              }}
+              // sortingMode='server'
+              // onSortModelChange={e => {
+              //   if (e.length) {
+              //     const value = e[0] as {
+              //       field:
+              //         | 'corporationId'
+              //         | 'projectDueDate'
+              //         | 'orderDate'
+              //         | 'totalPrice'
+              //       sort: GridSortDirection
+              //     }
+              //     setFilters &&
+              //       setFilters((prevState: OrderListFilterType | null) => ({
+              //         ...prevState!,
+              //         sort: value.field,
+              //         ordering: value.sort,
+              //       }))
+              //     defaultFilter &&
+              //       saveUserFilters(FilterKey.ORDER_LIST, {
+              //         ...defaultFilter,
+              //         sort: value.field,
+              //         ordering: value.sort,
+              //       })
+              //   }
+              // }}
+              columns={columns}
+              loading={isLoading}
+              rows={list ?? []}
+              rowCount={listCount}
+              onRowsScrollEnd={handleOnRowsScrollEnd}
+              scrollEndThreshold={200}
+              hideFooter
+              onCellClick={params => {
+                if (
+                  role.name === 'CLIENT' &&
+                  params.row.status === 'Under revision'
+                )
+                  return
+                handleRowClick(params.row)
+              }}
+            />
+            {/* <DataGrid
+              // getRowId={row => row?.orderId}
+              // components={{
+              //   NoRowsOverlay: () => NoList(),
+              //   NoResultsOverlay: () => NoList(),
+              // }}
               sx={{
                 overflowX: 'scroll',
                 cursor: 'pointer',
@@ -373,6 +672,8 @@ export default function OrdersList({
               }}
               columns={columns}
               rows={list ?? []}
+              autoHeight
+              // rowHeight={40}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
@@ -392,15 +693,15 @@ export default function OrdersList({
               hideFooter
               // paginationMode='server'
               onPageChange={(newPage: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   skip: newPage * rowsPerPage!,
                 }))
                 setPageSize!(newPage)
               }}
               onPageSizeChange={(newPageSize: number) => {
-                setFilters!((prevState: OrderListFilterType) => ({
-                  ...prevState,
+                setFilters!((prevState: OrderListFilterType | null) => ({
+                  ...prevState!,
                   take: newPageSize,
                 }))
                 setRowsPerPage!(newPageSize)
@@ -414,7 +715,7 @@ export default function OrdersList({
               isRowSelectable={params =>
                 role.name === 'CLIENT' && params.row.status !== 'Under revision'
               }
-            />
+            /> */}
           </Box>
         </Card>
       )}

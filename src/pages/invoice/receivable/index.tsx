@@ -6,8 +6,6 @@ import {
   Button,
   Card,
   CardHeader,
-  Dialog,
-  DialogContent,
   Grid,
   Switch,
   Typography,
@@ -18,7 +16,6 @@ import ToggleViewButton, {
 
 // ** types
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
-import { ConstType } from '@src/pages/onboarding/client-guideline'
 
 // ** components
 import Filter from './components/list/filter'
@@ -33,7 +30,7 @@ import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import OrderList from './components/list/select-order'
+
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
@@ -46,6 +43,12 @@ import { authState } from '@src/states/auth'
 import SelectOrder from './components/list/select-order'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
+import dayjs from 'dayjs'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -64,6 +67,8 @@ export type FilterType = {
   serviceType: Array<{ label: string; value: string }>
 
   search: string
+  mine: '1' | '0'
+  hidePaid: '1' | '0'
 }
 
 const defaultValues: FilterType = {
@@ -80,6 +85,8 @@ const defaultValues: FilterType = {
   salesCategory: [],
   lsp: [],
   search: '',
+  mine: '0',
+  hidePaid: '0',
 }
 
 const defaultFilters: InvoiceReceivableFilterType = {
@@ -109,6 +116,16 @@ const defaultFilters: InvoiceReceivableFilterType = {
 }
 export default function Receivable() {
   const queryClient = useQueryClient()
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.INVOICE_RECEIVABLE_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.INVOICE_RECEIVABLE_LIST)!)
+    : null
+  const [filters, setFilters] = useState<InvoiceReceivableFilterType | null>(
+    null,
+  )
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
+
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -134,13 +151,13 @@ export default function Receivable() {
   const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
   const [seeMyInvoices, setSeeMyInvoices] = useState(false)
 
-  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
-    defaultValues,
-    mode: 'onSubmit',
-  })
+  const { control, handleSubmit, trigger, reset, getValues } =
+    useForm<FilterType>({
+      defaultValues: defaultFilter,
+      mode: 'onSubmit',
+    })
 
-  const [filters, setFilters] =
-    useState<InvoiceReceivableFilterType>(defaultFilters)
+  console.log(getValues())
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -170,9 +187,13 @@ export default function Receivable() {
     const checked = event.target.checked
     setHidePaidInvoices(event.target.checked)
     setFilters(prevState => ({
-      ...prevState,
+      ...prevState!,
       hidePaid: checked ? '1' : '0',
     }))
+    saveUserFilters(FilterKey.INVOICE_RECEIVABLE_LIST, {
+      ...defaultFilter,
+      hidePaid: checked ? '1' : '0',
+    })
   }
 
   const handleSeeMyInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,9 +201,13 @@ export default function Receivable() {
     setSeeMyInvoices(event.target.checked)
 
     setFilters(prevState => ({
-      ...prevState,
+      ...prevState!,
       mine: checked ? '1' : '0',
     }))
+    saveUserFilters(FilterKey.INVOICE_RECEIVABLE_LIST, {
+      ...defaultFilter,
+      mine: checked ? '1' : '0',
+    })
   }
 
   const { data: companies, isLoading: companiesListLoading } =
@@ -213,6 +238,9 @@ export default function Receivable() {
         value: 301100,
       })
 
+    saveUserFilters(FilterKey.INVOICE_RECEIVABLE_LIST, data)
+    setDefaultFilter(data)
+
     const filter: InvoiceReceivableFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       invoiceStatus: invoiceStatus.map(value => value.value),
@@ -221,14 +249,34 @@ export default function Receivable() {
 
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-      invoicedDateFrom: invoiceDate[0]?.toISOString() ?? '',
-      invoicedDateTo: invoiceDate[1]?.toISOString() ?? '',
-      payDueDateFrom: payDueDate[0]?.toISOString() ?? '',
-      payDueDateTo: payDueDate[1]?.toISOString() ?? '',
-      paidDateFrom: paidDate[0]?.toISOString() ?? '',
-      paidDateTo: paidDate[1]?.toISOString() ?? '',
-      salesCheckedDateFrom: salesCheckedDate[0]?.toISOString() ?? '',
-      salesCheckedDateTo: salesCheckedDate[1]?.toISOString() ?? '',
+      invoicedDateFrom: invoiceDate[0]
+        ? dayjs(invoiceDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      invoicedDateTo: invoiceDate[1]
+        ? dayjs(invoiceDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      payDueDateFrom: payDueDate[0]
+        ? dayjs(payDueDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      payDueDateTo: payDueDate[1]
+        ? dayjs(payDueDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      paidDateFrom: paidDate[0]
+        ? dayjs(paidDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      paidDateTo: paidDate[1]
+        ? dayjs(paidDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      salesCheckedDateFrom: salesCheckedDate[0]
+        ? dayjs(salesCheckedDate[0])
+            .startOf('day')
+            .format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      salesCheckedDateTo: salesCheckedDate[1]
+        ? dayjs(salesCheckedDate[1])
+            .startOf('day')
+            .format('YYYY-MM-DD HH:mm:ss')
+        : '',
       salesCategory: salesCategory?.map(value => value.value) ?? [],
 
       search: search,
@@ -237,17 +285,29 @@ export default function Receivable() {
     }
 
     setFilters(filter)
-    queryClient.invalidateQueries(['invoice/receivable/list', filter])
-    console.log('check filter', filters)
+    // queryClient.invalidateQueries(['invoice/receivable/list', filter])
   }
 
   function onReset() {
     reset(defaultValues)
+    saveUserFilters(FilterKey.INVOICE_RECEIVABLE_LIST, {
+      invoiceDate: [],
+      payDueDate: [],
+      paidDueDate: [],
+      paidDate: [],
+      salesCheckedDate: [],
+      invoiceStatus: [],
+      clientId: [],
+      category: [],
+      serviceType: [],
+      revenueFrom: [],
+      salesCategory: [],
+      lsp: [],
+      search: '',
+      hidePaid: hidePaidInvoices ? '1' : '0',
+      mine: seeMyInvoices ? '1' : '0',
+    })
     setFilters({ ...defaultFilters })
-    queryClient.invalidateQueries([
-      'invoice/receivable/list',
-      { ...defaultFilters },
-    ])
   }
 
   useEffect(() => {
@@ -292,6 +352,121 @@ export default function Receivable() {
     queryClient.invalidateQueries(['invoiceReceivableDetail'])
   }, [])
 
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        invoiceDate,
+        payDueDate,
+        paidDueDate,
+        paidDate,
+        salesCheckedDate,
+        revenueFrom,
+        invoiceStatus,
+        clientId,
+        serviceType,
+        category,
+        lsp,
+        search,
+        salesCategory,
+        hidePaid,
+        mine,
+      } = savedFilter
+
+      if (invoiceStatus.find(value => value.value === 301000))
+        invoiceStatus.push({
+          label: 'Overdue',
+          value: 301100,
+        })
+
+      console.log(payDueDate)
+
+      const filter: InvoiceReceivableFilterType = {
+        revenueFrom: revenueFrom?.map(value => value.value) ?? [],
+        invoiceStatus: invoiceStatus.map(value => value.value),
+        clientId: clientId?.map(value => value.value) ?? [],
+        lsp: lsp?.map(value => value.label) ?? [],
+
+        serviceType: serviceType.map(value => value.value),
+        category: category.map(value => value.value),
+        invoicedDateFrom: invoiceDate[0]
+          ? dayjs(invoiceDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        invoicedDateTo: invoiceDate[1]
+          ? dayjs(invoiceDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        payDueDateFrom: payDueDate[0]
+          ? dayjs(payDueDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        payDueDateTo: payDueDate[1]
+          ? dayjs(payDueDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        paidDateFrom: paidDate[0]
+          ? dayjs(paidDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        paidDateTo: paidDate[1]
+          ? dayjs(paidDate[1]).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        salesCheckedDateFrom: salesCheckedDate[0]
+          ? dayjs(salesCheckedDate[0])
+              .startOf('day')
+              .format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        salesCheckedDateTo: salesCheckedDate[1]
+          ? dayjs(salesCheckedDate[1])
+              .startOf('day')
+              .format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        salesCategory: salesCategory?.map(value => value.value) ?? [],
+
+        search: search,
+        take: invoiceListRowsPerPage,
+        skip: invoiceListRowsPerPage * invoiceListPage,
+        hidePaid: hidePaid,
+        mine: mine,
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter({
+          ...savedFilter,
+          payDueDate: payDueDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ) as Date[],
+          paidDate: paidDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ) as Date[],
+          invoiceDate: invoiceDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ) as Date[],
+          salesCheckedDate: salesCheckedDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ) as Date[],
+        })
+        reset({
+          ...savedFilter,
+          payDueDate: payDueDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ),
+          paidDate: paidDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ),
+          invoiceDate: invoiceDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ),
+          salesCheckedDate: salesCheckedDate.map(item =>
+            item ? dayjs(item).toDate() : undefined,
+          ),
+        })
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+      setHidePaidInvoices(hidePaid === '1')
+      setSeeMyInvoices(mine === '1')
+    } else {
+      setFilters({ ...defaultFilters })
+    }
+  }, [savedFilter])
+
   return (
     <Grid container spacing={6}>
       <Grid
@@ -312,8 +487,6 @@ export default function Receivable() {
               categoryList={categoryList}
               setCategoryList={setCategoryList}
               setServiceTypeList={setServiceTypeList}
-              filter={filters}
-              setFilter={setFilters}
               onReset={onReset}
               onSubmit={onSubmit}
               role={currentRole!}

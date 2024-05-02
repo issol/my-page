@@ -1,5 +1,5 @@
 // ** React Imports
-import { Suspense, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -32,13 +32,20 @@ import Calendar from './order-list-calendar-view'
 import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { OrderLabel, OrderStatus } from '@src/types/common/status.type'
+import { Button, ButtonGroup, styled } from '@mui/material'
+import { MenuType } from '..'
 
 const defaultFilters: OrderListFilterType = {
   hideCompleted: '0',
   mine: '0',
 }
 
-const OrderListCalendar = () => {
+type Props = {
+  menu: MenuType
+  setMenu: Dispatch<SetStateAction<MenuType>>
+}
+
+const OrderListCalendar = ({ menu, setMenu }: Props) => {
   // ** States
   const [hideCompletedOrders, setHideCompletedOrders] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
@@ -138,6 +145,25 @@ const OrderListCalendar = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <ButtonGroup
+        variant='outlined'
+        sx={{ display: 'flex', justifyContent: 'flex-end' }}
+      >
+        <CustomBtn
+          value='list'
+          $focus={menu === 'list'}
+          onClick={e => setMenu(e.currentTarget.value as MenuType)}
+        >
+          List view
+        </CustomBtn>
+        <CustomBtn
+          $focus={menu === 'calendar'}
+          value='calendar'
+          onClick={e => setMenu(e.currentTarget.value as MenuType)}
+        >
+          Calendar view
+        </CustomBtn>
+      </ButtonGroup>
       <CalendarWrapper
         className='app-calendar'
         sx={{
@@ -202,6 +228,10 @@ const OrderListCalendar = () => {
           isLoading={isLoading}
           isCardHeader={false}
           role={currentRole!}
+          seeMyOrders={seeMyOrders}
+          handleSeeMyOrders={handleSeeMyOrders}
+          hideCompletedOrders={hideCompletedOrders}
+          handleHideCompletedOrders={handleHideCompletedOrders}
         />
       ) : null}
     </Box>
@@ -209,3 +239,8 @@ const OrderListCalendar = () => {
 }
 
 export default OrderListCalendar
+
+const CustomBtn = styled(Button)<{ $focus: boolean }>`
+  width: 145px;
+  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
+`

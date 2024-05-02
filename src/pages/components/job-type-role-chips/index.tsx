@@ -3,44 +3,69 @@ import Box from '@mui/material/Box'
 import { styled } from '@mui/system'
 import { v4 as uuidv4 } from 'uuid'
 import JobTypeRoleChips from './role-chip'
+import { Tooltip } from '@mui/material'
 
 type Props = {
   jobInfo: {
     jobType: string
     role: string
   }[]
+  visibleType?: 'all' | 'jobType' | 'role'
 }
 
-const JobTypeRole = ({ jobInfo }: Props) => {
+const JobTypeRole = ({ jobInfo, visibleType }: Props) => {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        gap: '8px',
-        alignItems: 'center',
-      }}
+    <Tooltip
+      title={
+        jobInfo.length > 0 ? (
+          <ul style={{ paddingLeft: '16px' }}>
+            {jobInfo.map(value => {
+              return <li key={uuidv4()}>{value.role}</li>
+            })}
+          </ul>
+        ) : null
+      }
+      placement='bottom-start'
     >
-      {!jobInfo.length
-        ? '-'
-        : jobInfo.map(
-            (item, idx) =>
-              idx === 0 && (
+      <Box
+        sx={{
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+        }}
+      >
+        {!jobInfo.length
+          ? '-'
+          : jobInfo.map((item, idx) =>
+              visibleType !== 'role' ? (
+                idx === 0 && (
+                  <JobTypeRoleChips
+                    jobType={item.jobType}
+                    role={item.role}
+                    visibleChip={visibleType ? visibleType : 'all'}
+                    key={uuidv4()}
+                  />
+                )
+              ) : (
                 <JobTypeRoleChips
                   jobType={item.jobType}
                   role={item.role}
-                  visibleChip='all'
+                  visibleChip={visibleType ? visibleType : 'all'}
                   key={uuidv4()}
                 />
               ),
-          )}
-      {jobInfo.length > 1 ? <CountChip>+{jobInfo.length - 1}</CountChip> : null}
-    </Box>
+            )}
+        {jobInfo.length > 1 && visibleType !== 'role' ? (
+          <CountChip>+{jobInfo.length - 1}</CountChip>
+        ) : null}
+      </Box>
+    </Tooltip>
   )
 }
 
 const CountChip = styled('p')`
-  padding: 3px 4px;
   text-align: center;
+  height: 24px;
   width: 40px;
   background: linear-gradient(
       0deg,
@@ -52,6 +77,6 @@ const CountChip = styled('p')`
   border-radius: 16px;
   font-weight: 500;
   font-size: 0.813rem;
+}
 `
-
 export default JobTypeRole

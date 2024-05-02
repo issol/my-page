@@ -10,7 +10,7 @@ export type OnboardingListType = Omit<
   | 'pronounce'
   | 'preferredName'
   | 'preferredNamePronunciation'
-  | 'timezone'
+  // | 'timezone'
   | 'mobile'
   | 'phone'
   | 'resume'
@@ -18,7 +18,9 @@ export type OnboardingListType = Omit<
   | 'notesFromPro'
   | 'contracts'
   | 'commentsOnPro'
->
+> & {
+  resume: string[]
+}
 
 export interface OnboardingJobInfoType extends JobInfoType {
   id: number
@@ -70,6 +72,7 @@ export type AssignReviewerType = {
 }
 
 export type OnboardingUserType = {
+  createdAt: string
   id: string
   userId: number
   email: string
@@ -139,7 +142,9 @@ export type FilterType = {
   target: { label: string; value: string }[]
   experience: { label: string; value: string }[]
   testStatus: { label: string; value: string }[]
+  timezones: { id: number; label: string; code: string; pinned: boolean }[]
   search: string
+  order: 'desc' | 'asc'
 }
 
 export interface SelectType {

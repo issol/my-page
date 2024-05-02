@@ -164,6 +164,31 @@ export default function QuotesDetail() {
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  // 여기서 timezoneList는 서버에서 처음 데이터를 불러왔을대 setValue를 해주기 위한 용도로만 사용함
+  const [timezoneList, setTimezoneList] = useState<
+    {
+      id: number
+      code: string
+      label: string
+      pinned: boolean
+    }[]
+  >([])
+
+  useEffect(() => {
+    if (timezoneList.length !== 0) return
+    const zoneList = timezone.getValue()
+    const filteredTimezone = zoneList.map((list, idx) => {
+      return {
+        id: idx,
+        code: list.timezoneCode,
+        label: list.timezone,
+        pinned: false,
+      }
+    })
+    setTimezoneList(filteredTimezone)
+  }, [timezone])
+
   const currentRole = getCurrentRole()
   const { id } = router.query
 
@@ -393,9 +418,10 @@ export default function QuotesDetail() {
   const setProjectInfoData = () => {
     if (!isProjectLoading && project && statusList) {
       const defaultTimezone = {
+        id: undefined,
         code: '',
         label: '',
-        phone: '',
+        pinned: false,
       }
       projectInfoReset({
         status:
@@ -478,7 +504,11 @@ export default function QuotesDetail() {
       setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
         date: new Date(project.quoteDate),
-        timezone: project.quoteDateTimezone ?? defaultTimezone,
+        timezone: project.quoteDateTimezone && timezoneList.length
+          ? timezoneList.find(
+            (zone) => zone.code === project.quoteDateTimezone.code
+          )!
+          : defaultTimezone,
       })
     }
   }

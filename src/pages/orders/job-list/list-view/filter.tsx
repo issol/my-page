@@ -87,8 +87,8 @@ export default function Filters({
   }
 
   return (
-    <DatePickerWrapper>
-      <Box width='100%'>
+    <DatePickerWrapper sx={{ width: '100%' }}>
+      <Box sx={{ width: '100%' }}>
         <Card style={{ overflow: 'visible' }}>
           {/* <CardHeader
             title='Search Filters'

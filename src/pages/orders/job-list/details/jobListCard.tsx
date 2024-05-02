@@ -40,7 +40,9 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatus } from '@src/types/common/status.type'
-import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail, {
+  LegalName,
+} from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useRouter } from 'next/router'
 import {
@@ -251,6 +253,7 @@ const JobListCard = ({
 
   const router = useRouter()
   const { orderId } = router.query
+  const { jobId } = router.query
 
   const { isOpen, onOpen, onClose } = useDialog()
 
@@ -712,10 +715,10 @@ const JobListCard = ({
                   const isItemSelected = isSelected(row.id)
 
                   let isHighlighted = false
-                  if (row.templateId && row.triggerGroup && isHoverJobId) {
-                    isHighlighted = groupedJobs[
-                      `${row.templateId}-${row.triggerGroup}`
-                    ]?.some(value => value.id === isHoverJobId)
+                  if (row.triggerGroup && isHoverJobId) {
+                    isHighlighted = groupedJobs[`${row.triggerGroup}`]?.some(
+                      value => value.id === isHoverJobId,
+                    )
                   }
 
                   return (
@@ -725,7 +728,9 @@ const JobListCard = ({
                       sx={{
                         background: isHighlighted
                           ? 'rgba(76, 78, 100, 0.05)'
-                          : '#fff',
+                          : row.id === Number(jobId!)
+                            ? '#F7F8FF'
+                            : '#fff',
                         '&:hover': {
                           background: 'rgba(76, 78, 100, 0.05)',
                         },
@@ -738,6 +743,9 @@ const JobListCard = ({
                       aria-checked={isItemSelected}
                       onMouseEnter={() => setIsHoverJobId(row.id)}
                       onMouseLeave={() => setIsHoverJobId(null)}
+                      ref={
+                        jobId && row.id === Number(jobId) ? tableRowRef : null
+                      }
                     >
                       {viewState && (
                         <CustomTableCell padding='checkbox'>
@@ -815,7 +823,6 @@ const JobListCard = ({
                                 firstName: row.assignedPro.firstName,
                                 middleName: row.assignedPro.middleName,
                                 lastName: row.assignedPro.lastName,
-                                email: row.assignedPro.email,
                               }}
                             />
                           ) : isUserInTeamMember || isMasterManagerUser ? (

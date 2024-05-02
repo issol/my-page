@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Button, Card, Grid, IconButton, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import { styled } from '@mui/system'
@@ -17,6 +17,7 @@ import {
   getContractDetail,
 } from 'src/apis/contract.api'
 import useModal from '@src/hooks/useModal'
+import Image from 'next/image'
 
 export default function ContractForm() {
   const router = useRouter()
@@ -92,17 +93,179 @@ export default function ContractForm() {
   return (
     <Fragment>
       <Suspense fallback={<FallbackSpinner />}>
-        <Grid xs={12} container>
-          <Card sx={{ width: '100%', margin: '0 70px', padding: '22px' }}>
-            <Box sx={{ textAlign: 'right' }}>
-              <Icon
-                icon='mdi:information-outline'
-                style={{ opacity: '0.7' }}
-                cursor='pointer'
-                onClick={onInfoClick}
-              />
+        <Card sx={{ width: '100%', padding: '80px', position: 'relative' }}>
+          <IconButton
+            sx={{ position: 'absolute', top: 20, right: 20, padding: 0 }}
+          >
+            <Icon
+              icon='mdi:question-mark-circle-outline'
+              cursor='pointer'
+              onClick={onInfoClick}
+            />
+          </IconButton>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Typography fontSize={24} fontWeight={500}>
+                Contract forms
+              </Typography>
             </Box>
-            <Box sx={{ padding: '58px' }}>
+            <Grid container spacing={4}>
+              <Grid item xs={6}>
+                <Box
+                  sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.12)',
+                    padding: '20px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() =>
+                    onButtonClick({
+                      type: ContractTypeEnum.NDA,
+                      language: ContractLangEnum.ENGLISH,
+                    })
+                  }
+                >
+                  <Image
+                    src='/images/icons/onboarding-icons/nda.svg'
+                    alt=''
+                    width={58}
+                    height={58}
+                  />
+                  <Typography fontSize={20} fontWeight={500}>
+                    [ENG] NDA
+                  </Typography>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={400}
+                    color='rgba(76, 78, 100, 0.60)'
+                  >
+                    Pros will sign the NDA before taking the certification test.
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                {' '}
+                <Box
+                  sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.12)',
+                    padding: '20px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() =>
+                    onButtonClick({
+                      type: ContractTypeEnum.FREELANCER,
+                      language: ContractLangEnum.ENGLISH,
+                    })
+                  }
+                >
+                  <Image
+                    src='/images/icons/onboarding-icons/contract.svg'
+                    alt=''
+                    width={58}
+                    height={58}
+                  />
+                  <Typography fontSize={20} fontWeight={500}>
+                    [ENG] Freelancer contract
+                  </Typography>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={400}
+                    color='rgba(76, 78, 100, 0.60)'
+                  >
+                    Pros will sign the Freelancer contract after being
+                    onboarded.
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                {' '}
+                <Box
+                  sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.12)',
+                    padding: '20px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() =>
+                    onButtonClick({
+                      type: ContractTypeEnum.NDA,
+                      language: ContractLangEnum.KOREAN,
+                    })
+                  }
+                >
+                  <Image
+                    src='/images/icons/onboarding-icons/nda.svg'
+                    alt=''
+                    width={58}
+                    height={58}
+                  />
+                  <Typography fontSize={20} fontWeight={500}>
+                    [KOR] NDA
+                  </Typography>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={400}
+                    color='rgba(76, 78, 100, 0.60)'
+                  >
+                    Pros will sign the NDA before taking the certification test.
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                {' '}
+                <Box
+                  sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.12)',
+                    padding: '20px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() =>
+                    onButtonClick({
+                      type: ContractTypeEnum.FREELANCER,
+                      language: ContractLangEnum.KOREAN,
+                    })
+                  }
+                >
+                  <Image
+                    src='/images/icons/onboarding-icons/contract.svg'
+                    alt=''
+                    width={58}
+                    height={58}
+                  />
+                  <Typography fontSize={20} fontWeight={500}>
+                    [KOR] Freelancer contract
+                  </Typography>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={400}
+                    color='rgba(76, 78, 100, 0.60)'
+                  >
+                    Pros will sign the Freelancer contract after being
+                    onboarded.
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+          {/* <Box sx={{ padding: '58px' }}>
               <Typography variant='h5' sx={{ textAlign: 'center' }}>
                 Contract forms
               </Typography>
@@ -114,7 +277,6 @@ export default function ContractForm() {
                 }}
                 mt='24px'
               >
-                {/* NDA */}
                 <StyledBox>
                   <img
                     width={58}
@@ -156,7 +318,7 @@ export default function ContractForm() {
                     </Button>
                   </Box>
                 </StyledBox>
-                {/* Privacy */}
+
                 <StyledBox>
                   <img
                     width={58}
@@ -198,7 +360,7 @@ export default function ContractForm() {
                     </Button>
                   </Box>
                 </StyledBox>
-                {/* Freelancer */}
+
                 <StyledBox>
                   <img
                     width={58}
@@ -242,9 +404,8 @@ export default function ContractForm() {
                   </Box>
                 </StyledBox>
               </Box>
-            </Box>
-          </Card>
-        </Grid>
+            </Box> */}
+        </Card>
       </Suspense>
     </Fragment>
   )

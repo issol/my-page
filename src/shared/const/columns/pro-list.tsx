@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   JobTypeChip,
@@ -7,20 +7,26 @@ import {
   RoleChip,
 } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType } from '@src/context/types'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail, {
+  LegalName,
+} from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import ListResume from '@src/pages/pro/list/list/list-resume'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
+  ProFilterType,
   ProListCellType,
   ProListFilterType,
   ProListType,
 } from '@src/types/pro/list'
-import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
+
 import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import { styled } from '@mui/system'
 import JobTypeRole from '@src/pages/components/job-type-role-chips'
+import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { GridColDef } from '@mui/x-data-grid-pro'
 
 export const getProListColumns = (
   auth: Loadable<{
@@ -40,13 +46,14 @@ export const getProListColumns = (
   isHoverId: boolean,
   idOrder: boolean,
   setIdOrder: Dispatch<SetStateAction<boolean>>,
-  setFilters: Dispatch<SetStateAction<ProListFilterType>>,
+  setFilters: Dispatch<SetStateAction<ProListFilterType | null>>,
   setIsSorting: Dispatch<SetStateAction<boolean>>,
   filters: ProListFilterType,
   setIsDateHoverId: Dispatch<SetStateAction<boolean>>,
   isDateHoverId: boolean,
   dateOrder: boolean,
   setDateOrder: Dispatch<SetStateAction<boolean>>,
+  defaultFilter: ProFilterType,
   onClickFile: (
     file: {
       id: number
@@ -58,10 +65,11 @@ export const getProListColumns = (
     fileType: string,
   ) => void,
 ) => {
-  const columns: GridColumns<ProListType> = [
+  const columns: GridColDef[] = [
     {
-      field: 'id',
+      flex: 0.051,
       minWidth: 120,
+      field: 'id',
       headerName: 'No.',
       disableColumnMenu: true,
       hideSortIcons: true,
@@ -72,7 +80,7 @@ export const getProListColumns = (
           onMouseLeave={() => setIsHoverId(false)}
           sx={{
             display: 'flex',
-            minWidth: 80,
+            minWidth: 120,
             width: '100%',
             alignItems: 'center',
           }}
@@ -85,10 +93,17 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setIdOrder(!idOrder)
+                  saveUserFilters(FilterKey.PRO_LIST, {
+                    ...defaultFilter,
+                    sortDate: undefined,
+                    sortId: idOrder ? 'ASC' : 'DESC',
+                  })
                   setFilters(prevState => {
-                    const { sortDate, ...filteredState } = prevState;
+                    const { sortDate, ...filteredState } = prevState!
+
                     return {
                       ...filteredState,
+                      sortDate: undefined,
                       sortId: idOrder ? 'ASC' : 'DESC',
                     }
                   })
@@ -100,47 +115,53 @@ export const getProListColumns = (
       ),
     },
     {
-      minWidth: 310,
+      flex: 0.1019,
+      minWidth: 240,
       field: 'name',
-      headerName: 'Legal name / Email',
+      headerName: 'Legal name',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Legal name / Email</Box>,
+      cellClassName: 'highlight-cell',
+      renderHeader: () => <Box>Legal name</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        {
-          // console.log('USERID', row.userId)
-        }
         return (
-          <LegalNameEmail
+          <LegalName
             row={{
               isOnboarded: row.isOnboarded,
               isActive: row.isActive,
-
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
-              email: row.email,
             }}
-            link={`/pro/list/detail/${row.userId}`}
           />
         )
       },
     },
     {
-      minWidth: 180,
-      field: 'status',
-      headerName: 'Status',
+      flex: 0.1019,
+      minWidth: 240,
+      field: 'email',
+      headerName: 'Email',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Status</Box>,
+      renderHeader: () => <Box>Email</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {row.email}
+          </Typography>
+        )
       },
     },
     {
-      minWidth: 160,
+      minWidth: 155,
+      flex: 0.0616,
       field: 'resume',
       headerName: 'Resume',
       hideSortIcons: true,
@@ -156,8 +177,22 @@ export const getProListColumns = (
         )
       },
     },
+    {
+      flex: 0.0764,
+      minWidth: 180,
+      field: 'status',
+      headerName: 'Status',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Status</Box>,
+      renderCell: ({ row }: ProListCellType) => {
+        return <ProStatusChip status={row.status} label={row.status} />
+      },
+    },
 
     {
+      flex: 0.1019,
       minWidth: 240,
       field: 'languages',
       headerName: 'Language pair',
@@ -169,7 +204,11 @@ export const getProListColumns = (
         <Box>
           {row.jobInfo && row.jobInfo.length ? (
             <Box key={row.id}>
-              <Typography variant='body1' sx={{ fontWeight: 600 }}>
+              <Typography
+                variant='body2'
+                fontWeight={400}
+                sx={{ color: '#4C4E64' }}
+              >
                 {row.jobInfo[0].source && row.jobInfo[0].target ? (
                   <>
                     {row.jobInfo[0].source.toUpperCase()} &rarr;{' '}
@@ -187,13 +226,14 @@ export const getProListColumns = (
       ),
     },
     {
-      minWidth: 330,
+      flex: 0.1529,
+      minWidth: 360,
       field: 'jobInfo',
       headerName: 'Job type / Role',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Job type / Role</Box>,
+      renderHeader: () => <Box>Roles</Box>,
       renderCell: ({ row }: ProListCellType) => {
         if (row.jobInfo && row.jobInfo.length) {
           setIsSorting(true)
@@ -205,10 +245,10 @@ export const getProListColumns = (
 
           // 필터에 Source, Target, jobType, role이 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시켜
           // 리스트에서 Job type/Role, Language Pair를 볼수있게 처리
-          const sourceFilters = filters.source || []
-          const targetFilters = filters.target || []
-          const jobTypeFilters = filters.jobType || []
-          const roleFilters = filters.role || []
+          const sourceFilters = filters?.source || []
+          const targetFilters = filters?.target || []
+          // const jobTypeFilters = filters.jobType || []
+          const roleFilters = filters?.role || []
 
           row.jobInfo.some((value, idx) => {
             const source = value.source || ''
@@ -218,8 +258,8 @@ export const getProListColumns = (
             if (
               (sourceFilters.length === 0 || sourceFilters.includes(source)) &&
               (targetFilters.length === 0 || targetFilters.includes(target)) &&
-              (jobTypeFilters.length === 0 ||
-                jobTypeFilters.includes(jobType)) &&
+              // (jobTypeFilters.length === 0 ||
+              //   jobTypeFilters.includes(jobType)) &&
               (roleFilters.length === 0 || roleFilters.includes(role))
             ) {
               const dummy = row.jobInfo[idx]
@@ -234,15 +274,23 @@ export const getProListColumns = (
           setIsSorting(false)
         }
         const jobInfo = row.jobInfo.map(value => ({
-          jobType: value.jobType,
+          jobType: '',
           role: value.role,
         }))
-
-        return <JobTypeRole jobInfo={jobInfo} />
+        const seenRoles = new Set()
+        const uniqueJobInfo = jobInfo.filter(item => {
+          if (!seenRoles.has(item.role)) {
+            seenRoles.add(item.role)
+            return true
+          }
+          return false
+        })
+        return <JobTypeRole jobInfo={uniqueJobInfo} visibleType='role' />
       },
     },
     {
-      minWidth: 260,
+      flex: 0.0807,
+      minWidth: 190,
       field: 'clients',
       headerName: 'Clients',
       hideSortIcons: true,
@@ -290,6 +338,7 @@ export const getProListColumns = (
       },
     },
     {
+      flex: 0.0807,
       minWidth: 190,
       field: 'experience',
       headerName: 'Years of experience',
@@ -298,11 +347,50 @@ export const getProListColumns = (
       sortable: false,
       renderHeader: () => <Box>Years of experience</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        return <Typography variant='body1'>{row.experience}</Typography>
+        return (
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
+            {row.experience}
+          </Typography>
+        )
       },
     },
     {
-      minWidth: 313,
+      flex: 0.0849,
+      minWidth: 200,
+      field: 'timezone',
+      headerName: `Pro's timezone`,
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Pro's timezone</Box>,
+      renderCell: ({ row }: ProListCellType) => {
+        return (
+          <Tooltip
+            title={timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+          >
+            <Typography
+              variant='body2'
+              fontWeight={400}
+              sx={{
+                color: '#4C4E64',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {timeZoneFormatter(row.timezone, timezone.getValue()) || '-'}
+            </Typography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      minWidth: 250,
+      flex: 0.1062,
       field: 'onboardedAt',
       headerName: 'Date of onboarded',
       hideSortIcons: true,
@@ -327,10 +415,17 @@ export const getProListColumns = (
                 fontSize={18}
                 onClick={() => {
                   setDateOrder(!dateOrder)
+                  saveUserFilters(FilterKey.PRO_LIST, {
+                    ...defaultFilter,
+                    sortId: undefined,
+                    sortDate: dateOrder ? 'ASC' : 'DESC',
+                  })
                   setFilters(prevState => {
-                    const { sortId, ...filteredState } = prevState;
+                    const { sortId, ...filteredState } = prevState!
+
                     return {
                       ...filteredState,
+                      sortId: undefined,
                       sortDate: dateOrder ? 'ASC' : 'DESC',
                     }
                   })
@@ -342,7 +437,11 @@ export const getProListColumns = (
       ),
       renderCell: ({ row }: ProListCellType) => {
         return (
-          <Typography variant='body1'>
+          <Typography
+            variant='body2'
+            fontWeight={400}
+            sx={{ color: '#4C4E64' }}
+          >
             {convertTimeToTimezone(
               row.onboardedAt,
               auth.getValue().user?.timezone!,

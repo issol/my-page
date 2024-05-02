@@ -370,12 +370,14 @@ const ProAppliedRoles = ({
               title={'Would you like to accept the role offer from TAD?'}
               onClick={() => {
                 //TODO : API call (applied roles query invalidate)
-                replyAssignedMutation.mutateAsync({
-                  id: row.id,
-                  reply: 'assign_role_pro',
-                }).then(() => {
-                  closeModal('AcceptModal')
-                })
+                replyAssignedMutation
+                  .mutateAsync({
+                    id: row.id,
+                    reply: 'assign_role_pro',
+                  })
+                  .then(() => {
+                    closeModal('AcceptModal')
+                  })
               }}
               rightButtonText='Accept'
             />

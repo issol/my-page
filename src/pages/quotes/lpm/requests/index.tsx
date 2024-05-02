@@ -37,6 +37,11 @@ import { useForm } from 'react-hook-form'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
+import {
+  FilterKey,
+  getUserFilters,
+  saveUserFilters,
+} from '@src/shared/filter-storage'
 
 // ** components
 export type FilterType = {
@@ -44,9 +49,12 @@ export type FilterType = {
   desiredDueDate: Date[]
   lsp?: Array<{ label: string; value: string }>
   client?: Array<{ label: string; value: number }>
+  ordering?: 'asc' | 'desc'
+  sort?: 'corporationId' | 'requestDate' | 'desiredDueDate'
   status: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
+  hideCompleted: '0' | '1'
   search: string
 }
 
@@ -56,14 +64,13 @@ const defaultValues: FilterType = {
   status: [],
   category: [],
   serviceType: [],
+  hideCompleted: '0',
   search: '',
-  lsp: [],
   client: [],
 }
 
 export const defaultFilters: RequestFilterType = {
   status: [],
-  lsp: [],
   client: [],
   category: [],
   serviceType: [],
@@ -82,18 +89,23 @@ export default function LpmRequests() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const currentRole = getCurrentRole()
+
+  const savedFilter: FilterType | null = getUserFilters(
+    FilterKey.LPM_REQUEST_LIST,
+  )
+    ? JSON.parse(getUserFilters(FilterKey.LPM_REQUEST_LIST)!)
+    : null
+
   const [menu, setMenu] = useState<MenuType>('list')
-  const auth = useRecoilValueLoadable(authState)
-  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const [requestListPage, setRequestListPage] = useState<number>(0)
   const [requestListPageSize, setRequestPageSize] = useState<number>(10)
 
   const [hideCompletedRequests, setHideCompletedRequests] =
     useState<boolean>(false)
-  const [seeMyRequests, setSeeMyRequests] = useState<boolean>(false)
 
-  const [filters, setFilters] = useState<RequestFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<RequestFilterType | null>(null)
+  const [defaultFilter, setDefaultFilter] = useState<FilterType>(defaultValues)
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -132,7 +144,7 @@ export default function LpmRequests() {
     trigger,
     reset: filterReset,
   } = useForm<FilterType>({
-    defaultValues,
+    defaultValues: defaultFilter,
     mode: 'onSubmit',
   })
 
@@ -146,9 +158,9 @@ export default function LpmRequests() {
       serviceType,
       category,
       search,
-      lsp,
     } = data
-
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, data)
+    setDefaultFilter(data)
     const filter: RequestFilterType = {
       status: status.map(value => value.value),
 
@@ -171,8 +183,26 @@ export default function LpmRequests() {
   }
 
   function onReset() {
-    filterReset()
+    filterReset({
+      requestDate: [],
+      desiredDueDate: [],
+      status: [],
+      category: [],
+      serviceType: [],
+      search: '',
+      client: [],
+    })
     setFilters({ ...defaultFilters })
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
+      requestDate: [],
+      desiredDueDate: [],
+      status: [],
+      category: [],
+      serviceType: [],
+      search: '',
+      client: [],
+      hideCompleted: hideCompletedRequests ? 1 : 0,
+    })
     queryClient.invalidateQueries([
       'request/client/list',
       { ...defaultFilters },
@@ -188,18 +218,14 @@ export default function LpmRequests() {
   ) => {
     setHideCompletedRequests(event.target.checked)
     setFilters(prevState => ({
-      ...prevState,
+      ...prevState!,
       hideCompleted: event.target.checked ? '1' : '0',
     }))
-  }
 
-  const handleSeeMyRequests = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeeMyRequests(event.target.checked)
-
-    setFilters(prevState => ({
-      ...prevState,
-      mine: event.target.checked ? '1' : '0',
-    }))
+    saveUserFilters(FilterKey.LPM_REQUEST_LIST, {
+      ...defaultFilter,
+      hideCompleted: event.target.checked ? '1' : '0',
+    })
   }
 
   useEffect(() => {
@@ -228,6 +254,53 @@ export default function LpmRequests() {
     queryClient.invalidateQueries(['request/client/calendar'])
     queryClient.invalidateQueries(['request/client/detail'])
   }, [])
+
+  useEffect(() => {
+    if (savedFilter) {
+      const {
+        requestDate,
+        desiredDueDate,
+        client,
+        status,
+        ordering,
+        sort,
+        serviceType,
+        category,
+        search,
+        hideCompleted,
+      } = savedFilter
+
+      const filter: RequestFilterType = {
+        status: status.map(value => value.value),
+
+        serviceType: serviceType.map(value => value.value),
+        category: category.map(value => value.value),
+        requestDateFrom: requestDate[0]?.toISOString() ?? '',
+        requestDateTo: requestDate[1]?.toISOString() ?? '',
+        desiredDueDateFrom: desiredDueDate[0]?.toISOString() ?? '',
+        desiredDueDateTo: desiredDueDate[1]?.toISOString() ?? '',
+        client: client?.map(value => value.value),
+        search: search,
+        take: requestListPageSize,
+        skip: requestListPageSize * requestListPage,
+        ordering: ordering,
+        sort: sort,
+        hideCompleted: hideCompleted,
+      }
+
+      if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
+        setDefaultFilter(savedFilter)
+        filterReset(savedFilter)
+      }
+      if (JSON.stringify(filters) !== JSON.stringify(filter)) {
+        setFilters(filter)
+      }
+      setHideCompletedRequests(hideCompleted === '1')
+    } else {
+      setFilters({ ...defaultFilters })
+    }
+  }, [savedFilter])
+
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -273,8 +346,6 @@ export default function LpmRequests() {
               setServiceTypeList={setServiceTypeList}
               categoryList={categoryList}
               setCategoryList={setCategoryList}
-              filters={filters}
-              setFilters={setFilters}
               onReset={onReset}
               onSubmit={onSubmit}
               control={control}
@@ -324,16 +395,13 @@ export default function LpmRequests() {
                   setPage={setRequestListPage}
                   setPageSize={setRequestPageSize}
                   setFilters={setFilters}
+                  filters={filters!}
+                  defaultFilter={defaultFilter}
+                  statusList={statusList || []}
                   list={list || { count: 0, data: [], totalCount: 0 }}
                   isLoading={isLoading}
                   role={currentRole!}
                   onRowClick={onRowClick}
-                  columns={getRequestListColumns(
-                    statusList!,
-                    currentRole!,
-                    auth,
-                    timezone.getValue(),
-                  )}
                   type='list'
                 />
               </Card>

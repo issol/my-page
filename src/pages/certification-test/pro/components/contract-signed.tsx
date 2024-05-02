@@ -46,6 +46,7 @@ import { getContractFilePath } from '@src/shared/transformer/filePath.transforme
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import toast from 'react-hot-toast'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   privacyContract: currentVersionType
@@ -76,21 +77,21 @@ const ContractSigned = ({
   setSignContract,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const [value, setValue] = useState<MenuType>('freelancer')
-  const [privacyContent, setPrivacyContent] = useState(
-    EditorState.createEmpty(),
-  )
+  // const [value, setValue] = useState<MenuType>('freelancer')
+  // const [privacyContent, setPrivacyContent] = useState(
+  //   EditorState.createEmpty(),
+  // )
   const [freelancerContent, setFreelancerContent] = useState(
     EditorState.createEmpty(),
   )
-  const [privacyChecked, setPrivacyChecked] = useState<boolean>(false)
+  // const [privacyChecked, setPrivacyChecked] = useState<boolean>(false)
   const [freelancerChecked, setFreelancerChecked] = useState<boolean>(false)
 
-  const [freelancerFile, setFreelancerFile] = useState<HTMLElement | null>(null)
-  const [privacyFile, setPrivacyFile] = useState<HTMLElement | null>(null)
+  // const [privacyFile, setPrivacyFile] = useState<HTMLElement | null>(null)
 
   const setCurrentRole = useSetRecoilState(currentRoleSelector)
   const setAuth = useSetRecoilState(authState)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   const signContractMutation = useMutation(
@@ -126,26 +127,22 @@ const ContractSigned = ({
           .catch(e => {
             router.push('/login')
           })
-
+        setLoading(false)
         setSignContract(false)
-        setPrivacyChecked(false)
+        // setPrivacyChecked(false)
         setFreelancerChecked(false)
       },
     },
   )
 
-  const handlePrivacyChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setPrivacyFile(document.getElementById('privacyDownloadItem'))
-    setPrivacyChecked(event.target.checked)
-  }
-
   const handleFreelancerChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFreelancerFile(document.getElementById('freelancerDownloadItem'))
-    setValue('privacy')
+    // setFreelancerFile(document.getElementById('freelancerDownloadItem'))
+    // setValue('privacy')
 
     setFreelancerChecked(event.target.checked)
   }
   const getAddress = (address: any) => {
+    if (!address) return ''
     const state1 = address.baseAddress ? `${address.baseAddress}, ` : ''
 
     const state2 = address.detailAddress ? `${address.detailAddress}, ` : ''
@@ -176,11 +173,70 @@ const ContractSigned = ({
     }
     return indexes
   }
+
   useEffect(() => {
-    if (privacyContract?.content) {
-      const copyContent = { ...privacyContract.content }
+    if (freelancerContract?.content && auth.getValue()) {
       const now = dayjs(new Date()).format('MM/DD/YYYY')
-      for (let i = 0; i < copyContent?.blocks?.length; i++) {
+      const name = auth.getValue().user?.username ?? ''
+      const addresses = auth.getValue().user?.addresses![0]
+      const birthday = auth.getValue().user?.birthday ?? ''
+      const additionalResult = {
+        ...freelancerContract,
+        content: {
+          ...freelancerContract.content,
+          blocks: [
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 12 + name.length,
+                  offset: 0,
+                },
+              ],
+              text: `Legal name: ${name}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 19 + getAddress(addresses).length ?? 0,
+                  offset: 0,
+                },
+              ],
+              text: `Permanent address: ${getAddress(addresses)}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [
+                {
+                  style: 'BOLD',
+                  length: 15 + birthday.length,
+                  offset: 0,
+                },
+              ],
+              text: `Date of birth: ${birthday}`,
+              type: 'unstyled',
+            },
+            {
+              data: {},
+              depth: 0,
+              inlineStyleRanges: [],
+              text: '',
+              type: 'unstyled',
+            },
+            ...freelancerContract.content.blocks,
+          ],
+        },
+      }
+      const copyContent = { ...additionalResult.content }
+      for (let i = 3; i < copyContent?.blocks?.length; i++) {
         copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
           '{Legal name}',
           auth.getValue().user?.username,
@@ -222,87 +278,8 @@ const ContractSigned = ({
           offset: value,
         }))
 
-        let addressStyle = addressIndex.map(value => ({
-          style: 'color-#666CFF',
-          length: getAddress(auth.getValue().user?.addresses![0]).length,
-          offset: value,
-        }))
-
-        let dateOfBirthStyle = dateOfBirthIndex.map(value => ({
-          style: 'color-#666CFF',
-          length: auth.getValue().user?.birthday?.length! + 1,
-          offset: value,
-        }))
-
-        let signatureDateStyle = signatureDateIndex.map(value => ({
+        let nameBoldStyle = nameIndex.map(value => ({
           style: 'BOLD',
-          length: now.length + 16,
-          offset: value,
-        }))
-
-        console.log('hi')
-
-        copyContent.blocks[i].type = 'unstyled'
-        copyContent.blocks[i].inlineStyleRanges = [
-          ...copyContent.blocks[i].inlineStyleRanges,
-          ...nameStyle,
-          ...addressStyle,
-          ...dateOfBirthStyle,
-          ...signatureDateStyle,
-        ]
-
-        copyContent.blocks[i].entityRanges = []
-      }
-
-      const content = convertFromRaw(copyContent as any)
-
-      const editorState = EditorState.createWithContent(content)
-      setPrivacyContent(editorState)
-    }
-  }, [privacyContract, privacyContractLanguage])
-
-  useEffect(() => {
-    if (freelancerContract?.content) {
-      const copyContent = { ...freelancerContract.content }
-      const now = dayjs(new Date()).format('MM/DD/YYYY')
-      for (let i = 0; i < copyContent?.blocks?.length; i++) {
-        copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
-          '{Legal name}',
-          auth.getValue().user?.username,
-        )
-        copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
-          '{Address}',
-          getAddress(auth.getValue().user?.addresses![0]),
-        )
-        copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replaceAll(
-          '{Date of birth}',
-          auth.getValue().user?.birthday,
-        )
-
-        let nameIndex = getAllIndexes(
-          copyContent?.blocks[i]?.text!,
-          auth.getValue().user?.username!,
-        )
-
-        let addressIndex = getAllIndexes(
-          copyContent?.blocks[i]?.text!,
-          getAddress(auth.getValue().user?.addresses![0]),
-        )
-
-        let dateOfBirthIndex = getAllIndexes(
-          copyContent?.blocks[i]?.text!,
-          auth.getValue().user?.birthday!,
-        )
-
-        let signatureDateIndex = getAllIndexes(
-          copyContent?.blocks[i]?.text!,
-          freelancerContractLanguage === 'ENG'
-            ? 'Signature date: '
-            : '서명 일자: ',
-        )
-
-        let nameStyle = nameIndex.map(value => ({
-          style: 'color-#666CFF',
           length: auth.getValue().user?.username?.length,
           offset: value,
         }))
@@ -313,8 +290,20 @@ const ContractSigned = ({
           offset: value,
         }))
 
+        let addressBoldStyle = addressIndex.map(value => ({
+          style: 'BOLD',
+          length: getAddress(auth.getValue().user?.addresses![0]).length,
+          offset: value,
+        }))
+
         let dateOfBirthStyle = dateOfBirthIndex.map(value => ({
           style: 'color-#666CFF',
+          length: auth.getValue().user?.birthday?.length! + 1,
+          offset: value,
+        }))
+
+        let dateOfBirthBoldStyle = dateOfBirthIndex.map(value => ({
+          style: 'BOLD',
           length: auth.getValue().user?.birthday?.length! + 1,
           offset: value,
         }))
@@ -329,8 +318,11 @@ const ContractSigned = ({
         copyContent.blocks[i].inlineStyleRanges = [
           ...copyContent.blocks[i].inlineStyleRanges,
           ...nameStyle,
+          ...nameBoldStyle,
           ...addressStyle,
+          ...addressBoldStyle,
           ...dateOfBirthStyle,
+          ...dateOfBirthBoldStyle,
           ...signatureDateStyle,
         ]
 
@@ -342,7 +334,7 @@ const ContractSigned = ({
       const editorState = EditorState.createWithContent(content)
       setFreelancerContent(editorState)
     }
-  }, [freelancerContract, freelancerContractLanguage])
+  }, [freelancerContract, freelancerContractLanguage, auth])
 
   const onClickClose = () => {
     openModal({
@@ -351,7 +343,7 @@ const ContractSigned = ({
         <CustomModal
           onClose={() => {
             setSignContract(false)
-            setPrivacyChecked(false)
+
             setFreelancerChecked(false)
             closeModal('CancelSignContractModal')
           }}
@@ -369,61 +361,41 @@ const ContractSigned = ({
 
   const onClickSubmit = () => {
     //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedNDA 재조회 필요)
-
+    const input = document.getElementById('downloadItem')
+    const root = document.getElementById('__next')
     let fileInfo: FileType[] = []
 
-    if (freelancerFile && privacyFile) {
-      let data = new FormData()
+    if (input && root) {
+      setLoading(true)
 
-      const clonedFreelancerFile = freelancerFile.cloneNode(true) as HTMLElement
-      clonedFreelancerFile.style.position = 'absolute'
-      clonedFreelancerFile.style.left = '-9999px'
-      document.body.appendChild(clonedFreelancerFile)
+      const draftEditor = input.querySelector(
+        '.public-DraftEditor-content',
+      ) as HTMLElement
+      const cloneCopy = draftEditor.cloneNode(true) as HTMLElement
+      const printFrame = document.createElement('div')
+      printFrame.id = 'draftEditor'
+      const frameHeight = draftEditor.scrollHeight
+      const frameWidth = draftEditor.offsetWidth
+      printFrame.style.position = 'absolute'
+      printFrame.style.left = '-9999px'
+      printFrame.style.display = 'block'
+      printFrame.style.width = '19.5cm'
+      printFrame.style.padding = '0 10px'
 
-      const clonedPrivacyFile = privacyFile.cloneNode(true) as HTMLElement
-      clonedPrivacyFile.style.position = 'absolute'
-      clonedPrivacyFile.style.left = '-9999px'
-      document.body.appendChild(clonedPrivacyFile)
+      // printFrame.setAttribute('style', 'position:absolute; left:-99999999px')
+      printFrame.append(cloneCopy)
+      root.appendChild(printFrame)
 
-      const freelancerPromise = html2canvas(clonedFreelancerFile).then(
-        canvas => {
-          const imgData = canvas.toDataURL('image/png')
-          const pdf = new jsPDF('p', 'mm')
-          const imgWidth = 210
-          const imgHeight = (canvas.height * imgWidth) / canvas.width
-          const pageHeight = 295
-          let heightLeft = imgHeight
-          let position = 0
-          heightLeft -= pageHeight
-          pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight
-            pdf.addPage()
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
-            heightLeft -= pageHeight
-          }
-
-          let downloadFile = pdf.output('blob')
-
-          if (downloadFile) {
-            data.append(
-              'freelancer',
-              downloadFile,
-              `[${freelancerContractLanguage}] Freelancer contract.pdf`,
-            )
-          }
-        },
-      )
-      const privacyPromise = html2canvas(clonedPrivacyFile).then(canvas => {
+      html2canvas(printFrame).then(canvas => {
         const imgData = canvas.toDataURL('image/png')
         const pdf = new jsPDF('p', 'mm')
         const imgWidth = 210
         const imgHeight = (canvas.height * imgWidth) / canvas.width
-        const pageHeight = 295
+        const pageHeight = 297
         let heightLeft = imgHeight
         let position = 0
         heightLeft -= pageHeight
-        pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight)
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
@@ -432,432 +404,338 @@ const ContractSigned = ({
         }
 
         let downloadFile = pdf.output('blob')
+        // pdf.save(`[${freelancerContractLanguage}] Freelancer contract`)
+        // root.removeChild(printFrame)
+        let data = new FormData()
 
         if (downloadFile) {
           data.append(
-            'privacy',
+            'freelancer',
             downloadFile,
-            `[${privacyContractLanguage}] Privacy contract.pdf`,
+            `[${freelancerContractLanguage}] Freelancer contract.pdf`,
           )
         }
-      })
 
-      let paths: { path: string; size: number; name: string }[] = []
-      Promise.all([freelancerPromise, privacyPromise]).then(() => {
-        for (let [key, value] of data.entries()) {
-          const val = value as File
-          paths.push({
-            name: val.name,
-            path: getContractFilePath(
-              auth.getValue().user?.id!,
-              val.name as string,
-            ),
-            size: val.size,
-          })
-        }
+        const path: string = getContractFilePath(
+          auth.getValue().user?.id!,
+          `[${freelancerContractLanguage}] Freelancer contract.pdf`,
+        )
 
-        const promiseArr = paths.map((url, idx) => {
-          return getUploadUrlforCommon(S3FileType.PRO_CONTRACT, url.path).then(
-            res => {
-              fileInfo.push({
-                name: url.name,
-                size: url.size,
-                file: url.path,
-              })
-              return uploadFileToS3(res.url, data)
-            },
-          )
-        })
-        Promise.all(promiseArr)
+        const promise = [
+          getUploadUrlforCommon(S3FileType.PRO_CONTRACT, path).then(res => {
+            fileInfo.push({
+              name: `[${freelancerContractLanguage}] Freelancer contract.pdf`,
+              size: downloadFile.size,
+              file: path,
+              type: 'pdf',
+              // type: 'imported',
+            })
+            return uploadFileToS3(res.url, data)
+          }),
+        ]
+        Promise.all(promise)
           .then(res => {
-            console.log(res)
-            console.log(fileInfo)
-
+            // updateProject.mutate({ deliveries: fileInfo })
             signContractMutation.mutate({
               type: 'contract',
               file: fileInfo.map(file => file.name),
             })
           })
-          .catch(err =>
+          .catch(err => {
             toast.error(
               'Something went wrong while uploading files. Please try again.',
               {
                 position: 'bottom-left',
               },
-            ),
-          )
+            )
+            setLoading(false)
+          })
       })
+
+      // const freelancerPromise = html2canvas(clonedFreelancerFile).then(
+      //   canvas => {
+      //     const imgData = canvas.toDataURL('image/png')
+      //     const pdf = new jsPDF('p', 'mm')
+      //     const imgWidth = 210
+      //     const imgHeight = (canvas.height * imgWidth) / canvas.width
+      //     const pageHeight = 295
+      //     let heightLeft = imgHeight
+      //     let position = 0
+      //     heightLeft -= pageHeight
+      //     pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+      //     while (heightLeft >= 0) {
+      //       position = heightLeft - imgHeight
+      //       pdf.addPage()
+      //       pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+      //       heightLeft -= pageHeight
+      //     }
+
+      //     let downloadFile = pdf.output('blob')
+      //     pdf.save(`[${freelancerContractLanguage}] Freelancer contract.pdf`)
+
+      //     if (downloadFile) {
+      //       data.append(
+      //         'freelancer',
+      //         downloadFile,
+      //         `[${freelancerContractLanguage}] Freelancer contract.pdf`,
+      //       )
+      //     }
+      //   },
+      // )
+      // const privacyPromise = html2canvas(clonedPrivacyFile).then(canvas => {
+      //   const imgData = canvas.toDataURL('image/png')
+      //   const pdf = new jsPDF('p', 'mm')
+      //   const imgWidth = 210
+      //   const imgHeight = (canvas.height * imgWidth) / canvas.width
+      //   const pageHeight = 295
+      //   let heightLeft = imgHeight
+      //   let position = 0
+      //   heightLeft -= pageHeight
+      //   pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+      //   while (heightLeft >= 0) {
+      //     position = heightLeft - imgHeight
+      //     pdf.addPage()
+      //     pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+      //     heightLeft -= pageHeight
+      //   }
+
+      //   let downloadFile = pdf.output('blob')
+
+      //   if (downloadFile) {
+      //     data.append(
+      //       'privacy',
+      //       downloadFile,
+      //       `[${privacyContractLanguage}] Privacy contract.pdf`,
+      //     )
+      //   }
+      // })
+
+      // Promise.all([freelancerPromise]).then(() => {
+      //   for (let [key, value] of data.entries()) {
+      //     const val = value as File
+      //     paths.push({
+      //       name: val.name,
+      //       path: getContractFilePath(
+      //         auth.getValue().user?.id!,
+      //         val.name as string,
+      //       ),
+      //       size: val.size,
+      //     })
+      //   }
+
+      //   const promiseArr = paths.map((url, idx) => {
+      //     return getUploadUrlforCommon(S3FileType.PRO_CONTRACT, url.path).then(
+      //       res => {
+      //         fileInfo.push({
+      //           name: url.name,
+      //           size: url.size,
+      //           file: url.path,
+      //         })
+      //         return uploadFileToS3(res.url, data)
+      //       },
+      //     )
+      //   })
+      //   Promise.all(promiseArr)
+      //     .then(res => {
+      //       console.log(res)
+      //       console.log(fileInfo)
+
+      //       signContractMutation.mutate({
+      //         type: 'contract',
+      //         file: fileInfo.map(file => file.name),
+      //       })
+      //     })
+      //     .catch(err =>
+      //       toast.error(
+      //         'Something went wrong while uploading files. Please try again.',
+      //         {
+      //           position: 'bottom-left',
+      //         },
+      //       ),
+      //     )
+      // })
     }
   }
 
-  const handleMenuChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setValue(newValue)
-  }
-
   return (
-    <Box
-      sx={{
-        width: '900px',
-        margin: '0 auto',
-
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-      }}
-    >
-      <Card
+    <>
+      {loading ? <OverlaySpinner /> : null}
+      <Box
         sx={{
-          padding: '50px 60px',
-          '& .MuiTabPanel-root': {
-            padding: 0,
-          },
+          width: '900px',
+          margin: '0 auto',
+
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
         }}
       >
-        <TabContext value={value}>
-          <TabList
-            onChange={handleMenuChange}
-            aria-label='Contract tab menu'
-
-            // style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
-          >
-            <CustomTab
-              value='freelancer'
-              label='Freelancer contract'
-              // iconPosition='start'
-              // icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
-            <CustomTab
-              value='privacy'
-              label='Privacy contract'
-              // iconPosition='start'
-              // icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
-          </TabList>
-          <TabPanel value='freelancer'>
-            <Box
-              sx={{
-                // margin: '0 auto',
-
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px',
-              }}
-            >
-              <StyledViewer id='freelancerDownloadItem'>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                    borderRadius: '10px',
-                    // gap: '20px',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '20px',
-                    }}
-                  >
-                    <Typography variant='h6'>
-                      [{freelancerContractLanguage} Freelancer contract]
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '4px',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Typography
-                        fontSize={14}
-                        fontWeight={
-                          freelancerContractLanguage === 'KOR' ? 400 : 600
-                        }
-                        color={
-                          freelancerContractLanguage === 'KOR'
-                            ? '#BDBDBD'
-                            : '#666CFF'
-                        }
-                      >
-                        English
-                      </Typography>
-                      <Switch
-                        checked={freelancerContractLanguage === 'KOR'}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>,
-                        ) => {
-                          setFreelancerContractLanguage(
-                            event.target.checked ? 'KOR' : 'ENG',
-                          )
-                        }}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        sx={{
-                          '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                            color: '#666CFF',
-                            '.MuiSwitch-thumb': {
-                              color: '#666CFF',
-                            },
-                          },
-                          '.MuiSwitch-track': {
-                            backgroundColor: '#666CFF',
-                          },
-                        }}
-                      />
-                      <Typography
-                        fontSize={14}
-                        fontWeight={
-                          freelancerContractLanguage === 'KOR' ? 600 : 400
-                        }
-                        color={
-                          freelancerContractLanguage === 'KOR'
-                            ? '#666CFF'
-                            : '#BDBDBD'
-                        }
-                      >
-                        Korean
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider />
-                  <Box
-                    sx={{
-                      maxHeight: '570px',
-                      overflowY: 'scroll',
-                      '&::-webkit-scrollbar': {
-                        width: 4,
-                      },
-
-                      '&::-webkit-scrollbar-thumb': {
-                        borderRadius: 10,
-                        background: '#aaa',
-                      },
-                    }}
-                  >
-                    <ReactDraftWysiwyg
-                      editorState={freelancerContent}
-                      readOnly={true}
-                    />
-                  </Box>
-                </Box>
-              </StyledViewer>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  width: '100%',
-                }}
-              >
-                <Typography variant='body2'>
-                  After the initial agreement, you can access the signed
-                  contract on My page.
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox
-                    checked={freelancerChecked}
-                    onChange={handleFreelancerChange}
-                  />
-                  <Typography variant='body1'>
-                    I agree to the terms and conditions.
-                  </Typography>
-                </Box>
-              </Box>
-              {/* <Box
-                sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
-              >
-                <Button variant='outlined' onClick={onClickClose}>
-                  Close
-                </Button>
-                <Button
-                  variant='contained'
-                  disabled={!freelancerChecked}
-                  onClick={onClickSubmit}
-                >
-                  Submit
-                </Button>
-              </Box> */}
-            </Box>
-          </TabPanel>
-          <TabPanel value='privacy'>
-            <Box
-              sx={{
-                // margin: '0 auto',
-
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px',
-              }}
-            >
-              <StyledViewer id='privacyDownloadItem'>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                    borderRadius: '10px',
-                    // gap: '20px',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '20px',
-                    }}
-                  >
-                    <Typography variant='h6'>
-                      [{privacyContractLanguage} Privacy contract]
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '4px',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Typography
-                        fontSize={14}
-                        fontWeight={
-                          privacyContractLanguage === 'KOR' ? 400 : 600
-                        }
-                        color={
-                          privacyContractLanguage === 'KOR'
-                            ? '#BDBDBD'
-                            : '#666CFF'
-                        }
-                      >
-                        English
-                      </Typography>
-                      <Switch
-                        checked={privacyContractLanguage === 'KOR'}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>,
-                        ) => {
-                          setPrivacyContractLanguage(
-                            event.target.checked ? 'KOR' : 'ENG',
-                          )
-                        }}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        sx={{
-                          '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                            color: '#666CFF',
-                            '.MuiSwitch-thumb': {
-                              color: '#666CFF',
-                            },
-                          },
-                          '.MuiSwitch-track': {
-                            backgroundColor: '#666CFF',
-                          },
-                        }}
-                      />
-                      <Typography
-                        fontSize={14}
-                        fontWeight={
-                          privacyContractLanguage === 'KOR' ? 600 : 400
-                        }
-                        color={
-                          privacyContractLanguage === 'KOR'
-                            ? '#666CFF'
-                            : '#BDBDBD'
-                        }
-                      >
-                        Korean
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider />
-                  <Box
-                    sx={{
-                      maxHeight: '570px',
-                      overflowY: 'scroll',
-                      '&::-webkit-scrollbar': {
-                        width: 4,
-                      },
-
-                      '&::-webkit-scrollbar-thumb': {
-                        borderRadius: 10,
-                        background: '#aaa',
-                      },
-                    }}
-                  >
-                    <ReactDraftWysiwyg
-                      editorState={privacyContent}
-                      readOnly={true}
-                    />
-                  </Box>
-                </Box>
-              </StyledViewer>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  width: '100%',
-                }}
-              >
-                <Typography variant='body2'>
-                  After the initial agreement, you can access the signed
-                  contract on My page.
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox
-                    checked={privacyChecked}
-                    onChange={handlePrivacyChange}
-                  />
-                  <Typography variant='body1'>
-                    I agree to the terms and conditions.
-                  </Typography>
-                </Box>
-              </Box>
-              {/* <Box
-                sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
-              >
-                <Button variant='outlined' onClick={onClickClose}>
-                  Close
-                </Button>
-                <Button
-                  variant='contained'
-                  disabled={!privacyChecked}
-                  onClick={onClickSubmit}
-                >
-                  Submit
-                </Button>
-              </Box> */}
-            </Box>
-          </TabPanel>
-        </TabContext>
-        <Divider />
-        <Box
+        <Card
           sx={{
-            display: 'flex',
-            gap: '24px',
-            justifyContent: 'center',
-            marginTop: '24px',
+            padding: '50px 60px',
+            '& .MuiTabPanel-root': {
+              padding: 0,
+            },
           }}
         >
-          <Button variant='outlined' onClick={onClickClose}>
-            Close
-          </Button>
-          <Button
-            variant='contained'
-            disabled={!privacyChecked || !freelancerChecked}
-            onClick={onClickSubmit}
+          <Box
+            sx={{
+              // margin: '0 auto',
+
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+            }}
           >
-            Submit
-          </Button>
-        </Box>
-      </Card>
-    </Box>
+            <StyledViewer>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  border: '1px solid rgba(76, 78, 100, 0.22)',
+                  borderRadius: '10px',
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <Typography variant='h6'>
+                    [{freelancerContractLanguage} Freelancer contract]
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography
+                      fontSize={14}
+                      fontWeight={
+                        freelancerContractLanguage === 'KOR' ? 400 : 600
+                      }
+                      color={
+                        freelancerContractLanguage === 'KOR'
+                          ? '#BDBDBD'
+                          : '#666CFF'
+                      }
+                    >
+                      English
+                    </Typography>
+                    <Switch
+                      checked={freelancerContractLanguage === 'KOR'}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        setFreelancerContractLanguage(
+                          event.target.checked ? 'KOR' : 'ENG',
+                        )
+                      }}
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                    />
+                    <Typography
+                      fontSize={14}
+                      fontWeight={
+                        freelancerContractLanguage === 'KOR' ? 600 : 400
+                      }
+                      color={
+                        freelancerContractLanguage === 'KOR'
+                          ? '#666CFF'
+                          : '#BDBDBD'
+                      }
+                    >
+                      Korean
+                    </Typography>
+                  </Box>
+                </Box>
+                <Divider />
+                <Box
+                  id='downloadItem'
+                  sx={{
+                    maxHeight: '570px',
+                    overflowY: 'scroll',
+                    '&::-webkit-scrollbar': {
+                      width: 4,
+                    },
+
+                    '&::-webkit-scrollbar-thumb': {
+                      borderRadius: 10,
+                      background: '#aaa',
+                    },
+                  }}
+                >
+                  <ReactDraftWysiwyg
+                    editorState={freelancerContent}
+                    readOnly={true}
+                  />
+                </Box>
+                <Divider sx={{ my: '20px !important' }} />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    width: '100%',
+                  }}
+                >
+                  <Typography variant='body2'>
+                    After the initial agreement, you can access the signed
+                    contract on My page.
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox
+                      checked={freelancerChecked}
+                      onChange={handleFreelancerChange}
+                    />
+                    <Typography variant='body1'>
+                      I agree to the terms and conditions.
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </StyledViewer>
+
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '24px',
+                justifyContent: 'center',
+                marginTop: '24px',
+              }}
+            >
+              <Button variant='outlined' onClick={onClickClose}>
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!freelancerChecked || loading}
+                onClick={onClickSubmit}
+              >
+                Submit
+              </Button>
+            </Box>
+          </Box>
+        </Card>
+      </Box>
+    </>
   )
 }
 
