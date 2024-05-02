@@ -816,7 +816,7 @@ const AppliedRole = ({
     },
     {
       field: 'languagePair',
-      headerName: 'Languege Pair',
+      headerName: 'Language Pair',
       width: 153,
       disableColumnMenu: true,
       sortable: false,
