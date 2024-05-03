@@ -11,13 +11,16 @@ import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
 import { FileType } from '@src/types/common/file.type'
 import { AssignProListType } from '@src/types/orders/job-detail'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../..'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { assignmentStatusChip } from '@src/@core/components/chips/chips'
+import {
+  JobsStatusChip,
+  assignmentStatusChip,
+} from '@src/@core/components/chips/chips'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import {
   RefetchOptions,
@@ -25,7 +28,11 @@ import {
   QueryObserverResult,
   useMutation,
 } from 'react-query'
-import { uploadFile } from '@src/apis/jobs/job-detail.api'
+import {
+  setFileLock,
+  setFileUnlock,
+  uploadFile,
+} from '@src/apis/jobs/job-detail.api'
 import toast from 'react-hot-toast'
 import {
   getDownloadUrlforCommon,
@@ -57,37 +64,35 @@ type Props = {
         lastName: string
       }
   row: JobType
-
-  item: JobItemType
-  refetch: <TPageData>(
-    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
-  ) => Promise<
-    QueryObserverResult<
-      {
-        id: number
-        cooperationId: string
-        items: JobItemType[]
-      },
-      unknown
-    >
-  >
-  statusList: Array<{ value: number; label: string }>
+  type: 'import' | 'upload'
+  importFile: {
+    fileExtension: string
+    fileName: string
+    filePath: string
+    fileSize: number
+  }[]
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
+const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
+
 const SourceFileUpload = ({
   info,
   row,
-
-  item,
-  refetch,
+  type,
+  importFile,
   statusList,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
+  const uploadRef = useRef()
 
   const [fileSize, setFileSize] = useState<number>(0)
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<FileType[]>([])
 
   const [groupedFiles, setGroupedFiles] = useState<
     { createdAt: string; data: FileType[] }[]
@@ -109,10 +114,22 @@ const SourceFileUpload = ({
         size: number
         name: string
         type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        downloadAvailable: boolean
       }>
     }) => uploadFile(file),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        const files = variables.files
+        console.log(files)
+
+        files.map(value => {
+          const id = data.find((item: any) => item.name === value.name).id
+          if (!value.downloadAvailable) {
+            setFileLock(id)
+          } else {
+            setFileUnlock(id)
+          }
+        })
         setFiles([])
         refetchSourceFileList()
       },
@@ -123,10 +140,13 @@ const SourceFileUpload = ({
     accept: {
       ...srtUploadFileExtension.accept,
     },
+    noDragEventsBubbling: true,
     onDrop: (acceptedFiles: File[]) => {
+      console.log(acceptedFiles)
+
       const uniqueFiles = files
         .concat(acceptedFiles)
-        .reduce((acc: File[], file: File) => {
+        .reduce((acc: FileType[], file: FileType) => {
           let result = fileSize
 
           acc.concat(file).forEach((file: FileType) => (result += file.size))
@@ -137,15 +157,27 @@ const SourceFileUpload = ({
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
-            if (!found) acc.push(file)
+
+            if (!found)
+              acc.push({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+
+                downloadAvailable: false,
+              })
             // console.log(acc)
 
             return acc
           }
         }, [])
+      console.log(uniqueFiles)
+
       setFiles(uniqueFiles)
     },
   })
+
+  console.log(files)
 
   function onFileUploadReject() {
     openModal({
@@ -166,6 +198,7 @@ const SourceFileUpload = ({
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
+    console.log(filtered)
 
     setFiles([...filtered])
   }
@@ -226,6 +259,7 @@ const SourceFileUpload = ({
           size: number
           name: string
           type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+          downloadAvailable: boolean
         }>
       } = {
         jobId: row.id,
@@ -252,6 +286,7 @@ const SourceFileUpload = ({
             size: files[idx].size,
             name: files[idx].name,
             type: 'SOURCE',
+            downloadAvailable: files[idx].downloadAvailable ?? false,
           })
           return uploadFileToS3(url, files[idx])
         })
@@ -352,19 +387,43 @@ const SourceFileUpload = ({
             label={info.assignmentStatus}
             status={info.assignmentStatus!}
           /> */}
-            {/* {assignmentStatusChip(Number(info.assignmentStatus), statusList!)} */}
+            {JobsStatusChip(row.status, statusList)}
+            {/* <JobsStatusChip status={row.status} statusList={statusList} /> */}
+            {/* {assignmentStatusChip(Number(row.status), statusList!)} */}
           </Box>
           <Divider />
           <Box>
-            <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <Typography variant='subtitle1' fontWeight={600}>
-                Source file to Pro
-              </Typography>
-              <Typography variant='subtitle2'>
-                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
-            </Box>
             <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <Typography variant='subtitle1' fontWeight={600}>
+                  Source file to Pro
+                </Typography>
+                <Typography variant='subtitle2'>
+                  {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Icon icon='mdi:lock' fontSize={20} />
+                <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                  Block download
+                </Typography>
+                <IconButton sx={{ padding: 0 }}>
+                  <Icon
+                    icon='material-symbols:info-outline'
+                    fontSize={20}
+                    color='#8D8E9A'
+                  ></Icon>
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -465,13 +524,6 @@ const SourceFileUpload = ({
                                   </Typography>
                                 </Box>
                               </Box>
-
-                              {/* <IconButton
-                              onClick={() => downloadOneFile(item)}
-                              disabled={isFileUploading || !isUpdatable}
-                            >
-                              <Icon icon='mdi:download' fontSize={24} />
-                            </IconButton> */}
                             </Box>
                           )
                         })}
@@ -479,23 +531,28 @@ const SourceFileUpload = ({
                     </Box>
                   )
                 })}
-            </Box>
+            </Box> */}
           </Box>
-
-          <Box
-            sx={{
-              width: '100%',
-              border: '1px dashed #666CFF',
-              borderRadius: '10px',
-              padding: '20px',
-            }}
+          <div
+            {...getRootProps({
+              className: 'dropzone',
+              // onClick: event => event.stopPropagation(),
+            })}
           >
-            <div {...getRootProps({ className: 'dropzone' })}>
+            <Box
+              sx={{
+                width: '100%',
+                border: '1px dashed #666CFF',
+                borderRadius: '10px',
+                padding: '20px',
+              }}
+            >
               <Button
                 variant='outlined'
                 disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
                   row.status,
                 )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+                onClick={() => console.log('hi')}
               >
                 <input {...getInputProps()} />
                 <Icon
@@ -505,33 +562,142 @@ const SourceFileUpload = ({
                 ></Icon>
                 &nbsp; Upload files
               </Button>
-            </div>
 
-            {files.length > 0 && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  mt: '20px',
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {files.map((file: FileType, index: number) => {
-                  return (
-                    <Box key={uuidv4()}>
-                      <FileItem
-                        key={file.name}
-                        file={file}
-                        onClear={handleRemoveFile}
-                      />
-                    </Box>
-                  )
-                })}
-              </Box>
-            )}
-          </Box>
+              {files.length > 0 && (
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    mt: '20px',
+                    width: '100%',
+                    gap: '20px',
+                  }}
+                >
+                  {files.map((file: FileType, index: number) => {
+                    return (
+                      <Box
+                        key={uuidv4()}
+                        sx={{
+                          display: 'flex',
+                          marginBottom: '8px',
+                          width: '100%',
+                          justifyContent: 'space-between',
+                          borderRadius: '8px',
+                          padding: '10px 12px',
+                          border: '1px solid rgba(76, 78, 100, 0.22)',
+                          background: '#f9f8f9',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              marginRight: '8px',
+                              display: 'flex',
+                            }}
+                          >
+                            <Icon
+                              icon='material-symbols:file-present-outline'
+                              style={{
+                                color: 'rgba(76, 78, 100, 0.54)',
+                              }}
+                              fontSize={24}
+                            />
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <Tooltip title={file.name}>
+                              <Typography
+                                variant='body1'
+                                fontSize={14}
+                                fontWeight={600}
+                                lineHeight={'20px'}
+                                sx={{
+                                  overflow: 'hidden',
+                                  wordBreak: 'break-all',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 1,
+                                  WebkitBoxOrient: 'vertical',
+                                }}
+                              >
+                                {file.name}
+                              </Typography>
+                            </Tooltip>
+
+                            <Typography variant='caption' lineHeight={'14px'}>
+                              {formatFileSize(file.size)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          {' '}
+                          {videoExtensions.includes(
+                            file.name?.split('.').pop()?.toLowerCase() ?? '',
+                          ) ? (
+                            <Box
+                              sx={{
+                                alignItems: 'center',
+                                display: 'flex',
+                                // color: file.downloadAvailable
+                                //   ? '#4C4E64'
+                                //   : 'rgba(76, 78, 100, 0.54)',
+                                cursor: 'pointer',
+                                padding: '4px',
+                              }}
+                              onClick={event => {
+                                event.stopPropagation()
+                                file.downloadAvailable = !file.downloadAvailable
+                                setFiles(prevFiles =>
+                                  prevFiles.map(f =>
+                                    f.name === file.name ? file : f,
+                                  ),
+                                )
+                                // handleRemoveFile(file)
+                              }}
+                            >
+                              <Icon
+                                icon={
+                                  file.downloadAvailable
+                                    ? 'mdi:unlocked-outline'
+                                    : 'mdi:lock'
+                                }
+                                fontSize={20}
+                              />
+                            </Box>
+                          ) : null}
+                          <Box
+                            sx={{
+                              alignItems: 'center',
+                              display: 'flex',
+                              color: 'rgba(76, 78, 100, 0.54)',
+                              cursor: 'pointer',
+                              padding: '4px',
+                            }}
+                            onClick={event => {
+                              handleRemoveFile(file)
+                            }}
+                          >
+                            <Icon icon='mdi:close' fontSize={20} />
+                          </Box>
+                        </Box>
+                      </Box>
+                    )
+                  })}
+                </Box>
+              )}
+            </Box>
+          </div>
         </Box>
+
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '32px' }}>
           <Button
             variant='contained'

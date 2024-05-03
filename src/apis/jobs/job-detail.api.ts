@@ -314,15 +314,9 @@ export const uploadFile = async (file: {
     name: string
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
-}): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/job/upload`, { ...file })
-    return data
-  } catch (e: any) {
-    return {
-      id: file.jobId,
-    }
-  }
+}) => {
+  const { data } = await axios.post(`/api/enough/u/job/upload`, { ...file })
+  return data
 }
 
 export const getSourceFileToPro = async (
@@ -621,4 +615,20 @@ export const getRequestedProHistory = async (
   )
 
   return data
+}
+
+export const getRequestAttachment = async (jobId: number) => {
+  const { data } = await axios.get(
+    `/api/enough/u/job/${jobId}/request-attachment`,
+  )
+
+  return data
+}
+
+export const setFileLock = async (fileId: number) => {
+  await axios.patch(`/api/enough/u/job/file/${fileId}/lock`)
+}
+
+export const setFileUnlock = async (fileId: number) => {
+  await axios.patch(`/api/enough/u/job/file/${fileId}/unlock`)
 }

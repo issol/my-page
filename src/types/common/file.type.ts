@@ -5,4 +5,5 @@ export type FileType = {
   type?: string
   file?: string
   createdAt?: string
+  downloadAvailable?: boolean
 }

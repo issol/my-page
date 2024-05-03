@@ -17,6 +17,7 @@ import {
   MenuItem,
   Tab,
   TextField,
+  Tooltip,
   Typography,
   styled,
 } from '@mui/material'
@@ -87,10 +88,13 @@ import {
   createRequestJobToPro,
   forceAssign,
   getAssignableProList,
+  getRequestAttachment,
   handleJobAssignStatus,
   handleJobReAssign,
   requestRedelivery,
   saveJobPrices,
+  setFileLock,
+  setFileUnlock,
   setJobStatus,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
@@ -153,7 +157,7 @@ import Error500 from '@src/pages/500'
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
 export type TabType = 'linguistTeam' | 'pro'
-
+const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
 const JobDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -334,10 +338,12 @@ const JobDetail = () => {
     Number(orderId),
   )
   const {
-    data: sourceFileList,
+    data: sourceFiles,
     isLoading,
     refetch: refetchSourceFileList,
   } = useGetSourceFile(selectedJobInfo?.jobId!)
+
+  const [sourceFileList, setSourceFileList] = useState<FileType[]>([])
 
   const {
     data: jobDeliveriesFeedbacks,
@@ -838,15 +844,167 @@ const JobDetail = () => {
   }
 
   const fileList = (file: FileType[], type: string) => {
+    console.log(file)
+
     return file.map((value: FileType) => {
       if (value.type === type) {
         return (
-          <Box key={uuidv4()}>
-            <FileItem
-              key={value.name}
-              file={value}
-              onClick={() => DownloadFile(value, S3FileType.JOB)}
-            />
+          <Box
+            key={uuidv4()}
+            sx={{
+              display: 'flex',
+              marginBottom: '8px',
+              width: '100%',
+              justifyContent: 'space-between',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              border: '1px solid rgba(76, 78, 100, 0.22)',
+              background: '#f9f8f9',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Box
+                sx={{
+                  marginRight: '8px',
+                  display: 'flex',
+                }}
+              >
+                <Icon
+                  icon='material-symbols:file-present-outline'
+                  style={{
+                    color: 'rgba(76, 78, 100, 0.54)',
+                  }}
+                  fontSize={24}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <Tooltip title={value.name}>
+                  <Typography
+                    variant='body1'
+                    fontSize={14}
+                    fontWeight={600}
+                    lineHeight={'20px'}
+                    sx={{
+                      overflow: 'hidden',
+                      wordBreak: 'break-all',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {value.name}
+                  </Typography>
+                </Tooltip>
+
+                <Typography variant='caption' lineHeight={'14px'}>
+                  {formatFileSize(value.size)}
+                </Typography>
+              </Box>
+            </Box>
+            {type === 'SOURCE' ? (
+              <Box
+                sx={{ display: 'flex', alignItems: 'center' }}
+                onClick={() => {
+                  if (value.downloadAvailable)
+                    DownloadFile(value, S3FileType.JOB)
+                  else return
+                }}
+              >
+                {videoExtensions.includes(
+                  value.name?.split('.').pop()?.toLowerCase() ?? '',
+                ) ? (
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'flex',
+                      // color: file.downloadAvailable
+                      //   ? '#4C4E64'
+                      //   : 'rgba(76, 78, 100, 0.54)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                    }}
+                    onClick={event => {
+                      event.stopPropagation()
+                      if (value.downloadAvailable) {
+                        openModal({
+                          type: 'blockDownloadModal',
+                          children: (
+                            <CustomModalV2
+                              rightButtonText='Block'
+                              onClick={() => {
+                                setFileLock(value.id!).then(res => {
+                                  // queryClient.invalidateQueries('jobInfo')
+                                  closeModal('blockDownloadModal')
+                                  refetchSourceFileList()
+                                })
+                              }}
+                              onClose={() => closeModal('blockDownloadModal')}
+                              vary='error-report'
+                              title='Block download'
+                              subtitle="Are you sure you want to block Pro from downloading this video file? There's a chance that Pro has already downloaded the file."
+                            />
+                          ),
+                        })
+                      } else {
+                        openModal({
+                          type: 'unblockDownloadModal',
+                          children: (
+                            <CustomModalV2
+                              rightButtonText='Unblock'
+                              onClick={() => {
+                                setFileUnlock(value.id!).then(res => {
+                                  // queryClient.invalidateQueries('jobInfo')
+                                  closeModal('unblockDownloadModal')
+                                  refetchSourceFileList()
+                                })
+                              }}
+                              onClose={() => closeModal('unblockDownloadModal')}
+                              vary='error-report'
+                              title='Unblock download'
+                              subtitle='Are you sure you want to allow Pro to download this video file?'
+                            />
+                          ),
+                        })
+                      }
+                      // file.downloadAvailable = !file.downloadAvailable
+                      // setFiles(prevFiles =>
+                      //   prevFiles.map(f => (f.name === file.name ? file : f)),
+                      // )
+                      // // handleRemoveFile(file)
+                    }}
+                  >
+                    <Icon
+                      icon={
+                        value.downloadAvailable
+                          ? 'mdi:unlocked-outline'
+                          : 'mdi:lock'
+                      }
+                      fontSize={20}
+                    />
+                  </Box>
+                ) : null}
+              </Box>
+            ) : (
+              <IconButton
+                onClick={() => {
+                  DownloadFile(value, S3FileType.JOB)
+                }}
+                sx={{ padding: 0 }}
+              >
+                <Icon icon='ic:sharp-download' />
+              </IconButton>
+            )}
           </Box>
         )
       }
@@ -904,15 +1062,67 @@ const JobDetail = () => {
           <SourceFileUpload
             info={selectedJobInfo?.jobInfo.pro!}
             row={selectedJobInfo?.jobInfo!}
-            item={
-              jobDetails.items.find(item =>
-                item.jobs.some(job => job.id === selectedJobInfo?.jobId),
-              )!
-            }
-            refetch={jobDetailsRefetch!}
-            statusList={jobStatusList!}
+            statusList={jobStatusList || []}
+            type='upload'
+            importFile={[]}
           />
         ),
+      })
+    }
+  }
+
+  const onClickImportFiles = () => {
+    if (selectedJobInfo) {
+      getRequestAttachment(selectedJobInfo?.jobId).then(res => {
+        if (res.code) {
+          if (res.code === 'Request.requestAttachment.requestNotFound') {
+            openModal({
+              type: 'NoRequestModal',
+              children: (
+                <CustomModalV2
+                  vary='error-report'
+                  title='No linked request'
+                  subtitle='There is no linked request for this job.'
+                  soloButton
+                  onClick={() => closeModal('NoRequestModal')}
+                  onClose={() => closeModal('NoRequestModal')}
+                  rightButtonText='Okay'
+                />
+              ),
+            })
+          } else if (
+            res.code === 'Request.requestAttachment.requestAttachmentNotFound'
+          ) {
+            openModal({
+              type: 'NoRequestAttachmentModal',
+              children: (
+                <CustomModalV2
+                  vary='error-report'
+                  title='No files'
+                  subtitle='There are no files in the request.'
+                  soloButton
+                  onClick={() => closeModal('NoRequestModal')}
+                  onClose={() => closeModal('NoRequestModal')}
+                  rightButtonText='Okay'
+                />
+              ),
+            })
+          }
+        } else {
+          const files = res.data || []
+          openModal({
+            type: 'ImportFileModal',
+            children: (
+              <SourceFileUpload
+                info={selectedJobInfo?.jobInfo.pro!}
+                row={selectedJobInfo?.jobInfo!}
+                type='import'
+                importFile={files}
+                statusList={jobStatusList || []}
+              />
+            ),
+          })
+        }
       })
     }
   }
@@ -1414,7 +1624,11 @@ const JobDetail = () => {
     }
   }, [jobInfoList, jobPriceList, jobAssignList, jobRequestHistoryList])
 
-  console.log(getItem(), 'get Item main')
+  useEffect(() => {
+    if (sourceFiles) {
+      setSourceFileList(sourceFiles)
+    }
+  }, [sourceFiles])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -2240,14 +2454,31 @@ const JobDetail = () => {
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
                             {selectedJobUpdatable() && (
-                              <Button
-                                fullWidth
-                                variant='contained'
-                                sx={{ mt: '8px' }}
-                                onClick={() => onClickUploadSourceFile()}
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  mt: '8px',
+                                }}
                               >
-                                Upload files
-                              </Button>
+                                <Button
+                                  fullWidth
+                                  variant='contained'
+                                  sx={{ display: 'flex', flex: 1 }}
+                                  onClick={() => onClickUploadSourceFile()}
+                                >
+                                  Upload files
+                                </Button>
+                                <Button
+                                  fullWidth
+                                  variant='contained'
+                                  sx={{ display: 'flex', flex: 1 }}
+                                  onClick={() => onClickImportFiles()}
+                                >
+                                  Import files
+                                </Button>
+                              </Box>
                             )}
                             {sourceFileList && sourceFileList.length > 0
                               ? Object.entries(
@@ -2258,6 +2489,7 @@ const JobDetail = () => {
                                         acc[date] = []
                                       }
                                       acc[date].push(cur)
+                                      acc[date].sort((a, b) => a.id - b.id)
                                       return acc
                                     },
                                     {},
@@ -2296,8 +2528,13 @@ const JobDetail = () => {
                                             padding: '4px',
                                           }}
                                           onClick={() => {
+                                            console.log(value)
+
                                             DownloadAllFiles(
-                                              value,
+                                              value.filter(
+                                                value =>
+                                                  value.downloadAvailable,
+                                              ),
                                               S3FileType.JOB,
                                             )
                                           }}
