@@ -199,7 +199,7 @@ const ProJobsDetail = () => {
 
   const onClickGlosub = () => {
     window.open(
-      `https://glosub-dev.gloground.com/?jobId=${id}&token=${getUserTokenFromBrowser()}`,
+      `https://glosub-dev.gloground.com/?jobId=${id}&token=${getUserTokenFromBrowser()}&role=PRO`,
       '_blank',
     )
   }

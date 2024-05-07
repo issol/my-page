@@ -153,17 +153,23 @@ import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/
 import RequestHistory from './components/request-history'
 import { ErrorBoundary } from 'react-error-boundary'
 import Error500 from '@src/pages/500'
+import {
+  getCurrentRole,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
 export type TabType = 'linguistTeam' | 'pro'
 const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
+const subtitleExtensions = ['srt', 'dxfp', 'itt', 'cap']
 const JobDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const currentRole = getCurrentRole()
   const ability = useContext(AbilityContext)
 
   const { openModal, closeModal } = useModal()
@@ -1414,6 +1420,99 @@ const JobDetail = () => {
     )
   }
 
+  const viewProgressInfoButtonStatus = () => {
+    const status = selectedJobInfo?.jobInfo.status
+    if (status) {
+      if (
+        status === 60200 ||
+        status === 60250 ||
+        status === 60300 ||
+        status === 60400
+      ) {
+        return 'active'
+      } else {
+        if (status === 60000 || status === 60100) {
+          return 'No Pro has been assigned to this job yet.'
+        } else if (status === 60110) {
+          return 'This job is not in progress yet.'
+        } else if (
+          status === 60500 ||
+          status === 60600 ||
+          status === 60700 ||
+          status === 60800 ||
+          status === 60900
+        ) {
+          return 'This job is already completed.'
+        } else if (status === 601000 || status === 601100) {
+          return 'This job is no longer available.'
+        } else {
+          return 'deActive'
+        }
+      }
+    } else {
+      return 'deActive'
+    }
+  }
+
+  const reviewInGlosubButtonStatus = () => {
+    const status = selectedJobInfo?.jobInfo.status
+
+    if (status) {
+      if (
+        status === 60600 ||
+        status === 60700 ||
+        status === 60800 ||
+        status === 60900
+      ) {
+        return 'This job is already completed.'
+      } else if (status === 601000 || status === 601100) {
+        return 'This job is no longer available.'
+      } else {
+        return 'active'
+      }
+    } else {
+      return 'deActive'
+    }
+  }
+
+  const onClickViewProgressInfoButton = () => {
+    openModal({
+      type: 'ViewProgressInfoModal',
+      isCloseable: true,
+      children: (
+        <CustomModalV2
+          title='View job progress'
+          subtitle='You can see the progress of a Pro’s job in Glosub. You can view the draft saves that the Pro hasn’t delivered yet, but cannot edit them.'
+          vary='info'
+          rightButtonText=''
+          noButton
+          onClose={() => closeModal('ViewProgressInfoModal')}
+          onClick={() => closeModal('ViewProgressInfoModal')}
+          closeButton
+        />
+      ),
+    })
+  }
+
+  const onClickReviewInGloSubInfoButton = () => {
+    openModal({
+      type: 'reviewInGlosubInfoModal',
+      isCloseable: true,
+      children: (
+        <CustomModalV2
+          title='Review in GloSub'
+          subtitle='Subtitle files among the target files that a Pro delivered can be reviewed in Glosub. You can review only the files that have been delivered by the Pro in the Target files from Pro section, and cannot review draft saves.'
+          vary='info'
+          rightButtonText=''
+          noButton
+          onClose={() => closeModal('reviewInGlosubInfoModal')}
+          onClick={() => closeModal('reviewInGlosubInfoModal')}
+          closeButton
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
@@ -2393,12 +2492,144 @@ const JobDetail = () => {
               >
                 <Box
                   sx={{
-                    padding: '20px',
-                    height: '64px',
+                    // padding: '20px',
+                    padding:
+                      jobDeliveriesFeedbacks?.deliveries &&
+                      jobDeliveriesFeedbacks?.deliveries.length > 0 &&
+                      jobDeliveriesFeedbacks.deliveries
+                        .flatMap(delivery => delivery.files)
+                        .some(file =>
+                          subtitleExtensions.includes(
+                            file.name.split('.').pop()?.toLowerCase() ?? '',
+                          ),
+                        )
+                        ? '20px'
+                        : '14px 20px',
+                    // height:
                     minHeight: '64px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
                     borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                   }}
-                ></Box>
+                >
+                  {sourceFileList.some(file =>
+                    videoExtensions.includes(
+                      file.name.split('.').pop()?.toLowerCase() ?? '',
+                    ),
+                  ) ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '100%',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Tooltip
+                        title={viewProgressInfoButtonStatus()}
+                        disableHoverListener={
+                          viewProgressInfoButtonStatus() === 'active'
+                        }
+                      >
+                        <Box sx={{ width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            disabled={
+                              viewProgressInfoButtonStatus() !== 'active'
+                            }
+                            sx={{ borderColor: '#B3B6FF' }}
+                            onClick={() => {
+                              window.open(
+                                `https://glosub-dev.gloground.com/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              src='/images/icons/job-icons/glosub.svg'
+                              alt=''
+                              width={20}
+                              height={20}
+                            />
+                            &nbsp; View job progress
+                          </Button>
+                        </Box>
+                      </Tooltip>
+
+                      <IconButton
+                        sx={{ padding: 0 }}
+                        onClick={onClickViewProgressInfoButton}
+                      >
+                        <Icon
+                          icon='material-symbols:info-outline'
+                          fontSize={20}
+                          color='#8D8E9A'
+                        ></Icon>
+                      </IconButton>
+                    </Box>
+                  ) : null}
+                  {jobDeliveriesFeedbacks?.deliveries &&
+                  jobDeliveriesFeedbacks?.deliveries.length > 0 &&
+                  jobDeliveriesFeedbacks.deliveries
+                    .flatMap(delivery => delivery.files)
+                    .some(file =>
+                      subtitleExtensions.includes(
+                        file.name.split('.').pop()?.toLowerCase() ?? '',
+                      ),
+                    ) ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '100%',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Tooltip
+                        title={reviewInGlosubButtonStatus()}
+                        disableHoverListener={
+                          reviewInGlosubButtonStatus() === 'active'
+                        }
+                      >
+                        <Box sx={{ width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            disabled={reviewInGlosubButtonStatus() !== 'active'}
+                            sx={{ borderColor: '#B3B6FF' }}
+                            onClick={() => {
+                              window.open(
+                                `https://glosub-dev.gloground.com/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}&mode=qc`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              src='/images/icons/job-icons/glosub.svg'
+                              alt=''
+                              width={20}
+                              height={20}
+                            />
+                            &nbsp; Review in GloSub
+                          </Button>
+                        </Box>
+                      </Tooltip>
+
+                      <IconButton
+                        sx={{ padding: 0 }}
+                        onClick={onClickReviewInGloSubInfoButton}
+                      >
+                        <Icon
+                          icon='material-symbols:info-outline'
+                          fontSize={20}
+                          color='#8D8E9A'
+                        ></Icon>
+                      </IconButton>
+                    </Box>
+                  ) : null}
+                </Box>
                 {value === 'info' && selectedJobInfo?.jobInfo ? (
                   <Box
                     sx={{
