@@ -6,4 +6,6 @@ export type FileType = {
   file?: string
   createdAt?: string
   downloadAvailable?: boolean
+  isImported?: boolean
+  isSelected?: boolean
 }

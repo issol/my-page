@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react'
 import {
   Box,
   Button,
+  Checkbox,
   Divider,
   IconButton,
   Tooltip,
@@ -29,6 +30,7 @@ import {
   useMutation,
 } from 'react-query'
 import {
+  importFileFromRequest,
   setFileLock,
   setFileUnlock,
   uploadFile,
@@ -53,6 +55,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
 import Image from 'next/image'
+import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 
 type Props = {
   info:
@@ -70,6 +73,7 @@ type Props = {
     fileName: string
     filePath: string
     fileSize: number
+    isImported: boolean
   }[]
   statusList: {
     value: number
@@ -93,6 +97,10 @@ const SourceFileUpload = ({
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<FileType[]>([])
+
+  const { data: requestData } = useGetClientRequestDetail(
+    Number(row.order.requestId),
+  )
 
   const [groupedFiles, setGroupedFiles] = useState<
     { createdAt: string; data: FileType[] }[]
@@ -136,11 +144,44 @@ const SourceFileUpload = ({
     },
   )
 
+  const importFileMutation = useMutation(
+    (file: {
+      jobId: number
+      files: Array<{
+        fileExtension: string
+        fileName: string
+        filePath: string
+        fileSize: number
+        downloadAvailable: boolean
+      }>
+    }) => importFileFromRequest(file.jobId, file.files),
+    {
+      onSuccess: (data, variables) => {
+        const files = variables.files
+        closeModal('ImportFileModal')
+
+        // files.map(value => {
+        //   const id = data.find(
+        //     (item: any) => item.fileName === value.fileName,
+        //   ).id
+        //   if (!value.downloadAvailable) {
+        //     setFileLock(id)
+        //   } else {
+        //     setFileUnlock(id)
+        //   }
+        // })
+        setFiles([])
+        refetchSourceFileList()
+      },
+    },
+  )
+
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       ...srtUploadFileExtension.accept,
     },
     noDragEventsBubbling: true,
+    disabled: type === 'import',
     onDrop: (acceptedFiles: File[]) => {
       console.log(acceptedFiles)
 
@@ -251,65 +292,94 @@ const SourceFileUpload = ({
   }
 
   const onSubmit = () => {
-    if (files.length) {
-      const fileInfo: {
-        jobId: number
-        files: Array<{
-          jobId: number
-          size: number
-          name: string
-          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-          downloadAvailable: boolean
-        }>
-      } = {
+    if (type === 'import') {
+      const fileList: {
+        fileExtension: string
+        fileName: string
+        filePath: string
+        fileSize: number
+        downloadAvailable: boolean
+      }[] = files
+        .filter(value => value.isSelected)
+        .map(file => {
+          return {
+            fileExtension: file.type!,
+            fileName: file.name,
+            filePath: file.file!,
+            fileSize: file.size,
+            downloadAvailable: file.downloadAvailable ?? false,
+          }
+        })
+      const fileInfo = {
         jobId: row.id,
-        files: [],
+        files: fileList,
       }
-      const paths: string[] = files.map(file => {
-        // console.log(file.name)
+      importFileMutation.mutate(fileInfo)
+    } else {
+      if (files.length) {
+        const fileInfo: {
+          jobId: number
+          files: Array<{
+            jobId: number
+            size: number
+            name: string
+            type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+            downloadAvailable: boolean
+          }>
+        } = {
+          jobId: row.id,
+          files: [],
+        }
+        const paths: string[] = files.map(file => {
+          // console.log(file.name)
 
-        return `project/${row.id}/source/${file.name}`
-      })
-      // console.log(paths)
-
-      const s3URL = paths.map(value => {
-        return getUploadUrlforCommon('job', value).then(res => {
-          return res.url
+          return `project/${row.id}/source/${file.name}`
         })
-      })
-      // console.log(s3URL)
+        // console.log(paths)
 
-      Promise.all(s3URL).then(res => {
-        const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.files.push({
-            jobId: row.id,
-            size: files[idx].size,
-            name: files[idx].name,
-            type: 'SOURCE',
-            downloadAvailable: files[idx].downloadAvailable ?? false,
+        const s3URL = paths.map(value => {
+          return getUploadUrlforCommon('job', value).then(res => {
+            return res.url
           })
-          return uploadFileToS3(url, files[idx])
         })
-        Promise.all(promiseArr)
-          .then(res => {
-            uploadFileMutation.mutate(fileInfo)
+        // console.log(s3URL)
+
+        Promise.all(s3URL).then(res => {
+          const promiseArr = res.map((url: string, idx: number) => {
+            fileInfo.files.push({
+              jobId: row.id,
+              size: files[idx].size,
+              name: files[idx].name,
+              type: 'SOURCE',
+              downloadAvailable: files[idx].downloadAvailable ?? false,
+            })
+            return uploadFileToS3(url, files[idx])
           })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
-      })
+          Promise.all(promiseArr)
+            .then(res => {
+              uploadFileMutation.mutate(fileInfo)
+            })
+            .catch(err =>
+              toast.error(
+                'Something went wrong while uploading files. Please try again.',
+                {
+                  position: 'bottom-left',
+                },
+              ),
+            )
+        })
+      }
     }
   }
 
   useEffect(() => {
     if (sourceFileList) {
       let result = 0
-      files.forEach((file: FileType) => (result += file.size))
+      files.forEach((file: FileType) => {
+        type === 'import'
+          ? file.isSelected && (result += file.size)
+          : (result += file.size)
+      })
 
       sourceFileList.forEach(
         (file: { name: string; size: number }) => (result += Number(file.size)),
@@ -334,6 +404,22 @@ const SourceFileUpload = ({
       setGroupedFiles(groupedFiles)
     }
   }, [sourceFileList, files])
+
+  useEffect(() => {
+    if (importFile.length > 0 && type === 'import') {
+      setFiles(
+        importFile.map(value => ({
+          name: value.fileName,
+          size: value.fileSize,
+          type: value.fileExtension,
+          file: value.filePath,
+          downloadAvailable: false,
+          isImported: value.isImported,
+          isSelected: false,
+        })),
+      )
+    }
+  }, [importFile])
 
   return (
     <Box
@@ -404,9 +490,21 @@ const SourceFileUpload = ({
                 <Typography variant='subtitle1' fontWeight={600}>
                   Source file to Pro
                 </Typography>
-                <Typography variant='subtitle2'>
+                <Typography
+                  variant='subtitle2'
+                  color={
+                    fileSize > 100 * 1024 * 1024 * 1024
+                      ? '#FF4D49'
+                      : '#4C4E6499'
+                  }
+                >
                   {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
+                {fileSize > 100 * 1024 * 1024 * 1024 && (
+                  <Typography fontSize={14} fontWeight={600} color='#FF4D49'>
+                    Maximum size exceeded
+                  </Typography>
+                )}
               </Box>
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Icon icon='mdi:lock' fontSize={20} />
@@ -536,7 +634,6 @@ const SourceFileUpload = ({
           <div
             {...getRootProps({
               className: 'dropzone',
-              // onClick: event => event.stopPropagation(),
             })}
           >
             <Box
@@ -547,21 +644,26 @@ const SourceFileUpload = ({
                 padding: '20px',
               }}
             >
-              <Button
-                variant='outlined'
-                disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
-                  row.status,
-                )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
-                onClick={() => console.log('hi')}
-              >
-                <input {...getInputProps()} />
-                <Icon
-                  icon='ic:baseline-attachment'
-                  color='#666CFF'
-                  fontSize={18}
-                ></Icon>
-                &nbsp; Upload files
-              </Button>
+              {type === 'import' ? (
+                <Typography color='#666CFF' fontWeight={600} fontSize={14}>
+                  Linked Request: {requestData?.corporationId}
+                </Typography>
+              ) : (
+                <Button
+                  variant='outlined'
+                  disabled={[
+                    60500, 60600, 60700, 601000, 60800, 60900,
+                  ].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+                >
+                  <input {...getInputProps()} />
+                  <Icon
+                    icon='ic:baseline-attachment'
+                    color='#666CFF'
+                    fontSize={18}
+                  ></Icon>
+                  &nbsp; Upload files
+                </Button>
+              )}
 
               {files.length > 0 && (
                 <Box
@@ -575,120 +677,158 @@ const SourceFileUpload = ({
                 >
                   {files.map((file: FileType, index: number) => {
                     return (
-                      <Box
-                        key={uuidv4()}
-                        sx={{
-                          display: 'flex',
-                          marginBottom: '8px',
-                          width: '100%',
-                          justifyContent: 'space-between',
-                          borderRadius: '8px',
-                          padding: '10px 12px',
-                          border: '1px solid rgba(76, 78, 100, 0.22)',
-                          background: '#f9f8f9',
-                        }}
-                      >
+                      <Box key={uuidv4()}>
                         <Box
                           sx={{
                             display: 'flex',
-                            alignItems: 'center',
+                            marginBottom: type === 'import' ? 0 : '8px',
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            borderRadius: '8px',
+                            padding: '10px 12px',
+                            border: '1px solid rgba(76, 78, 100, 0.22)',
+                            background: '#f9f8f9',
                           }}
                         >
                           <Box
                             sx={{
-                              marginRight: '8px',
                               display: 'flex',
+                              alignItems: 'center',
                             }}
                           >
-                            <Icon
-                              icon='material-symbols:file-present-outline'
-                              style={{
-                                color: 'rgba(76, 78, 100, 0.54)',
-                              }}
-                              fontSize={24}
-                            />
-                          </Box>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                            }}
-                          >
-                            <Tooltip title={file.name}>
-                              <Typography
-                                variant='body1'
-                                fontSize={14}
-                                fontWeight={600}
-                                lineHeight={'20px'}
-                                sx={{
-                                  overflow: 'hidden',
-                                  wordBreak: 'break-all',
-                                  textOverflow: 'ellipsis',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 1,
-                                  WebkitBoxOrient: 'vertical',
+                            {type === 'import' ? (
+                              <Checkbox
+                                checked={file.isSelected}
+                                value={file.isSelected}
+                                onChange={event => {
+                                  event.stopPropagation()
+                                  file.isSelected = !file.isSelected
+                                  setFiles(prevFiles =>
+                                    prevFiles.map(f =>
+                                      f.name === file.name ? file : f,
+                                    ),
+                                  )
                                 }}
-                              >
-                                {file.name}
-                              </Typography>
-                            </Tooltip>
+                              />
+                            ) : null}
 
-                            <Typography variant='caption' lineHeight={'14px'}>
-                              {formatFileSize(file.size)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          {' '}
-                          {videoExtensions.includes(
-                            file.name?.split('.').pop()?.toLowerCase() ?? '',
-                          ) ? (
                             <Box
                               sx={{
-                                alignItems: 'center',
+                                marginRight: '8px',
                                 display: 'flex',
-                                // color: file.downloadAvailable
-                                //   ? '#4C4E64'
-                                //   : 'rgba(76, 78, 100, 0.54)',
-                                cursor: 'pointer',
-                                padding: '4px',
-                              }}
-                              onClick={event => {
-                                event.stopPropagation()
-                                file.downloadAvailable = !file.downloadAvailable
-                                setFiles(prevFiles =>
-                                  prevFiles.map(f =>
-                                    f.name === file.name ? file : f,
-                                  ),
-                                )
-                                // handleRemoveFile(file)
                               }}
                             >
-                              <Icon
-                                icon={
-                                  file.downloadAvailable
-                                    ? 'mdi:unlocked-outline'
-                                    : 'mdi:lock'
-                                }
-                                fontSize={20}
+                              <Image
+                                src={`/images/icons/file-icons/${
+                                  videoExtensions.includes(
+                                    file.name
+                                      ?.split('.')
+                                      .pop()
+                                      ?.toLowerCase() ?? '',
+                                  )
+                                    ? 'video'
+                                    : 'document'
+                                }.svg`}
+                                alt=''
+                                width={32}
+                                height={32}
                               />
                             </Box>
-                          ) : null}
-                          <Box
-                            sx={{
-                              alignItems: 'center',
-                              display: 'flex',
-                              color: 'rgba(76, 78, 100, 0.54)',
-                              cursor: 'pointer',
-                              padding: '4px',
-                            }}
-                            onClick={event => {
-                              handleRemoveFile(file)
-                            }}
-                          >
-                            <Icon icon='mdi:close' fontSize={20} />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <Tooltip title={file.name}>
+                                <Typography
+                                  variant='body1'
+                                  fontSize={14}
+                                  fontWeight={600}
+                                  lineHeight={'20px'}
+                                  sx={{
+                                    overflow: 'hidden',
+                                    wordBreak: 'break-all',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 1,
+                                    WebkitBoxOrient: 'vertical',
+                                  }}
+                                >
+                                  {file.name}
+                                </Typography>
+                              </Tooltip>
+
+                              <Typography variant='caption' lineHeight={'14px'}>
+                                {formatFileSize(file.size)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {' '}
+                            {videoExtensions.includes(
+                              file.name?.split('.').pop()?.toLowerCase() ?? '',
+                            ) ? (
+                              <Box
+                                sx={{
+                                  alignItems: 'center',
+                                  display: 'flex',
+                                  // color: file.downloadAvailable
+                                  //   ? '#4C4E64'
+                                  //   : 'rgba(76, 78, 100, 0.54)',
+                                  cursor: 'pointer',
+                                  padding: '4px',
+                                }}
+                                onClick={event => {
+                                  event.stopPropagation()
+                                  file.downloadAvailable =
+                                    !file.downloadAvailable
+                                  setFiles(prevFiles =>
+                                    prevFiles.map(f =>
+                                      f.name === file.name ? file : f,
+                                    ),
+                                  )
+                                  // handleRemoveFile(file)
+                                }}
+                              >
+                                <Icon
+                                  icon={
+                                    file.downloadAvailable
+                                      ? 'mdi:unlocked-outline'
+                                      : 'mdi:lock'
+                                  }
+                                  fontSize={20}
+                                />
+                              </Box>
+                            ) : null}
+                            {type === 'import' ? null : (
+                              <Box
+                                sx={{
+                                  alignItems: 'center',
+                                  display: 'flex',
+                                  color: 'rgba(76, 78, 100, 0.54)',
+                                  cursor: 'pointer',
+                                  padding: '4px',
+                                }}
+                                onClick={event => {
+                                  handleRemoveFile(file)
+                                }}
+                              >
+                                <Icon icon='mdi:close' fontSize={20} />
+                              </Box>
+                            )}
                           </Box>
                         </Box>
+                        {type === 'import' && file.isImported ? (
+                          <Typography
+                            sx={{ textAlign: 'right' }}
+                            fontSize={12}
+                            fontStyle={'italic'}
+                            color='#666CFF'
+                          >
+                            Already imported
+                          </Typography>
+                        ) : null}
                       </Box>
                     )
                   })}
@@ -701,10 +841,14 @@ const SourceFileUpload = ({
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '32px' }}>
           <Button
             variant='contained'
-            disabled={files.length === 0}
+            disabled={
+              files.length === 0 ||
+              fileSize > 100 * 1024 * 1024 * 1024 ||
+              files.some(file => !file.isSelected)
+            }
             onClick={onSubmit}
           >
-            Send
+            {type === 'import' ? 'Import' : 'Send'}
           </Button>
         </Box>
       </Box>

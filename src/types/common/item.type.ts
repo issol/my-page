@@ -77,7 +77,7 @@ export type JobItemType = {
 
 export type JobType = {
   id: number
-  order: { id: number }
+  order: { id: number; requestId: number }
   authorId: number
   corporationId: string
   templateId: number | null

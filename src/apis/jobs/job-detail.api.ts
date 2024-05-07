@@ -632,3 +632,23 @@ export const setFileLock = async (fileId: number) => {
 export const setFileUnlock = async (fileId: number) => {
   await axios.patch(`/api/enough/u/job/file/${fileId}/unlock`)
 }
+
+export const importFileFromRequest = async (
+  jobId: number,
+  files: {
+    fileExtension: string
+    fileName: string
+    filePath: string
+    fileSize: number
+    downloadAvailable: boolean
+  }[],
+) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/${jobId}/import-request-attachment`,
+    {
+      targetFileData: files,
+    },
+  )
+
+  return data
+}
