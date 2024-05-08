@@ -247,10 +247,13 @@ const ProJobInfo = ({
           createdAt: curr.createdAt!,
           data: [curr],
           isDownloaded: curr.isDownloaded!,
+          // downloadAvailable: curr.downloadAvailable!,
         })
       }
       return acc
     }, [])
+
+  console.log(groupedFiles)
 
   const fileList = jobInfo.files
     ?.filter(value => {
@@ -1083,12 +1086,16 @@ const ProJobInfo = ({
               <Box
                 sx={{
                   padding: '0 20px',
-                  overflow: 'scroll',
+                  overflowY: 'scroll',
                   marginBottom: '12px',
                   maxHeight: '300px',
                   // height: '300px',
 
-                  '&::-webkit-scrollbar': { display: 'none' },
+                  '&::-webkit-scrollbar': { width: 4 },
+                  '&::-webkit-scrollbar-thumb': {
+                    borderRadius: 20,
+                    background: '#CCCCCC',
+                  },
                 }}
               >
                 {/* {fileList?.length > 0 ? fileList : null} */}
@@ -1212,6 +1219,7 @@ const ProJobInfo = ({
                                         sx={{
                                           display: 'flex',
                                           alignItems: 'center',
+                                          padding: '4px',
                                         }}
                                       >
                                         <Icon
@@ -1224,7 +1232,7 @@ const ProJobInfo = ({
                                   ) : (
                                     <IconButton
                                       onClick={() => downloadOneFile(item)}
-                                      sx={{ padding: 0 }}
+                                      sx={{ padding: '4px' }}
                                     >
                                       <Icon icon='mdi:download' fontSize={24} />
                                     </IconButton>

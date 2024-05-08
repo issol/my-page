@@ -404,29 +404,30 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-
-              <FormControlLabel
-                label='Deliver without files'
-                sx={{
-                  alignItems: 'start',
-                  marginRight: 0,
-                  '& .MuiFormControlLabel-label': {
-                    fontSize: '14px',
-                    marginTop: '4px',
-                    color: 'rgba(76, 78, 100, 0.60)',
-                  },
-                }}
-                control={
-                  <Checkbox
-                    size='small'
-                    checked={withoutFiles}
-                    sx={{ padding: '4px 9px 9px 9px' }}
-                    onChange={handleChange}
-                    name='controlled'
-                    disabled={files.length > 0 || jobInfo.status === 601000}
-                  />
-                }
-              />
+              {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+                <FormControlLabel
+                  label='Deliver without files'
+                  sx={{
+                    alignItems: 'start',
+                    marginRight: 0,
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: '14px',
+                      marginTop: '4px',
+                      color: 'rgba(76, 78, 100, 0.60)',
+                    },
+                  }}
+                  control={
+                    <Checkbox
+                      size='small'
+                      checked={withoutFiles}
+                      sx={{ padding: '4px 9px 9px 9px' }}
+                      onChange={handleChange}
+                      name='controlled'
+                      disabled={files.length > 0 || jobInfo.status === 601000}
+                    />
+                  }
+                />
+              )}
             </Box>
             {!NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) &&
               !withoutFiles && (
@@ -613,22 +614,27 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Box>
               </>
             )}
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <Button
-                variant='contained'
-                sx={{ width: '134px' }}
-                onClick={onClickSubmit}
-                disabled={withoutFiles ? false : files.length === 0}
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                }}
               >
-                Submit
-              </Button>
-            </Box>
-            <Divider />
+                <Button
+                  variant='contained'
+                  sx={{ width: '134px' }}
+                  onClick={onClickSubmit}
+                  disabled={withoutFiles ? false : files.length === 0}
+                >
+                  Submit
+                </Button>
+              </Box>
+            )}
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              <Divider />
+            )}
+
             {data && data.deliveries.length > 0 ? (
               <Deliveries
                 delivery={data.deliveries}

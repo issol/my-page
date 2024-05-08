@@ -60,6 +60,9 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
           borderTop: '1px solid #D8D8DD !important',
           margin: '0 !important',
         },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
       }}
     >
       {delivery.map(value => {
@@ -73,15 +76,19 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
               boxShadow: 'none !important',
               border: '1px solid #D8D8DD',
               margin: '0 !important',
-              // position: 'initial',
-
-              // padding: '20px',
             }}
             disableGutters
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
-              sx={{ padding: '20px', background: '#F7F8FF' }}
+              sx={{
+                padding:
+                  expanded === value.id.toString() ? '20px' : '12px 20px',
+                background: '#F7F8FF',
+                '& .MuiAccordionSummary-content': {
+                  margin: 0,
+                },
+              }}
             >
               <Box
                 sx={{
