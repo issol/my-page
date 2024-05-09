@@ -42,6 +42,8 @@ import { saveUserDataToBrowser } from '@src/shared/auth/storage'
 import { currentRoleSelector } from '@src/states/permission'
 import { useRouter } from 'next/router'
 import { authState } from '@src/states/auth'
+import FallbackSpinner from '@src/@core/components/spinner'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { UseFormGetValues } from 'react-hook-form'
 import { ProPersonalInfo } from '@src/types/sign/personalInfoTypes'
 
@@ -463,31 +465,25 @@ const NDASigned = ({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <Box
-        sx={{
-          width: type === 'certi' ? '782px' : '100%',
-          margin: type === 'certi' ? '0 auto' : 0,
+    <>
+      {loading ? <OverlaySpinner /> : null}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <Box
+          sx={{
+            width: type === 'certi' ? '782px' : '100%',
+            margin: type === 'certi' ? '0 auto' : 0,
 
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-          border: '1px solid #D8D8DD',
-          borderRadius: '10px',
-          padding: '20px',
-        }}
-      >
-        <StyledViewer id='downloadItem'>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              // gap: '20px',
-            }}
-          >
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            border: '1px solid #D8D8DD',
+            borderRadius: '10px',
+            padding: '20px',
+          }}
+        >
+          <StyledViewer id='downloadItem'>
             <Box
               sx={{
-                // padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 // gap: '20px',
@@ -495,147 +491,160 @@ const NDASigned = ({
             >
               <Box
                 sx={{
+                  // padding: '20px',
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '20px',
+                  flexDirection: 'column',
+                  // gap: '20px',
                 }}
               >
-                <Typography variant='h6'>[{language} NDA]</Typography>
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '4px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '20px',
                   }}
                 >
-                  <Typography
-                    fontSize={14}
-                    fontWeight={language === 'KOR' ? 400 : 600}
-                    color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
-                  >
-                    English
-                  </Typography>
-                  <Switch
-                    checked={language === 'KOR'}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      setLanguage(event.target.checked ? 'KOR' : 'ENG')
-                    }}
-                    inputProps={{ 'aria-label': 'controlled' }}
+                  <Typography variant='h6'>[{language} NDA]</Typography>
+                  <Box
                     sx={{
-                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                        color: '#666CFF',
-                        '.MuiSwitch-thumb': {
-                          color: '#666CFF',
-                        },
-                      },
-                      '.MuiSwitch-track': {
-                        backgroundColor: '#666CFF',
-                      },
+                      display: 'flex',
+                      gap: '4px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                  />
-                  <Typography
-                    fontSize={14}
-                    fontWeight={language === 'KOR' ? 600 : 400}
-                    color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
                   >
-                    Korean
-                  </Typography>
+                    <Typography
+                      fontSize={14}
+                      fontWeight={language === 'KOR' ? 400 : 600}
+                      color={language === 'KOR' ? '#BDBDBD' : '#666CFF'}
+                    >
+                      English
+                    </Typography>
+                    <Switch
+                      checked={language === 'KOR'}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        setLanguage(event.target.checked ? 'KOR' : 'ENG')
+                      }}
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                    />
+                    <Typography
+                      fontSize={14}
+                      fontWeight={language === 'KOR' ? 600 : 400}
+                      color={language === 'KOR' ? '#666CFF' : '#BDBDBD'}
+                    >
+                      Korean
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-            <Divider />
-            <Box
-              id='downloadItem'
-              sx={{
-                maxHeight: '570px',
-                overflowY: 'scroll',
-                '&::-webkit-scrollbar': {
-                  width: 4,
-                },
+              <Divider />
+              <Box
+                id='downloadItem'
+                sx={{
+                  maxHeight: '570px',
+                  overflowY: 'scroll',
+                  '&::-webkit-scrollbar': {
+                    width: 4,
+                  },
 
-                '&::-webkit-scrollbar-thumb': {
-                  borderRadius: 10,
-                  background: '#aaa',
-                },
-              }}
+                  '&::-webkit-scrollbar-thumb': {
+                    borderRadius: 10,
+                    background: '#aaa',
+                  },
+                }}
+              >
+                <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
+              </Box>
+            </Box>
+          </StyledViewer>
+          {type === 'certi' ? null : <Divider />}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+              width: '100%',
+            }}
+          >
+            <Typography
+              variant={type === 'certi' ? 'body2' : 'body1'}
+              fontSize={14}
             >
-              <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
+              After the initial agreement, you can access the signed NDA on My
+              page.
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Checkbox
+                checked={type === 'certi' ? checked : signNDA}
+                onChange={handleChange}
+              />
+              <Typography
+                variant='body1'
+                fontWeight={type === 'certi' ? 500 : 600}
+              >
+                I agree to the terms and conditions.
+              </Typography>
             </Box>
           </Box>
-        </StyledViewer>
-        {type === 'certi' ? null : <Divider />}
+          {type === 'certi' ? (
+            <Box
+              sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
+            >
+              <Button variant='outlined' onClick={onClickClose}>
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!checked}
+                onClick={onClickSubmit}
+              >
+                Submit
+              </Button>
+            </Box>
+          ) : null}
+        </Box>
+
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            width: '100%',
+            padding: '10px 20px',
+            background: '#FFF6E5',
+            borderRadius: '10px',
           }}
         >
-          <Typography
-            variant={type === 'certi' ? 'body2' : 'body1'}
-            fontSize={14}
-          >
-            After the initial agreement, you can access the signed NDA on My
-            page.
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Checkbox
-              checked={type === 'certi' ? checked : signNDA}
-              onChange={handleChange}
-            />
-            <Typography
-              variant='body1'
-              fontWeight={type === 'certi' ? 500 : 600}
-            >
-              I agree to the terms and conditions.
-            </Typography>
-          </Box>
+          <ul style={{ margin: '0 !important', paddingLeft: '20px' }}>
+            <li>
+              <Typography fontSize={14} fontWeight={600}>
+                {language === 'ENG'
+                  ? 'This NDA is a document that must be signed before taking a test.'
+                  : '본 NDA는 추후에 테스트를 진행하기 위해 사전에 작성하는 서류이며, '}
+              </Typography>
+            </li>
+            <li>
+              <Typography fontSize={14}>
+                {language === 'ENG'
+                  ? 'Completing the NDA does not guarantee that you will be able to take a test or onboard immediately.'
+                  : 'NDA를 작성해도 바로 테스트 응시나 온보딩이 가능한 것은 아닙니다.'}
+              </Typography>
+            </li>
+          </ul>
         </Box>
-        {type === 'certi' ? (
-          <Box sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
-            <Button variant='outlined' onClick={onClickClose}>
-              Close
-            </Button>
-            <Button
-              variant='contained'
-              disabled={!checked}
-              onClick={onClickSubmit}
-            >
-              Submit
-            </Button>
-          </Box>
-        ) : null}
       </Box>
-
-      <Box
-        sx={{
-          display: 'flex',
-          padding: '10px 20px',
-          background: '#FFF6E5',
-          borderRadius: '10px',
-        }}
-      >
-        <ul style={{ margin: '0 !important', paddingLeft: '20px' }}>
-          <li>
-            <Typography fontSize={14} fontWeight={600}>
-              {language === 'ENG'
-                ? 'This NDA is a document that must be signed before taking a test.'
-                : '본 NDA는 추후에 테스트를 진행하기 위해 사전에 작성하는 서류이며, '}
-            </Typography>
-          </li>
-          <li>
-            <Typography fontSize={14}>
-              {language === 'ENG'
-                ? 'Completing the NDA does not guarantee that you will be able to take a test or onboard immediately.'
-                : 'NDA를 작성해도 바로 테스트 응시나 온보딩이 가능한 것은 아닙니다.'}
-            </Typography>
-          </li>
-        </ul>
-      </Box>
-    </Box>
+    </>
   )
 }
 

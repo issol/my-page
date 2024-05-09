@@ -276,10 +276,8 @@ const JobListCard = ({
   const onClickRow = (row: JobType, info: JobItemType) => {
     // TODO: 트리거 연결된 job인 경우 연결된 jobId를 배열로 보내야 함 (2024.03.19)
     const jobId = row.triggerGroup
-        ? groupedJobs[`${row.triggerGroup}`].map(
-            value => value.id,
-          )
-        : row.id
+      ? groupedJobs[`${row.triggerGroup}`].map(value => value.id)
+      : row.id
 
     router.push({
       pathname: '/orders/job-list/detail/',
@@ -548,10 +546,7 @@ const JobListCard = ({
     const groupedJobs = new Map<string, JobType[]>()
 
     jobList.forEach(job => {
-      const key =
-        job.triggerGroup
-          ? `${job.triggerGroup}`
-          : null
+      const key = job.triggerGroup ? `${job.triggerGroup}` : null
       if (key !== null) {
         if (!groupedJobs.has(key)) {
           groupedJobs.set(key, [])
@@ -723,9 +718,9 @@ const JobListCard = ({
 
                   let isHighlighted = false
                   if (row.triggerGroup && isHoverJobId) {
-                    isHighlighted = groupedJobs[
-                      `${row.triggerGroup}`
-                    ]?.some(value => value.id === isHoverJobId)
+                    isHighlighted = groupedJobs[`${row.triggerGroup}`]?.some(
+                      value => value.id === isHoverJobId,
+                    )
                   }
 
                   return (

@@ -297,6 +297,7 @@ export default function RecruitingEdit() {
         zone => zone.code === auth.getValue().user?.timezone?.code,
       )
       setValue('dueDateTimezone', getUserTimezone, setValueOptions)
+      setValue('dueDateTimezone', getUserTimezone, setValueOptions)
     }
   }, [currDueDate])
 

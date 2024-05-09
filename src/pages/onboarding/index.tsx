@@ -465,7 +465,7 @@ export default function Onboarding() {
           }
           return false
         })
-        const uniqueRole = _.uniqBy(row.jobInfo, 'role');
+        const uniqueRole = _.uniqBy(row.jobInfo, 'role')
         return <JobTypeRole jobInfo={uniqueRole} visibleType='role' />
       },
     },
@@ -569,7 +569,7 @@ export default function Onboarding() {
         target: target.map(value => value.value),
         testStatus: testStatus.map(value => value.value),
         experience: experience.map(value => value.value),
-        timezones: timezones?.map(value => value.label),
+        timezones: timezones.map(value => value.label),
         search: search,
         take: 500,
         skip: 0,

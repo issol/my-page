@@ -2046,62 +2046,52 @@ const JobDetail = () => {
                       selectedJobUpdatable() ? (
                         <Box
                           sx={{
-                            width: '100%',
-                            height: '100%',
                             display: 'flex',
-                            justifyContent: 'center',
+                            flexDirection: 'column',
                             alignItems: 'center',
                           }}
                         >
+                          <Image
+                            src='/images/icons/job-icons/required-lock.png'
+                            alt='lock'
+                            width={150}
+                            height={150}
+                            quality={100}
+                          />
                           <Box
                             sx={{
                               display: 'flex',
                               flexDirection: 'column',
-                              alignItems: 'center',
+                              gap: '4px',
+                              mt: '10px',
                             }}
                           >
-                            <Image
-                              src='/images/icons/job-icons/required-lock.png'
-                              alt='lock'
-                              width={150}
-                              height={150}
-                              quality={100}
-                            />
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '4px',
-                                mt: '10px',
-                              }}
-                            >
-                              <Typography fontSize={20} fontWeight={500}>
-                                Unfilled required field exists
-                              </Typography>
-                              <Typography fontSize={16} color='#8D8E9A'>
-                                Please enter all required fields first
-                              </Typography>
-                            </Box>
-                            <Button
-                              variant='contained'
-                              sx={{ mt: '32px' }}
-                              onClick={() => {
-                                if (!selectedJobInfo.jobInfo.name) {
-                                  setValue('info')
-                                } else if (!selectedJobInfo.jobPrices.priceId) {
-                                  setValue('prices')
-                                } else {
-                                  setValue('info')
-                                }
-                              }}
-                            >
-                              {!selectedJobInfo.jobInfo.name
-                                ? 'Fill out job info'
-                                : !selectedJobInfo.jobPrices.priceId
-                                  ? 'Fill out prices'
-                                  : 'Fill out job info'}
-                            </Button>
+                            <Typography fontSize={20} fontWeight={500}>
+                              Unfilled required field exists
+                            </Typography>
+                            <Typography fontSize={16} color='#8D8E9A'>
+                              Please enter all required fields first
+                            </Typography>
                           </Box>
+                          <Button
+                            variant='contained'
+                            sx={{ mt: '32px' }}
+                            onClick={() => {
+                              if (!selectedJobInfo.jobInfo.name) {
+                                setValue('info')
+                              } else if (!selectedJobInfo.jobPrices.priceId) {
+                                setValue('prices')
+                              } else {
+                                setValue('info')
+                              }
+                            }}
+                          >
+                            {!selectedJobInfo.jobInfo.name
+                              ? 'Fill out job info'
+                              : !selectedJobInfo.jobPrices.priceId
+                                ? 'Fill out prices'
+                                : 'Fill out job info'}
+                          </Button>
                         </Box>
                       ) : (
                         <Box
