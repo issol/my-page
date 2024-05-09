@@ -1,4 +1,5 @@
 import * as Type from '@glocalize-inc/glo-languages'
+import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 
 //GloLanguageEnum
 export const getGloLanguage = () => {
@@ -8,11 +9,14 @@ export const getGloLanguage = () => {
         if (label.isEnuffEnabled) {
           return {
             value,
-            label: label.name,
+            label: label.name as keyof typeof GloLanguageEnum,
           }
         }
       })
-      .filter(Boolean) as Array<{ value: string; label: string }>
+      .filter(Boolean) as Array<{
+      value: string
+      label: keyof typeof GloLanguageEnum
+    }>
   ).sort((a, b) => a.label.localeCompare(b.label))
 
   // return Object.entries(Type['GloLanguageEnum'])

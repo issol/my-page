@@ -26,7 +26,7 @@ type Props = {
   clientList: Array<{ clientId: number; name: string }>
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
 }
 
@@ -116,8 +116,10 @@ const Filters = ({
               getOptionLabel={option => option.label}
               value={
                 languageList.find(
-                  (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.sourceLanguage === item.value,
+                  (item: {
+                    value: string
+                    label: keyof typeof GloLanguageEnum
+                  }) => filter.sourceLanguage === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
@@ -138,8 +140,10 @@ const Filters = ({
               getOptionLabel={option => option.label}
               value={
                 languageList.find(
-                  (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.targetLanguage === item.value,
+                  (item: {
+                    value: string
+                    label: keyof typeof GloLanguageEnum
+                  }) => filter.targetLanguage === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {

@@ -81,11 +81,16 @@ const CertificationTest = () => {
 
   const languageList = getGloLanguage()
 
-  const { control, handleSubmit, trigger, reset, getValues: getFilterValues } =
-    useForm<TestMaterialFilterType>({
-      defaultValues: defaultFilter,
-      mode: 'onSubmit',
-    })
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    reset,
+    getValues: getFilterValues,
+  } = useForm<TestMaterialFilterType>({
+    defaultValues: defaultFilter,
+    mode: 'onSubmit',
+  })
 
   const onClickResetButton = () => {
     setRoleOptions(OnboardingListRolePair)

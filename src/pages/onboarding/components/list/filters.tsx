@@ -83,7 +83,7 @@ type Props = {
   }[]
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
   timezoneList: {
     id: number

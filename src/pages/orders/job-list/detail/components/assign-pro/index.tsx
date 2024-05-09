@@ -137,7 +137,7 @@ type Props = {
   activeFilter: AssignProFilterPostType
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
   onSearch: () => void
   roundQuery: string | undefined
@@ -473,13 +473,15 @@ const AssignPro = ({
           }}
           messageType='request'
           sendFrom='LPM'
-          jobDetail={[{
-            jobId: jobInfo.id,
-            jobInfo: jobInfo,
-            jobPrices: undefined,
-            jobAssign: jobAssign,
-            jobAssignDefaultRound: 0,
-          }]}
+          jobDetail={[
+            {
+              jobId: jobInfo.id,
+              jobInfo: jobInfo,
+              jobPrices: undefined,
+              jobAssign: jobAssign,
+              jobAssignDefaultRound: 0,
+            },
+          ]}
           isUpdatable={selectedJobUpdatable}
           onClose={() => {
             queryClient.invalidateQueries(['jobAssignProRequests', jobInfo.id])
