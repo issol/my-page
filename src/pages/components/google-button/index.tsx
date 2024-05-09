@@ -132,6 +132,8 @@ export default function GoogleButton({ type }: Props) {
         '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
       allowed_parent_origin: ["https://*.gloground.com", "https://*.enuff.space"],
       state_cookie_domain: 'gloground.com',
+      login_uri: 'https://api-enough.gloground.com/api/enough/a/google/x-gu-grant',
+      ux_mode: 'redirect',
       callback: handleCredentialResponse,
     })
     //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
