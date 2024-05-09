@@ -88,6 +88,7 @@ const ProsList = () => {
   const [rows, setRows] = useState<ProListType[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [isResumeModalLoading, setIsResumeModalLoading] = useState(false)
 
   const [filters, setFilters] = useState<ProListFilterType | null>(null)
 
@@ -176,6 +177,7 @@ const ProsList = () => {
     },
     fileType: string,
   ) => {
+    setIsResumeModalLoading(true)
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       file.url = res.url
       openModal({
@@ -187,6 +189,8 @@ const ProsList = () => {
           />
         ),
       })
+    }).finally(() => {
+      setIsResumeModalLoading(false)
     })
   }
 
@@ -352,6 +356,7 @@ const ProsList = () => {
             onClickFile,
           )}
           isLoading={loading}
+          isResumeModalLoading={isResumeModalLoading}
         />
       </Box>
     </Box>

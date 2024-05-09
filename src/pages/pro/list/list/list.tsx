@@ -17,6 +17,7 @@ import {
 import NoList from '@src/pages/components/no-list'
 import { useRouter } from 'next/router'
 import { getProList } from '@src/apis/pro/pro-list.api'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   proListPage: number
@@ -31,6 +32,7 @@ type Props = {
   isLoading: boolean
   setLoading: Dispatch<SetStateAction<boolean>>
   setRows: Dispatch<SetStateAction<ProListType[]>>
+  isResumeModalLoading: boolean
 }
 
 const ProList = ({
@@ -46,6 +48,7 @@ const ProList = ({
   isLoading,
   setLoading,
   setRows,
+  isResumeModalLoading,
 }: Props) => {
   const apiRef = useGridApiRef()
   const router = useRouter()
@@ -76,6 +79,7 @@ const ProList = ({
 
   return (
     <Card sx={{ borderRadius: '0 0 16px 16px' }}>
+      {isResumeModalLoading && <OverlaySpinner />}
       <Box
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
