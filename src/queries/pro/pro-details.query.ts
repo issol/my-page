@@ -11,7 +11,7 @@ import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
 export const useGetProOverview = (userId: number) => {
   const id = typeof userId === 'number' ? userId : 0
   return useQuery<DetailUserType, Error>(
-    ['pro-overview'],
+    ['pro-overview', id],
     () => getProOverview(id!),
     {
       staleTime: 60 * 1000, // 1
