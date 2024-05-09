@@ -59,7 +59,7 @@ type Props = {
   }[]
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
 }
 
@@ -136,7 +136,11 @@ const Filter = ({
                     id='jobType'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Job type' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Job type'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -235,7 +239,11 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Years of experience' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Years of experience'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -274,7 +282,11 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Source language' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Source language'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -313,7 +325,11 @@ const Filter = ({
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Target language' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Target language'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -346,7 +362,11 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Due date' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Due date'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -379,7 +399,11 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Posted date' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Posted date'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>

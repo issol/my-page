@@ -63,7 +63,7 @@ interface AppliedRoleModalProps {
   onClose: any
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
   handleAssignTest: (jobInfo: AddRoleType) => void
   handleAssignRole: (jobInfo: AddRoleType) => void

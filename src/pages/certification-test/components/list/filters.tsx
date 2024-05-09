@@ -26,7 +26,13 @@ import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { JobList } from '@src/shared/const/job/jobs'
 
-import { useState, Dispatch, SetStateAction, SyntheticEvent, useEffect } from 'react'
+import {
+  useState,
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useEffect,
+} from 'react'
 import _ from 'lodash'
 
 import { styled } from '@mui/material/styles'
@@ -77,7 +83,7 @@ type Props = {
   }[]
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
   handleFilterStateChange: (
     panel: string,
@@ -106,7 +112,7 @@ export default function TestMaterialFilters({
   const [uniqueLanguageList, setUniqueLanguageList] = useState<
     {
       value: string
-      label: GloLanguageEnum
+      label: keyof typeof GloLanguageEnum
     }[]
   >([])
 
@@ -114,10 +120,12 @@ export default function TestMaterialFilters({
     setUniqueLanguageList(_.uniqBy(languageList, 'value'))
   }, [languageList])
 
-  const allLanguage = [{
-    value: 'all',
-    label: 'All',
-  }]
+  const allLanguage = [
+    {
+      value: 'all',
+      label: 'All',
+    },
+  ]
 
   const onFocusSearchInput = () => {
     setOnFocused(true)
@@ -192,7 +200,11 @@ export default function TestMaterialFilters({
                           id='testType'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Test type' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Test type'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -231,7 +243,11 @@ export default function TestMaterialFilters({
                           id='source'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Source' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Source'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -266,14 +282,21 @@ export default function TestMaterialFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={getValues().testType.some(type => type.label === 'Basic test')
-                            ? uniqueLanguageList
-                            : [...allLanguage, ...uniqueLanguageList]
+                          options={
+                            getValues().testType.some(
+                              type => type.label === 'Basic test',
+                            )
+                              ? uniqueLanguageList
+                              : [...allLanguage, ...uniqueLanguageList]
                           }
                           id='target'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Target' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Target'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -334,7 +357,11 @@ export default function TestMaterialFilters({
                           id='jobType'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Job type' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Job type'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -400,7 +427,11 @@ export default function TestMaterialFilters({
                           id='role'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} autoComplete='off' label='Role' />
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Role'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

@@ -58,7 +58,7 @@ type Props = {
   }[]
   languageList: {
     value: string
-    label: GloLanguageEnum
+    label: keyof typeof GloLanguageEnum
   }[]
 }
 
@@ -140,7 +140,11 @@ const Filter = ({
                     id='jobType'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Job type' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Job type'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -245,7 +249,11 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Source' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Source'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -284,7 +292,11 @@ const Filter = ({
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} autoComplete='off' label='Target' />
+                      <TextField
+                        {...params}
+                        autoComplete='off'
+                        label='Target'
+                      />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>

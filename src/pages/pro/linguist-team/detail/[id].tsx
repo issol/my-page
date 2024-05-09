@@ -795,7 +795,7 @@ const LinguistTeamDetail = () => {
                                   languageList.find(
                                     (item: {
                                       value: string
-                                      label: GloLanguageEnum
+                                      label: keyof typeof GloLanguageEnum
                                     }) => field.value === item.value,
                                   ) ?? null
                                 }
@@ -859,7 +859,7 @@ const LinguistTeamDetail = () => {
                                   languageList.find(
                                     (item: {
                                       value: string
-                                      label: GloLanguageEnum
+                                      label: keyof typeof GloLanguageEnum
                                     }) => field.value === item.value,
                                   ) ?? null
                                 }

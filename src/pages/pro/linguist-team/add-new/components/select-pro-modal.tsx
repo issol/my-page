@@ -353,8 +353,10 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
               getOptionLabel={option => option.label}
               value={
                 languageList.find(
-                  (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.source && filter.source[0] === item.value,
+                  (item: {
+                    value: string
+                    label: keyof typeof GloLanguageEnum
+                  }) => filter.source && filter.source[0] === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
@@ -376,8 +378,10 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
               getOptionLabel={option => option.label}
               value={
                 languageList.find(
-                  (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.target && filter.target[0] === item.value,
+                  (item: {
+                    value: string
+                    label: keyof typeof GloLanguageEnum
+                  }) => filter.target && filter.target[0] === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
