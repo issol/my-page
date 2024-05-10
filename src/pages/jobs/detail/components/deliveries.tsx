@@ -20,7 +20,7 @@ import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { JobsFileType, ProJobDeliveryType } from '@src/types/jobs/jobs.type'
-import { useState } from 'react'
+import { Dispatch, useState, SetStateAction } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -32,12 +32,18 @@ type Props = {
 
   downloadAllFiles: (files: Array<JobsFileType> | [] | undefined) => void
   downloadOneFile: (file: JobsFileType) => void
+  expanded: string | false
+  setExpanded: Dispatch<SetStateAction<string | false>>
 }
-const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
+const Deliveries = ({
+  delivery,
+  downloadAllFiles,
+  downloadOneFile,
+  expanded,
+  setExpanded,
+}: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
-
-  const [expanded, setExpanded] = useState<string | false>(false)
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {

@@ -87,7 +87,7 @@ const JobList = ({
           onCellClick={(params, event) => {
             event.stopPropagation()
 
-            if (params.field === 'status') return
+            // if (params.field === 'status') return
 
             const isChangeRouter = [70000, 70100, 70200, 70300, 70400].includes(
               params.row.status as number,

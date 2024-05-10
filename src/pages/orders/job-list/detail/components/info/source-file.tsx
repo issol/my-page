@@ -844,7 +844,7 @@ const SourceFileUpload = ({
             disabled={
               files.length === 0 ||
               fileSize > 100 * 1024 * 1024 * 1024 ||
-              files.some(file => !file.isSelected)
+              (type === 'import' ? files.some(file => !file.isSelected) : false)
             }
             onClick={onSubmit}
           >

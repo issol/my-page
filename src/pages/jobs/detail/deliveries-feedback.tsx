@@ -74,6 +74,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   const [withoutFiles, setWithoutFiles] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   const auth = useRecoilValueLoadable(authState)
+  const [expanded, setExpanded] = useState<string | false>(false)
 
   const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
 
@@ -91,7 +92,11 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       }>
     }) => postProJobDeliveries(params),
     {
-      onSuccess: () => {
+      onSuccess: data => {
+        const id = data[0].delivery.id ?? 0
+
+        setExpanded(id.toString())
+
         refetch()
         setFiles([])
         setNote(null)
@@ -631,16 +636,21 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Button>
               </Box>
             )}
-            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+            {/* {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
               <Divider />
-            )}
+            )} */}
 
             {data && data.deliveries.length > 0 ? (
-              <Deliveries
-                delivery={data.deliveries}
-                downloadAllFiles={downloadAllFiles}
-                downloadOneFile={downloadOneFile}
-              />
+              <>
+                <Divider />
+                <Deliveries
+                  delivery={data.deliveries}
+                  downloadAllFiles={downloadAllFiles}
+                  downloadOneFile={downloadOneFile}
+                  expanded={expanded}
+                  setExpanded={setExpanded}
+                />
+              </>
             ) : null}
           </Card>
         </Box>
