@@ -118,6 +118,7 @@ interface FileProp {
   type: string
   size: number
 }
+const googleFormSA = process.env.NEXT_PUBLIC_CERTIFICATION_GOOGLE_FORM_SA || 'test-801@enough-service-dev.iam.gserviceaccount.com'
 
 const TestMaterialPost = () => {
   const router = useRouter()
@@ -550,7 +551,7 @@ const TestMaterialPost = () => {
                   to Pros and is not used for any other purpose.
                 </>
               }
-              subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
+              subtitle={googleFormSA}
               vary='error'
               rightButtonText='Okay'
               onClick={() => closeModal('UrlPermissionModal')}
@@ -582,7 +583,7 @@ const TestMaterialPost = () => {
               The link must be an edit link of the Google form.
               <br />
               <br />
-              <b>test-801@enough-service-dev.iam.gserviceaccount.com</b> account
+              <b>{googleFormSA}</b> account
               must be added to the Google form as an editor. This account is
               used for the sole purpose of delivering test to Pros and is not
               used for any other purpose.
@@ -645,7 +646,7 @@ const TestMaterialPost = () => {
                     purpose.
                   </>
                 }
-                subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
+                subtitle={googleFormSA}
                 vary='error'
                 rightButtonText='Okay'
                 onClick={() => closeModal('UrlPermissionModal')}
