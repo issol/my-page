@@ -1213,7 +1213,8 @@ const ProJobInfo = ({
                                       </Typography>
                                     </Box>
                                   </Box>
-                                  {!item.downloadAvailable ? (
+                                  {!item.downloadAvailable &&
+                                  item.type === 'SOURCE' ? (
                                     <Tooltip title='Download blocked'>
                                       <Box
                                         sx={{
