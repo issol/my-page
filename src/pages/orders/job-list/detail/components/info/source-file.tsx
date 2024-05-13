@@ -57,6 +57,7 @@ import { authState } from '@src/states/auth'
 import Image from 'next/image'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 type Props = {
   info:
@@ -296,6 +297,24 @@ const SourceFileUpload = ({
     })
   }
 
+  const onClickBlockDownloadInfo = () => {
+    openModal({
+      type: 'BlockDownloadInfoModal',
+      children: (
+        <CustomModalV2
+          noButton
+          title='Block download'
+          subtitle='When enabled, video files among the source files that a Pro received cannot be downloaded in order to protect the content. Pros will only receive video files through Glosub, and the setting can be changed later.'
+          vary='info'
+          closeButton
+          onClick={() => closeModal('BlockDownloadInfoModal')}
+          onClose={() => closeModal('BlockDownloadInfoModal')}
+          rightButtonText=''
+        />
+      ),
+    })
+  }
+
   const onSubmit = () => {
     if (type === 'import') {
       setIsLoading(true)
@@ -515,7 +534,10 @@ const SourceFileUpload = ({
                 <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
                   Block download
                 </Typography>
-                <IconButton sx={{ padding: 0 }}>
+                <IconButton
+                  sx={{ padding: 0 }}
+                  onClick={onClickBlockDownloadInfo}
+                >
                   <Icon
                     icon='material-symbols:info-outline'
                     fontSize={20}
