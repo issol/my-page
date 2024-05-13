@@ -56,6 +56,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
 import Image from 'next/image'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   info:
@@ -95,6 +96,8 @@ const SourceFileUpload = ({
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
   const uploadRef = useRef()
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<FileType[]>([])
 
@@ -110,7 +113,7 @@ const SourceFileUpload = ({
 
   const {
     data: sourceFileList,
-    isLoading,
+
     refetch: refetchSourceFileList,
   } = useGetSourceFile(row.id)
 
@@ -138,6 +141,7 @@ const SourceFileUpload = ({
             setFileUnlock(id)
           }
         })
+        setIsLoading(false)
         setFiles([])
         refetchSourceFileList()
       },
@@ -157,6 +161,7 @@ const SourceFileUpload = ({
     }) => importFileFromRequest(file.jobId, file.files),
     {
       onSuccess: (data, variables) => {
+        setIsLoading(false)
         const files = variables.files
         closeModal('ImportFileModal')
 
@@ -293,6 +298,7 @@ const SourceFileUpload = ({
 
   const onSubmit = () => {
     if (type === 'import') {
+      setIsLoading(true)
       const fileList: {
         fileExtension: string
         fileName: string
@@ -317,6 +323,7 @@ const SourceFileUpload = ({
       importFileMutation.mutate(fileInfo)
     } else {
       if (files.length) {
+        setIsLoading(true)
         const fileInfo: {
           jobId: number
           files: Array<{
@@ -331,18 +338,14 @@ const SourceFileUpload = ({
           files: [],
         }
         const paths: string[] = files.map(file => {
-          // console.log(file.name)
-
           return `project/${row.id}/source/${file.name}`
         })
-        // console.log(paths)
 
         const s3URL = paths.map(value => {
           return getUploadUrlforCommon('job', value).then(res => {
             return res.url
           })
         })
-        // console.log(s3URL)
 
         Promise.all(s3URL).then(res => {
           const promiseArr = res.map((url: string, idx: number) => {
@@ -431,6 +434,7 @@ const SourceFileUpload = ({
         borderRadius: '10px',
       }}
     >
+      {isLoading ? <OverlaySpinner /> : null}
       <Box sx={{ padding: '50px 60px', position: 'relative' }}>
         <IconButton
           sx={{ position: 'absolute', top: '20px', right: '20px' }}
@@ -842,6 +846,7 @@ const SourceFileUpload = ({
           <Button
             variant='contained'
             disabled={
+              isLoading ||
               files.length === 0 ||
               fileSize > 100 * 1024 * 1024 * 1024 ||
               (type === 'import' ? !files.some(file => file.isSelected) : false)
