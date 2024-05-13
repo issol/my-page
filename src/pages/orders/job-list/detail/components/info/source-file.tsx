@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
 import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
@@ -96,6 +97,7 @@ const SourceFileUpload = ({
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
   const uploadRef = useRef()
+  const theme = useTheme()
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -804,6 +806,10 @@ const SourceFileUpload = ({
                                   //   : 'rgba(76, 78, 100, 0.54)',
                                   cursor: 'pointer',
                                   padding: '4px',
+                                  '& :hover': {
+                                    borderRadius: '50%',
+                                    backgroundColor: theme.palette.grey[300],
+                                  },
                                 }}
                                 onClick={event => {
                                   event.stopPropagation()

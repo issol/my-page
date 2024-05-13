@@ -20,6 +20,7 @@ import {
   Tooltip,
   Typography,
   styled,
+  useTheme,
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
@@ -170,7 +171,7 @@ const JobDetail = () => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const currentRole = getCurrentRole()
-  const ability = useContext(AbilityContext)
+  const theme = useTheme()
 
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
@@ -850,8 +851,6 @@ const JobDetail = () => {
   }
 
   const fileList = (file: FileType[], type: string) => {
-    console.log(file)
-
     return file.map((value: FileType) => {
       if (value.type === type) {
         return (
@@ -937,8 +936,13 @@ const JobDetail = () => {
                       // color: file.downloadAvailable
                       //   ? '#4C4E64'
                       //   : 'rgba(76, 78, 100, 0.54)',
+
                       cursor: 'pointer',
                       padding: '4px',
+                      '& :hover': {
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.grey[300],
+                      },
                     }}
                     onClick={event => {
                       event.stopPropagation()
@@ -1691,7 +1695,6 @@ const JobDetail = () => {
             priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
           },
         ]
-        console.log(result, 'prices')
 
         itemReset({ items: result })
       } else {
@@ -1899,17 +1902,9 @@ const JobDetail = () => {
                     ? 10.416
                     : value === 'history'
                       ? 10.416
-                      : 7.632
-              // (selectedJobInfo &&
-              //   (selectedJobInfo.jobInfo.name === null ||
-              //     selectedJobInfo.jobPrices.priceId === null)) ||
-              // (selectedJobInfo?.jobAssign &&
-              //   selectedJobInfo?.jobAssign.length > 0 &&
-              //   value === 'assign') ||
-              // (!addRoundMode && !addProsMode && !assignProMode) ||
-              // (selectedJobInfo?.jobInfo.pro === null && value === 'info')
-              //   ? 10.416
-              //   : 7.632
+                      : value === 'review'
+                        ? 10.416
+                        : 7.632
             }
             sx={{ height: '100%' }}
           >
@@ -2759,8 +2754,6 @@ const JobDetail = () => {
                                             padding: '4px',
                                           }}
                                           onClick={() => {
-                                            console.log(value)
-
                                             DownloadAllFiles(
                                               value.filter(
                                                 value =>
