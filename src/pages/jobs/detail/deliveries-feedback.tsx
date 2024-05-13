@@ -46,7 +46,13 @@ import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
-import { useMutation, useQueryClient } from 'react-query'
+import {
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+  QueryObserverResult,
+} from 'react-query'
 import {
   patchProJobFeedbackCheck,
   postProJobDeliveries,
@@ -64,11 +70,18 @@ const NOT_FILE_UPLOAD_JOB_STATUS = [
 type Props = {
   jobInfo: ProJobDetailType
   jobDetailDots: string[]
+  jobDetailRefetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<QueryObserverResult<ProJobDetailType, unknown>>
 }
 
 const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
 
-const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
+const DeliveriesFeedback = ({
+  jobInfo,
+  jobDetailDots,
+  jobDetailRefetch,
+}: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const queryClient = useQueryClient()
   const [withoutFiles, setWithoutFiles] = useState(false)
@@ -92,16 +105,19 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       }>
     }) => postProJobDeliveries(params),
     {
-      onSuccess: data => {
-        const id = data[0].delivery.id ?? 0
+      onSuccess: (data, variables) => {
+        if (data.length > 0) {
+          const id = data[0].delivery.id ?? 0
 
-        setExpanded(id.toString())
+          setExpanded(id.toString())
+        }
 
         refetch()
         setFiles([])
         setNote(null)
         setWithoutFiles(false)
-        queryClient.invalidateQueries(['proJobDetail'])
+        queryClient.invalidateQueries(['proJobDetail', variables.jobId])
+        jobDetailRefetch()
       },
     },
   )

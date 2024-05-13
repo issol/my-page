@@ -230,6 +230,7 @@ const Deliveries = ({
                 ) : (
                   <Box
                     sx={{
+                      mt: '20px',
                       padding: '20px',
                       background: '#F9F8F9',
                       borderRadius: '10px',

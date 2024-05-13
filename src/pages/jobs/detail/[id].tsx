@@ -359,6 +359,7 @@ const ProJobsDetail = () => {
               <DeliveriesFeedback
                 jobInfo={jobDetail}
                 jobDetailDots={jobDetailDots}
+                jobDetailRefetch={jobDetailRefetch}
               />
             </Suspense>
           </TabPanel>
