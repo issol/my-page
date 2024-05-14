@@ -465,7 +465,7 @@ export default function Onboarding() {
           }
           return false
         })
-        const uniqueRole = _.uniqBy(row.jobInfo, 'role');
+        const uniqueRole = _.uniqBy(row.jobInfo, 'role')
         return <JobTypeRole jobInfo={uniqueRole} visibleType='role' />
       },
     },

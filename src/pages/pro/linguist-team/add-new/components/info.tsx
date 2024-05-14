@@ -30,7 +30,7 @@ type Props = {
     clientId: number
     name: string
   }>
-  languageList: Array<{ value: string; label: GloLanguageEnum }>
+  languageList: Array<{ value: string; label: keyof typeof GloLanguageEnum }>
   serviceTypeList: Array<{ value: number; label: string }>
   getValues: UseFormGetValues<LinguistTeamFormType>
   trigger: UseFormTrigger<LinguistTeamFormType>
@@ -295,7 +295,7 @@ const LinguistTeamInfoForm = ({
                             languageList.find(
                               (item: {
                                 value: string
-                                label: GloLanguageEnum
+                                label: keyof typeof GloLanguageEnum
                               }) => field.value === item.value,
                             ) ?? null
                           }
@@ -358,7 +358,7 @@ const LinguistTeamInfoForm = ({
                             languageList.find(
                               (item: {
                                 value: string
-                                label: GloLanguageEnum
+                                label: keyof typeof GloLanguageEnum
                               }) => field.value === item.value,
                             ) ?? null
                           }

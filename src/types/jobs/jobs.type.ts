@@ -179,6 +179,13 @@ export type ProJobListType = {
   finalProDeliveredAt: string
   autoNextJob?: boolean // 트리거가 존재하는지 유무
   isPreviousAndNextJob?: boolean // 다음 아이템이 존재하는지 여부
+  // 리스트에서 redelivery 관련 인포 모달 정보를 보여주기 위해 사용
+  redeliveryHistory?: {
+    jobId: number
+    deleteReason: string[]
+    message: string
+    id: number
+  }
 }
 
 export type JobsFileType = {

@@ -27,36 +27,73 @@ const AwaitingPriorJobProps: InfoDialogProps = {
     'This state indicates that the previous job is waiting for completion. Once the previous job is finished, this job can start.',
 }
 
-const RedeliveryProps: InfoDialogProps = {
-  title: 'Reason for redelivery',
-  alertType: 'question-info',
-  iconName: 'fe:question',
-  contents: (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        fontSize: '16px',
-      }}
-    >
-      <Box component='ul' sx={{ listStyle: 'inside' }}>
-        <li>Did not follow the guidelines/glossary Typo</li>
-        <li>Timecode sync-error (video translation)</li>
-      </Box>
-      <Typography
-        variant='h6'
-        textAlign='center'
-        mt='10px'
-        color='rgba(76, 78, 100, 0.87)'
-        margin='8px 0'
+const RedeliveryProps = (
+  message: string | undefined,
+  type: string[] | undefined, 
+): InfoDialogProps => {
+  return {
+    title: 'Reason for redelivery',
+    alertType: 'question-info',
+    iconName: 'fe:question',
+    contents: (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          fontSize: '16px',
+        }}
       >
-        Message from LPM
-      </Typography>
-      <p>Please check the attached guidelines and glossary.</p>
-    </div>
-  ),
-}
+        <Box component='ul' sx={{ listStyle: 'inside' }}>
+          {type && type.map((typeItem, index) => (
+            <li key={index}>{typeItem}</li>
+          ))}
+        </Box>
+        <Typography
+          variant='h6'
+          textAlign='center'
+          mt='10px'
+          color='rgba(76, 78, 100, 0.87)'
+          margin='8px 0'
+        >
+          Message from LPM
+        </Typography>
+        <p>{message && message}</p>
+      </div>
+    ),
+  }
+};
+
+// const RedeliveryProps: InfoDialogProps = {
+//   title: 'Reason for redelivery',
+//   alertType: 'question-info',
+//   iconName: 'fe:question',
+//   contents: (
+//     <div
+//       style={{
+//         display: 'flex',
+//         flexDirection: 'column',
+//         alignItems: 'center',
+//         fontSize: '16px',
+//       }}
+//     >
+//       <Box component='ul' sx={{ listStyle: 'inside' }}>
+//         <li>Did not follow the guidelines/glossary Typo</li>
+//         <li>Time code sync-error (video translation)</li>
+//       </Box>
+//       <Typography
+//         variant='h6'
+//         textAlign='center'
+//         mt='10px'
+//         color='rgba(76, 78, 100, 0.87)'
+//         margin='8px 0'
+//       >
+//         Message from LPM
+//       </Typography>
+//       <p>Please check the attached guidelines and glossary.</p>
+//     </div>
+//   ),
+// }
 
 export const getProJobColumns = (
   statusList: {
@@ -250,7 +287,11 @@ export const getProJobColumns = (
 
         if (viewInfoIcon.includes(row.status)) {
           infoProps =
-            row.status === 60250 ? RedeliveryProps : AwaitingPriorJobProps
+            row.status === 60250 
+            ? RedeliveryProps(
+              row.redeliveryHistory?.message,
+              row.redeliveryHistory?.deleteReason,
+            ) : AwaitingPriorJobProps
         }
 
         return (
