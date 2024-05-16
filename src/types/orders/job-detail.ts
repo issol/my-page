@@ -1,3 +1,4 @@
+import { FileType } from '../common/file.type'
 import { ItemDetailType } from '../common/item.type'
 
 import { CountryType } from '../sign/personalInfoTypes'
@@ -34,9 +35,19 @@ export type AddJobInfoFormType = {
   source: string | null
   target: string | null
   startedAt?: Date
-  startTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+  startTimezone?: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   dueAt: Date
-  dueTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
+  dueTimezone: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   description?: string
   isShowDescription: boolean
 }
@@ -108,4 +119,30 @@ export type SaveJobPricesParamsType = {
   totalPrice: number
   currency: Currency | null
   detail: ItemDetailType[]
+}
+
+export type JobRequestReviewListType = {
+  id: number
+  jobId: number
+  corporationId: string
+  createdAt: string
+  requestor: string
+  assignee: string
+  isCompleted: boolean
+  desiredDueAt: string
+  desiredDueTimezone: CountryType
+  runtime: string
+  wordCount: string
+  files: FileType[]
+  note: string
+  reviewedNote: string
+}
+
+export type JobRequestReviewFormType = {
+  assignee: string
+  desiredDueAt: Date
+  desiredDueTimezone: CountryType
+  runtime: string
+  wordCount: string
+  note: string
 }

@@ -55,3 +55,17 @@ export const editJobInfoSchema = yup.object().shape({
   name: yup.string().required(FormErrors.required),
   contactPersonId: yup.number().required(FormErrors.required),
 })
+
+export const requestReviewSchema = yup.object().shape({
+  assignee: yup.string().required(FormErrors.required),
+  desiredDueAt: yup.date().required(FormErrors.required),
+  desiredDueTimezone: yup.object().shape({
+    id: yup.number().nullable(),
+    code: yup.string().nullable(),
+    label: yup.string().required(FormErrors.required),
+    pinned: yup.boolean().nullable(),
+  }),
+  runtime: yup.string().nullable(),
+  wordCount: yup.string().nullable(),
+  note: yup.string().nullable(),
+})

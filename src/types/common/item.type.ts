@@ -120,7 +120,7 @@ export type JobType = {
     name: string
     size: number
     file: string // s3 key
-    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
   }>
   pro: {
     id: number

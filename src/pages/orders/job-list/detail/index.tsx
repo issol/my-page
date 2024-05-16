@@ -31,6 +31,7 @@ import {
   useGetJobPriceHistory,
   useGetJobPrices,
   useGetJobRequestHistory,
+  useGetJobRequestReview,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
@@ -103,6 +104,7 @@ import JobInfo from './components/info'
 import {
   AssignProFilterPostType,
   AssignProListType,
+  JobRequestReviewListType,
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
@@ -158,8 +160,10 @@ import {
   getCurrentRole,
   getUserTokenFromBrowser,
 } from '@src/shared/auth/storage'
+import ReviewRequest from './components/review-request'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
-type MenuType = 'info' | 'prices' | 'assign' | 'history'
+type MenuType = 'info' | 'review' | 'prices' | 'assign' | 'history'
 
 export type TabType = 'linguistTeam' | 'pro'
 const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
@@ -184,6 +188,9 @@ const JobDetail = () => {
     Array<{
       jobId: number
       jobInfo: JobType | undefined
+      // jobRequestReview:
+      //   | { jobId: number; data: JobRequestReviewListType[] }
+      //   | undefined
       jobPrices: JobPricesDetailType | undefined
       jobAssign: JobAssignProRequestsType[]
       jobRequestHistory:
@@ -201,6 +208,7 @@ const JobDetail = () => {
     jobId: number
     jobInfo: JobType
     jobPrices: JobPricesDetailType
+    // jobRequestReview: { jobId: number; data: JobRequestReviewListType[] }
     jobAssign: JobAssignProRequestsType[]
     jobAssignDefaultRound: number
     jobRequestHistory: {
@@ -298,6 +306,12 @@ const JobDetail = () => {
       unknown
     >[]
   ).map(value => value)
+  // const jobRequestReviewList = (
+  //   useGetJobRequestReview(jobId) as UseQueryResult<
+  //     { jobId: number; data: JobRequestReviewListType[] },
+  //     unknown
+  //   >[]
+  // ).map(value => value)
   const jobAssignList = (
     useGetJobAssignProRequests(jobId) as UseQueryResult<
       {
@@ -322,6 +336,8 @@ const JobDetail = () => {
   ).map(value => value)
 
   const { data: jobStatusList } = useGetStatusList('Job')
+  const { data: lspList, isLoading: lspListLoading } =
+    useGetCompanyOptions('LSP')
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
   const { data: proList } = useGetAssignableProList(
@@ -1010,7 +1026,9 @@ const JobDetail = () => {
                 onClick={() => {
                   DownloadFile(value, S3FileType.JOB)
                 }}
-                sx={{ padding: 0 }}
+                sx={{
+                  padding: 0,
+                }}
               >
                 <Icon icon='ic:sharp-download' />
               </IconButton>
@@ -1540,11 +1558,13 @@ const JobDetail = () => {
 
   useEffect(() => {
     const jobInfo = jobInfoList.map(value => value.data)
+    // const jobRequestReview = jobRequestReviewList.map(value => value.data)
     const jobPrice = jobPriceList.map(value => value.data)
     const jobAssign = jobAssignList.map(value => value.data)
     const jobRequestHistory = jobRequestHistoryList.map(value => value.data)
     if (
       jobInfo.includes(undefined) ||
+      // jobRequestReview.includes(undefined) ||
       jobPrice.includes(undefined) ||
       jobAssign.includes(undefined) ||
       jobRequestHistory.includes(undefined)
@@ -1555,6 +1575,9 @@ const JobDetail = () => {
       .map(job => {
         const jobPrices = jobPrice.find(price => price!.id === job!.id)
         const jobAssigns = jobAssign.find(assign => assign!.id === job!.id)
+        // const jobRequestReviews = jobRequestReview.find(
+        //   review => review!.jobId === job!.id,
+        // )
         const jobRequestHistories = jobRequestHistory.find(
           history => history!.jobId === job!.id,
         )
@@ -1562,6 +1585,7 @@ const JobDetail = () => {
         return {
           jobInfo: job!,
           jobPrices: jobPrices!,
+          // jobRequestReview: jobRequestReviews!,
           jobId: job!.id,
           jobAssign: jobAssigns?.requests ?? [],
           jobRequestHistory: {
@@ -1617,6 +1641,7 @@ const JobDetail = () => {
     }
   }, [
     jobInfoList,
+    // jobRequestReviewList,
     jobPriceList,
     jobAssignList,
     selectedJobInfo,
@@ -1652,6 +1677,7 @@ const JobDetail = () => {
         const result = {
           jobId: selectedJob.jobId,
           jobInfo: selectedJob.jobInfo!,
+          // jobRequestReview: selectedJob.jobRequestReview!,
           jobPrices: selectedJob.jobPrices!,
           jobAssign: selectedJob.jobAssign!,
           jobRequestHistory: selectedJob.jobRequestHistory!,
@@ -1852,6 +1878,7 @@ const JobDetail = () => {
                         setSelectedJobInfo({
                           jobId: value.jobId,
                           jobInfo: value.jobInfo!,
+                          // jobRequestReview: value.jobRequestReview!,
                           jobPrices: value.jobPrices!,
                           jobAssign: value.jobAssign!,
                           jobAssignDefaultRound: value.jobAssignDefaultRound,
@@ -1960,6 +1987,21 @@ const JobDetail = () => {
                     />
 
                     <CustomTab
+                      value='review'
+                      label='Review request'
+                      iconPosition='start'
+                      icon={
+                        <Icon
+                          icon='material-symbols:rate-review-outline'
+                          fontSize={18}
+                        />
+                      }
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    />
+
+                    <CustomTab
                       value='prices'
                       label={
                         <Box
@@ -2027,6 +2069,22 @@ const JobDetail = () => {
                         setJobStatusMutation={setJobStatusMutation}
                         selectedJobUpdatable={selectedJobUpdatable()}
                         jobDetail={jobDetail}
+                      />
+                    ) : null}
+                  </TabPanel>
+                  <TabPanel value='review' sx={{ height: '100%' }}>
+                    {/* {selectedJobInfo.jobRequestReview && lspList ? (
+                      <ReviewRequest
+                        requestReviewList={selectedJobInfo.jobRequestReview}
+                        lspList={lspList ?? []}
+                      />
+                    ) : null} */}
+                    {selectedJobInfo.jobInfo ? (
+                      <ReviewRequest
+                        jobId={selectedJobInfo.jobId}
+                        // requestReviewList={selectedJobInfo.jobRequestReview}
+                        lspList={lspList ?? []}
+                        jobInfo={selectedJobInfo.jobInfo}
                       />
                     ) : null}
                   </TabPanel>
@@ -2474,7 +2532,8 @@ const JobDetail = () => {
             (selectedJobInfo.jobInfo.name === null ||
               selectedJobInfo.jobPrices?.priceId === null ||
               selectedJobInfo.jobAssign === null)) ||
-          value === 'history' ? null : (
+          value === 'history' ||
+          value === 'review' ? null : (
             <Grid item xs={2.784}>
               <Box
                 sx={{

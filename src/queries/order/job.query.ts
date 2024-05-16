@@ -6,6 +6,7 @@ import {
   getJobPriceHistory,
   getJobPrices,
   getJobRequestHistory,
+  getJobRequestReview,
   getMessageList,
   getRequestedProHistory,
   getSourceFileToPro,
@@ -77,6 +78,44 @@ export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
       }),
     )
   }
+}
+
+// export const useGetJobRequestReview = (jobId: number[] | number) => {
+//   if (typeof jobId === 'number') {
+//     return useQuery(
+//       ['jobRequestReview', jobId],
+//       () => getJobRequestReview(jobId),
+//       {
+//         staleTime: 10 * 1000, // 1
+
+//         suspense: false,
+//       },
+//     )
+//   } else {
+//     return useQueries(
+//       jobId.map(id => {
+//         return {
+//           queryKey: ['jobInfo', id],
+//           queryFn: () => getJobRequestReview(id),
+//           staleTime: 10 * 1000, // 1
+
+//           suspense: false,
+//         }
+//       }),
+//     )
+//   }
+// }
+
+export const useGetJobRequestReview = (jobId: number, lsp: string[]) => {
+  return useQuery(
+    ['jobRequestReview', jobId, lsp],
+    () => getJobRequestReview(jobId, lsp),
+    {
+      staleTime: 10 * 1000, // 1
+
+      suspense: false,
+    },
+  )
 }
 
 export const useGetJobPrices = (
