@@ -1,6 +1,13 @@
 import { FormErrors } from '@src/shared/const/formErrors'
 import * as yup from 'yup'
 
+interface Timezone {
+  id: number | null;
+  code: string | null;
+  label: string | null;
+  pinned: boolean | null;
+}
+
 export const addJobInfoFormSchema = yup.object().shape({
   name: yup.string().required(FormErrors.required),
   // status: yup
@@ -29,13 +36,15 @@ export const addJobInfoFormSchema = yup.object().shape({
   target: yup.string().nullable().required(FormErrors.required),
   isShowDescription: yup.boolean().required(),
   startedAt: yup.date().nullable(),
-  startTimezone: yup.object().nullable().shape({
-    id: yup.number().nullable(),
-    code: yup.string().nullable(),
-    label: yup.string().nullable(),
-    pinned: yup.boolean().nullable(),
-  }),
-
+  startTimezone: yup
+    .object()
+    .shape({
+      id: yup.number().nullable(),
+      code: yup.string().nullable(),
+      label: yup.string().required(FormErrors.required),
+      pinned: yup.boolean().nullable(),
+    })
+    .required(),
   dueAt: yup.date().required(FormErrors.required),
   dueTimezone: yup
     .object()
