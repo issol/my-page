@@ -241,7 +241,7 @@ const ImportFromJob = ({
                               event.stopPropagation()
                               setSelectedJob(value)
                               getJobRequestReview(value.id, []).then(res => {
-                                setReviewedFiles(res.data)
+                                setReviewedFiles(res)
                               })
                               // setReviewedFiles({
 
