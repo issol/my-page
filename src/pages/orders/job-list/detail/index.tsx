@@ -2596,7 +2596,7 @@ const JobDetail = () => {
                             sx={{ borderColor: '#B3B6FF' }}
                             onClick={() => {
                               window.open(
-                                `https://glosub-dev.gloground.com/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}`,
+                                `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}`,
                                 '_blank',
                               )
                             }}
@@ -2655,7 +2655,7 @@ const JobDetail = () => {
                             sx={{ borderColor: '#B3B6FF' }}
                             onClick={() => {
                               window.open(
-                                `https://glosub-dev.gloground.com/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}&mode=qc`,
+                                `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}&mode=qc`,
                                 '_blank',
                               )
                             }}
