@@ -183,13 +183,13 @@ const ProJobsDetail = () => {
           title='About Glosub'
           subtitle={
             <>
-              Glosub은 온라인으로 작업을 수행할 수 있는 자막 툴입니다. 작업이
-              필요한 Source 파일이 자동으로 업로드 되어 있어 즉시 작업을 수행할
-              수 있으며 작업 완료 후 자막 파일을 다운로드 받을 수 있습니다.{' '}
+              Glosub is an online subtitling tool where source files are
+              automatically uploaded, allowing users to start working right away
+              and download completed subtitle files.
               <br />
               <br />
-              Transcription, Translation, QC 세 가지 모드를 제공하고 있으며
-              수행하는 작업에 따라서 골라서 사용하실 수 있습니다.
+              Glosub offers three modes, Transcription, Translation, and QC.
+              Users can choose one depending on what they need to do.
             </>
           }
         />
