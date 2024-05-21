@@ -77,8 +77,20 @@ export type ProjectInfoType = {
   } | null
 
   reason: ReasonType | null
-  deliveries: DeliveryFileType[]
-  feedback: string | null
+  deliveries: {
+    files: DeliveryFileType[]
+    id: number
+    note: string
+    createdAt: string
+  }[]
+  note: string | null
+  feedbacks: {
+    id: number
+    name: string
+    email: string
+    createdAt: string
+    feedback: string
+  }[]
   subtotal: string
 
   items?: ItemType

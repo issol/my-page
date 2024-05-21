@@ -117,6 +117,7 @@ export type JobType = {
   feedback?: string
 
   files?: Array<{
+    id: number
     name: string
     size: number
     file: string // s3 key

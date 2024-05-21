@@ -1,13 +1,18 @@
 import { Icon } from '@iconify/react'
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
   Card,
   Divider,
   Grid,
   IconButton,
+  TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 
@@ -51,9 +56,17 @@ import {
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 import { ReasonType } from '@src/types/quotes/quote'
-import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+import {
+  srtUploadFileExtension,
+  videoExtensions,
+} from '@src/shared/const/upload-file-extention/file-extension'
 import { timezoneSelector } from '@src/states/permission'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
+import DeliverClientModal from './modal/deliver-client-modal'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import CustomChip from '@src/@core/components/mui/chip'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   project: ProjectInfoType
@@ -88,7 +101,9 @@ const DeliveriesFeedback = ({
   isEditable,
 }: Props) => {
   const router = useRouter()
+  const theme = useTheme()
   const { id: orderId } = router.query
+  const [expanded, setExpanded] = useState<string | false>(false)
 
   const queryClient = useQueryClient()
 
@@ -104,19 +119,26 @@ const DeliveriesFeedback = ({
   )
 
   const [fileSize, setFileSize] = useState(0)
-  const [files, setFiles] = useState<File[]>([])
-  const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
+  const [files, setFiles] = useState<FileType[]>([])
+
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
+  const [note, setNote] = useState<string | null>(null)
+
+  const handleChange =
+    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false)
+    }
 
   const updateDeliveries = useMutation(
-    (
+    (data: {
       deliveries: {
         filePath: string
         fileName: string
         fileExtension: string
         fileSize?: number
-      }[],
-    ) => deliverySendToClient(project.id, deliveries),
+      }[]
+      notes?: string
+    }) => deliverySendToClient(project.id, data.deliveries, data.notes),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -158,15 +180,14 @@ const DeliveriesFeedback = ({
       ...srtUploadFileExtension.accept,
     },
     disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
-    noKeyboard: true,
-    noDrag: true,
 
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
         .concat(acceptedFiles)
-        .reduce((acc: File[], file: File) => {
+        .reduce((acc: FileType[], file: FileType) => {
           let result = fileSize
           acc.concat(file).forEach((file: FileType) => (result += file.size))
+          setFileSize(result)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
@@ -195,12 +216,13 @@ const DeliveriesFeedback = ({
                 index++
                 newFileName = file.name.replace(/(\.[^/.]+)$/, ` (${index})$1`)
               }
-              file = new File([file], newFileName)
+              file = new File([file as File], newFileName)
             }
             acc.push(file)
             return acc
           }
         }, [])
+
       setFiles(uniqueFiles)
       setUploadFileProcessing(true)
     },
@@ -251,10 +273,18 @@ const DeliveriesFeedback = ({
     })
   }
 
-  const handleRemoveFile = (file: FileType) => {
-    const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
-    setFiles([...filtered])
+  const handleRemoveFile = (file: FileType, type: 'import' | 'upload') => {
+    const uploadedFiles = type === 'import' ? importedFiles : files
+    const filtered = uploadedFiles.filter((i: FileType | DeliveryFileType) =>
+      type === 'import'
+        ? (i as DeliveryFileType).fileName !== file.name
+        : (i as FileType).name !== file.name,
+    )
+    type === 'import'
+      ? setImportedFiles([...(filtered as DeliveryFileType[])])
+      : setFiles([...(filtered as FileType[])])
+
+    setFileSize(fileSize - file.size)
   }
 
   const handleRemoveImportedFile = (file: DeliveryFileType) => {
@@ -279,216 +309,35 @@ const DeliveriesFeedback = ({
             items={jobDetails?.items}
             onClickUpload={onClickUploadJobFile}
             onClose={() => closeModal('ImportFromJobModal')}
+            orderId={jobDetails.id}
+            setImportedFiles={setImportedFiles}
+            setFileSize={setFileSize}
+            fileSize={fileSize}
           />
         ),
       })
   }
 
-  const fileList = files.map((file: FileType) => (
-    <Box
-      key={uuidv4()}
-      sx={{
-        display: 'flex',
-        marginBottom: '8px',
-        width: '100%',
-        justifyContent: 'space-between',
-        borderRadius: '8px',
-        padding: '10px 12px',
-        border: '1px solid rgba(76, 78, 100, 0.22)',
-        background: '#f9f8f9',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ marginRight: '8px', display: 'flex' }}>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            fontSize={24}
-          />
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Tooltip title={file.name}>
-            <Typography
-              variant='body1'
-              fontSize={14}
-              fontWeight={600}
-              lineHeight={'20px'}
-              sx={{
-                overflow: 'hidden',
-                wordBreak: 'break-all',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {file.name}
-            </Typography>
-          </Tooltip>
-          <Typography variant='caption' lineHeight={'14px'}>
-            {formatFileSize(file.size)}
-          </Typography>
-        </Box>
-      </Box>
-      <IconButton>
-        <Icon
-          icon='mdi:close'
-          fontSize={24}
-          onClick={() => handleRemoveFile(file)}
-        />
-      </IconButton>
-    </Box>
-  ))
+  // interface GroupedDeliveryFileType {
+  //   id: number
+  //   createdAt: string
+  //   data: DeliveryFileType[]
+  // }
 
-  const importedFileList = importedFiles.map((file: DeliveryFileType) => (
-    <Box
-      key={uuidv4()}
-      sx={{
-        display: 'flex',
-        marginBottom: '8px',
-        width: '100%',
-        justifyContent: 'space-between',
-        borderRadius: '8px',
-        padding: '10px 12px',
-        border: '1px solid rgba(76, 78, 100, 0.22)',
-        background: '#f9f8f9',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ marginRight: '8px', display: 'flex' }}>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            fontSize={24}
-          />
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Tooltip title={file.fileName}>
-            <Typography
-              variant='body1'
-              fontSize={14}
-              fontWeight={600}
-              lineHeight={'20px'}
-              sx={{
-                overflow: 'hidden',
-                wordBreak: 'break-all',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {file.fileName}
-            </Typography>
-          </Tooltip>
-          <Typography variant='caption' lineHeight={'14px'}>
-            {formatFileSize(file.fileSize)}
-          </Typography>
-        </Box>
-      </Box>
-      <IconButton>
-        <Icon
-          icon='mdi:close'
-          fontSize={24}
-          onClick={() => handleRemoveImportedFile(file)}
-        />
-      </IconButton>
-    </Box>
-  ))
-
-  interface GroupedDeliveryFileType {
-    createdAt: string
-    data: DeliveryFileType[]
-  }
-
-  const groupedFiles: GroupedDeliveryFileType[] = savedFiles.reduce(
-    (acc: GroupedDeliveryFileType[], curr: DeliveryFileType) => {
-      const existingGroup = acc.find(
-        group => group.createdAt === curr.createdAt,
-      )
-      if (existingGroup) {
-        existingGroup.data.push(curr)
-      } else {
-        acc.push({ createdAt: curr.createdAt!, data: [curr] })
-      }
-      return acc
-    },
-    [],
-  )
-
-  const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
-    <Box key={uuidv4()}>
-      <Typography
-        variant='body2'
-        fontSize={14}
-        fontWeight={400}
-        sx={{ mb: '5px' }}
-      >
-        {convertTimeToTimezone(
-          file.createdAt,
-          auth.getValue().user?.timezone,
-          timezone.getValue(),
-        )}
-      </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          marginBottom: '8px',
-          width: '100%',
-          justifyContent: 'space-between',
-          borderRadius: '8px',
-          padding: '10px 12px',
-          border: '1px solid rgba(76, 78, 100, 0.22)',
-          background: '#f9f8f9',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ marginRight: '8px', display: 'flex' }}>
-            <Icon
-              icon='material-symbols:file-present-outline'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-              fontSize={24}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Tooltip title={file.fileName}>
-              <Typography
-                variant='body1'
-                fontSize={14}
-                fontWeight={600}
-                lineHeight={'20px'}
-                sx={{
-                  overflow: 'hidden',
-                  wordBreak: 'break-all',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: 'vertical',
-                }}
-              >
-                {file.fileName}
-              </Typography>
-            </Tooltip>
-
-            <Typography variant='caption' lineHeight={'14px'}>
-              {formatFileSize(file.fileSize)}
-            </Typography>
-          </Box>
-        </Box>
-        {files.length ? null : (
-          <IconButton
-            onClick={() => downloadOneFile(file)}
-            disabled={
-              currentRole?.name !== 'CLIENT' &&
-              !canUseFeature('button-Deliveries&Feedback-DownloadOnce')
-            }
-          >
-            <Icon icon='mdi:download' fontSize={24} />
-          </IconButton>
-        )}
-      </Box>
-    </Box>
-  ))
+  // const groupedFiles: GroupedDeliveryFileType[] = savedFiles.reduce(
+  //   (acc: GroupedDeliveryFileType[], curr: DeliveryFileType, index: number) => {
+  //     const existingGroup = acc.find(
+  //       group => group.createdAt === curr.createdAt,
+  //     )
+  //     if (existingGroup) {
+  //       existingGroup.data.push(curr)
+  //     } else {
+  //       acc.push({ createdAt: curr.createdAt!, data: [curr], id: index })
+  //     }
+  //     return acc
+  //   },
+  //   [],
+  // )
 
   const splitFileNameAndExtension = (fileName: string): [string, string] => {
     const splitIndex = fileName.lastIndexOf('.')
@@ -505,7 +354,7 @@ const DeliveriesFeedback = ({
     setUploadFileProcessing(false)
     if (files.length || importedFiles.length) {
       const fileInfo: Array<DeliveryFileType> = [
-        ...savedFiles,
+        // ...files,
         ...importedFiles,
       ]
       const paths: string[] = files.map(file =>
@@ -530,7 +379,10 @@ const DeliveriesFeedback = ({
           logger.debug('upload client guideline file success :', res)
 
           // updateProject.mutate({ deliveries: fileInfo })
-          updateDeliveries.mutate(fileInfo)
+          updateDeliveries.mutate({
+            deliveries: fileInfo,
+            notes: note ?? undefined,
+          })
           setFiles([])
           setImportedFiles([])
         })
@@ -561,28 +413,46 @@ const DeliveriesFeedback = ({
     openModal({
       type: 'DeliverToClientModal',
       children: (
-        <CustomModal
-          onClick={() => onSubmit()}
+        <DeliverClientModal
           onClose={() => closeModal('DeliverToClientModal')}
-          title={
-            <>
-              Are you sure you want to deliver the uploaded files?&nbsp;
-              <Typography
-                variant='body2'
-                fontWeight={600}
-                component={'span'}
-                fontSize={16}
-              >
-                You cannot delete the files after delivering them to the client.
-              </Typography>
-            </>
-          }
-          vary='successful'
-          rightButtonText='Deliver'
+          onClick={(deliverType: 'partial' | 'final') => {
+            if (deliverType === 'partial') {
+              onSubmit()
+            } else {
+              handleCompleteDelivery()
+            }
+          }}
         />
       ),
     })
   }
+
+  // const onClickDeliverToClient = () => {
+  //   openModal({
+  //     type: 'DeliverToClientModal',
+  //     children: (
+  //       <CustomModal
+  //         onClick={() => onSubmit()}
+  //         onClose={() => closeModal('DeliverToClientModal')}
+  //         title={
+  //           <>
+  //             Are you sure you want to deliver the uploaded files?&nbsp;
+  //             <Typography
+  //               variant='body2'
+  //               fontWeight={600}
+  //               component={'span'}
+  //               fontSize={16}
+  //             >
+  //               You cannot delete the files after delivering them to the client.
+  //             </Typography>
+  //           </>
+  //         }
+  //         vary='successful'
+  //         rightButtonText='Deliver'
+  //       />
+  //     ),
+  //   })
+  // }
 
   const onClickCancelDeliver = () => {
     openModal({
@@ -704,21 +574,11 @@ const DeliveriesFeedback = ({
     })
   }
 
-  useEffect(() => {
-    let result = 0
-    files.forEach((file: FileType) => (result += file.size))
-
-    savedFiles.forEach(
-      (file: { fileSize: number }) => (result += file.fileSize),
-    )
-    setFileSize(result)
-  }, [files, savedFiles])
-
-  useEffect(() => {
-    if (project?.deliveries?.length) {
-      setSavedFiles(project.deliveries)
-    }
-  }, [project])
+  // useEffect(() => {
+  //   if (project?.deliveries?.files.length) {
+  //     setSavedFiles(project.deliveries.files)
+  //   }
+  // }, [project])
 
   return (
     <Grid container xs={12} spacing={4}>
@@ -727,66 +587,43 @@ const DeliveriesFeedback = ({
       updateProject.isLoading ? (
         <OverlaySpinner />
       ) : null}
-      <Grid item xs={isEditable ? 9 : 12}>
+      <Grid item xs={6}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <Box sx={{ display: 'flex', gap: '20px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '20px',
+                justifyContent: 'space-between',
+              }}
+            >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='body1' fontWeight={600}>
+                <Typography fontSize={20} fontWeight={600}>
                   Deliveries
                 </Typography>
-                <Typography variant='caption'>
-                  {formatFileSize(fileSize)}/{byteToGB(MAXIMUM_FILE_SIZE)}
+                <Typography fontSize={12} fontWeight={400} color='#4C4E6499'>
+                  {formatFileSize(fileSize)} / {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
-                <Box sx={{ display: 'flex', gap: '16px' }}>
-                  <div {...getRootProps({ className: 'dropzone' })}>
-                    <Button
-                      variant='contained'
-                      sx={{
-                        height: '34px',
-                      }}
-                      disabled={
-                        !canUseFeature('button-Deliveries&Feedback-Upload')
-                      }
-                    >
-                      <input {...getInputProps()} />
-                      <Icon icon='ic:outline-upload-file' fontSize={18} />
-                      &nbsp;Upload
-                    </Button>
-                  </div>
-
-                  <Button
-                    variant='contained'
-                    sx={{ height: '34px' }}
-                    disabled={
-                      !canUseFeature('button-Deliveries&Feedback-ImportFromJob')
-                    }
-                    onClick={onClickImportJob}
-                  >
-                    <Icon icon='mdi:import' fontSize={18} />
-                    &nbsp;Import from job
-                  </Button>
-                  {uploadFileProcessing ? null : (
+                <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                  <Box sx={{ display: 'flex', gap: '16px' }}>
                     <Button
                       variant='outlined'
+                      sx={{ height: '34px' }}
                       disabled={
-                        savedFiles.length < 1 ||
-                        !canUseFeature('button-Deliveries&Feedback-DownloadAll')
+                        !canUseFeature(
+                          'button-Deliveries&Feedback-ImportFromJob',
+                        )
                       }
-                      sx={{
-                        height: '34px',
-                      }}
-                      onClick={() => downloadAllFiles(savedFiles)}
+                      onClick={onClickImportJob}
                     >
-                      <Icon icon='mdi:download' fontSize={18} />
-                      &nbsp;Download all
+                      Import from job
                     </Button>
-                  )}
-                </Box>
+                  </Box>
+                </Tooltip>
               ) : null}
-              {currentRole &&
+              {/* {currentRole &&
               currentRole.name === 'CLIENT' &&
               project.deliveries.length ? (
                 <Button
@@ -800,10 +637,558 @@ const DeliveriesFeedback = ({
                   <Icon icon='mdi:download' fontSize={18} />
                   &nbsp;Download all
                 </Button>
-              ) : null}
+              ) : null} */}
             </Box>
+            <div
+              {...getRootProps({
+                className: 'dropzone',
+              })}
+            >
+              <Box
+                sx={{
+                  width: '100%',
+                  border: '1px dashed #8D8E9A',
+                  borderRadius: '10px',
+                  padding: '12px 20px',
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                    Drag and drop or
+                  </Typography>
+                  <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                    <Box>
+                      <Button
+                        variant='outlined'
+                        size='small'
+                        disabled={
+                          !canUseFeature('button-Deliveries&Feedback-Upload')
+                        }
+                      >
+                        <input {...getInputProps()} />
+                        Browse file
+                      </Button>
+                    </Box>
+                  </Tooltip>
+                </Box>
+                {(files.length > 0 || importedFiles.length > 0) && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      mt: '20px',
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {files
+                      .concat(
+                        importedFiles.map((file: DeliveryFileType) => ({
+                          name: file.fileName,
+                          size: file.fileSize,
+                          uploadedBy: 'import',
+                        })),
+                      )
+                      .map((file: FileType, index: number) => {
+                        return (
+                          <Box key={uuidv4()}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                marginBottom: '8px',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                                borderRadius: '8px',
+                                padding: '10px 12px',
+                                border: '1px solid rgba(76, 78, 100, 0.22)',
+                                background: '#f9f8f9',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    marginRight: '8px',
+                                    display: 'flex',
+                                  }}
+                                >
+                                  <Image
+                                    src={`/images/icons/file-icons/${extractFileExtension(file.name)}.svg`}
+                                    alt=''
+                                    width={32}
+                                    height={32}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                  }}
+                                >
+                                  <Tooltip title={file.name}>
+                                    <Typography
+                                      variant='body1'
+                                      fontSize={14}
+                                      fontWeight={600}
+                                      lineHeight={'20px'}
+                                      sx={{
+                                        overflow: 'hidden',
+                                        wordBreak: 'break-all',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 1,
+                                        WebkitBoxOrient: 'vertical',
+                                      }}
+                                    >
+                                      {file.name}
+                                    </Typography>
+                                  </Tooltip>
 
-            {savedFiles.length
+                                  <Typography
+                                    variant='caption'
+                                    lineHeight={'14px'}
+                                  >
+                                    {formatFileSize(file.size)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    alignItems: 'center',
+                                    display: 'flex',
+                                    color: 'rgba(76, 78, 100, 0.54)',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    '& :hover': {
+                                      borderRadius: '50%',
+                                      backgroundColor: theme.palette.grey[200],
+                                    },
+                                  }}
+                                  onClick={event => {
+                                    event.stopPropagation()
+                                    handleRemoveFile(
+                                      file,
+                                      (file.uploadedBy as
+                                        | 'import'
+                                        | 'upload') ?? 'upload',
+                                    )
+                                  }}
+                                >
+                                  <Icon icon='mdi:close' fontSize={20} />
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        )
+                      })}
+                  </Box>
+                )}
+              </Box>
+            </div>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography fontSize={14} fontWeight={600} sx={{ mb: '8px' }}>
+                Notes to client
+              </Typography>
+              <TextField
+                fullWidth
+                autoComplete='off'
+                placeholder='Leave a note for client'
+                multiline
+                rows={2}
+                value={note ?? ''}
+                inputProps={{ maxLength: 1000 }}
+                onChange={e => {
+                  if (e.target.value === '') {
+                    setNote(null)
+                  } else setNote(e.target.value)
+                }}
+              />
+              <Typography
+                fontSize={12}
+                fontWeight={400}
+                lineHeight={'25.302px'}
+                textAlign='right'
+                color='#888888'
+              >
+                {note?.length ?? 0}/1000
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                <Box>
+                  <Button
+                    variant='contained'
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-DeliverToClient',
+                      ) ||
+                      (importedFiles.length === 0 && files.length === 0)
+                    }
+                    onClick={onClickDeliverToClient}
+                  >
+                    Deliver to client
+                  </Button>
+                </Box>
+              </Tooltip>
+            </Box>
+            {/* {project.deliveries.length ? (
+              <Box
+                sx={{
+                  '& .Mui-expanded .MuiAccordion-rounded': {
+                    borderTop: '1px solid #D8D8DD !important',
+                    margin: '0 !important',
+                  },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                {project.deliveries.map(value => {
+                  return (
+                    <Accordion
+                      key={uuidv4()}
+                      expanded={expanded === value.id?.toString()}
+                      onChange={handleChange(value.id?.toString() ?? '')}
+                      sx={{
+                        borderRadius: '10px !important',
+                        boxShadow: 'none !important',
+                        border: '1px solid #D8D8DD',
+                        margin: '0 !important',
+                      }}
+                      disableGutters
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        sx={{
+                          padding:
+                            expanded === value.id?.toString()
+                              ? '20px'
+                              : '12px 20px',
+                          background: '#F7F8FF',
+                          '& .MuiAccordionSummary-content': {
+                            margin: 0,
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            alignItems: 'center',
+                            paddingRight: '32px',
+                          }}
+                        >
+                          <Typography
+                            variant='body1'
+                            fontWeight={600}
+                            fontSize={14}
+                          >
+                            {convertTimeToTimezone(
+                              value.createdAt,
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
+                            )}
+                          </Typography>
+                          <Button
+                            variant='outlined'
+                            size='small'
+                            startIcon={<Icon icon='mdi:download' />}
+                            onClick={() => downloadAllFiles(value.files)}
+                          >
+                            Download all
+                          </Button>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ padding: '20px' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '20px',
+                          }}
+                        >
+                          {value.files.length > 0 ? (
+                            <Box
+                              sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                width: '100%',
+                                gap: '20px',
+                                mt: '20px',
+                              }}
+                            >
+                              {value.files.map(file => {
+                                return (
+                                  <Box key={uuidv4()}>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        marginBottom: '8px',
+                                        width: '100%',
+                                        justifyContent: 'space-between',
+                                        borderRadius: '8px',
+                                        padding: '10px 12px',
+                                        border:
+                                          '1px solid rgba(76, 78, 100, 0.22)',
+                                        background: '#f9f8f9',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            marginRight: '8px',
+                                            display: 'flex',
+                                          }}
+                                        >
+                                          <Image
+                                            src={`/images/icons/file-icons/${
+                                              videoExtensions.includes(
+                                                file.fileName
+                                                  ?.split('.')
+                                                  .pop()
+                                                  ?.toLowerCase() ?? '',
+                                              )
+                                                ? 'video'
+                                                : 'document'
+                                            }.svg`}
+                                            alt=''
+                                            width={32}
+                                            height={32}
+                                          />
+                                        </Box>
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                          }}
+                                        >
+                                          <Tooltip title={file.fileName}>
+                                            <Typography
+                                              variant='body1'
+                                              fontSize={14}
+                                              fontWeight={600}
+                                              lineHeight={'20px'}
+                                              sx={{
+                                                overflow: 'hidden',
+                                                wordBreak: 'break-all',
+                                                textOverflow: 'ellipsis',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 1,
+                                                WebkitBoxOrient: 'vertical',
+                                              }}
+                                            >
+                                              {file.fileName}
+                                            </Typography>
+                                          </Tooltip>
+
+                                          <Typography
+                                            variant='caption'
+                                            lineHeight={'14px'}
+                                          >
+                                            {formatFileSize(file.fileSize)}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <IconButton
+                                          onClick={() => {
+                                            downloadOneFile(file)
+                                          }}
+                                          sx={{ padding: 0 }}
+                                        >
+                                          <Icon icon='ic:sharp-download' />
+                                        </IconButton>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                )
+                              })}
+                            </Box>
+                          ) : (
+                            <Box
+                              sx={{
+                                mt: '20px',
+                                padding: '20px',
+                                background: '#F9F8F9',
+                                borderRadius: '10px',
+                              }}
+                            >
+                              <Typography variant='body2'>
+                                No target files
+                              </Typography>
+                            </Box>
+                          )}
+                          <Box
+                            sx={{
+                              background: '#F7F7F9',
+                              borderRadius: '10px',
+                              padding: '20px',
+                            }}
+                          >
+                            <Typography fontSize={14} fontWeight={400}>
+                              {value.note ?? '-'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+                    // <Card
+                    //   key={uuidv4()}
+                    //   sx={{
+                    //     padding: '24px',
+                    //     display: 'flex',
+                    //     flexDirection: 'column',
+                    //     gap: '20px',
+                    //   }}
+                    // >
+                    //   <Box sx={{ display: 'flex', gap: '20px' }}>
+                    //     <Box
+                    //       sx={{
+                    //         display: 'flex',
+                    //         flexDirection: 'column',
+                    //         gap: '3px',
+                    //       }}
+                    //     >
+                    //       <Typography variant='body1' fontWeight={600} fontSize={14}>
+                    //         {convertTimeToTimezone(
+                    //           value.deliveredDate,
+                    //           auth.getValue().user?.timezone,
+                    //           timezone.getValue(),
+                    //         )}
+                    //       </Typography>
+                    //     </Box>
+                    //   </Box>
+                    //   {value.files.length > 0 ? (
+                    //     <Box
+                    //       sx={{
+                    //         display: 'flex',
+                    //         flexDirection: 'column',
+                    //         gap: '12px',
+                    //       }}
+                    //     >
+                    //       <Box
+                    //         sx={{
+                    //           display: 'flex',
+                    //           gap: '20px',
+                    //           alignItems: 'center',
+                    //         }}
+                    //       >
+                    //         <Typography variant='caption'>
+                    //           {formatFileSize(getFileSize(value.files))}
+                    //         </Typography>
+                    //         <Button
+                    //           variant='outlined'
+                    //           size='small'
+                    //           startIcon={<Icon icon='mdi:download' />}
+                    //           onClick={() => downloadAllFiles(value.files)}
+                    //         >
+                    //           Download all
+                    //         </Button>
+                    //       </Box>
+                    //       <Box
+                    //         sx={{
+                    //           display: 'grid',
+                    //           gridTemplateColumns: 'repeat(3, 1fr)',
+                    //           width: '100%',
+                    //           gap: '20px',
+                    //         }}
+                    //       >
+                    //         {value.files.map(file => (
+                    //           <Box key={uuidv4()} sx={{ marginTop: '5px' }}>
+                    //             <FileBox>
+                    //               <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    //                 <Box sx={{ marginRight: '8px', display: 'flex' }}>
+                    //                   <Icon
+                    //                     icon='material-symbols:file-present-outline'
+                    //                     style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+                    //                     fontSize={24}
+                    //                   />
+                    //                 </Box>
+                    //                 <Box
+                    //                   sx={{
+                    //                     display: 'flex',
+                    //                     flexDirection: 'column',
+                    //                   }}
+                    //                 >
+                    //                   <Tooltip title={file.name}>
+                    //                     <FileName variant='body1'>{file.name}</FileName>
+                    //                   </Tooltip>
+
+                    //                   <Typography variant='caption' lineHeight={'14px'}>
+                    //                     {formatFileSize(file.size)}
+                    //                   </Typography>
+                    //                 </Box>
+                    //               </Box>
+
+                    //               <IconButton
+                    //                 onClick={() => downloadOneFile(file)}
+                    //                 // disabled={jobInfo.status === 'Declined'}
+                    //                 // disabled={isFileUploading || !isUserInTeamMember}
+                    //               >
+                    //                 <Icon icon='mdi:download' fontSize={24} />
+                    //               </IconButton>
+                    //             </FileBox>
+                    //           </Box>
+                    //         ))}
+                    //       </Box>
+                    //     </Box>
+                    //   ) : (
+                    //     <Box
+                    //       sx={{
+                    //         padding: '20px',
+                    //         background: '#F9F8F9',
+                    //         borderRadius: '10px',
+                    //       }}
+                    //     >
+                    //       <Typography variant='body2'>No target files</Typography>
+                    //     </Box>
+                    //   )}
+                    //   <Divider />
+                    //   <Box
+                    //     sx={{
+                    //       display: 'flex',
+                    //       flexDirection: 'column',
+                    //       gap: '10px',
+                    //     }}
+                    //   >
+                    //     <Typography variant='body1' fontWeight={600}>
+                    //       Notes to LPM
+                    //     </Typography>
+                    //     <Typography>{value.note ?? '-'}</Typography>
+                    //   </Box>
+                    // </Card>
+                  )
+                })}
+              </Box>
+            ) : null} */}
+            {/* {savedFiles.length
               ? groupedFiles.map(value => {
                   return (
                     <Box key={uuidv4()}>
@@ -908,18 +1293,18 @@ const DeliveriesFeedback = ({
                   )
                 })
               : // <Box
-              //   sx={{
-              //     display: 'grid',
-              //     gridTemplateColumns: 'repeat(3,1fr)',
-              //     gridGap: '16px',
-              //   }}
-              // >
-              //   {savedFileList}
-              // </Box>
-              uploadFileProcessing
-              ? null
-              : '-'}
-            {files.length || importedFiles.length ? (
+                //   sx={{
+                //     display: 'grid',
+                //     gridTemplateColumns: 'repeat(3,1fr)',
+                //     gridGap: '16px',
+                //   }}
+                // >
+                //   {savedFileList}
+                // </Box>
+                uploadFileProcessing
+                ? null
+                : '-'} */}
+            {/* {files.length || importedFiles.length ? (
               <>
                 {savedFiles.length ? <Divider /> : null}
                 <Box
@@ -950,10 +1335,10 @@ const DeliveriesFeedback = ({
                   <Typography variant='body2'>No files uploaded</Typography>
                 </Box>
               </>
-            ) : null}
+            ) : null} */}
           </Box>
         </Card>
-        {uploadFileProcessing ? null : Boolean(
+        {/* {uploadFileProcessing ? null : Boolean(
             [
               'Delivery confirmed',
               'Invoiced',
@@ -988,10 +1373,127 @@ const DeliveriesFeedback = ({
               </Typography>
             </Box>
           </Card>
-        ) : null}
+        ) : null} */}
       </Grid>
-      <Grid item xs={3}>
-        {currentRole && currentRole.name === 'CLIENT' ? (
+      <Grid item xs={6}>
+        <Card sx={{ padding: '20px' }}>
+          <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            {/* <img src='/images/icons/job-icons/feedback.png' alt='' /> */}
+            <Typography fontSize={20} fontWeight={500}>
+              Feedback
+            </Typography>
+          </Box>
+          {project && project?.feedbacks && project.feedbacks.length > 0 ? (
+            <>
+              {project.feedbacks.length > 0 ? (
+                <Box sx={{ mt: '20px' }}>
+                  {project.feedbacks.map(value => (
+                    <Box
+                      key={uuidv4()}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px',
+                            width: '100%',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                            }}
+                          >
+                            <CustomChip
+                              label={'LPM'}
+                              skin='light'
+                              sx={{
+                                background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #26C6F9`,
+                                color: '#26C6F9',
+                              }}
+                              size='medium'
+                            />
+                            <Typography
+                              variant='body1'
+                              fontWeight={600}
+                              fontSize={14}
+                            >
+                              {value.name}
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              flexItem
+                              variant='middle'
+                            />
+                            <Typography variant='body2'>
+                              {value.email}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '16px',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Typography
+                              fontSize={12}
+                              fontWeight={400}
+                              color={'rgba(76, 78, 100, 0.60)'}
+                            >
+                              {convertTimeToTimezone(
+                                value.createdAt,
+                                auth.getValue().user?.timezone,
+                                timezone.getValue(),
+                              )}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant='body1'
+                              fontSize={14}
+                              fontWeight={400}
+                            >
+                              {value.feedback ?? ''}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              ) : null}
+            </>
+          ) : (
+            <Box
+              sx={{
+                height: '332px',
+                padding: '20px 0',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                There is no feedback yet
+              </Typography>
+            </Box>
+          )}
+        </Card>
+        {/* {currentRole && currentRole.name === 'CLIENT' ? (
           <>
             {isEditable ? (
               <Card sx={{ padding: '24px' }}>
@@ -1086,7 +1588,7 @@ const DeliveriesFeedback = ({
               </Box>
             )}
           </Card>
-        )}
+        )} */}
       </Grid>
     </Grid>
   )

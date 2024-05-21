@@ -168,7 +168,7 @@ const RequestReviewModal = ({
       const files = sourceFiles.concat(targetFiles)
 
       const paths: string[] = files.map(file => {
-        return `project/${jobId}/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
+        return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
       })
 
       const s3URL = paths.map(value => {

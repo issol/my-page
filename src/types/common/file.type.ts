@@ -9,4 +9,5 @@ export type FileType = {
   isImported?: boolean
   isSelected?: boolean
   isRequested?: boolean
+  uploadedBy?: string
 }

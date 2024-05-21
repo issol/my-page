@@ -123,9 +123,11 @@ export const deliverySendToClient = async (
     fileExtension: string
     fileSize?: number
   }[],
+  notes?: string,
 ) => {
   await axios.patch(`/api/enough/u/order/${id}/deliveries/send`, {
     deliveries: deliveries,
+    notes: notes,
   })
 }
 

@@ -692,7 +692,7 @@ export const getJobRequestReview = async (
         },
         {
           file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          id: 385,
+          id: 388,
           name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
           size: 54949,
           type: 'REVIEWED',
@@ -717,10 +717,11 @@ export const getJobRequestReview = async (
       files: [
         {
           file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          id: 385,
+          id: 387,
           name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
           size: 54949,
           type: 'TARGET',
+          createdAt: '2022-01-01T00:00:00.000Z',
         },
       ],
     },

@@ -137,40 +137,6 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                   </Box>
                   <Divider />
                 </Box>
-
-                {/* <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '10%',
-                    gap: '10px',
-                    padding: '20px 0',
-                  }}
-                >
-                  <Checkbox
-                    name='size-small'
-                    sx={{ padding: 0, outline: 'none' }}
-                    value={value.isChecked}
-                    checked={value.isChecked}
-                    disabled={value.isChecked}
-                    onClick={() => checkFeedback(value.id)}
-                    checkedIcon={
-                      <Icon
-                        icon='bi:check-circle-fill'
-                        fontSize={40}
-                        color='#72E128'
-                      />
-                    }
-                    icon={<Icon icon='bi:check-circle' fontSize={40} />}
-                  />
-                  <Typography
-                    variant='caption'
-                    textAlign={'center'}
-                    fontSize={12}
-                  >
-                    I’ve checked the feedback.
-                  </Typography>
-                </Box> */}
               </Box>
             </Box>
           ))}
