@@ -161,6 +161,6 @@ export type JobRequestReviewParamsType = {
     fileExtension: string
     fileSize: number
     type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
-    jobFileId: number
+    jobFileId?: number
   }>
 }

@@ -170,7 +170,6 @@ const RequestReviewModal = ({
           fileExtension: string
           fileSize: number
           type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
-          jobFileId: number
         }>
       } = {
         jobId: jobId,
@@ -192,7 +191,6 @@ const RequestReviewModal = ({
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
           fileInfo.files.push({
-            jobFileId: jobId,
             fileSize: files[idx].size,
             fileName: files[idx].name,
             filePath: url,
@@ -222,7 +220,27 @@ const RequestReviewModal = ({
               runtime: data.runtime,
               wordCount: data.wordCount,
               noteToAssignee: data.note,
-              files: fileInfo.files,
+              files: [
+                ...fileInfo.files,
+                ...selectedSourceFiles.map(value => ({
+                  fileName: value.name,
+                  filePath: value.file!,
+                  fileExtension:
+                    value.name.split('.').pop()?.toLowerCase() ?? '',
+                  fileSize: value.size,
+                  type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                  jobFileId: value.id,
+                })),
+                ...selectedSourceFiles.map(value => ({
+                  fileName: value.name,
+                  filePath: value.file!,
+                  fileExtension:
+                    value.name.split('.').pop()?.toLowerCase() ?? '',
+                  fileSize: value.size,
+                  type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                  jobFileId: value.id,
+                })),
+              ],
             }
             createRequestReviewMutation.mutate(result)
           })
@@ -246,7 +264,24 @@ const RequestReviewModal = ({
         runtime: data.runtime,
         wordCount: data.wordCount,
         noteToAssignee: data.note,
-        files: [],
+        files: [
+          ...selectedSourceFiles.map(value => ({
+            fileName: value.name,
+            filePath: value.file!,
+            fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
+            fileSize: value.size,
+            type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+            jobFileId: value.id,
+          })),
+          ...selectedSourceFiles.map(value => ({
+            fileName: value.name,
+            filePath: value.file!,
+            fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
+            fileSize: value.size,
+            type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+            jobFileId: value.id,
+          })),
+        ],
       }
       createRequestReviewMutation.mutate(result)
       // TODO :Mutation call (기본 정보 Save)
