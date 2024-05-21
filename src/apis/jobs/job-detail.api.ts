@@ -20,6 +20,7 @@ import {
   AssignProFilterPostType,
   AssignProListType,
   JobRequestReviewListType,
+  JobRequestReviewParamsType,
   SaveJobInfoParamsType,
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
@@ -657,100 +658,114 @@ export const importFileFromRequest = async (
 export const getJobRequestReview = async (
   jobId: number,
   lsp: string[],
-): Promise<{ jobId: number; data: Array<JobRequestReviewListType> }> => {
-  const data: Array<JobRequestReviewListType> = [
-    {
-      jobId: jobId,
-      id: 0,
-      corporationId: '001',
-      createdAt: '2022-01-01T00:00:00.000Z',
-      requestor: 'John Doe',
-      assignee: 'Jane Doe',
-      isCompleted: true,
-      desiredDueAt: '2022-02-01T00:00:00.000Z',
-      desiredDueTimezone: { label: 'Korea', code: 'KR' },
-      runtime: '2 hours',
-      wordCount: '1000',
-      note: 'This is a note',
-      reviewedNote: '요청하신 파일 보내드립니다.',
-      files: [
-        {
-          file: 'project/908/source/sample_1280x720_surfing_with_audio.avi',
-          id: 383,
-          name: 'sample_960x400_ocean_with_audio.mp4',
-          size: 17520898,
-          type: 'SOURCE',
-          createdAt: '2022-01-01T00:00:00.000Z',
-        },
-        {
-          file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          id: 385,
-          name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          size: 54949,
-          type: 'TARGET',
-          createdAt: '2022-01-01T00:00:00.000Z',
-        },
-        {
-          file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          id: 388,
-          name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          size: 54949,
-          type: 'REVIEWED',
-          createdAt: '2022-01-01T00:00:00.000Z',
-        },
-      ],
-    },
-    {
-      jobId: jobId,
-      id: 1,
-      corporationId: '002',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      requestor: 'John Doe',
-      assignee: 'Jane Doe',
-      isCompleted: true,
-      desiredDueAt: '2022-02-01T00:00:00.000Z',
-      desiredDueTimezone: { label: 'Korea', code: 'KR' },
-      runtime: '2 hours',
-      wordCount: '1000',
-      note: 'This is a note',
-      reviewedNote: '요청하신 파일 보내드립니다.',
-      files: [
-        {
-          file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          id: 387,
-          name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
-          size: 54949,
-          type: 'TARGET',
-          createdAt: '2022-01-01T00:00:00.000Z',
-        },
-      ],
-    },
-    {
-      jobId: jobId,
-      id: 2,
-      corporationId: '003',
-      createdAt: '2023-01-01T00:00:00.000Z',
-      requestor: 'Leriel Kim',
-      assignee: 'Jane Doe',
-      isCompleted: false,
-      desiredDueAt: '2022-02-01T00:00:00.000Z',
-      desiredDueTimezone: { label: 'Korea', code: 'KR' },
-      runtime: '2 hours',
-      wordCount: '1000',
-      note: 'This is a note',
-      reviewedNote: '요청하신 파일 보내드립니다.',
-      files: [],
-    },
-  ]
+): Promise<Array<JobRequestReviewListType>> => {
+  const { data } = await axios.get(
+    `/api/enough/u/job-review-request/list?jobId=${jobId}`,
+  )
 
-  return {
-    jobId: jobId,
-    data: data,
-  }
-
+  return data
+  // const data: Array<JobRequestReviewListType> = [
+  //   {
+  //     jobId: jobId,
+  //     id: 0,
+  //     corporationId: '001',
+  //     createdAt: '2022-01-01T00:00:00.000Z',
+  //     requestor: 'John Doe',
+  //     assignee: 'Jane Doe',
+  //     isCompleted: true,
+  //     desiredDueAt: '2022-02-01T00:00:00.000Z',
+  //     desiredDueTimezone: { label: 'Korea', code: 'KR' },
+  //     runtime: '2 hours',
+  //     wordCount: '1000',
+  //     note: 'This is a note',
+  //     reviewedNote: '요청하신 파일 보내드립니다.',
+  //     files: [
+  //       {
+  //         file: 'project/908/source/sample_1280x720_surfing_with_audio.avi',
+  //         id: 383,
+  //         name: 'sample_960x400_ocean_with_audio.mp4',
+  //         size: 17520898,
+  //         type: 'SOURCE',
+  //         createdAt: '2022-01-01T00:00:00.000Z',
+  //       },
+  //       {
+  //         file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         id: 385,
+  //         name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         size: 54949,
+  //         type: 'TARGET',
+  //         createdAt: '2022-01-01T00:00:00.000Z',
+  //       },
+  //       {
+  //         file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         id: 388,
+  //         name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         size: 54949,
+  //         type: 'REVIEWED',
+  //         createdAt: '2022-01-01T00:00:00.000Z',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     jobId: jobId,
+  //     id: 1,
+  //     corporationId: '002',
+  //     createdAt: '2024-01-01T00:00:00.000Z',
+  //     requestor: 'John Doe',
+  //     assignee: 'Jane Doe',
+  //     isCompleted: true,
+  //     desiredDueAt: '2022-02-01T00:00:00.000Z',
+  //     desiredDueTimezone: { label: 'Korea', code: 'KR' },
+  //     runtime: '2 hours',
+  //     wordCount: '1000',
+  //     note: 'This is a note',
+  //     reviewedNote: '요청하신 파일 보내드립니다.',
+  //     files: [
+  //       {
+  //         file: 'project/908/BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         id: 387,
+  //         name: 'BOYNEXTDOOR_WHATDOOR_EP5_환상의나라캐스트체험1_믹싱용2(번역용re)_240119_ENG_Final.srt',
+  //         size: 54949,
+  //         type: 'TARGET',
+  //         createdAt: '2022-01-01T00:00:00.000Z',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     jobId: jobId,
+  //     id: 2,
+  //     corporationId: '003',
+  //     createdAt: '2023-01-01T00:00:00.000Z',
+  //     requestor: 'Leriel Kim',
+  //     assignee: 'Jane Doe',
+  //     isCompleted: false,
+  //     desiredDueAt: '2022-02-01T00:00:00.000Z',
+  //     desiredDueTimezone: { label: 'Korea', code: 'KR' },
+  //     runtime: '2 hours',
+  //     wordCount: '1000',
+  //     note: 'This is a note',
+  //     reviewedNote: '요청하신 파일 보내드립니다.',
+  //     files: [],
+  //   },
+  // ]
+  // return {
+  //   jobId: jobId,
+  //   data: data,
+  // }
   // const {data} = await axios.get(`/api/enough/u/job/${jobId}/request/review`)
 }
 
-export const completeRequestReview = async (id: number, type: '1' | '0') => {
-  return true
+export const createRequestReview = async (
+  params: JobRequestReviewParamsType,
+) => {
+  const { data } = await axios.post(`/api/enough/u/job-review-request`, {
+    ...params,
+  })
+  return data
+}
+
+export const completeRequestReview = async (id: number, type: boolean) => {
+  await axios.patch(
+    `/api/enough/u/job-review-request/${id}/${type ? 'complete' : 'incomplete'}`,
+  )
 }

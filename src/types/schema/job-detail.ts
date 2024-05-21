@@ -57,7 +57,7 @@ export const editJobInfoSchema = yup.object().shape({
 })
 
 export const requestReviewSchema = yup.object().shape({
-  assignee: yup.string().required(FormErrors.required),
+  assignee: yup.number().required(FormErrors.required),
   desiredDueAt: yup.date().required(FormErrors.required),
   desiredDueTimezone: yup.object().shape({
     id: yup.number().nullable(),

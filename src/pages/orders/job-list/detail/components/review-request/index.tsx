@@ -84,7 +84,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   const leftContainer = useRef<Array<HTMLDivElement | null>>([])
 
   const completeRequestReviewMutation = useMutation(
-    (data: { id: number; completed: '1' | '0' }) =>
+    (data: { id: number; completed: boolean }) =>
       completeRequestReview(data.id, data.completed),
     {
       onSuccess: data => {
@@ -154,7 +154,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
           }}
           // control={control}
           // handleSubmit={handleSubmit}
-          lspList={lspList}
+
           jobSourceFiles={
             jobInfo.files?.filter(value => value.type === 'SOURCE') || []
           }
@@ -188,8 +188,15 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
             }}
             onClick={() => {
               closeModal('MarkAsCompleteModal')
-              // completeRequestReviewMutation.mutate({ id: id })
-              setChecked(true)
+              completeRequestReviewMutation.mutate(
+                { id: id, completed: true },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries(['jobRequestReview'])
+                    setChecked(true)
+                  },
+                },
+              )
             }}
             rightButtonText='Confirm'
             vary='successful'
@@ -209,8 +216,15 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
             }}
             onClick={() => {
               closeModal('MarkAsIncompleteModal')
-              // completeRequestReviewMutation.mutate({ id: id })
-              setChecked(false)
+              completeRequestReviewMutation.mutate(
+                { id: id, completed: false },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries(['jobRequestReview'])
+                    setChecked(false)
+                  },
+                },
+              )
             }}
             vary='error-report'
           />
@@ -280,8 +294,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
           >
             <Typography fontSize={20} fontWeight={500}>
               Review requests (
-              {requestReviewList.data.length
-                ? requestReviewList.data.length.toLocaleString()
+              {requestReviewList.length
+                ? requestReviewList.length.toLocaleString()
                 : 0}
               )
             </Typography>
@@ -348,8 +362,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {requestReviewList.data.length > 0 ? (
-                requestReviewList.data.map((item, index) => (
+              {requestReviewList.length > 0 ? (
+                requestReviewList.map((item, index) => (
                   <Accordion
                     key={uuidv4()}
                     expanded={expanded === item.id.toString()}

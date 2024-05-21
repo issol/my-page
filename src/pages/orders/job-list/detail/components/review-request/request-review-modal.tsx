@@ -21,6 +21,7 @@ import { CompanyOptionType } from '@src/types/options.type'
 import {
   JobRequestReviewFormType,
   JobRequestReviewListType,
+  JobRequestReviewParamsType,
 } from '@src/types/orders/job-detail'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { useEffect, useState } from 'react'
@@ -60,12 +61,15 @@ import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
 import { s } from '@fullcalendar/core/internal-common'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { useMutation, useQueryClient } from 'react-query'
+import { createRequestReview } from '@src/apis/jobs/job-detail.api'
+import { useGetMemberList } from '@src/queries/quotes.query'
 
 type Props = {
   onClose: any
   // control: Control<JobRequestReviewFormType, any>
   // handleSubmit: UseFormHandleSubmit<JobRequestReviewFormType, undefined>
-  lspList: CompanyOptionType[]
+
   jobSourceFiles: FileType[]
   jobTargetFiles: FileType[]
   type: 'edit' | 'create'
@@ -82,7 +86,7 @@ const RequestReviewModal = ({
   onClose,
   // control,
   // handleSubmit,
-  lspList,
+
   jobSourceFiles,
   jobTargetFiles,
   type,
@@ -92,10 +96,23 @@ const RequestReviewModal = ({
   // errors,
   // setFocus,
 }: Props) => {
+  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const theme = useTheme()
   const { direction } = theme
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const createRequestReviewMutation = useMutation(
+    (params: JobRequestReviewParamsType) => createRequestReview(params),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['jobRequestReview'])
+        onClose()
+      },
+    },
+  )
+
+  const { data: members } = useGetMemberList()
 
   const {
     control,
@@ -134,13 +151,6 @@ const RequestReviewModal = ({
     return dayjs(date).format('MM/DD/YYYY, hh:mm a')
   }
 
-  const [lspListOptions, setLspListOptions] = useState<
-    {
-      label: string
-      value: string
-    }[]
-  >([])
-
   const [timeZoneList, setTimeZoneList] = useState<
     {
       code: string
@@ -155,10 +165,12 @@ const RequestReviewModal = ({
       const fileInfo: {
         jobId: number
         files: Array<{
-          jobId: number
-          size: number
-          name: string
+          fileName: string
+          filePath: string
+          fileExtension: string
+          fileSize: number
           type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+          jobFileId: number
         }>
       } = {
         jobId: jobId,
@@ -180,9 +192,12 @@ const RequestReviewModal = ({
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
           fileInfo.files.push({
-            jobId: jobId,
-            size: files[idx].size,
-            name: files[idx].name,
+            jobFileId: jobId,
+            fileSize: files[idx].size,
+            fileName: files[idx].name,
+            filePath: url,
+            fileExtension:
+              files[idx].name.split('.').pop()?.toLowerCase() ?? '',
             type:
               (files[idx].type as
                 | 'SOURCE'
@@ -198,6 +213,18 @@ const RequestReviewModal = ({
             //TODO : Mutation call (파일 정보 Save)
             // uploadFileMutation.mutate(fileInfo)
             // TODO :Mutation call (기본 정보 Save)
+
+            const result: JobRequestReviewParamsType = {
+              jobId: jobId,
+              assigneeId: data.assignee,
+              dueDate: data.desiredDueAt,
+              dueDateTimezone: data.desiredDueTimezone,
+              runtime: data.runtime,
+              wordCount: data.wordCount,
+              noteToAssignee: data.note,
+              files: fileInfo.files,
+            }
+            createRequestReviewMutation.mutate(result)
           })
           .catch(err =>
             toast.error(
@@ -208,9 +235,20 @@ const RequestReviewModal = ({
             ),
           )
       })
-    } else if (sourceFiles.length || targetFiles.length) {
+    } else if (selectedSourceFiles.length || selectedTargetFiles.length) {
       // TODO : Mutation call (Import 파일 정보 Save)
     } else {
+      const result: JobRequestReviewParamsType = {
+        jobId: jobId,
+        assigneeId: data.assignee,
+        dueDate: data.desiredDueAt,
+        dueDateTimezone: data.desiredDueTimezone,
+        runtime: data.runtime,
+        wordCount: data.wordCount,
+        noteToAssignee: data.note,
+        files: [],
+      }
+      createRequestReviewMutation.mutate(result)
       // TODO :Mutation call (기본 정보 Save)
     }
   }
@@ -324,15 +362,6 @@ const RequestReviewModal = ({
       setSourceFiles(uniqueFiles)
     },
   })
-
-  useEffect(() => {
-    const res = lspList.map(lsp => ({
-      label: lsp.name,
-      value: lsp.id,
-    }))
-    const result = [{ label: 'Not specified', value: 'Not specified' }, ...res]
-    setLspListOptions(result)
-  }, [lspList])
 
   useEffect(() => {
     const timezoneList = timezone.getValue()
@@ -501,11 +530,12 @@ const RequestReviewModal = ({
                       <Autocomplete
                         // label='legalName_pronounce'
                         fullWidth
-                        value={lspListOptions.find(
-                          option => option.value === value,
-                        )}
+                        value={
+                          members?.find(option => option.value === value) ??
+                          null
+                        }
                         onChange={(e, newValue) => onChange(newValue?.value)}
-                        options={lspListOptions}
+                        options={members || []}
                         renderInput={params => (
                           <TextField
                             {...params}

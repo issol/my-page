@@ -127,7 +127,7 @@ export type JobRequestReviewListType = {
   corporationId: string
   createdAt: string
   requestor: string
-  assignee: string
+  assignee: number
   isCompleted: boolean
   desiredDueAt: string
   desiredDueTimezone: CountryType
@@ -139,10 +139,28 @@ export type JobRequestReviewListType = {
 }
 
 export type JobRequestReviewFormType = {
-  assignee: string
+  assignee: number
   desiredDueAt: Date
   desiredDueTimezone: CountryType
   runtime: string
   wordCount: string
   note: string
+}
+
+export type JobRequestReviewParamsType = {
+  jobId: number
+  assigneeId: number
+  dueDate: Date
+  dueDateTimezone: CountryType
+  runtime: string
+  wordCount: string
+  noteToAssignee: string
+  files: Array<{
+    fileName: string
+    filePath: string
+    fileExtension: string
+    fileSize: number
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+    jobFileId: number
+  }>
 }
