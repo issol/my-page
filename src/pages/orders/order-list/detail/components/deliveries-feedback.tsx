@@ -30,6 +30,7 @@ import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { FileType } from '@src/types/common/file.type'
 import {
   DeliveryFileType,
+  OrderDeliveriesFeedbackType,
   OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
@@ -87,6 +88,7 @@ type Props = {
   uploadFileProcessing: boolean
   setUploadFileProcessing: Dispatch<SetStateAction<boolean>>
   isEditable: boolean
+  deliveriesFeedback: OrderDeliveriesFeedbackType
 }
 
 const DeliveriesFeedback = ({
@@ -99,6 +101,7 @@ const DeliveriesFeedback = ({
   uploadFileProcessing,
   setUploadFileProcessing,
   isEditable,
+  deliveriesFeedback,
 }: Props) => {
   const router = useRouter()
   const theme = useTheme()
@@ -137,8 +140,15 @@ const DeliveriesFeedback = ({
         fileExtension: string
         fileSize?: number
       }[]
+      deliveryType: 'partial' | 'final'
       notes?: string
-    }) => deliverySendToClient(project.id, data.deliveries, data.notes),
+    }) =>
+      deliverySendToClient(
+        project.id,
+        data.deliveries,
+        data.deliveryType,
+        data.notes,
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -349,7 +359,7 @@ const DeliveriesFeedback = ({
     return [name, extension]
   }
 
-  const onSubmit = () => {
+  const onSubmit = (deliveryType: 'partial' | 'final') => {
     closeModal('DeliverToClientModal')
     setUploadFileProcessing(false)
     if (files.length || importedFiles.length) {
@@ -382,7 +392,9 @@ const DeliveriesFeedback = ({
           updateDeliveries.mutate({
             deliveries: fileInfo,
             notes: note ?? undefined,
+            deliveryType: deliveryType,
           })
+          setNote(null)
           setFiles([])
           setImportedFiles([])
         })
@@ -415,12 +427,8 @@ const DeliveriesFeedback = ({
       children: (
         <DeliverClientModal
           onClose={() => closeModal('DeliverToClientModal')}
-          onClick={(deliverType: 'partial' | 'final') => {
-            if (deliverType === 'partial') {
-              onSubmit()
-            } else {
-              handleCompleteDelivery()
-            }
+          onClick={(deliveryType: 'partial' | 'final') => {
+            onSubmit(deliveryType)
           }}
         />
       ),
@@ -847,7 +855,7 @@ const DeliveriesFeedback = ({
                 </Box>
               </Tooltip>
             </Box>
-            {/* {project.deliveries.length ? (
+            {deliveriesFeedback.deliveries.length ? (
               <Box
                 sx={{
                   '& .Mui-expanded .MuiAccordion-rounded': {
@@ -859,7 +867,7 @@ const DeliveriesFeedback = ({
                   gap: '12px',
                 }}
               >
-                {project.deliveries.map(value => {
+                {deliveriesFeedback.deliveries.map(value => {
                   return (
                     <Accordion
                       key={uuidv4()}
@@ -1187,7 +1195,7 @@ const DeliveriesFeedback = ({
                   )
                 })}
               </Box>
-            ) : null} */}
+            ) : null}
             {/* {savedFiles.length
               ? groupedFiles.map(value => {
                   return (
@@ -1338,42 +1346,6 @@ const DeliveriesFeedback = ({
             ) : null} */}
           </Box>
         </Card>
-        {/* {uploadFileProcessing ? null : Boolean(
-            [
-              'Delivery confirmed',
-              'Invoiced',
-              'Paid',
-              'Without invoice',
-              'Canceled',
-            ].includes(String(project.status)),
-          ) ? (
-          <Card sx={{ padding: '24px', mt: '24px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <Typography variant='body1' fontWeight={600} fontSize={16}>
-                  Feedback
-                </Typography>
-                {currentRole &&
-                currentRole.name === 'CLIENT' &&
-                (!project.feedback ||
-                  project.feedback === '-' ||
-                  project.feedback === null) ? (
-                  <Button
-                    variant='contained'
-                    sx={{ height: '34px' }}
-                    onClick={onClickSendFeedback}
-                  >
-                    Send feedback
-                  </Button>
-                ) : null}
-              </Box>
-
-              <Typography variant='body1' fontWeight={400} fontSize={16}>
-                {project.feedback ?? '-'}
-              </Typography>
-            </Box>
-          </Card>
-        ) : null} */}
       </Grid>
       <Grid item xs={6}>
         <Card sx={{ padding: '20px' }}>
@@ -1383,6 +1355,7 @@ const DeliveriesFeedback = ({
               Feedback
             </Typography>
           </Box>
+
           {project && project?.feedbacks && project.feedbacks.length > 0 ? (
             <>
               {project.feedbacks.length > 0 ? (

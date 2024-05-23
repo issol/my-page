@@ -54,6 +54,7 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { useRouter } from 'next/router'
 import {
   useGetClient,
+  useGetDeliveryFeedback,
   useGetJobInfo,
   useGetLangItem,
   useGetProjectInfo,
@@ -292,6 +293,8 @@ const OrderDetail = () => {
     Number(id!),
   )
 
+  const { data: deliveriesFeedback } = useGetDeliveryFeedback(Number(id!))
+
   const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
     Number(id!),
   ) as { data: JobInfoType[]; isLoading: boolean }
@@ -504,7 +507,10 @@ const OrderDetail = () => {
         getProjectInfo().orderTimezone,
       ),
       orderTimezone: getProjectInfo().orderTimezone
-        ? { label: getProjectInfo().orderTimezone.label, code: getProjectInfo().orderTimezone.code }
+        ? {
+            label: getProjectInfo().orderTimezone.label,
+            code: getProjectInfo().orderTimezone.code,
+          }
         : '',
       projectDueAt: getProjectInfo().projectDueAt
         ? changeTimeZoneOffset(
@@ -513,7 +519,10 @@ const OrderDetail = () => {
           )
         : null,
       projectDueTimezone: getProjectInfo().projectDueTimezone
-        ? { label: getProjectInfo().projectDueTimezone.label, code: getProjectInfo().projectDueTimezone.code }
+        ? {
+            label: getProjectInfo().projectDueTimezone.label,
+            code: getProjectInfo().projectDueTimezone.code,
+          }
         : '',
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
@@ -2296,6 +2305,7 @@ const OrderDetail = () => {
                   uploadFileProcessing={uploadFileProcessing}
                   setUploadFileProcessing={setUploadFileProcessing}
                   isEditable={isIncludeProjectTeam()}
+                  deliveriesFeedback={deliveriesFeedback!}
                 />
               </Suspense>
             </TabPanel>

@@ -226,3 +226,24 @@ export type JobInfoType = {
   jobName: string
   isProAssigned: boolean
 }
+
+export type OrderDeliveriesFeedbackType = {
+  deliveries: Array<{
+    id: number
+    createdAt: string
+    note: string
+    isWithoutFile: boolean
+    files: Array<DeliveryFileType>
+  }>
+  feedback: Array<{
+    id: number
+    createdAt: string
+    authorId: number
+    note: string
+    isChecked: boolean
+    authorInfo: {
+      email: string
+      name: string
+    }
+  }>
+}
