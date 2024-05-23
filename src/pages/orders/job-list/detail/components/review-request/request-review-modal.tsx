@@ -62,7 +62,10 @@ import toast from 'react-hot-toast'
 import { s } from '@fullcalendar/core/internal-common'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
-import { createRequestReview } from '@src/apis/jobs/job-detail.api'
+import {
+  createRequestReview,
+  updateRequestReview,
+} from '@src/apis/jobs/job-detail.api'
 import { useGetMemberList } from '@src/queries/quotes.query'
 
 type Props = {
@@ -112,6 +115,17 @@ const RequestReviewModal = ({
     },
   )
 
+  const updateRequestReviewMutation = useMutation(
+    (data: { params: JobRequestReviewParamsType; id: number }) =>
+      updateRequestReview(data.params, data.id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['jobRequestReview'])
+        onClose()
+      },
+    },
+  )
+
   const { data: members } = useGetMemberList()
 
   const {
@@ -143,6 +157,12 @@ const RequestReviewModal = ({
   const [targetFiles, setTargetFiles] = useState<FileType[]>([])
   const [selectedSourceFiles, setSelectedSourceFiles] = useState<FileType[]>([])
   const [selectedTargetFiles, setSelectedTargetFiles] = useState<FileType[]>([])
+
+  const [isSourceFileUpdate, setIsSourceFileUpdate] = useState(false)
+  const [isTargetFileUpdate, setIsTargetFileUpdate] = useState(false)
+
+  const [importSourceFileUpdate, setImportSourceFileUpdate] = useState(false)
+  const [importTargetFileUpdate, setImportTargetFileUpdate] = useState(false)
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -222,27 +242,44 @@ const RequestReviewModal = ({
               noteToAssignee: data.note,
               files: [
                 ...fileInfo.files,
-                ...selectedSourceFiles.map(value => ({
-                  fileName: value.name,
-                  filePath: value.file!,
-                  fileExtension:
-                    value.name.split('.').pop()?.toLowerCase() ?? '',
-                  fileSize: value.size,
-                  type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                  jobFileId: value.id,
-                })),
-                ...selectedSourceFiles.map(value => ({
-                  fileName: value.name,
-                  filePath: value.file!,
-                  fileExtension:
-                    value.name.split('.').pop()?.toLowerCase() ?? '',
-                  fileSize: value.size,
-                  type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                  jobFileId: value.id,
-                })),
+                ...selectedSourceFiles
+                  .filter(item => item.isSelected)
+                  .map(value => ({
+                    fileName: value.name,
+                    filePath: value.file!,
+                    fileExtension:
+                      value.name.split('.').pop()?.toLowerCase() ?? '',
+                    fileSize: value.size,
+                    type: 'SOURCE' as
+                      | 'SOURCE'
+                      | 'TARGET'
+                      | 'SAMPLE'
+                      | 'REVIEWED',
+                    jobFileId: value.id,
+                  })),
+                ...selectedTargetFiles
+                  .filter(item => item.isSelected)
+                  .map(value => ({
+                    fileName: value.name,
+                    filePath: value.file!,
+                    fileExtension:
+                      value.name.split('.').pop()?.toLowerCase() ?? '',
+                    fileSize: value.size,
+                    type: 'TARGET' as
+                      | 'SOURCE'
+                      | 'TARGET'
+                      | 'SAMPLE'
+                      | 'REVIEWED',
+                    jobFileId: value.id,
+                  })),
               ],
             }
-            createRequestReviewMutation.mutate(result)
+            type === 'edit'
+              ? updateRequestReviewMutation.mutate({
+                  params: result,
+                  id: requestInfo?.id!,
+                })
+              : createRequestReviewMutation.mutate(result)
           })
           .catch(err =>
             toast.error(
@@ -253,8 +290,6 @@ const RequestReviewModal = ({
             ),
           )
       })
-    } else if (selectedSourceFiles.length || selectedTargetFiles.length) {
-      // TODO : Mutation call (Import 파일 정보 Save)
     } else {
       const result: JobRequestReviewParamsType = {
         jobId: jobId,
@@ -265,25 +300,34 @@ const RequestReviewModal = ({
         wordCount: data.wordCount,
         noteToAssignee: data.note,
         files: [
-          ...selectedSourceFiles.map(value => ({
-            fileName: value.name,
-            filePath: value.file!,
-            fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
-            fileSize: value.size,
-            type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-            jobFileId: value.id,
-          })),
-          ...selectedSourceFiles.map(value => ({
-            fileName: value.name,
-            filePath: value.file!,
-            fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
-            fileSize: value.size,
-            type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-            jobFileId: value.id,
-          })),
+          ...selectedSourceFiles
+            .filter(item => item.isSelected)
+            .map(value => ({
+              fileName: value.name,
+              filePath: value.file!,
+              fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              fileSize: value.size,
+              type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+              jobFileId: value.id,
+            })),
+          ...selectedTargetFiles
+            .filter(item => item.isSelected)
+            .map(value => ({
+              fileName: value.name,
+              filePath: value.file!,
+              fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              fileSize: value.size,
+              type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+              jobFileId: value.id,
+            })),
         ],
       }
-      createRequestReviewMutation.mutate(result)
+      type === 'edit'
+        ? updateRequestReviewMutation.mutate({
+            params: result,
+            id: requestInfo?.id!,
+          })
+        : createRequestReviewMutation.mutate(result)
       // TODO :Mutation call (기본 정보 Save)
     }
   }
@@ -292,7 +336,13 @@ const RequestReviewModal = ({
     if (type === 'create') {
       saveData(data)
     } else {
-      if (isDirty) {
+      if (
+        isDirty ||
+        isSourceFileUpdate ||
+        isTargetFileUpdate ||
+        importSourceFileUpdate ||
+        importTargetFileUpdate
+      ) {
         openModal({
           type: 'ReviseRequestModal',
           children: (
@@ -333,6 +383,10 @@ const RequestReviewModal = ({
     type === 'source'
       ? setSourceFiles([...filtered])
       : setTargetFiles([...filtered])
+
+    type === 'source'
+      ? setIsSourceFileUpdate(true)
+      : setIsTargetFileUpdate(true)
   }
 
   function onFileUploadReject() {
@@ -363,8 +417,6 @@ const RequestReviewModal = ({
       fileRejections: FileRejection[],
       event: DropEvent,
     ) => {
-      console.log(event)
-
       const uniqueFiles = sourceFiles
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {
@@ -383,9 +435,7 @@ const RequestReviewModal = ({
               acc.push({
                 name: file.name,
                 size: file.size,
-                type: file.type,
-
-                downloadAvailable: false,
+                type: 'SOURCE',
               })
             // console.log(acc)
 
@@ -393,7 +443,7 @@ const RequestReviewModal = ({
           }
         }, [])
       console.log(uniqueFiles)
-
+      type === 'edit' && setIsSourceFileUpdate(true)
       setSourceFiles(uniqueFiles)
     },
   })
@@ -420,7 +470,7 @@ const RequestReviewModal = ({
           type: value.type,
           file: value.file,
           isSelected: false,
-          isRequested: value.isRequested,
+          isRequested: value.reviewRequested,
         })),
       )
     }
@@ -436,7 +486,7 @@ const RequestReviewModal = ({
           type: value.type,
           file: value.file,
           isSelected: false,
-          isRequested: value.isRequested,
+          isRequested: value.reviewRequested,
         })),
       )
     }
@@ -444,17 +494,22 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
-      setValue('assignee', requestInfo.assignee, { shouldDirty: false })
-      setValue('desiredDueAt', new Date(requestInfo.desiredDueAt), {
+      console.log(requestInfo.dueDateTimezone)
+      setSourceFiles(requestInfo.files.filter(value => value.type === 'SOURCE'))
+      setTargetFiles(requestInfo.files.filter(value => value.type === 'TARGET'))
+      setValue('assignee', requestInfo.assigneeId, { shouldDirty: false })
+      setValue('desiredDueAt', new Date(requestInfo.dueDate), {
         shouldDirty: false,
       })
-      setValue('desiredDueTimezone', requestInfo.desiredDueTimezone, {
+      setValue('desiredDueTimezone', requestInfo.dueDateTimezone, {
         shouldDirty: false,
       })
       setValue('runtime', requestInfo.runtime, { shouldDirty: false })
       setValue('wordCount', requestInfo.wordCount, { shouldDirty: false })
     }
   }, [type, requestInfo])
+
+  console.log(getValues())
 
   return (
     <Box
@@ -673,44 +728,44 @@ const RequestReviewModal = ({
                       render={({
                         field: { onChange, value, ref },
                         formState: { isSubmitted, errors },
-                      }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          value={value}
-                          options={timeZoneList as CountryType[]}
-                          onChange={(e, v) => onChange(v)}
-                          disableClearable
-                          // renderOption={(props, option) => (
-                          //   <Box component='li' {...props} key={uuidv4()}>
-                          //     {timeZoneFormatter(option, timezone.getValue())}
-                          //   </Box>
-                          // )}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              inputRef={ref}
-                              autoComplete='off'
-                              error={
-                                isSubmitted &&
-                                Boolean(errors.desiredDueTimezone)
-                              }
-                              helperText={
-                                isSubmitted &&
-                                Boolean(errors.desiredDueTimezone)
-                                  ? FormErrors.required
-                                  : ''
-                              }
-                              inputProps={{
-                                ...params.inputProps,
-                              }}
-                            />
-                          )}
-                          getOptionLabel={option =>
-                            timeZoneFormatter(option, timezone.getValue()) ?? ''
-                          }
-                        />
-                      )}
+                      }) => {
+                        return (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            value={value ?? { code: '', label: '', phone: '' }}
+                            options={timeZoneList as CountryType[]}
+                            onChange={(e, v) => onChange(v)}
+                            disableClearable
+                            // renderOption={(props, option) => (
+                            //   <Box component='li' {...props} key={uuidv4()}>
+                            //     {timeZoneFormatter(option, timezone.getValue())}
+                            //   </Box>
+                            // )}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                inputRef={ref}
+                                autoComplete='off'
+                                error={
+                                  isSubmitted &&
+                                  Boolean(errors.desiredDueTimezone)
+                                }
+                                helperText={
+                                  isSubmitted &&
+                                  Boolean(errors.desiredDueTimezone)
+                                    ? FormErrors.required
+                                    : ''
+                                }
+                              />
+                            )}
+                            getOptionLabel={option =>
+                              timeZoneFormatter(option, timezone.getValue()) ??
+                              ''
+                            }
+                          />
+                        )
+                      }}
                     />
                   </Box>
                 </Box>
@@ -1024,10 +1079,13 @@ const RequestReviewModal = ({
                                     <Checkbox
                                       checked={file.isSelected}
                                       value={file.isSelected}
-                                      disabled={file.isRequested}
+                                      disabled={file.reviewRequested}
                                       onChange={event => {
                                         event.stopPropagation()
                                         file.isSelected = !file.isSelected
+
+                                        type === 'edit' &&
+                                          setImportSourceFileUpdate(true)
                                         setSourceFileSize(prev => {
                                           return file.isSelected
                                             ? prev + file.size
@@ -1097,7 +1155,7 @@ const RequestReviewModal = ({
                                     </Box>
                                   </Box>
                                 </Box>
-                                {file.isRequested ? (
+                                {file.reviewRequested ? (
                                   <Typography
                                     sx={{ textAlign: 'right' }}
                                     fontSize={12}
@@ -1153,6 +1211,8 @@ const RequestReviewModal = ({
                     setTargetFiles={setTargetFiles}
                     onFileUploadReject={onFileUploadReject}
                     handleRemoveFile={handleRemoveFile}
+                    type={type}
+                    setTargetFileUpdate={setIsTargetFileUpdate}
                   />
                   {selectedTargetFiles.length > 0 && (
                     <Box
@@ -1211,7 +1271,7 @@ const RequestReviewModal = ({
                                     <Checkbox
                                       checked={file.isSelected}
                                       value={file.isSelected}
-                                      disabled={file.isRequested}
+                                      disabled={file.reviewRequested}
                                       onChange={event => {
                                         event.stopPropagation()
                                         file.isSelected = !file.isSelected
@@ -1285,7 +1345,7 @@ const RequestReviewModal = ({
                                     </Box>
                                   </Box>
                                 </Box>
-                                {file.isRequested ? (
+                                {file.reviewRequested ? (
                                   <Typography
                                     sx={{ textAlign: 'right' }}
                                     fontSize={12}

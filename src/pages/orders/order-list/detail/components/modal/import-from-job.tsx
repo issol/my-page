@@ -101,19 +101,6 @@ const ImportFromJob = ({
     }
   }
 
-  console.log(
-    reviewedFiles.flatMap(item =>
-      item.files.map(file => ({
-        ...file,
-        reqId: item.corporationId,
-        isCompleted: item.isCompleted,
-        assignedPerson: item.assignee,
-      })),
-    ),
-
-    'reviewedFiles',
-  )
-
   return (
     <Box
       sx={{
@@ -407,7 +394,7 @@ const ImportFromJob = ({
                               ...file,
                               reqId: item.corporationId,
                               isCompleted: item.isCompleted,
-                              assignedPerson: item.assignee,
+                              assignedPerson: item.assigneeId,
                             })),
                           )}
                           checkboxSelection

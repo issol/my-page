@@ -55,8 +55,13 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
 import { completeRequestReview } from '@src/apis/jobs/job-detail.api'
 import UploadReviewedFilesModal from './upload-reviewed-files-modal'
-import { useDropzone } from 'react-dropzone'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
+
+import { useGetMemberList } from '@src/queries/quotes.query'
+import styled from '@emotion/styled'
+import {
+  getCurrentRole,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
 
 type Props = {
   // requestReviewList: {
@@ -81,7 +86,13 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
+  const currentRole = getCurrentRole()
   const leftContainer = useRef<Array<HTMLDivElement | null>>([])
+  const [memberList, setMemberList] = useState<
+    Array<{ value: number; label: string; jobTitle?: string }>
+  >([])
+
+  const { data: members } = useGetMemberList()
 
   const completeRequestReviewMutation = useMutation(
     (data: { id: number; completed: boolean }) =>
@@ -93,7 +104,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     },
   )
 
-  const [checked, setChecked] = useState(true)
+  const [checked, setChecked] = useState(false)
 
   const getFileSize = (file: FileType[], type: string) => {
     const files = file.filter((file: FileType) => file.type === type)
@@ -107,38 +118,43 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   }
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
-  const [lsp, setLsp] = useState<string[]>(['all'])
+  const [lsp, setLsp] = useState<number[]>([])
 
   const { data: requestReviewList, isLoading } = useGetJobRequestReview(
     jobId,
     lsp,
   )
   const [selectedLsp, setSelectedLsp] = useState<
-    { value: string; label: string }[]
-  >([{ value: 'all', label: 'All' }])
-  const [lspListOptions, setLspListOptions] = useState<
-    {
-      label: string
-      value: string
-    }[]
+    { value: number; label: string; jobTitle?: string }[]
   >([])
 
   const handleChange = (event: SelectChangeEvent<typeof lsp>) => {
-    const {
-      target: { value },
-    } = event
+    const value = event.target.value as number[]
+    if (members) {
+      console.log(value)
 
-    const result = lspListOptions.filter(option => value.includes(option.value))
+      const result = members.filter(option =>
+        value.includes(option.value as number),
+      ) // Cast option.value as number
 
-    setLsp(typeof value === 'string' ? value.split(',') : value)
-    setSelectedLsp(result)
+      setLsp(value)
+      setSelectedLsp(result)
+    }
   }
 
-  const [expanded, setExpanded] = useState<string | false>(false)
+  // const [expanded, setExpanded] = useState<string | false>(false)
+  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
+
   const handleAccordionChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false)
+    (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded({ ...expanded, [panel]: isExpanded })
     }
+
+  // const handleAccordionChange =
+  //   (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+  //     // setExpanded(isExpanded ? panel : false)
+  //     setExpanded(isExpanded ? panel : false)
+  //   }
 
   const onClickRequestReview = (
     type: 'create' | 'edit',
@@ -240,6 +256,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
       children: (
         <UploadReviewedFilesModal
           onClose={() => closeModal('UploadReviewedFilesModal')}
+          id={id}
+          jobId={jobId}
         />
       ),
     })
@@ -266,19 +284,33 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   }
 
   useEffect(() => {
-    const res = lspList.map(lsp => ({
-      label: lsp.name,
-      value: lsp.id,
-    }))
-    const result = [{ label: 'All', value: 'all' }, ...res]
-    setLspListOptions(result)
-  }, [lspList])
-
-  useEffect(() => {
-    if (leftContainer.current) {
-      console.log(leftContainer.current)
+    if (members) {
+      let init = [...members]
+      init.unshift({ value: -1, label: 'Not specified', jobTitle: '' })
+      setMemberList(init)
     }
-  }, [leftContainer])
+  }, [members])
+
+  const reviewInGlosubButtonStatus = () => {
+    const status = jobInfo.status
+
+    if (status) {
+      if (
+        status === 60600 ||
+        status === 60700 ||
+        status === 60800 ||
+        status === 60900
+      ) {
+        return 'This job is already completed.'
+      } else if (status === 601000 || status === 601100) {
+        return 'This job is no longer available.'
+      } else {
+        return 'active'
+      }
+    } else {
+      return 'deActive'
+    }
+  }
 
   return (
     <Box sx={{ padding: '20px' }}>
@@ -342,7 +374,25 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                   },
                 }}
               >
-                <Select
+                <Autocomplete
+                  multiple
+                  limitTags={1}
+                  value={memberList?.filter(value => lsp.includes(value.value))}
+                  onChange={(event, newValue) => {
+                    setLsp(newValue.map(value => value.value))
+                  }}
+                  options={memberList || []}
+                  renderInput={params => (
+                    <TextField {...params} autoComplete='off' />
+                  )}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox checked={selected} sx={{ mr: 2 }} />
+                      {option.label}
+                    </li>
+                  )}
+                />
+                {/* <Select
                   multiple
                   value={lsp}
                   onChange={handleChange}
@@ -352,13 +402,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                     selectedLsp.map(value => value.label).join(', ')
                   }
                 >
-                  {lspListOptions.map(option => (
-                    <MenuItem key={uuidv4()} value={option.value}>
-                      <Checkbox checked={lsp.indexOf(option.value) > -1} />
-                      <ListItemText primary={option.label} />
-                    </MenuItem>
-                  ))}
-                </Select>
+                  {members &&
+                    members.map(option => (
+                      <MenuItem key={uuidv4()} value={option.value}>
+                        <Checkbox checked={lsp.indexOf(option.value) > -1} />
+                        <ListItemText primary={option.label} />
+                      </MenuItem>
+                    ))}
+                </Select> */}
               </Box>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -366,8 +417,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                 requestReviewList.map((item, index) => (
                   <Accordion
                     key={uuidv4()}
-                    expanded={expanded === item.id.toString()}
-                    onChange={handleAccordionChange(item.id.toString())}
+                    expanded={expanded[item.id]}
+                    onChange={handleAccordionChange(item.id)}
                     disableGutters
                     sx={{
                       borderRadius: '10px !important',
@@ -415,8 +466,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           />
                           <Typography fontSize={14} fontWeight={600}>
                             {convertTimeToTimezone(
-                              item.createdAt,
-                              auth.getValue().user?.timezone!,
+                              item.dueDate,
+                              item.dueDateTimezone,
                               timezone.getValue(),
                             )}
                           </Typography>
@@ -442,7 +493,11 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           />
                           <Typography fontSize={14}>Assignee:</Typography>
                           <Typography fontSize={14} fontWeight={600}>
-                            {item.assignee}
+                            {
+                              memberList.find(
+                                value => value.value === item.assigneeId,
+                              )?.label
+                            }
                           </Typography>
                         </Box>
                         {item.isCompleted && (
@@ -470,8 +525,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                         <Grid
                           item
                           xs={6.5}
-                          sx={{ borderRight: '1px solid #F7F7F9' }}
-                          ref={el => (leftContainer.current[index] = el)}
+                          sx={{
+                            borderRight: '1px solid #F7F7F9',
+                          }}
                         >
                           <Box
                             sx={{
@@ -524,8 +580,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 </Typography>
                                 <Typography fontSize={14} fontWeight={400}>
                                   {convertTimeToTimezone(
-                                    item.desiredDueAt,
-                                    item.desiredDueTimezone,
+                                    item.dueDate,
+                                    item.dueDateTimezone,
                                     timezone.getValue(),
                                   )}
                                 </Typography>
@@ -577,7 +633,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 </Box>
                               </Box>
                             </Box>
-                            {item.note !== '' && item.note ? (
+                            {item.noteToAssignee !== '' &&
+                            item.noteToAssignee ? (
                               <Box
                                 sx={{
                                   padding: '20px 12px',
@@ -586,212 +643,28 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 }}
                               >
                                 <Typography fontSize={14} fontWeight={400}>
-                                  {item.note ?? '-'}
+                                  {item.noteToAssignee ?? '-'}
                                 </Typography>
                               </Box>
                             ) : null}
 
                             <Divider />
-                            {item.files.length > 0 &&
-                              item.files.filter(
-                                value => value.type === 'SOURCE',
-                              ).length > 0 && (
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '20px',
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                      }}
-                                    >
-                                      <Typography
-                                        fontSize={14}
-                                        fontWeight={600}
-                                      >
-                                        Source files
-                                      </Typography>
-                                      <Typography
-                                        fontSize={12}
-                                        fontWeight={400}
-                                        color='rgba(76, 78, 100, 0.60)'
-                                      >
-                                        {formatFileSize(
-                                          getFileSize(item.files, 'SOURCE'),
-                                        )}{' '}
-                                        / {byteToGB(MAXIMUM_FILE_SIZE)}
-                                      </Typography>
-                                    </Box>
-                                    <Typography
-                                      color='#8D8E9A'
-                                      fontSize={14}
-                                      fontWeight={500}
-                                      sx={{
-                                        textDecoration: 'underline',
-                                        cursor: 'pointer',
-                                      }}
-                                      onClick={() =>
-                                        DownloadAllFiles(
-                                          item.files!.filter(
-                                            value => value.type === 'SOURCE',
-                                          ),
-                                          S3FileType.JOB,
-                                        )
-                                      }
-                                    >
-                                      Download all
-                                    </Typography>
-                                  </Box>
 
-                                  <Box
-                                    sx={{
-                                      display: 'grid',
-                                      gridTemplateColumns: 'repeat(2, 1fr)',
-
-                                      width: '100%',
-                                      gap: '20px',
-                                    }}
-                                  >
-                                    {item.files.length > 0 &&
-                                      item.files
-                                        .filter(
-                                          value => value.type === 'SOURCE',
-                                        )
-                                        .map(
-                                          (file: FileType, index: number) => {
-                                            return (
-                                              <Box key={uuidv4()}>
-                                                <Box
-                                                  sx={{
-                                                    display: 'flex',
-                                                    marginBottom: '8px',
-                                                    width: '100%',
-                                                    justifyContent:
-                                                      'space-between',
-                                                    borderRadius: '8px',
-                                                    padding: '10px 12px',
-                                                    border:
-                                                      '1px solid rgba(76, 78, 100, 0.22)',
-                                                    background: '#f9f8f9',
-                                                  }}
-                                                >
-                                                  <Box
-                                                    sx={{
-                                                      display: 'flex',
-                                                      alignItems: 'center',
-                                                    }}
-                                                  >
-                                                    <Box
-                                                      sx={{
-                                                        marginRight: '8px',
-                                                        display: 'flex',
-                                                      }}
-                                                    >
-                                                      <Image
-                                                        src={`/images/icons/file-icons/${
-                                                          videoExtensions.includes(
-                                                            file.name
-                                                              ?.split('.')
-                                                              .pop()
-                                                              ?.toLowerCase() ??
-                                                              '',
-                                                          )
-                                                            ? 'video'
-                                                            : 'document'
-                                                        }.svg`}
-                                                        alt=''
-                                                        width={32}
-                                                        height={32}
-                                                      />
-                                                    </Box>
-                                                    <Box
-                                                      sx={{
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                      }}
-                                                    >
-                                                      <Tooltip
-                                                        title={file.name}
-                                                      >
-                                                        <Typography
-                                                          variant='body1'
-                                                          fontSize={14}
-                                                          fontWeight={600}
-                                                          lineHeight={'20px'}
-                                                          sx={{
-                                                            overflow: 'hidden',
-                                                            wordBreak:
-                                                              'break-all',
-                                                            textOverflow:
-                                                              'ellipsis',
-                                                            display:
-                                                              '-webkit-box',
-                                                            WebkitLineClamp: 1,
-                                                            WebkitBoxOrient:
-                                                              'vertical',
-                                                          }}
-                                                        >
-                                                          {file.name}
-                                                        </Typography>
-                                                      </Tooltip>
-
-                                                      <Typography
-                                                        variant='caption'
-                                                        lineHeight={'14px'}
-                                                      >
-                                                        {formatFileSize(
-                                                          file.size,
-                                                        )}
-                                                      </Typography>
-                                                    </Box>
-                                                  </Box>
-                                                  <Box
-                                                    sx={{
-                                                      display: 'flex',
-                                                      alignItems: 'center',
-                                                    }}
-                                                  >
-                                                    <IconButton
-                                                      onClick={() =>
-                                                        DownloadFile(
-                                                          file,
-                                                          S3FileType.JOB,
-                                                        )
-                                                      }
-                                                    >
-                                                      <Icon
-                                                        icon='ic:sharp-download'
-                                                        fontSize={24}
-                                                      />
-                                                    </IconButton>
-                                                  </Box>
-                                                </Box>
-                                              </Box>
-                                            )
-                                          },
-                                        )}
-                                  </Box>
-                                </Box>
-                              )}
-
-                            {item.files.length > 0 &&
-                              item.files.filter(
-                                value => value.type === 'TARGET',
-                              ).length > 0 && (
-                                <>
-                                  <Divider />
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '20px',
+                              }}
+                              ref={el => (leftContainer.current[index] = el)}
+                              // {...{ ref: leftContainer.current[index] }}
+                              // ref={leftContainer.current[index]}
+                            >
+                              {' '}
+                              {item.files.length > 0 &&
+                                item.files.filter(
+                                  value => value.type === 'SOURCE',
+                                ).length > 0 && (
                                   <Box
                                     sx={{
                                       display: 'flex',
@@ -817,7 +690,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                           fontSize={14}
                                           fontWeight={600}
                                         >
-                                          Target files
+                                          Source files
                                         </Typography>
                                         <Typography
                                           fontSize={12}
@@ -825,7 +698,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                           color='rgba(76, 78, 100, 0.60)'
                                         >
                                           {formatFileSize(
-                                            getFileSize(item.files, 'TARGET'),
+                                            getFileSize(item.files, 'SOURCE'),
                                           )}{' '}
                                           / {byteToGB(MAXIMUM_FILE_SIZE)}
                                         </Typography>
@@ -841,7 +714,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                         onClick={() =>
                                           DownloadAllFiles(
                                             item.files!.filter(
-                                              value => value.type === 'TARGET',
+                                              value => value.type === 'SOURCE',
                                             ),
                                             S3FileType.JOB,
                                           )
@@ -863,7 +736,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                       {item.files.length > 0 &&
                                         item.files
                                           .filter(
-                                            value => value.type === 'TARGET',
+                                            value => value.type === 'SOURCE',
                                           )
                                           .map(
                                             (file: FileType, index: number) => {
@@ -982,17 +855,230 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                           )}
                                     </Box>
                                   </Box>
-                                </>
-                              )}
+                                )}
+                              {item.files.length > 0 &&
+                                item.files.filter(
+                                  value => value.type === 'TARGET',
+                                ).length > 0 && (
+                                  <>
+                                    <Divider />
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '20px',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                          }}
+                                        >
+                                          <Typography
+                                            fontSize={14}
+                                            fontWeight={600}
+                                          >
+                                            Target files
+                                          </Typography>
+                                          <Typography
+                                            fontSize={12}
+                                            fontWeight={400}
+                                            color='rgba(76, 78, 100, 0.60)'
+                                          >
+                                            {formatFileSize(
+                                              getFileSize(item.files, 'TARGET'),
+                                            )}{' '}
+                                            / {byteToGB(MAXIMUM_FILE_SIZE)}
+                                          </Typography>
+                                        </Box>
+                                        <Typography
+                                          color='#8D8E9A'
+                                          fontSize={14}
+                                          fontWeight={500}
+                                          sx={{
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer',
+                                          }}
+                                          onClick={() =>
+                                            DownloadAllFiles(
+                                              item.files!.filter(
+                                                value =>
+                                                  value.type === 'TARGET',
+                                              ),
+                                              S3FileType.JOB,
+                                            )
+                                          }
+                                        >
+                                          Download all
+                                        </Typography>
+                                      </Box>
+
+                                      <Box
+                                        sx={{
+                                          display: 'grid',
+                                          gridTemplateColumns: 'repeat(2, 1fr)',
+
+                                          width: '100%',
+                                          gap: '20px',
+                                        }}
+                                      >
+                                        {item.files.length > 0 &&
+                                          item.files
+                                            .filter(
+                                              value => value.type === 'TARGET',
+                                            )
+                                            .map(
+                                              (
+                                                file: FileType,
+                                                index: number,
+                                              ) => {
+                                                return (
+                                                  <Box key={uuidv4()}>
+                                                    <Box
+                                                      sx={{
+                                                        display: 'flex',
+                                                        marginBottom: '8px',
+                                                        width: '100%',
+                                                        justifyContent:
+                                                          'space-between',
+                                                        borderRadius: '8px',
+                                                        padding: '10px 12px',
+                                                        border:
+                                                          '1px solid rgba(76, 78, 100, 0.22)',
+                                                        background: '#f9f8f9',
+                                                      }}
+                                                    >
+                                                      <Box
+                                                        sx={{
+                                                          display: 'flex',
+                                                          alignItems: 'center',
+                                                        }}
+                                                      >
+                                                        <Box
+                                                          sx={{
+                                                            marginRight: '8px',
+                                                            display: 'flex',
+                                                          }}
+                                                        >
+                                                          <Image
+                                                            src={`/images/icons/file-icons/${
+                                                              videoExtensions.includes(
+                                                                file.name
+                                                                  ?.split('.')
+                                                                  .pop()
+                                                                  ?.toLowerCase() ??
+                                                                  '',
+                                                              )
+                                                                ? 'video'
+                                                                : 'document'
+                                                            }.svg`}
+                                                            alt=''
+                                                            width={32}
+                                                            height={32}
+                                                          />
+                                                        </Box>
+                                                        <Box
+                                                          sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                              'column',
+                                                          }}
+                                                        >
+                                                          <Tooltip
+                                                            title={file.name}
+                                                          >
+                                                            <Typography
+                                                              variant='body1'
+                                                              fontSize={14}
+                                                              fontWeight={600}
+                                                              lineHeight={
+                                                                '20px'
+                                                              }
+                                                              sx={{
+                                                                overflow:
+                                                                  'hidden',
+                                                                wordBreak:
+                                                                  'break-all',
+                                                                textOverflow:
+                                                                  'ellipsis',
+                                                                display:
+                                                                  '-webkit-box',
+                                                                WebkitLineClamp: 1,
+                                                                WebkitBoxOrient:
+                                                                  'vertical',
+                                                              }}
+                                                            >
+                                                              {file.name}
+                                                            </Typography>
+                                                          </Tooltip>
+
+                                                          <Typography
+                                                            variant='caption'
+                                                            lineHeight={'14px'}
+                                                          >
+                                                            {formatFileSize(
+                                                              file.size,
+                                                            )}
+                                                          </Typography>
+                                                        </Box>
+                                                      </Box>
+                                                      <Box
+                                                        sx={{
+                                                          display: 'flex',
+                                                          alignItems: 'center',
+                                                        }}
+                                                      >
+                                                        <IconButton
+                                                          onClick={() =>
+                                                            DownloadFile(
+                                                              file,
+                                                              S3FileType.JOB,
+                                                            )
+                                                          }
+                                                        >
+                                                          <Icon
+                                                            icon='ic:sharp-download'
+                                                            fontSize={24}
+                                                          />
+                                                        </IconButton>
+                                                      </Box>
+                                                    </Box>
+                                                  </Box>
+                                                )
+                                              },
+                                            )}
+                                      </Box>
+                                    </Box>
+                                  </>
+                                )}
+                            </div>
                           </Box>
                         </Grid>
                         <Grid
                           item
                           xs={5.5}
                           sx={{
-                            height: leftContainer.current[index]
-                              ? `${leftContainer.current[index]?.offsetHeight}px`
-                              : '100%',
+                            // height: '100%',
+                            maxHeight: '565px',
+
+                            overflowY: 'scroll',
+                            '&::-webkit-scrollbar': { width: 4 },
+                            '&::-webkit-scrollbar-thumb': {
+                              borderRadius: 20,
+                              background: '#CCCCCC',
+                            },
+                            // height: leftContainer.current[index]
+                            //   ? `${leftContainer.current[index]?.offsetHeight}px`
+                            //   : '100%',
                           }}
                         >
                           <Box
@@ -1001,6 +1087,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               display: 'flex',
                               flexDirection: 'column',
                               height: '100%',
+
                               gap: '20px',
                             }}
                           >
@@ -1063,7 +1150,39 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                   alignItems: 'center',
                                 }}
                               >
-                                <Button
+                                <Tooltip
+                                  title={reviewInGlosubButtonStatus()}
+                                  disableHoverListener={
+                                    reviewInGlosubButtonStatus() === 'active'
+                                  }
+                                >
+                                  <Box sx={{ flex: 1, display: 'flex' }}>
+                                    <Button
+                                      variant='outlined'
+                                      fullWidth
+                                      disabled={
+                                        reviewInGlosubButtonStatus() !==
+                                        'active'
+                                      }
+                                      sx={{ borderColor: '#B3B6FF' }}
+                                      onClick={() => {
+                                        window.open(
+                                          `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${jobInfo.id}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}&mode=qc`,
+                                          '_blank',
+                                        )
+                                      }}
+                                    >
+                                      <Image
+                                        src='/images/icons/job-icons/glosub.svg'
+                                        alt=''
+                                        width={20}
+                                        height={20}
+                                      />
+                                      &nbsp; Review in GloSub
+                                    </Button>
+                                  </Box>
+                                </Tooltip>
+                                {/* <Button
                                   sx={{ flex: 1, display: 'flex' }}
                                   variant='outlined'
                                 >
@@ -1072,7 +1191,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                     fontSize={20}
                                   />
                                   &nbsp;&nbsp;Review in GloSub
-                                </Button>
+                                </Button> */}
                                 <Button
                                   sx={{ flex: 1, display: 'flex' }}
                                   variant='contained'
@@ -1085,7 +1204,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               </Box>
                             </Box>
                             <Divider />
-                            <>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+
+                                height: '100%',
+                              }}
+                            >
                               {getGroupedReviewedFiles(item.files).length >
                               0 ? (
                                 <Box>
@@ -1280,7 +1406,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                   </Typography>
                                 </Box>
                               )}
-                            </>
+                            </Box>
                             {item.reviewedNote && (
                               <Box
                                 sx={{
@@ -1325,3 +1451,5 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
 }
 
 export default ReviewRequest
+
+const StyledBox = styled(Box)``

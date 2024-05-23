@@ -16,6 +16,8 @@ type Props = {
   setTargetFileSize: Dispatch<SetStateAction<number>>
   onFileUploadReject: () => void
   handleRemoveFile: (file: FileType, type: 'source' | 'target') => void
+  setTargetFileUpdate: Dispatch<SetStateAction<boolean>>
+  type: 'edit' | 'create'
 }
 
 const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
@@ -27,6 +29,8 @@ const TargetDropzone = ({
   setTargetFileSize,
   onFileUploadReject,
   handleRemoveFile,
+  setTargetFileUpdate,
+  type,
 }: Props) => {
   const { getRootProps, getInputProps } = useDropzone({
     // accept: {
@@ -54,16 +58,14 @@ const TargetDropzone = ({
               acc.push({
                 name: file.name,
                 size: file.size,
-                type: file.type,
-
-                downloadAvailable: false,
+                type: 'TARGET',
               })
             // console.log(acc)
 
             return acc
           }
         }, [])
-
+      type === 'edit' && setTargetFileUpdate(true)
       setTargetFiles(uniqueFiles)
     },
   })

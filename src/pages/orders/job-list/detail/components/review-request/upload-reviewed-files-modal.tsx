@@ -18,15 +18,104 @@ import { Dispatch, SetStateAction, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
+import { useMutation, useQueryClient } from 'react-query'
+import { saveReviewedFile } from '@src/apis/jobs/job-detail.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import toast from 'react-hot-toast'
 
 type Props = {
   onClose: any
+  id: number
+  jobId: number
 }
 
 const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
-const UploadReviewedFilesModal = ({ onClose }: Props) => {
+const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
   const { openModal, closeModal } = useModal()
+
+  const queryClient = useQueryClient()
+
+  const saveReviewedFileMutation = useMutation(
+    (params: {
+      noteFromAssignee?: string
+      files?: Array<{
+        fileName: string
+        filePath: string
+        fileExtension: string
+        fileSize: number
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+        jobFileId?: number
+      }>
+    }) => saveReviewedFile(params, id),
+    {
+      onSuccess: () => {
+        onClose()
+        queryClient.invalidateQueries(['jobRequestReview'])
+      },
+    },
+  )
+
+  const onClickSubmit = () => {
+    if (files.length) {
+      // setIsLoading(true)
+      const fileInfo: Array<{
+        fileName: string
+        filePath: string
+        fileExtension: string
+        fileSize: number
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+      }> = []
+
+      const paths: string[] = files.map(file => {
+        return `project/${jobId}/review-request/${file.type}/${file.name}`
+      })
+
+      const s3URL = paths.map(value => {
+        return getUploadUrlforCommon('job', value).then(res => {
+          return res.url
+        })
+      })
+
+      Promise.all(s3URL).then(res => {
+        const promiseArr = res.map((url: string, idx: number) => {
+          fileInfo.push({
+            fileSize: files[idx].size,
+            fileName: files[idx].name,
+            filePath: url,
+            fileExtension:
+              files[idx].name.split('.').pop()?.toLowerCase() ?? '',
+            type: 'REVIEWED',
+            // downloadAvailable: files[idx].downloadAvailable ?? false,
+          })
+          return uploadFileToS3(url, files[idx])
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            //TODO : Mutation call (파일 정보 Save)
+            // uploadFileMutation.mutate(fileInfo)
+            // TODO :Mutation call (기본 정보 Save)
+
+            saveReviewedFileMutation.mutate({
+              noteFromAssignee: note,
+              files: fileInfo,
+            })
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    } else {
+      saveReviewedFileMutation.mutate({
+        noteFromAssignee: note,
+      })
+    }
+  }
 
   const [fileSize, setFileSize] = useState(0)
 
@@ -79,7 +168,7 @@ const UploadReviewedFilesModal = ({ onClose }: Props) => {
               acc.push({
                 name: file.name,
                 size: file.size,
-                type: file.type,
+                type: 'REVIEWED',
 
                 downloadAvailable: false,
               })
@@ -287,7 +376,7 @@ const UploadReviewedFilesModal = ({ onClose }: Props) => {
               </Box>
             </div>
           </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Typography fontSize={16} fontWeight={600}>
               Note
             </Typography>
@@ -314,11 +403,13 @@ const UploadReviewedFilesModal = ({ onClose }: Props) => {
                 {note?.length ?? 0}/500
               </Box>
             </Box>
-          </Box>
+          </Box> */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               variant='contained'
-              disabled={files.length === 0 && note === ''}
+              onClick={onClickSubmit}
+              // disabled={files.length === 0 && note === ''}
+              disabled={files.length === 0}
             >
               Save
             </Button>

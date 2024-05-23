@@ -127,14 +127,14 @@ export type JobRequestReviewListType = {
   corporationId: string
   createdAt: string
   requestor: string
-  assignee: number
+  assigneeId: number
   isCompleted: boolean
-  desiredDueAt: string
-  desiredDueTimezone: CountryType
+  dueDate: string
+  dueDateTimezone: CountryType
   runtime: string
   wordCount: string
   files: FileType[]
-  note: string
+  noteToAssignee: string
   reviewedNote: string
 }
 

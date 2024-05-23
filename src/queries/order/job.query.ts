@@ -106,7 +106,7 @@ export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
 //   }
 // }
 
-export const useGetJobRequestReview = (jobId: number, lsp: string[]) => {
+export const useGetJobRequestReview = (jobId: number, lsp: number[]) => {
   return useQuery(
     ['jobRequestReview', jobId, lsp],
     () => getJobRequestReview(jobId, lsp),

@@ -657,13 +657,13 @@ export const importFileFromRequest = async (
 
 export const getJobRequestReview = async (
   jobId: number,
-  lsp: string[],
+  assigneeId: number[],
 ): Promise<Array<JobRequestReviewListType>> => {
   const { data } = await axios.get(
-    `/api/enough/u/job-review-request/list?jobId=${jobId}`,
+    `/api/enough/u/job-review-request/list?jobId=${jobId}&${makeQuery({ assigneeId: assigneeId })}`,
   )
 
-  return data
+  return data.data
   // const data: Array<JobRequestReviewListType> = [
   //   {
   //     jobId: jobId,
@@ -764,8 +764,37 @@ export const createRequestReview = async (
   return data
 }
 
+export const updateRequestReview = async (
+  params: JobRequestReviewParamsType,
+  id: number,
+) => {
+  const { data } = await axios.patch(`/api/enough/u/job-review-request/${id}`, {
+    ...params,
+  })
+  return data
+}
+
 export const completeRequestReview = async (id: number, type: boolean) => {
   await axios.patch(
     `/api/enough/u/job-review-request/${id}/${type ? 'complete' : 'incomplete'}`,
   )
+}
+
+export const saveReviewedFile = async (
+  params: {
+    noteFromAssignee?: string
+    files?: Array<{
+      fileName: string
+      filePath: string
+      fileExtension: string
+      fileSize: number
+      type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+      jobFileId?: number
+    }>
+  },
+  id: number,
+) => {
+  await axios.patch(`/api/enough/u/job-review-request/${id}/submit`, {
+    ...params,
+  })
 }

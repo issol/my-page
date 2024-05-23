@@ -8,6 +8,6 @@ export type FileType = {
   downloadAvailable?: boolean
   isImported?: boolean
   isSelected?: boolean
-  isRequested?: boolean
+  reviewRequested?: boolean
   uploadedBy?: string
 }
