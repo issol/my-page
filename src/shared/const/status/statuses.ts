@@ -91,7 +91,7 @@ export const TestStatus = [
 export const ProStatus = [
   {
     value: 'Onboard',
-    label: 'Onboard',
+    label: 'Onboarded',
   },
   {
     value: 'Netflix Onboard',
@@ -99,7 +99,7 @@ export const ProStatus = [
   },
   {
     value: 'Off-board',
-    label: 'Off-board',
+    label: 'Offboarded',
   },
   {
     value: 'On-hold Do not assign',
