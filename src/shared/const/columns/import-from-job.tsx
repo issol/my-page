@@ -13,6 +13,7 @@ type CellType = {
     name: string
     size: number
     file: string
+    path: string
     type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
     createdAt: string
     assignedPerson: {
@@ -23,7 +24,7 @@ type CellType = {
       middleName: string
     }
     isCompleted?: boolean
-    reqId: string
+    id: string
   }
 }
 
@@ -113,7 +114,7 @@ const getImportFromJobColumns = (
                     color='#8D8E9A'
                     sx={{ width: '54px' }}
                   >
-                    {row.reqId}
+                    {row.id}
                   </Typography>
                   {row.isCompleted ? (
                     <Icon
@@ -154,7 +155,7 @@ const getImportFromJobColumns = (
                   }}
                 >
                   <Image
-                    src={`/images/icons/file-icons/${extractFileExtension(row.file)}.svg`}
+                    src={`/images/icons/file-icons/${extractFileExtension(row.path)}.svg`}
                     width={24}
                     height={24}
                     alt='file'

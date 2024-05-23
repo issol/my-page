@@ -101,6 +101,15 @@ const ImportFromJob = ({
     }
   }
 
+  const reviewedFilesMap = reviewedFiles.flatMap(item =>
+    item.files.map(file => ({
+      ...file,
+      reqId: item.corporationId,
+      isCompleted: item.isCompleted,
+      assignedPerson: item.assigneeId,
+    })),
+  )
+
   return (
     <Box
       sx={{
@@ -310,6 +319,7 @@ const ImportFromJob = ({
                 height: '100%',
                 maxHeight: '573px',
                 minHeight: '573px',
+                overflowY: 'scroll',
               }}
             >
               {selectedJob ? (
@@ -389,14 +399,7 @@ const ImportFromJob = ({
                             auth,
                             timezone,
                           )}
-                          rows={reviewedFiles.flatMap(item =>
-                            item.files.map(file => ({
-                              ...file,
-                              reqId: item.corporationId,
-                              isCompleted: item.isCompleted,
-                              assignedPerson: item.assigneeId,
-                            })),
-                          )}
+                          rows={reviewedFilesMap}
                           checkboxSelection
                           onRowSelectionModelChange={newRowSelectionModel => {
                             setRowSelectionModel(newRowSelectionModel)
@@ -510,13 +513,19 @@ const ImportFromJob = ({
             </Button>
             <Button
               variant='contained'
-              disabled={rowSelectionModel.length === 0}
+              disabled={
+                rowSelectionModel.length === 0 &&
+                targetRowSelectionModel.length === 0
+              }
               onClick={() => {
                 onClickImportFiles()
                 onClose()
               }}
             >
-              Import files ({rowSelectionModel.length ?? 0})
+              Import files (
+              {(rowSelectionModel.length ?? 0) +
+                (targetRowSelectionModel.length ?? 0)}
+              )
             </Button>
           </Box>
         </Grid>
