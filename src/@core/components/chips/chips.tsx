@@ -189,7 +189,7 @@ export function WorkStatusChip(status: string) {
 
 export const ProStatusChip = styled(Chip)<{ status: string }>`
   border: none;
-
+  height: 24px;
   ${({ status }) => {
     const statusStyles: Record<string, Record<string, string>> = {
       Onboard: {

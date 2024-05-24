@@ -187,7 +187,12 @@ export const getProListColumns = (
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        const label = row.status === 'Onboard'
+          ? 'Onboarded'
+          : row.status === 'Off-board'
+            ? 'Offboarded'
+            : row.status  
+        return <ProStatusChip status={row.status} label={label} />
       },
     },
 
