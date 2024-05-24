@@ -375,7 +375,7 @@ const SourceFileUpload = ({
               size: files[idx].size,
               name: files[idx].name,
               type: 'SOURCE',
-              downloadAvailable: files[idx].downloadAvailable ?? false,
+              downloadAvailable: files[idx].downloadAvailable ?? true,
             })
             return uploadFileToS3(url, files[idx])
           })
