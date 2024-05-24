@@ -126,7 +126,10 @@ export type JobRequestReviewListType = {
   jobId: number
   corporationId: string
   createdAt: string
-  requestor: string
+  requestorInfo: {
+    name: string
+  }
+  index: number
   assigneeId: number
   isCompleted: boolean
   dueDate: string
