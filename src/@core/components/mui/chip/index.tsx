@@ -69,7 +69,10 @@ const Chip = (props: CustomChipProps) => {
         }
       }
     } else {
-      return sx
+      return {
+        ...sx,
+        ...defaultOptions,
+      }
     }
   }
 
