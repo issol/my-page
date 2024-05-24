@@ -578,16 +578,24 @@ const DeliveriesFeedback = ({
     openModal({
       type: 'ConfirmDeliveriesModal',
       children: (
-        <CustomModal
+        <CustomModalV2
           onClick={(text: string) => handleConfirmDelivery(text)}
           onClose={() => closeModal('ConfirmDeliveriesModal')}
-          title='Are you sure you want to confirm deliveries? Please send feedback with the confirmation.'
+          title='Confirm delivery?'
+          subtitle='Are you sure you want to confirm deliveries?'
           vary='successful'
           rightButtonText='Confirm'
-          textarea={true}
-          textareaRequired={false}
-          textareaPlaceholder='Write down feedback for the deliveries'
         />
+        // <CustomModal
+        //   onClick={(text: string) => handleConfirmDelivery(text)}
+        //   onClose={() => closeModal('ConfirmDeliveriesModal')}
+        //   title='Are you sure you want to confirm deliveries? Please send feedback with the confirmation.'
+        //   vary='successful'
+        //   rightButtonText='Confirm'
+        //   textarea={true}
+        //   textareaRequired={false}
+        //   textareaPlaceholder='Write down feedback for the deliveries'
+        // />
       ),
     })
   }
@@ -611,8 +619,9 @@ const DeliveriesFeedback = ({
               },
             )
           }
-          title='Are you sure you want to request redelivery?'
-          vary='error'
+          title='Request redelivery?'
+          subtitle='Please select the reason of requesting redelivery.'
+          vary='error-report'
           rightButtonText='Request'
           leftButtonText='Cancel'
           action='Redelivery requested'

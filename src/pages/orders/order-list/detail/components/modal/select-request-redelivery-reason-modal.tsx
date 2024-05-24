@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import AlertIcon from '@src/@core/components/alert-icon'
+import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -19,7 +19,7 @@ type Props = {
   onClick: any
   title: string
   subtitle?: string
-  vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  vary: AlertType
   leftButtonText?: string
   rightButtonText: string
   action: string
@@ -91,7 +91,7 @@ const SelectRequestRedeliveryReasonModal = ({
   return (
     <Box
       sx={{
-        maxWidth: '482px',
+        maxWidth: '360px',
         width: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
@@ -114,15 +114,15 @@ const SelectRequestRedeliveryReasonModal = ({
             flexDirection: 'column',
             alignItems: 'center',
 
-            padding: '0px 60px',
+            // padding: '0px 60px',
           }}
         >
           <AlertIcon type={vary} />
           <Typography
-            variant='body2'
             textAlign='center'
-            mt='10px'
-            sx={{ fontSize: '16px' }}
+            mt='16px'
+            fontSize={20}
+            fontWeight={500}
           >
             {title}
           </Typography>
@@ -130,7 +130,7 @@ const SelectRequestRedeliveryReasonModal = ({
             <Typography
               variant='body2'
               textAlign='center'
-              sx={{ fontWeight: 700, fontSize: '16px' }}
+              sx={{ fontWeight: 400, fontSize: '16px', mt: '10px' }}
             >
               {subtitle}
             </Typography>
@@ -188,14 +188,14 @@ const SelectRequestRedeliveryReasonModal = ({
                 ? usage === 'request-revision'
                   ? 'Write down a request for this quote.'
                   : usage === 'order'
-                  ? 'Write down a reason for canceling this order.'
-                  : usage === 'request'
-                  ? 'Write down a reason for requesting redelivery.'
-                  : usage === 'quote'
-                  ? 'Write down a reason for canceling this quote.'
-                  : usage === 'reject'
-                  ? 'Write down a reason for rejecting this quote.'
-                  : ''
+                    ? 'Write down a reason for canceling this order.'
+                    : usage === 'request'
+                      ? 'Write down a reason for requesting redelivery.'
+                      : usage === 'quote'
+                        ? 'Write down a reason for canceling this quote.'
+                        : usage === 'reject'
+                          ? 'Write down a reason for rejecting this quote.'
+                          : ''
                 : undefined
             }
             error={messageToLsp === ''}
