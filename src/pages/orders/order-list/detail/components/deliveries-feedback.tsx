@@ -68,6 +68,9 @@ import DeliverClientModal from './modal/deliver-client-modal'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import CustomChip from '@src/@core/components/mui/chip'
 import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { FormErrors } from '@src/shared/const/formErrors'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 type Props = {
   project: ProjectInfoType
@@ -107,6 +110,9 @@ const DeliveriesFeedback = ({
   const theme = useTheme()
   const { id: orderId } = router.query
   const [expanded, setExpanded] = useState<string | false>(false)
+  const [addJobFeedbackData, setAddJobFeedbackData] = useState<string | null>(
+    '',
+  )
 
   const queryClient = useQueryClient()
 
@@ -123,6 +129,8 @@ const DeliveriesFeedback = ({
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<FileType[]>([])
+
+  const [addFeedback, setAddFeedback] = useState<boolean>(false)
 
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
   const [note, setNote] = useState<string | null>(null)
@@ -237,6 +245,75 @@ const DeliveriesFeedback = ({
       setUploadFileProcessing(true)
     },
   })
+
+  const onClickDiscardFeedback = () => {
+    if (addJobFeedbackData === '' || addJobFeedbackData === null) {
+      setAddJobFeedbackData('')
+      setAddFeedback(false)
+      return
+    }
+    openModal({
+      type: 'DiscardFeedbackModal',
+      children: (
+        <CustomModalV2
+          title='Discard feedback?'
+          subtitle={'Are you sure you want to discard this feedback?'}
+          vary='error-alert'
+          rightButtonText='Discard'
+          onClick={() => {
+            setAddJobFeedbackData('')
+            setAddFeedback(false)
+            closeModal('DiscardFeedbackModal')
+          }}
+          onClose={() => closeModal('DiscardFeedbackModal')}
+        />
+      ),
+    })
+  }
+
+  const onClickAddFeedback = () => {
+    if (addJobFeedbackData === '') {
+      setAddJobFeedbackData(null)
+      return
+    }
+    openModal({
+      type: 'AddFeedbackModal',
+      children: (
+        <CustomModalV2
+          title='Add feedback?'
+          subtitle={'Are you sure you want to add this feedback?'}
+          vary='successful'
+          rightButtonText='Add'
+          onClick={() => {
+            closeModal('AddFeedbackModal')
+
+            updateClientFeedback.mutate(addJobFeedbackData!, {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: ['orderDetail'],
+                })
+                setAddJobFeedbackData('')
+                setAddFeedback(false)
+              },
+            })
+            // addJobFeedbackMutation.mutate(
+            //   {
+            //     jobId: selectedJobInfo?.jobId!,
+            //     data: addJobFeedbackData!,
+            //   },
+            //   {
+            //     onSuccess: () => {
+            //       setAddJobFeedbackData('')
+            //       setUseJobFeedbackForm(false)
+            //     },
+            //   },
+            // )
+          }}
+          onClose={() => closeModal('AddFeedbackModal')}
+        />
+      ),
+    })
+  }
 
   const fetchFile = (fileName: string) => {
     const path = getFilePath(['delivery', project.id.toString()], fileName)
@@ -589,7 +666,7 @@ const DeliveriesFeedback = ({
   // }, [project])
 
   return (
-    <Grid container xs={12} spacing={4}>
+    <Grid container xs={12} spacing={4} sx={{ marginLeft: 0 }}>
       {updateDeliveries.isLoading ||
       completeDeliveryMutation.isLoading ||
       updateProject.isLoading ? (
@@ -631,6 +708,44 @@ const DeliveriesFeedback = ({
                   </Box>
                 </Tooltip>
               ) : null}
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <>
+                  {isEditable ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '12px',
+                      }}
+                    >
+                      <Button
+                        variant='outlined'
+                        onClick={onClickRequestRedelivery}
+                        color='secondary'
+                        sx={{ height: '38px' }}
+                        disabled={
+                          !canUseFeature(
+                            'button-Deliveries&Feedback-RequestRedelivery',
+                          )
+                        }
+                      >
+                        Request redelivery
+                      </Button>
+                      <Button
+                        variant='contained'
+                        onClick={onClickConfirmDeliveries}
+                        sx={{ height: '38px' }}
+                        disabled={
+                          !canUseFeature(
+                            'button-Deliveries&Feedback-ConfirmDeliveries',
+                          )
+                        }
+                      >
+                        Confirm deliveries
+                      </Button>
+                    </Box>
+                  ) : null}
+                </>
+              ) : null}
               {/* {currentRole &&
               currentRole.name === 'CLIENT' &&
               project.deliveries.length ? (
@@ -647,214 +762,224 @@ const DeliveriesFeedback = ({
                 </Button>
               ) : null} */}
             </Box>
-            <div
-              {...getRootProps({
-                className: 'dropzone',
-              })}
-            >
-              <Box
-                sx={{
-                  width: '100%',
-                  border: '1px dashed #8D8E9A',
-                  borderRadius: '10px',
-                  padding: '12px 20px',
-                }}
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <div
+                {...getRootProps({
+                  className: 'dropzone',
+                })}
               >
                 <Box
                   sx={{
-                    display: 'flex',
-                    gap: '8px',
-                    alignItems: 'center',
+                    width: '100%',
+                    border: '1px dashed #8D8E9A',
+                    borderRadius: '10px',
+                    padding: '12px 20px',
                   }}
                 >
-                  <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
-                    Drag and drop or
-                  </Typography>
-                  <Tooltip title={isEditable ? '' : 'Not authorized'}>
-                    <Box>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        disabled={
-                          !canUseFeature('button-Deliveries&Feedback-Upload')
-                        }
-                      >
-                        <input {...getInputProps()} />
-                        Browse file
-                      </Button>
-                    </Box>
-                  </Tooltip>
-                </Box>
-                {(files.length > 0 || importedFiles.length > 0) && (
                   <Box
                     sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      mt: '20px',
-                      width: '100%',
-                      gap: '20px',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
                     }}
                   >
-                    {files
-                      .concat(
-                        importedFiles.map((file: DeliveryFileType) => ({
-                          name: file.fileName,
-                          size: file.fileSize,
-                          uploadedBy: 'import',
-                        })),
-                      )
-                      .map((file: FileType, index: number) => {
-                        return (
-                          <Box key={uuidv4()}>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                marginBottom: '8px',
-                                width: '100%',
-                                justifyContent: 'space-between',
-                                borderRadius: '8px',
-                                padding: '10px 12px',
-                                border: '1px solid rgba(76, 78, 100, 0.22)',
-                                background: '#f9f8f9',
-                              }}
-                            >
+                    <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                      Drag and drop or
+                    </Typography>
+                    <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                      <Box>
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          disabled={
+                            !canUseFeature('button-Deliveries&Feedback-Upload')
+                          }
+                        >
+                          <input {...getInputProps()} />
+                          Browse file
+                        </Button>
+                      </Box>
+                    </Tooltip>
+                  </Box>
+                  {(files.length > 0 || importedFiles.length > 0) && (
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        mt: '20px',
+                        width: '100%',
+                        gap: '20px',
+                      }}
+                    >
+                      {files
+                        .concat(
+                          importedFiles.map((file: DeliveryFileType) => ({
+                            name: file.fileName,
+                            size: file.fileSize,
+                            uploadedBy: 'import',
+                          })),
+                        )
+                        .map((file: FileType, index: number) => {
+                          return (
+                            <Box key={uuidv4()}>
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  alignItems: 'center',
+                                  marginBottom: '8px',
+                                  width: '100%',
+                                  justifyContent: 'space-between',
+                                  borderRadius: '8px',
+                                  padding: '10px 12px',
+                                  border: '1px solid rgba(76, 78, 100, 0.22)',
+                                  background: '#f9f8f9',
                                 }}
                               >
                                 <Box
                                   sx={{
-                                    marginRight: '8px',
                                     display: 'flex',
-                                  }}
-                                >
-                                  <Image
-                                    src={`/images/icons/file-icons/${extractFileExtension(file.name)}.svg`}
-                                    alt=''
-                                    width={32}
-                                    height={32}
-                                  />
-                                </Box>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                  }}
-                                >
-                                  <Tooltip title={file.name}>
-                                    <Typography
-                                      variant='body1'
-                                      fontSize={14}
-                                      fontWeight={600}
-                                      lineHeight={'20px'}
-                                      sx={{
-                                        overflow: 'hidden',
-                                        wordBreak: 'break-all',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 1,
-                                        WebkitBoxOrient: 'vertical',
-                                      }}
-                                    >
-                                      {file.name}
-                                    </Typography>
-                                  </Tooltip>
-
-                                  <Typography
-                                    variant='caption'
-                                    lineHeight={'14px'}
-                                  >
-                                    {formatFileSize(file.size)}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <Box
-                                  sx={{
                                     alignItems: 'center',
-                                    display: 'flex',
-                                    color: 'rgba(76, 78, 100, 0.54)',
-                                    cursor: 'pointer',
-                                    padding: '4px',
-                                    '& :hover': {
-                                      borderRadius: '50%',
-                                      backgroundColor: theme.palette.grey[200],
-                                    },
-                                  }}
-                                  onClick={event => {
-                                    event.stopPropagation()
-                                    handleRemoveFile(
-                                      file,
-                                      (file.uploadedBy as
-                                        | 'import'
-                                        | 'upload') ?? 'upload',
-                                    )
                                   }}
                                 >
-                                  <Icon icon='mdi:close' fontSize={20} />
+                                  <Box
+                                    sx={{
+                                      marginRight: '8px',
+                                      display: 'flex',
+                                    }}
+                                  >
+                                    <Image
+                                      src={`/images/icons/file-icons/${extractFileExtension(file.name)}.svg`}
+                                      alt=''
+                                      width={32}
+                                      height={32}
+                                    />
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                    }}
+                                  >
+                                    <Tooltip title={file.name}>
+                                      <Typography
+                                        variant='body1'
+                                        fontSize={14}
+                                        fontWeight={600}
+                                        lineHeight={'20px'}
+                                        sx={{
+                                          overflow: 'hidden',
+                                          wordBreak: 'break-all',
+                                          textOverflow: 'ellipsis',
+                                          display: '-webkit-box',
+                                          WebkitLineClamp: 1,
+                                          WebkitBoxOrient: 'vertical',
+                                        }}
+                                      >
+                                        {file.name}
+                                      </Typography>
+                                    </Tooltip>
+
+                                    <Typography
+                                      variant='caption'
+                                      lineHeight={'14px'}
+                                    >
+                                      {formatFileSize(file.size)}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      alignItems: 'center',
+                                      display: 'flex',
+                                      color: 'rgba(76, 78, 100, 0.54)',
+                                      cursor: 'pointer',
+                                      padding: '4px',
+                                      '& :hover': {
+                                        borderRadius: '50%',
+                                        backgroundColor:
+                                          theme.palette.grey[200],
+                                      },
+                                    }}
+                                    onClick={event => {
+                                      event.stopPropagation()
+                                      handleRemoveFile(
+                                        file,
+                                        (file.uploadedBy as
+                                          | 'import'
+                                          | 'upload') ?? 'upload',
+                                      )
+                                    }}
+                                  >
+                                    <Icon icon='mdi:close' fontSize={20} />
+                                  </Box>
                                 </Box>
                               </Box>
                             </Box>
-                          </Box>
-                        )
-                      })}
-                  </Box>
-                )}
-              </Box>
-            </div>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography fontSize={14} fontWeight={600} sx={{ mb: '8px' }}>
-                Notes to client
-              </Typography>
-              <TextField
-                fullWidth
-                autoComplete='off'
-                placeholder='Leave a note for client'
-                multiline
-                rows={2}
-                value={note ?? ''}
-                inputProps={{ maxLength: 1000 }}
-                onChange={e => {
-                  if (e.target.value === '') {
-                    setNote(null)
-                  } else setNote(e.target.value)
-                }}
-              />
-              <Typography
-                fontSize={12}
-                fontWeight={400}
-                lineHeight={'25.302px'}
-                textAlign='right'
-                color='#888888'
-              >
-                {note?.length ?? 0}/1000
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Tooltip title={isEditable ? '' : 'Not authorized'}>
-                <Box>
-                  <Button
-                    variant='contained'
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-DeliverToClient',
-                      ) ||
-                      (importedFiles.length === 0 && files.length === 0)
-                    }
-                    onClick={onClickDeliverToClient}
-                  >
-                    Deliver to client
-                  </Button>
+                          )
+                        })}
+                    </Box>
+                  )}
                 </Box>
-              </Tooltip>
-            </Box>
+              </div>
+            )}
+
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography fontSize={14} fontWeight={600} sx={{ mb: '8px' }}>
+                  Notes to client
+                </Typography>
+                <TextField
+                  fullWidth
+                  autoComplete='off'
+                  placeholder='Leave a note for client'
+                  multiline
+                  rows={2}
+                  value={note ?? ''}
+                  inputProps={{ maxLength: 1000 }}
+                  onChange={e => {
+                    if (e.target.value === '') {
+                      setNote(null)
+                    } else setNote(e.target.value)
+                  }}
+                />
+                <Typography
+                  fontSize={12}
+                  fontWeight={400}
+                  lineHeight={'25.302px'}
+                  textAlign='right'
+                  color='#888888'
+                >
+                  {note?.length ?? 0}/1000
+                </Typography>
+              </Box>
+            )}
+
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                  <Box>
+                    <Button
+                      variant='contained'
+                      disabled={
+                        !canUseFeature(
+                          'button-Deliveries&Feedback-DeliverToClient',
+                        ) ||
+                        (importedFiles.length === 0 && files.length === 0)
+                      }
+                      onClick={onClickDeliverToClient}
+                    >
+                      Deliver to client
+                    </Button>
+                  </Box>
+                </Tooltip>
+              </Box>
+            )}
+
             {deliveriesFeedback.deliveries.length ? (
               <Box
                 sx={{
@@ -1351,10 +1476,98 @@ const DeliveriesFeedback = ({
         <Card sx={{ padding: '20px' }}>
           <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             {/* <img src='/images/icons/job-icons/feedback.png' alt='' /> */}
-            <Typography fontSize={20} fontWeight={500}>
-              Feedback
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              <Typography fontSize={20} fontWeight={500}>
+                Feedback
+              </Typography>{' '}
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <Button variant='outlined' onClick={() => setAddFeedback(true)}>
+                  Add feedback
+                </Button>
+              ) : null}
+            </Box>
           </Box>
+
+          {addFeedback ? (
+            <Box sx={{ padding: '20px 0 ' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <CustomChip
+                  label={'CLIENT'}
+                  skin='light'
+                  sx={{
+                    background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528`,
+                    color: '#FDB528',
+                  }}
+                  size='medium'
+                />
+                <Typography fontSize={14} fontWeight={500}>
+                  {getLegalName({
+                    firstName: auth.getValue().user?.firstName,
+                    middleName: auth.getValue().user?.middleName,
+                    lastName: auth.getValue().user?.lastName,
+                  })}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  mt: '12px',
+                }}
+              >
+                <TextField
+                  fullWidth
+                  autoComplete='off'
+                  rows={4}
+                  value={addJobFeedbackData}
+                  placeholder='Write down a feedback.'
+                  onChange={event => {
+                    if (event.target.value) {
+                      setAddJobFeedbackData(event.target.value)
+                    } else {
+                      setAddJobFeedbackData(null)
+                    }
+                  }}
+                  multiline
+                  error={addJobFeedbackData === null ? true : false}
+                  helperText={
+                    addJobFeedbackData === null ? FormErrors.required : null
+                  }
+                  id='textarea-outlined-static'
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    justifyContent: 'end',
+                  }}
+                >
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={onClickDiscardFeedback}
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    variant='contained'
+                    size='small'
+                    onClick={onClickAddFeedback}
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          ) : null}
 
           {project && project?.feedbacks && project.feedbacks.length > 0 ? (
             <>
