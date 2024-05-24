@@ -103,6 +103,7 @@ const SourceFileUpload = ({
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<FileType[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
   const { data: requestData } = useGetClientRequestDetail(
     Number(row.order.requestId),
@@ -144,6 +145,7 @@ const SourceFileUpload = ({
             setFileUnlock(id)
           }
         })
+        closeModal('SourceFileUploadModal')
         setIsLoading(false)
         setFiles([])
         refetchSourceFileList()
@@ -193,6 +195,14 @@ const SourceFileUpload = ({
     onDrop: (acceptedFiles: File[]) => {
       console.log(acceptedFiles)
 
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) + fileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        onFileUploadReject()
+      } else {
+        setUploadedFiles(uploadedFiles.concat(acceptedFiles))
+      }
+
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {
@@ -206,6 +216,7 @@ const SourceFileUpload = ({
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
+            console.log(file.name)
 
             if (!found)
               acc.push({
@@ -213,7 +224,11 @@ const SourceFileUpload = ({
                 size: file.size,
                 type: file.type,
 
-                downloadAvailable: false,
+                downloadAvailable: videoExtensions.includes(
+                  file.name?.split('.').pop()?.toLowerCase() ?? '',
+                )
+                  ? false
+                  : true,
               })
             // console.log(acc)
 
@@ -245,11 +260,13 @@ const SourceFileUpload = ({
   }
 
   const handleRemoveFile = (file: FileType) => {
-    const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
-    console.log(filtered)
+    const postFiles = files
+    const tempFiles = uploadedFiles
+    const filtered = postFiles.filter((i: FileType) => i.name !== file.name)
+    const filterUploaded = tempFiles.filter((i: File) => i.name !== file.name)
 
     setFiles([...filtered])
+    setUploadedFiles([...filterUploaded])
   }
 
   const DownloadFile = (file: FileType) => {
@@ -358,6 +375,8 @@ const SourceFileUpload = ({
           jobId: row.id,
           files: [],
         }
+        console.log(uploadedFiles, files)
+
         const paths: string[] = files.map(file => {
           return `project/${row.id}/source/${file.name}`
         })
@@ -377,7 +396,7 @@ const SourceFileUpload = ({
               type: 'SOURCE',
               downloadAvailable: files[idx].downloadAvailable ?? true,
             })
-            return uploadFileToS3(url, files[idx])
+            return uploadFileToS3(url, uploadedFiles[idx])
           })
           Promise.all(promiseArr)
             .then(res => {
