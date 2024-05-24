@@ -1497,7 +1497,18 @@ const DeliveriesFeedback = ({
                 Feedback
               </Typography>{' '}
               {currentRole && currentRole.name === 'CLIENT' ? (
-                <Button variant='outlined' onClick={() => setAddFeedback(true)}>
+                <Button
+                  variant='outlined'
+                  onClick={() => setAddFeedback(true)}
+                  disabled={
+                    project.status === 'New' ||
+                    project.status === 'In progress' ||
+                    project.status === 'Under revision' ||
+                    project.status === 'Invoiced' ||
+                    project.status === 'Paid' ||
+                    project.status === 'Canceled'
+                  }
+                >
                   Add feedback
                 </Button>
               ) : null}
