@@ -246,6 +246,7 @@ const AddNew = () => {
             rightButtonText='Discard'
             onClick={() => {
               reset()
+              closeModal('Confirm')
               router.back()
             }}
             onClose={() => closeModal('Confirm')}
