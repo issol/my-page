@@ -11,6 +11,8 @@ import { Icon } from '@iconify/react'
 
 type Props = {
   setTargetFiles: Dispatch<SetStateAction<FileType[]>>
+  setUploadedTargetFiles: Dispatch<SetStateAction<File[]>>
+  uploadedTargetFiles: File[]
   targetFiles: FileType[]
   targetFileSize: number
   setTargetFileSize: Dispatch<SetStateAction<number>>
@@ -24,6 +26,8 @@ const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
 const TargetDropzone = ({
   setTargetFiles,
+  setUploadedTargetFiles,
+  uploadedTargetFiles,
   targetFiles,
   targetFileSize,
   setTargetFileSize,
@@ -40,6 +44,14 @@ const TargetDropzone = ({
     noDragEventsBubbling: true,
 
     onDrop: (acceptedFiles: File[]) => {
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) +
+        targetFileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        onFileUploadReject()
+      } else {
+        setUploadedTargetFiles(uploadedTargetFiles.concat(acceptedFiles))
+      }
       const uniqueFiles = targetFiles
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {

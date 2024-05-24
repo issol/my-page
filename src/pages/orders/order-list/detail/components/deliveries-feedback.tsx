@@ -129,6 +129,7 @@ const DeliveriesFeedback = ({
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<FileType[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
   const [addFeedback, setAddFeedback] = useState<boolean>(false)
 
@@ -200,6 +201,25 @@ const DeliveriesFeedback = ({
     disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
 
     onDrop: (acceptedFiles: File[]) => {
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) + fileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        openModal({
+          type: 'AlertMaximumFileSizeModal',
+          children: (
+            <AlertModal
+              title={`The maximum file size you can upload is ${byteToGB(
+                MAXIMUM_FILE_SIZE,
+              )}.`}
+              onClick={() => closeModal('AlertMaximumFileSizeModal')}
+              vary='error'
+              buttonText='Okay'
+            />
+          ),
+        })
+      } else {
+        setUploadedFiles(uploadedFiles.concat(acceptedFiles))
+      }
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {
@@ -361,15 +381,20 @@ const DeliveriesFeedback = ({
   }
 
   const handleRemoveFile = (file: FileType, type: 'import' | 'upload') => {
-    const uploadedFiles = type === 'import' ? importedFiles : files
-    const filtered = uploadedFiles.filter((i: FileType | DeliveryFileType) =>
+    const postFiles = type === 'import' ? importedFiles : files
+    const tempFiles = uploadedFiles
+    const filtered = postFiles.filter((i: FileType | DeliveryFileType) =>
       type === 'import'
         ? (i as DeliveryFileType).fileName !== file.name
         : (i as FileType).name !== file.name,
     )
+    const filterUploaded = tempFiles.filter((i: File) => i.name !== file.name)
+
     type === 'import'
       ? setImportedFiles([...(filtered as DeliveryFileType[])])
       : setFiles([...(filtered as FileType[])])
+
+    setUploadedFiles([...filterUploaded])
 
     setFileSize(fileSize - file.size)
   }
@@ -457,7 +482,7 @@ const DeliveriesFeedback = ({
               fileExtension: splitFileNameAndExtension(files[idx].name)[1],
               type: 'imported',
             })
-            return uploadFileToS3(res.url, files[idx])
+            return uploadFileToS3(res.url, uploadedFiles[idx])
           },
         )
       })
@@ -474,6 +499,7 @@ const DeliveriesFeedback = ({
           setNote(null)
           setFiles([])
           setImportedFiles([])
+          setUploadedFiles([])
         })
         .catch(err =>
           toast.error(

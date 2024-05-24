@@ -164,6 +164,9 @@ const RequestReviewModal = ({
   const [importSourceFileUpdate, setImportSourceFileUpdate] = useState(false)
   const [importTargetFileUpdate, setImportTargetFileUpdate] = useState(false)
 
+  const [uploadedSourceFiles, setUploadedSourceFiles] = useState<File[]>([])
+  const [uploadedTargetFiles, setUploadedTargetFiles] = useState<File[]>([])
+
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
@@ -197,7 +200,7 @@ const RequestReviewModal = ({
       }
 
       const files = sourceFiles.concat(targetFiles)
-
+      const tempFiles = selectedSourceFiles.concat(selectedTargetFiles)
       const paths: string[] = files.map(file => {
         return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
       })
@@ -224,7 +227,7 @@ const RequestReviewModal = ({
                 | 'REVIEWED') ?? 'SOURCE',
             // downloadAvailable: files[idx].downloadAvailable ?? false,
           })
-          return uploadFileToS3(url, files[idx])
+          return uploadFileToS3(url, tempFiles[idx])
         })
         Promise.all(promiseArr)
           .then(res => {
@@ -375,7 +378,12 @@ const RequestReviewModal = ({
 
   const handleRemoveFile = (file: FileType, type: 'source' | 'target') => {
     const uploadedFiles = type === 'source' ? sourceFiles : targetFiles
+    const tempFiles =
+      type === 'source' ? uploadedSourceFiles : uploadedTargetFiles
+
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
+    const tempFiltered = tempFiles.filter((i: File) => i.name !== file.name)
+
     type === 'source'
       ? setSourceFileSize(sourceFileSize - file.size)
       : setTargetFileSize(targetFileSize - file.size)
@@ -383,6 +391,10 @@ const RequestReviewModal = ({
     type === 'source'
       ? setSourceFiles([...filtered])
       : setTargetFiles([...filtered])
+
+    type === 'source'
+      ? setUploadedSourceFiles([...tempFiltered])
+      : setUploadedTargetFiles([...tempFiltered])
 
     type === 'source'
       ? setIsSourceFileUpdate(true)
@@ -1213,6 +1225,8 @@ const RequestReviewModal = ({
                     handleRemoveFile={handleRemoveFile}
                     type={type}
                     setTargetFileUpdate={setIsTargetFileUpdate}
+                    setUploadedTargetFiles={setUploadedTargetFiles}
+                    uploadedTargetFiles={uploadedTargetFiles}
                   />
                   {selectedTargetFiles.length > 0 && (
                     <Box
