@@ -4,6 +4,8 @@ export type FileType = {
   size: number
   type?: string
   file?: string
+  path?: string
+  extension?: string
   createdAt?: string
   downloadAvailable?: boolean
   isImported?: boolean

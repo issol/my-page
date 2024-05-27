@@ -9,21 +9,13 @@ import {
   Divider,
   Grid,
   IconButton,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  SelectChangeEvent,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
 
 import { CompanyOptionType } from '@src/types/options.type'
-import {
-  JobRequestReviewFormType,
-  JobRequestReviewListType,
-} from '@src/types/orders/job-detail'
+import { JobRequestReviewListType } from '@src/types/orders/job-detail'
 import { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -37,19 +29,14 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { JobType } from '@src/types/common/item.type'
 import useModal from '@src/hooks/useModal'
 import RequestReviewModal from './request-review-modal'
-import { Resolver, useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { requestReviewSchema } from '@src/types/schema/job-detail'
+
 import { Icon } from '@iconify/react'
 import { FileType } from '@src/types/common/file.type'
 import Image from 'next/image'
-import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
+
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import {
-  DownloadAllFiles,
-  DownloadFile,
-} from '@src/shared/helpers/downlaod-file'
+import { DownloadAllFiles } from '@src/shared/helpers/downlaod-file'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
@@ -57,17 +44,16 @@ import { completeRequestReview } from '@src/apis/jobs/job-detail.api'
 import UploadReviewedFilesModal from './upload-reviewed-files-modal'
 
 import { useGetMemberList } from '@src/queries/quotes.query'
-import styled from '@emotion/styled'
+
 import {
   getCurrentRole,
   getUserTokenFromBrowser,
 } from '@src/shared/auth/storage'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import toast from 'react-hot-toast'
 
 type Props = {
-  // requestReviewList: {
-  //   jobId: number
-  //   data: JobRequestReviewListType[]
-  // }
   jobId: number
   lspList: CompanyOptionType[]
   jobInfo: JobType
@@ -81,13 +67,13 @@ interface JobReviewedGroupedFileType {
 
 const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
-// const ReviewRequest = ({ requestReviewList, lspList }: Props) => {
 const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
   const leftContainer = useRef<Array<HTMLDivElement | null>>([])
+
   const [memberList, setMemberList] = useState<
     Array<{ value: number; label: string; jobTitle?: string }>
   >([])
@@ -103,8 +89,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
       },
     },
   )
-
-  const [checked, setChecked] = useState(false)
 
   const getFileSize = (file: FileType[], type: string) => {
     const files = file.filter((file: FileType) => file.type === type)
@@ -124,37 +108,13 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     jobId,
     lsp,
   )
-  const [selectedLsp, setSelectedLsp] = useState<
-    { value: number; label: string; jobTitle?: string }[]
-  >([])
 
-  const handleChange = (event: SelectChangeEvent<typeof lsp>) => {
-    const value = event.target.value as number[]
-    if (members) {
-      console.log(value)
-
-      const result = members.filter(option =>
-        value.includes(option.value as number),
-      ) // Cast option.value as number
-
-      setLsp(value)
-      setSelectedLsp(result)
-    }
-  }
-
-  // const [expanded, setExpanded] = useState<string | false>(false)
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
 
   const handleAccordionChange =
     (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded({ ...expanded, [panel]: isExpanded })
     }
-
-  // const handleAccordionChange =
-  //   (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-  //     // setExpanded(isExpanded ? panel : false)
-  //     setExpanded(isExpanded ? panel : false)
-  //   }
 
   const onClickRequestReview = (
     type: 'create' | 'edit',
@@ -165,12 +125,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
       children: (
         <RequestReviewModal
           onClose={() => {
-            // reset()
             closeModal('RequestReviewModal')
           }}
-          // control={control}
-          // handleSubmit={handleSubmit}
-
           jobSourceFiles={
             jobInfo.files?.filter(value => value.type === 'SOURCE') || []
           }
@@ -180,9 +136,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
           type={type}
           jobId={jobId}
           requestInfo={info}
-          // watch={watch}
-          // errors={errors}
-          // setFocus={setFocus}
+          setExpanded={setExpanded}
+          expanded={expanded}
         />
       ),
     })
@@ -209,7 +164,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                 {
                   onSuccess: () => {
                     queryClient.invalidateQueries(['jobRequestReview'])
-                    setChecked(true)
                   },
                 },
               )
@@ -237,7 +191,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                 {
                   onSuccess: () => {
                     queryClient.invalidateQueries(['jobRequestReview'])
-                    setChecked(false)
                   },
                 },
               )
@@ -247,7 +200,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
         ),
       })
     }
-    // setChecked(event.target.checked)
   }
 
   const onClickUploadReviewedFiles = (id: number) => {
@@ -310,6 +262,38 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     } else {
       return 'deActive'
     }
+  }
+
+  const downloadFile = (file: FileType) => {
+    const parts = file.path?.split('/') || []
+    const index = parts.indexOf('project')
+    const result = parts.slice(index).join('/')
+    getDownloadUrlforCommon(S3FileType.JOB, result).then((res: any) => {
+      fetch(res.url, { method: 'GET' })
+        .then(res => {
+          return res.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${file.name}`
+          document.body.appendChild(a)
+          a.click()
+          setTimeout((_: any) => {
+            window.URL.revokeObjectURL(url)
+          }, 60000)
+          a.remove()
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
+    })
   }
 
   return (
@@ -392,24 +376,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                     </li>
                   )}
                 />
-                {/* <Select
-                  multiple
-                  value={lsp}
-                  onChange={handleChange}
-                  input={<OutlinedInput />}
-                  // MenuProps={MenuProps}
-                  renderValue={selected =>
-                    selectedLsp.map(value => value.label).join(', ')
-                  }
-                >
-                  {members &&
-                    members.map(option => (
-                      <MenuItem key={uuidv4()} value={option.value}>
-                        <Checkbox checked={lsp.indexOf(option.value) > -1} />
-                        <ListItemText primary={option.label} />
-                      </MenuItem>
-                    ))}
-                </Select> */}
               </Box>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -648,7 +614,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               </Box>
                             ) : null}
 
-                            <Divider />
+                            {(item.files.length > 0 &&
+                              item.files.filter(
+                                value => value.type === 'SOURCE',
+                              ).length > 0) ||
+                              (item.files.length > 0 &&
+                                item.files.filter(
+                                  value => value.type === 'TARGET',
+                                ).length > 0 && <Divider />)}
 
                             <div
                               style={{
@@ -657,10 +630,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 gap: '20px',
                               }}
                               ref={el => (leftContainer.current[index] = el)}
-                              // {...{ ref: leftContainer.current[index] }}
-                              // ref={leftContainer.current[index]}
                             >
-                              {' '}
                               {item.files.length > 0 &&
                                 item.files.filter(
                                   value => value.type === 'SOURCE',
@@ -769,17 +739,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                         }}
                                                       >
                                                         <Image
-                                                          src={`/images/icons/file-icons/${
-                                                            videoExtensions.includes(
-                                                              file.name
-                                                                ?.split('.')
-                                                                .pop()
-                                                                ?.toLowerCase() ??
-                                                                '',
-                                                            )
-                                                              ? 'video'
-                                                              : 'document'
-                                                          }.svg`}
+                                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                                            file.name,
+                                                          )}.svg`}
                                                           alt=''
                                                           width={32}
                                                           height={32}
@@ -835,12 +797,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                       }}
                                                     >
                                                       <IconButton
-                                                        onClick={() =>
-                                                          DownloadFile(
-                                                            file,
-                                                            S3FileType.JOB,
-                                                          )
-                                                        }
+                                                        onClick={() => {
+                                                          downloadFile(file)
+                                                        }}
                                                       >
                                                         <Icon
                                                           icon='ic:sharp-download'
@@ -970,17 +929,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                           }}
                                                         >
                                                           <Image
-                                                            src={`/images/icons/file-icons/${
-                                                              videoExtensions.includes(
-                                                                file.name
-                                                                  ?.split('.')
-                                                                  .pop()
-                                                                  ?.toLowerCase() ??
-                                                                  '',
-                                                              )
-                                                                ? 'video'
-                                                                : 'document'
-                                                            }.svg`}
+                                                            src={`/images/icons/file-icons/${extractFileExtension(
+                                                              file.name,
+                                                            )}.svg`}
                                                             alt=''
                                                             width={32}
                                                             height={32}
@@ -1039,10 +990,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                       >
                                                         <IconButton
                                                           onClick={() =>
-                                                            DownloadFile(
-                                                              file,
-                                                              S3FileType.JOB,
-                                                            )
+                                                            downloadFile(file)
                                                           }
                                                         >
                                                           <Icon
@@ -1129,7 +1077,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                   sx={{ display: 'flex', alignItems: 'center' }}
                                 >
                                   <Checkbox
-                                    checked={checked}
+                                    checked={item.isCompleted}
                                     onChange={event =>
                                       onClickCompleteReview(event, item.id)
                                     }
@@ -1295,17 +1243,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                         }}
                                                       >
                                                         <Image
-                                                          src={`/images/icons/file-icons/${
-                                                            videoExtensions.includes(
-                                                              item.name
-                                                                ?.split('.')
-                                                                .pop()
-                                                                ?.toLowerCase() ??
-                                                                '',
-                                                            )
-                                                              ? 'video'
-                                                              : 'document'
-                                                          }.svg`}
+                                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                                            item.name,
+                                                          )}.svg`}
                                                           alt=''
                                                           width={32}
                                                           height={32}
@@ -1361,12 +1301,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                                       }}
                                                     >
                                                       <IconButton
-                                                        onClick={() =>
-                                                          DownloadFile(
-                                                            item,
-                                                            S3FileType.JOB,
-                                                          )
-                                                        }
+                                                        onClick={() => {
+                                                          downloadFile(item)
+                                                        }}
                                                       >
                                                         <Icon
                                                           icon='ic:sharp-download'
@@ -1451,5 +1388,3 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
 }
 
 export default ReviewRequest
-
-const StyledBox = styled(Box)``

@@ -4,7 +4,6 @@ import {
   Button,
   Divider,
   IconButton,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -14,7 +13,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
@@ -22,6 +21,9 @@ import { useMutation, useQueryClient } from 'react-query'
 import { saveReviewedFile } from '@src/apis/jobs/job-detail.api'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
+import { set } from 'lodash'
+import FallbackSpinner from '@src/@core/components/spinner'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   onClose: any
@@ -33,6 +35,14 @@ const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
 const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
   const { openModal, closeModal } = useModal()
+  const [uploadedReviewedFiles, setUploadedReviewedFiles] = useState<File[]>([])
+  const [isSavingData, setIsSavingData] = useState(false)
+
+  const [fileSize, setFileSize] = useState(0)
+
+  const [note, setNote] = useState('')
+
+  const [files, setFiles] = useState<FileType[]>([])
 
   const queryClient = useQueryClient()
 
@@ -51,6 +61,7 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     {
       onSuccess: () => {
         onClose()
+        setIsSavingData(false)
         queryClient.invalidateQueries(['jobRequestReview'])
       },
     },
@@ -58,7 +69,7 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
 
   const onClickSubmit = () => {
     if (files.length) {
-      // setIsLoading(true)
+      setIsSavingData(true)
       const fileInfo: Array<{
         fileName: string
         filePath: string
@@ -88,7 +99,7 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
             type: 'REVIEWED',
             // downloadAvailable: files[idx].downloadAvailable ?? false,
           })
-          return uploadFileToS3(url, files[idx])
+          return uploadFileToS3(url, uploadedReviewedFiles[idx])
         })
         Promise.all(promiseArr)
           .then(res => {
@@ -117,17 +128,17 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     }
   }
 
-  const [fileSize, setFileSize] = useState(0)
-
-  const [note, setNote] = useState('')
-
-  const [files, setFiles] = useState<FileType[]>([])
-
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
+    const tempFiles = uploadedReviewedFiles
+
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
+    const filteredTempFiles = tempFiles.filter(
+      (i: File) => i.name !== file.name,
+    )
     setFileSize(fileSize - file.size)
     setFiles([...filtered])
+    setUploadedReviewedFiles([...filteredTempFiles])
   }
 
   function onFileUploadReject() {
@@ -150,6 +161,14 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     noDragEventsBubbling: true,
 
     onDrop: (acceptedFiles: File[]) => {
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) + fileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        onFileUploadReject()
+      } else {
+        setUploadedReviewedFiles(uploadedReviewedFiles.concat(acceptedFiles))
+      }
+
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {
@@ -169,10 +188,7 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
                 name: file.name,
                 size: file.size,
                 type: 'REVIEWED',
-
-                downloadAvailable: false,
               })
-            // console.log(acc)
 
             return acc
           }
@@ -183,240 +199,247 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     },
   })
   return (
-    <Box
-      sx={{
-        maxWidth: '569px',
-        width: '100%',
-        maxHeight: '90vh',
-        background: '#ffffff',
-        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-        borderRadius: '10px',
-        // padding: '32px 20px',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Box
-          sx={{
-            padding: '24px 20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography fontSize={20} fontWeight={500}>
-            Upload reviewed files
-          </Typography>
-          <IconButton onClick={onClose}>
-            <Icon icon='mdi:close'></Icon>
-          </IconButton>
-        </Box>
-        <Divider />
+    <>
+      {isSavingData && <OverlaySpinner />}
+      <Box
+        sx={{
+          maxWidth: '569px',
+          width: '100%',
+          maxHeight: '90vh',
+          background: '#ffffff',
+          boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+          borderRadius: '10px',
+          // padding: '32px 20px',
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              padding: '24px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography fontSize={20} fontWeight={500}>
+              Upload reviewed files
+            </Typography>
+            <IconButton onClick={onClose}>
+              <Icon icon='mdi:close'></Icon>
+            </IconButton>
+          </Box>
+          <Divider />
 
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '20px',
-            gap: '16px',
-          }}
-        >
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Typography fontSize={16} fontWeight={600}>
-                Reviewed files
-              </Typography>
-              <Typography
-                fontSize={12}
-                fontWeight={400}
-                color={
-                  fileSize > MAXIMUM_FILE_SIZE
-                    ? '#FF4D49'
-                    : 'rgba(76, 78, 100, 0.60)'
-                }
-              >
-                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
-              {fileSize > MAXIMUM_FILE_SIZE && (
-                <Typography fontSize={14} fontWeight={600} color='#FF4D49'>
-                  Maximum size exceeded
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '20px',
+              gap: '16px',
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Typography fontSize={16} fontWeight={600}>
+                  Reviewed files
                 </Typography>
-              )}
-            </Box>
-            <div
-              {...getRootProps({
-                className: 'dropzone',
-              })}
-            >
-              <Box
-                sx={{
-                  width: '100%',
-                  border: '1px dashed #8D8E9A',
-                  borderRadius: '10px',
-                  padding: '12px 20px',
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
-                    Drag and drop or
+                <Typography
+                  fontSize={12}
+                  fontWeight={400}
+                  color={
+                    fileSize > MAXIMUM_FILE_SIZE
+                      ? '#FF4D49'
+                      : 'rgba(76, 78, 100, 0.60)'
+                  }
+                >
+                  {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                </Typography>
+                {fileSize > MAXIMUM_FILE_SIZE && (
+                  <Typography fontSize={14} fontWeight={600} color='#FF4D49'>
+                    Maximum size exceeded
                   </Typography>
-                  <Button variant='outlined' size='small'>
-                    <input {...getInputProps()} />
-                    Browse file
-                  </Button>
-                </Box>
-                {files.length > 0 && (
+                )}
+              </Box>
+              <div
+                {...getRootProps({
+                  className: 'dropzone',
+                })}
+              >
+                <Box
+                  sx={{
+                    width: '100%',
+                    border: '1px dashed #8D8E9A',
+                    borderRadius: '10px',
+                    padding: '12px 20px',
+                  }}
+                >
                   <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      mt: '20px',
-                      width: '100%',
-                      gap: '20px',
-                    }}
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                   >
-                    {files.map((file: FileType, index: number) => {
-                      return (
-                        <Box key={uuidv4()}>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              marginBottom: '8px',
-                              width: '100%',
-                              justifyContent: 'space-between',
-                              borderRadius: '8px',
-                              padding: '10px 12px',
-                              border: '1px solid rgba(76, 78, 100, 0.22)',
-                              background: '#f9f8f9',
-                            }}
-                          >
+                    <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                      Drag and drop or
+                    </Typography>
+                    <Button variant='outlined' size='small'>
+                      <input {...getInputProps()} />
+                      Browse file
+                    </Button>
+                  </Box>
+                  {files.length > 0 && (
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        mt: '20px',
+                        width: '100%',
+                        gap: '20px',
+                      }}
+                    >
+                      {files.map((file: FileType, index: number) => {
+                        return (
+                          <Box key={uuidv4()}>
                             <Box
                               sx={{
                                 display: 'flex',
-                                alignItems: 'center',
+                                marginBottom: '8px',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                                borderRadius: '8px',
+                                padding: '10px 12px',
+                                border: '1px solid rgba(76, 78, 100, 0.22)',
+                                background: '#f9f8f9',
                               }}
                             >
                               <Box
                                 sx={{
-                                  marginRight: '8px',
                                   display: 'flex',
-                                }}
-                              >
-                                <Image
-                                  src={`/images/icons/file-icons/${
-                                    videoExtensions.includes(
-                                      file.name
-                                        ?.split('.')
-                                        .pop()
-                                        ?.toLowerCase() ?? '',
-                                    )
-                                      ? 'video'
-                                      : 'document'
-                                  }.svg`}
-                                  alt=''
-                                  width={32}
-                                  height={32}
-                                />
-                              </Box>
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                }}
-                              >
-                                <Tooltip title={file.name}>
-                                  <Typography
-                                    variant='body1'
-                                    fontSize={14}
-                                    fontWeight={600}
-                                    lineHeight={'20px'}
-                                    sx={{
-                                      overflow: 'hidden',
-                                      wordBreak: 'break-all',
-                                      textOverflow: 'ellipsis',
-                                      display: '-webkit-box',
-                                      WebkitLineClamp: 1,
-                                      WebkitBoxOrient: 'vertical',
-                                    }}
-                                  >
-                                    {file.name}
-                                  </Typography>
-                                </Tooltip>
-
-                                <Typography
-                                  variant='caption'
-                                  lineHeight={'14px'}
-                                >
-                                  {formatFileSize(file.size)}
-                                </Typography>
-                              </Box>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Box
-                                sx={{
                                   alignItems: 'center',
-                                  display: 'flex',
-                                  color: 'rgba(76, 78, 100, 0.54)',
-                                  cursor: 'pointer',
-                                  padding: '4px',
-                                }}
-                                onClick={event => {
-                                  event.stopPropagation()
-                                  handleRemoveFile(file)
                                 }}
                               >
-                                <Icon icon='mdi:close' fontSize={20} />
+                                <Box
+                                  sx={{
+                                    marginRight: '8px',
+                                    display: 'flex',
+                                  }}
+                                >
+                                  <Image
+                                    src={`/images/icons/file-icons/${
+                                      videoExtensions.includes(
+                                        file.name
+                                          ?.split('.')
+                                          .pop()
+                                          ?.toLowerCase() ?? '',
+                                      )
+                                        ? 'video'
+                                        : 'document'
+                                    }.svg`}
+                                    alt=''
+                                    width={32}
+                                    height={32}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                  }}
+                                >
+                                  <Tooltip title={file.name}>
+                                    <Typography
+                                      variant='body1'
+                                      fontSize={14}
+                                      fontWeight={600}
+                                      lineHeight={'20px'}
+                                      sx={{
+                                        overflow: 'hidden',
+                                        wordBreak: 'break-all',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 1,
+                                        WebkitBoxOrient: 'vertical',
+                                      }}
+                                    >
+                                      {file.name}
+                                    </Typography>
+                                  </Tooltip>
+
+                                  <Typography
+                                    variant='caption'
+                                    lineHeight={'14px'}
+                                  >
+                                    {formatFileSize(file.size)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Box
+                                sx={{ display: 'flex', alignItems: 'center' }}
+                              >
+                                <Box
+                                  sx={{
+                                    alignItems: 'center',
+                                    display: 'flex',
+                                    color: 'rgba(76, 78, 100, 0.54)',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                  }}
+                                  onClick={event => {
+                                    event.stopPropagation()
+                                    handleRemoveFile(file)
+                                  }}
+                                >
+                                  <Icon icon='mdi:close' fontSize={20} />
+                                </Box>
                               </Box>
                             </Box>
                           </Box>
-                        </Box>
-                      )
-                    })}
-                  </Box>
-                )}
-              </Box>
-            </div>
-          </Box>
-          {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Typography fontSize={16} fontWeight={600}>
-              Note
-            </Typography>
-            <Box>
-              <TextField
-                multiline
-                autoComplete='off'
-                fullWidth
-                rows={3}
-                value={note}
-                onChange={event => {
-                  setNote(event.target.value)
-                }}
-              />
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '12px',
-                  lineHeight: '25px',
-                  color: '#888888',
-                }}
-              >
-                {note?.length ?? 0}/500
-              </Box>
+                        )
+                      })}
+                    </Box>
+                  )}
+                </Box>
+              </div>
             </Box>
-          </Box> */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant='contained'
-              onClick={onClickSubmit}
-              // disabled={files.length === 0 && note === ''}
-              disabled={files.length === 0}
+            {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Typography fontSize={16} fontWeight={600}>
+            Note
+          </Typography>
+          <Box>
+            <TextField
+              multiline
+              autoComplete='off'
+              fullWidth
+              rows={3}
+              value={note}
+              onChange={event => {
+                setNote(event.target.value)
+              }}
+            />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                fontSize: '12px',
+                lineHeight: '25px',
+                color: '#888888',
+              }}
             >
-              Save
-            </Button>
+              {note?.length ?? 0}/500
+            </Box>
+          </Box>
+        </Box> */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button
+                variant='contained'
+                onClick={onClickSubmit}
+                // disabled={files.length === 0 && note === ''}
+                disabled={files.length === 0 || isSavingData}
+              >
+                Save
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>
-    </Box>
+    </>
   )
 }
 

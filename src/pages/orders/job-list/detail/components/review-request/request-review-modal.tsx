@@ -7,8 +7,6 @@ import {
   Divider,
   FormHelperText,
   IconButton,
-  MenuItem,
-  Select,
   TextField,
   Tooltip,
   Typography,
@@ -17,27 +15,18 @@ import {
 import { FormErrors } from '@src/shared/const/formErrors'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { timezoneSelector } from '@src/states/permission'
-import { CompanyOptionType } from '@src/types/options.type'
+
 import {
   JobRequestReviewFormType,
   JobRequestReviewListType,
   JobRequestReviewParamsType,
 } from '@src/types/orders/job-detail'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormHandleSubmit,
-  UseFormWatch,
-  UseFormSetFocus,
-  useForm,
-  Resolver,
-} from 'react-hook-form'
+import { Controller, FieldErrors, useForm, Resolver } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
@@ -48,18 +37,18 @@ import useModal from '@src/hooks/useModal'
 
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Image from 'next/image'
-import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
-import {
-  byteToGB,
-  byteToMB,
-  formatFileSize,
-} from '@src/shared/helpers/file-size.helper'
+
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import TargetDropzone from './target-dropzone'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { requestReviewSchema } from '@src/types/schema/job-detail'
-import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
 import toast from 'react-hot-toast'
-import { s } from '@fullcalendar/core/internal-common'
+
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
 import {
@@ -67,50 +56,54 @@ import {
   updateRequestReview,
 } from '@src/apis/jobs/job-detail.api'
 import { useGetMemberList } from '@src/queries/quotes.query'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+import { displayCustomToast } from '@src/shared/utils/toast'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   onClose: any
-  // control: Control<JobRequestReviewFormType, any>
-  // handleSubmit: UseFormHandleSubmit<JobRequestReviewFormType, undefined>
 
   jobSourceFiles: FileType[]
   jobTargetFiles: FileType[]
   type: 'edit' | 'create'
   jobId: number
+  expanded: { [key: number]: boolean }
+  setExpanded: Dispatch<
+    SetStateAction<{
+      [key: number]: boolean
+    }>
+  >
   requestInfo?: JobRequestReviewListType
-  // watch: UseFormWatch<JobRequestReviewFormType>
-  // errors: FieldErrors<JobRequestReviewFormType>
-  // setFocus: UseFormSetFocus<JobRequestReviewFormType>
 }
 
 const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
 const RequestReviewModal = ({
   onClose,
-  // control,
-  // handleSubmit,
-
   jobSourceFiles,
   jobTargetFiles,
   type,
   jobId,
+  expanded,
+  setExpanded,
   requestInfo,
-  // watch,
-  // errors,
-  // setFocus,
 }: Props) => {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const theme = useTheme()
   const { direction } = theme
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const [isSavingData, setIsSavingData] = useState<boolean>(false)
 
   const createRequestReviewMutation = useMutation(
     (params: JobRequestReviewParamsType) => createRequestReview(params),
     {
-      onSuccess: () => {
+      onSuccess: data => {
+        setIsSavingData(false)
         queryClient.invalidateQueries(['jobRequestReview'])
         onClose()
+        setExpanded({ ...expanded, [data.id]: true })
+        displayCustomToast(' Submitted successfully.', 'success')
       },
     },
   )
@@ -119,8 +112,11 @@ const RequestReviewModal = ({
     (data: { params: JobRequestReviewParamsType; id: number }) =>
       updateRequestReview(data.params, data.id),
     {
-      onSuccess: () => {
+      onSuccess: data => {
+        setIsSavingData(false)
         queryClient.invalidateQueries(['jobRequestReview'])
+        setExpanded({ ...expanded, [data.id]: true })
+        displayCustomToast(' Saved successfully.', 'success')
         onClose()
       },
     },
@@ -183,8 +179,8 @@ const RequestReviewModal = ({
   >([])
 
   const saveData = (data: JobRequestReviewFormType) => {
-    if (sourceFiles.length || targetFiles.length) {
-      // setIsLoading(true)
+    if (uploadedSourceFiles.length || uploadedTargetFiles.length) {
+      setIsSavingData(true)
       const fileInfo: {
         jobId: number
         files: Array<{
@@ -200,7 +196,8 @@ const RequestReviewModal = ({
       }
 
       const files = sourceFiles.concat(targetFiles)
-      const tempFiles = selectedSourceFiles.concat(selectedTargetFiles)
+
+      const tempFiles = uploadedSourceFiles.concat(uploadedTargetFiles)
       const paths: string[] = files.map(file => {
         return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
       })
@@ -227,6 +224,9 @@ const RequestReviewModal = ({
                 | 'REVIEWED') ?? 'SOURCE',
             // downloadAvailable: files[idx].downloadAvailable ?? false,
           })
+
+          console.log(tempFiles)
+
           return uploadFileToS3(url, tempFiles[idx])
         })
         Promise.all(promiseArr)
@@ -303,6 +303,20 @@ const RequestReviewModal = ({
         wordCount: data.wordCount,
         noteToAssignee: data.note,
         files: [
+          ...sourceFiles.map(value => ({
+            fileName: value.name,
+            filePath: value.path!,
+            fileExtension: value.extension!,
+            fileSize: value.size,
+            type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+          })),
+          ...targetFiles.map(value => ({
+            fileName: value.name,
+            filePath: value.path!,
+            fileExtension: value.extension!,
+            fileSize: value.size,
+            type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+          })),
           ...selectedSourceFiles
             .filter(item => item.isSelected)
             .map(value => ({
@@ -429,6 +443,15 @@ const RequestReviewModal = ({
       fileRejections: FileRejection[],
       event: DropEvent,
     ) => {
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) +
+        sourceFileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        onFileUploadReject()
+      } else {
+        setUploadedSourceFiles(uploadedSourceFiles.concat(acceptedFiles))
+      }
+
       const uniqueFiles = sourceFiles
         .concat(acceptedFiles)
         .reduce((acc: FileType[], file: FileType) => {
@@ -509,6 +532,7 @@ const RequestReviewModal = ({
       console.log(requestInfo.dueDateTimezone)
       setSourceFiles(requestInfo.files.filter(value => value.type === 'SOURCE'))
       setTargetFiles(requestInfo.files.filter(value => value.type === 'TARGET'))
+
       setValue('assignee', requestInfo.assigneeId, { shouldDirty: false })
       setValue('desiredDueAt', new Date(requestInfo.dueDate), {
         shouldDirty: false,
@@ -521,389 +545,553 @@ const RequestReviewModal = ({
     }
   }, [type, requestInfo])
 
-  console.log(getValues())
+  useEffect(() => {
+    const totalSize = sourceFiles.reduce((acc, file) => acc + file.size, 0)
+    setSourceFileSize(totalSize)
+  }, [sourceFiles])
+
+  useEffect(() => {
+    const totalSize = targetFiles.reduce((acc, file) => acc + file.size, 0)
+    setTargetFileSize(totalSize)
+  }, [targetFiles])
 
   return (
-    <Box
-      sx={{
-        maxWidth: '569px',
-        width: '100%',
-        maxHeight: '90vh',
+    <>
+      {isSavingData && <OverlaySpinner />}
+      <Box
+        sx={{
+          maxWidth: '569px',
+          width: '100%',
+          maxHeight: '90vh',
 
-        background: '#ffffff',
-        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-        borderRadius: '10px',
+          background: '#ffffff',
+          boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+          borderRadius: '10px',
 
-        // padding: '32px 20px',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Box
-          sx={{
-            padding: '24px 20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography fontSize={20} fontWeight={500}>
-            {type === 'edit' ? 'Edit request info' : 'Request form'}
-          </Typography>
-          <IconButton
-            onClick={() => {
-              console.log(isDirty)
-              if (isDirty) {
-                openModal({
-                  type: 'DiscardChangeModal',
-                  children: (
-                    <CustomModalV2
-                      title='Discard changes'
-                      subtitle='Are you sure you want to discard all changes?'
-                      vary='error'
-                      rightButtonText='Discard'
-                      onClick={() => {
-                        closeModal('DiscardChangeModal')
-                        onClose()
-                      }}
-                      onClose={() => closeModal('DiscardChangeModal')}
-                    />
-                  ),
-                })
-              } else {
-                onClose()
-              }
-              // onClose()
+          // padding: '32px 20px',
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              padding: '24px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
-            <Icon icon='mdi:close'></Icon>
-          </IconButton>
-        </Box>
-        <Divider sx={{ my: '0 !important' }} />
-        <DatePickerWrapper
-          sx={{
-            width: '100%',
-            // padding: '20px',
-          }}
-        >
-          <form
-            noValidate
-            autoComplete='off'
-            onSubmit={handleSubmit(onSubmit, onError)}
+            <Typography fontSize={20} fontWeight={500}>
+              {type === 'edit' ? 'Edit request info' : 'Request form'}
+            </Typography>
+            <IconButton
+              onClick={() => {
+                console.log(isDirty)
+                if (isDirty) {
+                  openModal({
+                    type: 'DiscardChangeModal',
+                    children: (
+                      <CustomModalV2
+                        title='Discard changes'
+                        subtitle='Are you sure you want to discard all changes?'
+                        vary='error'
+                        rightButtonText='Discard'
+                        onClick={() => {
+                          closeModal('DiscardChangeModal')
+                          onClose()
+                        }}
+                        onClose={() => closeModal('DiscardChangeModal')}
+                      />
+                    ),
+                  })
+                } else {
+                  onClose()
+                }
+                // onClose()
+              }}
+            >
+              <Icon icon='mdi:close'></Icon>
+            </IconButton>
+          </Box>
+          <Divider sx={{ my: '0 !important' }} />
+          <DatePickerWrapper
+            sx={{
+              width: '100%',
+              // padding: '20px',
+            }}
           >
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <form
+              noValidate
+              autoComplete='off'
+              onSubmit={handleSubmit(onSubmit, onError)}
+            >
               <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                  maxHeight: 'calc(90vh - 168px)',
-                  // border: '1px solid red',
-                  overflowY: 'scroll',
-                  padding: '20px',
-                  '&::-webkit-scrollbar': { width: 4 },
-                  '&::-webkit-scrollbar-thumb': {
-                    borderRadius: 20,
-                    background: '#CCCCCC',
-                  },
-                }}
+                sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
               >
                 <Box
-                  className='filterFormAutoCompleteV2'
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      padding: '1px 12px !important',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    maxHeight: 'calc(90vh - 168px)',
+                    // border: '1px solid red',
+                    overflowY: 'scroll',
+                    padding: '20px',
+                    '&::-webkit-scrollbar': { width: 4 },
+                    '&::-webkit-scrollbar-thumb': {
+                      borderRadius: 20,
+                      background: '#CCCCCC',
                     },
-                    width: '100%',
                   }}
                 >
-                  <Typography fontSize={14} fontWeight={600} mb='8px'>
-                    Assignee
-                    <Typography component={'span'} color='#666CFF'>
-                      *
-                    </Typography>
-                  </Typography>
-                  <Controller
-                    name='assignee'
-                    control={control}
-                    render={({
-                      field: { value, onChange, ref },
-                      formState: { isSubmitted, errors },
-                    }) => (
-                      <Autocomplete
-                        // label='legalName_pronounce'
-                        fullWidth
-                        value={
-                          members?.find(option => option.value === value) ??
-                          null
-                        }
-                        onChange={(e, newValue) => onChange(newValue?.value)}
-                        options={members || []}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            inputRef={ref}
-                            autoComplete='off'
-                            error={isSubmitted && Boolean(errors.assignee)}
-                            helperText={
-                              isSubmitted && Boolean(errors.assignee)
-                                ? FormErrors.required
-                                : ''
-                            }
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', gap: '20px' }}>
-                  <Box
-                    className='filterFormAutoCompleteV2'
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        padding: '1px 12px 1px 3px !important',
-                      },
-                      flex: 1,
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600} mb='8px'>
-                      Desired due date
-                      <Typography component={'span'} color='#666CFF'>
-                        *
-                      </Typography>
-                    </Typography>
-                    <Controller
-                      control={control}
-                      name='desiredDueAt'
-                      render={({
-                        field: { onChange, value, ref },
-                        formState: { errors, isSubmitted },
-                      }) => (
-                        <Box sx={{ width: '100%' }}>
-                          <DatePicker
-                            selected={value}
-                            dateFormat='MM/dd/yyyy, hh:mm a'
-                            showTimeSelect={true}
-                            shouldCloseOnSelect={false}
-                            id='date-range-picker-months'
-                            onChange={onChange}
-                            popperPlacement={popperPlacement}
-                            customInput={
-                              <Box>
-                                <CustomInput
-                                  icon='calendar'
-                                  sx={{ height: '46px' }}
-                                  placeholder='MM/DD/YYYY, HH:MM'
-                                  error={
-                                    Boolean(errors.desiredDueAt) && isSubmitted
-                                  }
-                                  // placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                  // readOnly
-                                  value={value ? dateValue(value) : ''}
-                                  ref={ref}
-                                />
-                              </Box>
-                            }
-                          />
-
-                          {errors.desiredDueAt && (
-                            <FormHelperText
-                              sx={{ color: 'error.main', marginLeft: '14px' }}
-                            >
-                              {errors.desiredDueAt.message}
-                            </FormHelperText>
-                          )}
-                        </Box>
-                      )}
-                    />
-                  </Box>
                   <Box
                     className='filterFormAutoCompleteV2'
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         padding: '1px 12px !important',
                       },
-                      flex: 1,
+                      width: '100%',
                     }}
                   >
                     <Typography fontSize={14} fontWeight={600} mb='8px'>
-                      Timezone
+                      Assignee
                       <Typography component={'span'} color='#666CFF'>
                         *
                       </Typography>
                     </Typography>
                     <Controller
-                      name='desiredDueTimezone'
+                      name='assignee'
                       control={control}
                       render={({
-                        field: { onChange, value, ref },
+                        field: { value, onChange, ref },
                         formState: { isSubmitted, errors },
-                      }) => {
-                        return (
-                          <Autocomplete
-                            autoHighlight
-                            fullWidth
-                            value={value ?? { code: '', label: '', phone: '' }}
-                            options={timeZoneList as CountryType[]}
-                            onChange={(e, v) => onChange(v)}
-                            disableClearable
-                            // renderOption={(props, option) => (
-                            //   <Box component='li' {...props} key={uuidv4()}>
-                            //     {timeZoneFormatter(option, timezone.getValue())}
-                            //   </Box>
-                            // )}
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                inputRef={ref}
-                                autoComplete='off'
-                                error={
-                                  isSubmitted &&
-                                  Boolean(errors.desiredDueTimezone)
-                                }
-                                helperText={
-                                  isSubmitted &&
-                                  Boolean(errors.desiredDueTimezone)
-                                    ? FormErrors.required
-                                    : ''
-                                }
-                              />
-                            )}
-                            getOptionLabel={option =>
-                              timeZoneFormatter(option, timezone.getValue()) ??
-                              ''
-                            }
-                          />
-                        )
+                      }) => (
+                        <Autocomplete
+                          // label='legalName_pronounce'
+                          fullWidth
+                          value={
+                            members?.find(option => option.value === value) ??
+                            null
+                          }
+                          onChange={(e, newValue) => onChange(newValue?.value)}
+                          options={members || []}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              inputRef={ref}
+                              autoComplete='off'
+                              error={isSubmitted && Boolean(errors.assignee)}
+                              helperText={
+                                isSubmitted && Boolean(errors.assignee)
+                                  ? FormErrors.required
+                                  : ''
+                              }
+                              inputProps={{
+                                ...params.inputProps,
+                              }}
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '20px' }}>
+                    <Box
+                      className='filterFormAutoCompleteV2'
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          padding: '1px 12px 1px 3px !important',
+                        },
+                        flex: 1,
                       }}
-                    />
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', gap: '20px' }}>
-                  <Box
-                    className='filterFormAutoCompleteV2'
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        padding: '1px 12px 1px 3px !important',
-                      },
-                      flex: 1,
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600} mb='8px'>
-                      Runtime
-                      <Typography
-                        component={'span'}
-                        color='#666CFF'
-                      ></Typography>
-                    </Typography>
-                    <Controller
-                      control={control}
-                      name='runtime'
-                      render={({ field: { onChange, value } }) => (
-                        <TextField
-                          fullWidth
-                          autoComplete='off'
-                          value={value}
-                          onChange={onChange}
-                          inputProps={{
-                            maxLength: 50,
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                  <Box
-                    className='filterFormAutoCompleteV2'
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        padding: '1px 12px 1px 3px !important',
-                      },
-                      flex: 1,
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600} mb='8px'>
-                      Word count
-                      <Typography
-                        component={'span'}
-                        color='#666CFF'
-                      ></Typography>
-                    </Typography>
-                    <Controller
-                      control={control}
-                      name='wordCount'
-                      render={({ field: { onChange, value } }) => (
-                        <TextField
-                          fullWidth
-                          autoComplete='off'
-                          value={value}
-                          onChange={onChange}
-                          inputProps={{
-                            maxLength: 50,
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                </Box>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
-                >
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <Typography fontSize={14} fontWeight={600}>
-                      Upload source files
-                    </Typography>
-                    <Typography
-                      fontSize={12}
-                      color={
-                        sourceFileSize > MAXIMUM_FILE_SIZE
-                          ? '#FF4D49'
-                          : 'rgba(76, 78, 100, 0.60)'
-                      }
-                      fontWeight={400}
                     >
-                      {formatFileSize(sourceFileSize)}/{' '}
-                      {byteToGB(MAXIMUM_FILE_SIZE)}
-                    </Typography>
-                    {sourceFileSize > MAXIMUM_FILE_SIZE && (
-                      <Typography
-                        fontSize={14}
-                        fontWeight={600}
-                        color='#FF4D49'
-                      >
-                        Maximum size exceeded
+                      <Typography fontSize={14} fontWeight={600} mb='8px'>
+                        Desired due date
+                        <Typography component={'span'} color='#666CFF'>
+                          *
+                        </Typography>
                       </Typography>
-                    )}
-                  </Box>
+                      <Controller
+                        control={control}
+                        name='desiredDueAt'
+                        render={({
+                          field: { onChange, value, ref },
+                          formState: { errors, isSubmitted },
+                        }) => (
+                          <Box sx={{ width: '100%' }}>
+                            <DatePicker
+                              selected={value}
+                              dateFormat='MM/dd/yyyy, hh:mm a'
+                              showTimeSelect={true}
+                              shouldCloseOnSelect={false}
+                              id='date-range-picker-months'
+                              onChange={onChange}
+                              popperPlacement={popperPlacement}
+                              customInput={
+                                <Box>
+                                  <CustomInput
+                                    icon='calendar'
+                                    sx={{ height: '46px' }}
+                                    placeholder='MM/DD/YYYY, HH:MM'
+                                    error={
+                                      Boolean(errors.desiredDueAt) &&
+                                      isSubmitted
+                                    }
+                                    // placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                                    // readOnly
+                                    value={value ? dateValue(value) : ''}
+                                    ref={ref}
+                                  />
+                                </Box>
+                              }
+                            />
 
-                  <div
-                    {...getRootProps({
-                      className: 'dropzone',
-                    })}
+                            {errors.desiredDueAt && (
+                              <FormHelperText
+                                sx={{ color: 'error.main', marginLeft: '14px' }}
+                              >
+                                {errors.desiredDueAt.message}
+                              </FormHelperText>
+                            )}
+                          </Box>
+                        )}
+                      />
+                    </Box>
+                    <Box
+                      className='filterFormAutoCompleteV2'
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          padding: '1px 12px !important',
+                        },
+                        flex: 1,
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600} mb='8px'>
+                        Timezone
+                        <Typography component={'span'} color='#666CFF'>
+                          *
+                        </Typography>
+                      </Typography>
+                      <Controller
+                        name='desiredDueTimezone'
+                        control={control}
+                        render={({
+                          field: { onChange, value, ref },
+                          formState: { isSubmitted, errors },
+                        }) => {
+                          return (
+                            <Autocomplete
+                              autoHighlight
+                              fullWidth
+                              value={
+                                value ?? { code: '', label: '', phone: '' }
+                              }
+                              options={timeZoneList as CountryType[]}
+                              onChange={(e, v) => onChange(v)}
+                              disableClearable
+                              // renderOption={(props, option) => (
+                              //   <Box component='li' {...props} key={uuidv4()}>
+                              //     {timeZoneFormatter(option, timezone.getValue())}
+                              //   </Box>
+                              // )}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  inputRef={ref}
+                                  autoComplete='off'
+                                  error={
+                                    isSubmitted &&
+                                    Boolean(errors.desiredDueTimezone)
+                                  }
+                                  helperText={
+                                    isSubmitted &&
+                                    Boolean(errors.desiredDueTimezone)
+                                      ? FormErrors.required
+                                      : ''
+                                  }
+                                />
+                              )}
+                              getOptionLabel={option =>
+                                timeZoneFormatter(
+                                  option,
+                                  timezone.getValue(),
+                                ) ?? ''
+                              }
+                            />
+                          )
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '20px' }}>
+                    <Box
+                      className='filterFormAutoCompleteV2'
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          padding: '1px 12px 1px 3px !important',
+                        },
+                        flex: 1,
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600} mb='8px'>
+                        Runtime
+                        <Typography
+                          component={'span'}
+                          color='#666CFF'
+                        ></Typography>
+                      </Typography>
+                      <Controller
+                        control={control}
+                        name='runtime'
+                        render={({ field: { onChange, value } }) => (
+                          <TextField
+                            fullWidth
+                            autoComplete='off'
+                            value={value}
+                            onChange={onChange}
+                            inputProps={{
+                              maxLength: 50,
+                            }}
+                          />
+                        )}
+                      />
+                    </Box>
+                    <Box
+                      className='filterFormAutoCompleteV2'
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          padding: '1px 12px 1px 3px !important',
+                        },
+                        flex: 1,
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600} mb='8px'>
+                        Word count
+                        <Typography
+                          component={'span'}
+                          color='#666CFF'
+                        ></Typography>
+                      </Typography>
+                      <Controller
+                        control={control}
+                        name='wordCount'
+                        render={({ field: { onChange, value } }) => (
+                          <TextField
+                            fullWidth
+                            autoComplete='off'
+                            value={value}
+                            onChange={onChange}
+                            inputProps={{
+                              maxLength: 50,
+                            }}
+                          />
+                        )}
+                      />
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
                   >
                     <Box
-                      sx={{
-                        width: '100%',
-                        border: '1px dashed #8D8E9A',
-                        borderRadius: '10px',
-                        padding: '12px 20px',
-                        maxHeight: '325px',
-                        overflowY: 'scroll',
-                        '&::-webkit-scrollbar': { width: 4 },
-                        '&::-webkit-scrollbar-thumb': {
-                          borderRadius: 20,
-                          background: '#CCCCCC',
-                        },
-                      }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <Typography fontSize={14} fontWeight={600}>
+                        Upload source files
+                      </Typography>
+                      <Typography
+                        fontSize={12}
+                        color={
+                          sourceFileSize > MAXIMUM_FILE_SIZE
+                            ? '#FF4D49'
+                            : 'rgba(76, 78, 100, 0.60)'
+                        }
+                        fontWeight={400}
+                      >
+                        {formatFileSize(sourceFileSize)}/{' '}
+                        {byteToGB(MAXIMUM_FILE_SIZE)}
+                      </Typography>
+                      {sourceFileSize > MAXIMUM_FILE_SIZE && (
+                        <Typography
+                          fontSize={14}
+                          fontWeight={600}
+                          color='#FF4D49'
+                        >
+                          Maximum size exceeded
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <div
+                      {...getRootProps({
+                        className: 'dropzone',
+                      })}
                     >
                       <Box
                         sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
+                          width: '100%',
+                          border: '1px dashed #8D8E9A',
+                          borderRadius: '10px',
+                          padding: '12px 20px',
+                          maxHeight: '325px',
+                          overflowY: 'scroll',
+                          '&::-webkit-scrollbar': { width: 4 },
+                          '&::-webkit-scrollbar-thumb': {
+                            borderRadius: 20,
+                            background: '#CCCCCC',
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography
+                            fontSize={14}
+                            fontWeight={400}
+                            color='#8D8E9A'
+                          >
+                            Drag and drop or
+                          </Typography>
+                          <Button variant='outlined' size='small'>
+                            <input {...getInputProps()} />
+                            Browse file
+                          </Button>
+                        </Box>
+                        {sourceFiles.length > 0 && (
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              mt: '20px',
+                              width: '100%',
+                              gap: '20px',
+                            }}
+                          >
+                            {sourceFiles.map(
+                              (file: FileType, index: number) => {
+                                return (
+                                  <Box key={uuidv4()}>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        marginBottom: '8px',
+                                        width: '100%',
+                                        justifyContent: 'space-between',
+                                        borderRadius: '8px',
+                                        padding: '10px 12px',
+                                        border:
+                                          '1px solid rgba(76, 78, 100, 0.22)',
+                                        background: '#f9f8f9',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            marginRight: '8px',
+                                            display: 'flex',
+                                          }}
+                                        >
+                                          <Image
+                                            src={`/images/icons/file-icons/${extractFileExtension(
+                                              file.name,
+                                            )}.svg`}
+                                            alt=''
+                                            width={32}
+                                            height={32}
+                                          />
+                                        </Box>
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                          }}
+                                        >
+                                          <Tooltip title={file.name}>
+                                            <Typography
+                                              variant='body1'
+                                              fontSize={14}
+                                              fontWeight={600}
+                                              lineHeight={'20px'}
+                                              sx={{
+                                                overflow: 'hidden',
+                                                wordBreak: 'break-all',
+                                                textOverflow: 'ellipsis',
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 1,
+                                                WebkitBoxOrient: 'vertical',
+                                              }}
+                                            >
+                                              {file.name}
+                                            </Typography>
+                                          </Tooltip>
+
+                                          <Typography
+                                            variant='caption'
+                                            lineHeight={'14px'}
+                                          >
+                                            {formatFileSize(file.size)}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}
+                                      >
+                                        <Box
+                                          sx={{
+                                            alignItems: 'center',
+                                            display: 'flex',
+                                            color: 'rgba(76, 78, 100, 0.54)',
+                                            cursor: 'pointer',
+                                            padding: '4px',
+                                          }}
+                                          onClick={event => {
+                                            event.stopPropagation()
+                                            handleRemoveFile(file, 'source')
+                                          }}
+                                        >
+                                          <Icon
+                                            icon='mdi:close'
+                                            fontSize={20}
+                                          />
+                                        </Box>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                )
+                              },
+                            )}
+                          </Box>
+                        )}
+                      </Box>
+                    </div>
+                    {selectedSourceFiles.length > 0 && (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          border: '1px dashed #8D8E9A',
+                          borderRadius: '10px',
+                          padding: '12px 20px',
+                          maxHeight: '325px',
+                          overflowY: 'scroll',
+                          '&::-webkit-scrollbar': { width: 4 },
+                          '&::-webkit-scrollbar-thumb': {
+                            borderRadius: 20,
+                            background: '#CCCCCC',
+                          },
                         }}
                       >
                         <Typography
@@ -911,526 +1099,383 @@ const RequestReviewModal = ({
                           fontWeight={400}
                           color='#8D8E9A'
                         >
-                          Drag and drop or
+                          or select source files
                         </Typography>
-                        <Button variant='outlined' size='small'>
-                          <input {...getInputProps()} />
-                          Browse file
-                        </Button>
-                      </Box>
-                      {sourceFiles.length > 0 && (
                         <Box
                           sx={{
                             display: 'grid',
                             gridTemplateColumns: 'repeat(2, 1fr)',
-                            mt: '20px',
+                            mt: '8px',
                             width: '100%',
                             gap: '20px',
                           }}
                         >
-                          {sourceFiles.map((file: FileType, index: number) => {
-                            return (
-                              <Box key={uuidv4()}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    marginBottom: '8px',
-                                    width: '100%',
-                                    justifyContent: 'space-between',
-                                    borderRadius: '8px',
-                                    padding: '10px 12px',
-                                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                                    background: '#f9f8f9',
-                                  }}
-                                >
+                          {selectedSourceFiles.map(
+                            (file: FileType, index: number) => {
+                              return (
+                                <Box key={uuidv4()}>
                                   <Box
                                     sx={{
                                       display: 'flex',
-                                      alignItems: 'center',
+                                      marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
                                     }}
                                   >
                                     <Box
                                       sx={{
-                                        marginRight: '8px',
                                         display: 'flex',
-                                      }}
-                                    >
-                                      <Image
-                                        src={`/images/icons/file-icons/${
-                                          videoExtensions.includes(
-                                            file.name
-                                              ?.split('.')
-                                              .pop()
-                                              ?.toLowerCase() ?? '',
-                                          )
-                                            ? 'video'
-                                            : 'document'
-                                        }.svg`}
-                                        alt=''
-                                        width={32}
-                                        height={32}
-                                      />
-                                    </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                      }}
-                                    >
-                                      <Tooltip title={file.name}>
-                                        <Typography
-                                          variant='body1'
-                                          fontSize={14}
-                                          fontWeight={600}
-                                          lineHeight={'20px'}
-                                          sx={{
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-all',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 1,
-                                            WebkitBoxOrient: 'vertical',
-                                          }}
-                                        >
-                                          {file.name}
-                                        </Typography>
-                                      </Tooltip>
-
-                                      <Typography
-                                        variant='caption'
-                                        lineHeight={'14px'}
-                                      >
-                                        {formatFileSize(file.size)}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
                                         alignItems: 'center',
-                                        display: 'flex',
-                                        color: 'rgba(76, 78, 100, 0.54)',
-                                        cursor: 'pointer',
-                                        padding: '4px',
-                                      }}
-                                      onClick={event => {
-                                        event.stopPropagation()
-                                        handleRemoveFile(file, 'source')
                                       }}
                                     >
-                                      <Icon icon='mdi:close' fontSize={20} />
-                                    </Box>
-                                  </Box>
-                                </Box>
-                              </Box>
-                            )
-                          })}
-                        </Box>
-                      )}
-                    </Box>
-                  </div>
-                  {selectedSourceFiles.length > 0 && (
-                    <Box
-                      sx={{
-                        width: '100%',
-                        border: '1px dashed #8D8E9A',
-                        borderRadius: '10px',
-                        padding: '12px 20px',
-                        maxHeight: '325px',
-                        overflowY: 'scroll',
-                        '&::-webkit-scrollbar': { width: 4 },
-                        '&::-webkit-scrollbar-thumb': {
-                          borderRadius: 20,
-                          background: '#CCCCCC',
-                        },
-                      }}
-                    >
-                      <Typography
-                        fontSize={14}
-                        fontWeight={400}
-                        color='#8D8E9A'
-                      >
-                        or select source files
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          mt: '8px',
-                          width: '100%',
-                          gap: '20px',
-                        }}
-                      >
-                        {selectedSourceFiles.map(
-                          (file: FileType, index: number) => {
-                            return (
-                              <Box key={uuidv4()}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    marginBottom: '8px',
-                                    width: '100%',
-                                    justifyContent: 'space-between',
-                                    borderRadius: '8px',
-                                    padding: '10px 12px',
-                                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                                    background: '#f9f8f9',
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <Checkbox
-                                      checked={file.isSelected}
-                                      value={file.isSelected}
-                                      disabled={file.reviewRequested}
-                                      onChange={event => {
-                                        event.stopPropagation()
-                                        file.isSelected = !file.isSelected
+                                      <Checkbox
+                                        checked={file.isSelected}
+                                        value={file.isSelected}
+                                        disabled={file.reviewRequested}
+                                        onChange={event => {
+                                          event.stopPropagation()
+                                          file.isSelected = !file.isSelected
 
-                                        type === 'edit' &&
-                                          setImportSourceFileUpdate(true)
-                                        setSourceFileSize(prev => {
-                                          return file.isSelected
-                                            ? prev + file.size
-                                            : prev - file.size
-                                        })
-                                        setSelectedSourceFiles(prevFiles =>
-                                          prevFiles.map(f =>
-                                            f.name === file.name ? file : f,
-                                          ),
-                                        )
-                                      }}
-                                    />
-
-                                    <Box
-                                      sx={{
-                                        marginRight: '8px',
-                                        display: 'flex',
-                                      }}
-                                    >
-                                      <Image
-                                        src={`/images/icons/file-icons/${
-                                          videoExtensions.includes(
-                                            file.name
-                                              ?.split('.')
-                                              .pop()
-                                              ?.toLowerCase() ?? '',
+                                          type === 'edit' &&
+                                            setImportSourceFileUpdate(true)
+                                          setSourceFileSize(prev => {
+                                            return file.isSelected
+                                              ? prev + file.size
+                                              : prev - file.size
+                                          })
+                                          setSelectedSourceFiles(prevFiles =>
+                                            prevFiles.map(f =>
+                                              f.name === file.name ? file : f,
+                                            ),
                                           )
-                                            ? 'video'
-                                            : 'document'
-                                        }.svg`}
-                                        alt=''
-                                        width={32}
-                                        height={32}
+                                        }}
                                       />
-                                    </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                      }}
-                                    >
-                                      <Tooltip title={file.name}>
-                                        <Typography
-                                          variant='body1'
-                                          fontSize={14}
-                                          fontWeight={600}
-                                          lineHeight={'20px'}
-                                          sx={{
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-all',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 1,
-                                            WebkitBoxOrient: 'vertical',
-                                          }}
-                                        >
-                                          {file.name}
-                                        </Typography>
-                                      </Tooltip>
 
-                                      <Typography
-                                        variant='caption'
-                                        lineHeight={'14px'}
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
                                       >
-                                        {formatFileSize(file.size)}
-                                      </Typography>
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
                                     </Box>
                                   </Box>
+                                  {file.reviewRequested ? (
+                                    <Typography
+                                      sx={{ textAlign: 'right' }}
+                                      fontSize={12}
+                                      fontStyle={'italic'}
+                                      color='#666CFF'
+                                    >
+                                      Review requested
+                                    </Typography>
+                                  ) : null}
                                 </Box>
-                                {file.reviewRequested ? (
-                                  <Typography
-                                    sx={{ textAlign: 'right' }}
-                                    fontSize={12}
-                                    fontStyle={'italic'}
-                                    color='#666CFF'
-                                  >
-                                    Review requested
-                                  </Typography>
-                                ) : null}
-                              </Box>
-                            )
-                          },
-                        )}
+                              )
+                            },
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  )}
-                </Box>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
-                >
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <Typography fontSize={14} fontWeight={600}>
-                      Upload target files
-                    </Typography>
-                    <Typography
-                      fontSize={12}
-                      color={
-                        targetFileSize > MAXIMUM_FILE_SIZE
-                          ? '#FF4D49'
-                          : 'rgba(76, 78, 100, 0.60)'
-                      }
-                      fontWeight={400}
-                    >
-                      {formatFileSize(targetFileSize)}/{' '}
-                      {byteToGB(MAXIMUM_FILE_SIZE)}
-                    </Typography>
-                    {targetFileSize > MAXIMUM_FILE_SIZE && (
-                      <Typography
-                        fontSize={14}
-                        fontWeight={600}
-                        color='#FF4D49'
-                      >
-                        Maximum size exceeded
-                      </Typography>
                     )}
                   </Box>
-                  <TargetDropzone
-                    targetFileSize={targetFileSize}
-                    targetFiles={targetFiles}
-                    setTargetFileSize={setTargetFileSize}
-                    setTargetFiles={setTargetFiles}
-                    onFileUploadReject={onFileUploadReject}
-                    handleRemoveFile={handleRemoveFile}
-                    type={type}
-                    setTargetFileUpdate={setIsTargetFileUpdate}
-                    setUploadedTargetFiles={setUploadedTargetFiles}
-                    uploadedTargetFiles={uploadedTargetFiles}
-                  />
-                  {selectedTargetFiles.length > 0 && (
-                    <Box
-                      sx={{
-                        width: '100%',
-                        border: '1px dashed #8D8E9A',
-                        borderRadius: '10px',
-                        padding: '12px 20px',
-                        maxHeight: '325px',
-                        overflowY: 'scroll',
-                        '&::-webkit-scrollbar': { width: 4 },
-                        '&::-webkit-scrollbar-thumb': {
-                          borderRadius: 20,
-                          background: '#CCCCCC',
-                        },
-                      }}
-                    >
-                      <Typography
-                        fontSize={14}
-                        fontWeight={400}
-                        color='#8D8E9A'
-                      >
-                        or select source files
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          mt: '8px',
-                          width: '100%',
-                          gap: '20px',
-                        }}
-                      >
-                        {selectedTargetFiles.map(
-                          (file: FileType, index: number) => {
-                            return (
-                              <Box key={uuidv4()}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    marginBottom: '8px',
-                                    width: '100%',
-                                    justifyContent: 'space-between',
-                                    borderRadius: '8px',
-                                    padding: '10px 12px',
-                                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                                    background: '#f9f8f9',
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                    }}
-                                  >
-                                    <Checkbox
-                                      checked={file.isSelected}
-                                      value={file.isSelected}
-                                      disabled={file.reviewRequested}
-                                      onChange={event => {
-                                        event.stopPropagation()
-                                        file.isSelected = !file.isSelected
-                                        setTargetFileSize(prev => {
-                                          return file.isSelected
-                                            ? prev + file.size
-                                            : prev - file.size
-                                        })
-
-                                        setSelectedTargetFiles(prevFiles =>
-                                          prevFiles.map(f =>
-                                            f.name === file.name ? file : f,
-                                          ),
-                                        )
-                                      }}
-                                    />
-
-                                    <Box
-                                      sx={{
-                                        marginRight: '8px',
-                                        display: 'flex',
-                                      }}
-                                    >
-                                      <Image
-                                        src={`/images/icons/file-icons/${
-                                          videoExtensions.includes(
-                                            file.name
-                                              ?.split('.')
-                                              .pop()
-                                              ?.toLowerCase() ?? '',
-                                          )
-                                            ? 'video'
-                                            : 'document'
-                                        }.svg`}
-                                        alt=''
-                                        width={32}
-                                        height={32}
-                                      />
-                                    </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                      }}
-                                    >
-                                      <Tooltip title={file.name}>
-                                        <Typography
-                                          variant='body1'
-                                          fontSize={14}
-                                          fontWeight={600}
-                                          lineHeight={'20px'}
-                                          sx={{
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-all',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 1,
-                                            WebkitBoxOrient: 'vertical',
-                                          }}
-                                        >
-                                          {file.name}
-                                        </Typography>
-                                      </Tooltip>
-
-                                      <Typography
-                                        variant='caption'
-                                        lineHeight={'14px'}
-                                      >
-                                        {formatFileSize(file.size)}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-                                </Box>
-                                {file.reviewRequested ? (
-                                  <Typography
-                                    sx={{ textAlign: 'right' }}
-                                    fontSize={12}
-                                    fontStyle={'italic'}
-                                    color='#666CFF'
-                                  >
-                                    Review requested
-                                  </Typography>
-                                ) : null}
-                              </Box>
-                            )
-                          },
-                        )}
-                      </Box>
-                    </Box>
-                  )}
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                  }}
-                >
-                  <Typography fontSize={14} fontWeight={600}>
-                    Notes to assignee
-                  </Typography>
-                  <Controller
-                    name='note'
-                    control={control}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <TextField
-                        multiline
-                        autoComplete='off'
-                        fullWidth
-                        rows={4}
-                        value={value}
-                        onChange={onChange}
-                      />
-                    )}
-                  />
                   <Box
                     sx={{
                       display: 'flex',
-                      justifyContent: 'flex-end',
-                      fontSize: '12px',
-                      lineHeight: '25px',
-                      color: '#888888',
+                      flexDirection: 'column',
+                      gap: '8px',
                     }}
                   >
-                    {notes?.length ?? 0}/500
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <Typography fontSize={14} fontWeight={600}>
+                        Upload target files
+                      </Typography>
+                      <Typography
+                        fontSize={12}
+                        color={
+                          targetFileSize > MAXIMUM_FILE_SIZE
+                            ? '#FF4D49'
+                            : 'rgba(76, 78, 100, 0.60)'
+                        }
+                        fontWeight={400}
+                      >
+                        {formatFileSize(targetFileSize)}/{' '}
+                        {byteToGB(MAXIMUM_FILE_SIZE)}
+                      </Typography>
+                      {targetFileSize > MAXIMUM_FILE_SIZE && (
+                        <Typography
+                          fontSize={14}
+                          fontWeight={600}
+                          color='#FF4D49'
+                        >
+                          Maximum size exceeded
+                        </Typography>
+                      )}
+                    </Box>
+                    <TargetDropzone
+                      targetFileSize={targetFileSize}
+                      targetFiles={targetFiles}
+                      setTargetFileSize={setTargetFileSize}
+                      setTargetFiles={setTargetFiles}
+                      onFileUploadReject={onFileUploadReject}
+                      handleRemoveFile={handleRemoveFile}
+                      type={type}
+                      setTargetFileUpdate={setIsTargetFileUpdate}
+                      setUploadedTargetFiles={setUploadedTargetFiles}
+                      uploadedTargetFiles={uploadedTargetFiles}
+                    />
+                    {selectedTargetFiles.length > 0 && (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          border: '1px dashed #8D8E9A',
+                          borderRadius: '10px',
+                          padding: '12px 20px',
+                          maxHeight: '325px',
+                          overflowY: 'scroll',
+                          '&::-webkit-scrollbar': { width: 4 },
+                          '&::-webkit-scrollbar-thumb': {
+                            borderRadius: 20,
+                            background: '#CCCCCC',
+                          },
+                        }}
+                      >
+                        <Typography
+                          fontSize={14}
+                          fontWeight={400}
+                          color='#8D8E9A'
+                        >
+                          or select source files
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            mt: '8px',
+                            width: '100%',
+                            gap: '20px',
+                          }}
+                        >
+                          {selectedTargetFiles.map(
+                            (file: FileType, index: number) => {
+                              return (
+                                <Box key={uuidv4()}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Checkbox
+                                        checked={file.isSelected}
+                                        value={file.isSelected}
+                                        disabled={file.reviewRequested}
+                                        onChange={event => {
+                                          event.stopPropagation()
+                                          file.isSelected = !file.isSelected
+                                          setTargetFileSize(prev => {
+                                            return file.isSelected
+                                              ? prev + file.size
+                                              : prev - file.size
+                                          })
+
+                                          setSelectedTargetFiles(prevFiles =>
+                                            prevFiles.map(f =>
+                                              f.name === file.name ? file : f,
+                                            ),
+                                          )
+                                        }}
+                                      />
+
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
+                                      >
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                  {file.reviewRequested ? (
+                                    <Typography
+                                      sx={{ textAlign: 'right' }}
+                                      fontSize={12}
+                                      fontStyle={'italic'}
+                                      color='#666CFF'
+                                    >
+                                      Review requested
+                                    </Typography>
+                                  ) : null}
+                                </Box>
+                              )
+                            },
+                          )}
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <Typography fontSize={14} fontWeight={600}>
+                      Notes to assignee
+                    </Typography>
+                    <Controller
+                      name='note'
+                      control={control}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextField
+                          multiline
+                          autoComplete='off'
+                          fullWidth
+                          rows={4}
+                          value={value}
+                          onChange={onChange}
+                        />
+                      )}
+                    />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        fontSize: '12px',
+                        lineHeight: '25px',
+                        color: '#888888',
+                      }}
+                    >
+                      {notes?.length ?? 0}/500
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  padding: '0 20px 20px 20px',
-                }}
-              >
-                <Button type='submit' variant='contained'>
-                  {type === 'edit' ? 'Save changes' : 'Submit'}
-                </Button>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    padding: '0 20px 20px 20px',
+                  }}
+                >
+                  <Button
+                    type='submit'
+                    variant='contained'
+                    disabled={
+                      sourceFileSize > MAXIMUM_FILE_SIZE ||
+                      targetFileSize > MAXIMUM_FILE_SIZE ||
+                      isSavingData
+                    }
+                  >
+                    {type === 'edit' ? 'Save changes' : 'Submit'}
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          </form>
-        </DatePickerWrapper>
+            </form>
+          </DatePickerWrapper>
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 }
 
