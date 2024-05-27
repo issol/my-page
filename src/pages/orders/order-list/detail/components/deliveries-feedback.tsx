@@ -320,18 +320,6 @@ const DeliveriesFeedback = ({
                 setAddFeedback(false)
               },
             })
-            // addJobFeedbackMutation.mutate(
-            //   {
-            //     jobId: selectedJobInfo?.jobId!,
-            //     data: addJobFeedbackData!,
-            //   },
-            //   {
-            //     onSuccess: () => {
-            //       setAddJobFeedbackData('')
-            //       setUseJobFeedbackForm(false)
-            //     },
-            //   },
-            // )
           }}
           onClose={() => closeModal('AddFeedbackModal')}
         />
@@ -403,14 +391,6 @@ const DeliveriesFeedback = ({
     setFileSize(fileSize - file.size)
   }
 
-  const handleRemoveImportedFile = (file: DeliveryFileType) => {
-    const uploadedFiles = importedFiles
-    const filtered = uploadedFiles.filter(
-      (i: DeliveryFileType) => i.fileName !== file.fileName,
-    )
-    setImportedFiles([...filtered])
-  }
-
   const onClickUploadJobFile = (selected: DeliveryFileType[]) => {
     closeModal('ImportFromJobModal')
     setImportedFiles(selected)
@@ -433,27 +413,6 @@ const DeliveriesFeedback = ({
         ),
       })
   }
-
-  // interface GroupedDeliveryFileType {
-  //   id: number
-  //   createdAt: string
-  //   data: DeliveryFileType[]
-  // }
-
-  // const groupedFiles: GroupedDeliveryFileType[] = savedFiles.reduce(
-  //   (acc: GroupedDeliveryFileType[], curr: DeliveryFileType, index: number) => {
-  //     const existingGroup = acc.find(
-  //       group => group.createdAt === curr.createdAt,
-  //     )
-  //     if (existingGroup) {
-  //       existingGroup.data.push(curr)
-  //     } else {
-  //       acc.push({ createdAt: curr.createdAt!, data: [curr], id: index })
-  //     }
-  //     return acc
-  //   },
-  //   [],
-  // )
 
   const splitFileNameAndExtension = (fileName: string): [string, string] => {
     const splitIndex = fileName.lastIndexOf('.')
@@ -542,68 +501,6 @@ const DeliveriesFeedback = ({
     })
   }
 
-  // const onClickDeliverToClient = () => {
-  //   openModal({
-  //     type: 'DeliverToClientModal',
-  //     children: (
-  //       <CustomModal
-  //         onClick={() => onSubmit()}
-  //         onClose={() => closeModal('DeliverToClientModal')}
-  //         title={
-  //           <>
-  //             Are you sure you want to deliver the uploaded files?&nbsp;
-  //             <Typography
-  //               variant='body2'
-  //               fontWeight={600}
-  //               component={'span'}
-  //               fontSize={16}
-  //             >
-  //               You cannot delete the files after delivering them to the client.
-  //             </Typography>
-  //           </>
-  //         }
-  //         vary='successful'
-  //         rightButtonText='Deliver'
-  //       />
-  //     ),
-  //   })
-  // }
-
-  const onClickCancelDeliver = () => {
-    openModal({
-      type: 'CancelDeliverModal',
-      children: (
-        <CustomModal
-          onClick={() => {
-            closeModal('CancelDeliverModal')
-            setFiles([])
-            setUploadFileProcessing(false)
-          }}
-          onClose={() => closeModal('CancelDeliverModal')}
-          title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
-          vary='error'
-          leftButtonText='No'
-          rightButtonText='Cancel'
-        />
-      ),
-    })
-  }
-
-  const onClickCompleteDelivery = () => {
-    openModal({
-      type: 'CompleteDeliveryModal',
-      children: (
-        <CustomModal
-          onClick={handleCompleteDelivery}
-          onClose={() => closeModal('CompleteDeliveryModal')}
-          title='Are you sure you want to complete delivery? You cannot upload additional files after completing delivery.'
-          vary='successful'
-          rightButtonText='Complete'
-        />
-      ),
-    })
-  }
-
   const onClickConfirmDeliveries = () => {
     openModal({
       type: 'ConfirmDeliveriesModal',
@@ -616,16 +513,6 @@ const DeliveriesFeedback = ({
           vary='successful'
           rightButtonText='Confirm'
         />
-        // <CustomModal
-        //   onClick={(text: string) => handleConfirmDelivery(text)}
-        //   onClose={() => closeModal('ConfirmDeliveriesModal')}
-        //   title='Are you sure you want to confirm deliveries? Please send feedback with the confirmation.'
-        //   vary='successful'
-        //   rightButtonText='Confirm'
-        //   textarea={true}
-        //   textareaRequired={false}
-        //   textareaPlaceholder='Write down feedback for the deliveries'
-        // />
       ),
     })
   }
@@ -668,41 +555,6 @@ const DeliveriesFeedback = ({
   const updateClientFeedback = useMutation((feedback: string) =>
     patchClientFeedback(Number(orderId), feedback),
   )
-
-  const onClickSendFeedback = () => {
-    openModal({
-      type: 'SendFeedbackModal',
-      children: (
-        <CustomModal
-          onClick={(feedback: string) => {
-            if (feedback !== '') {
-              updateClientFeedback.mutate(feedback, {
-                onSuccess: () => {
-                  closeModal('SendFeedbackModal')
-                  queryClient.invalidateQueries({
-                    queryKey: ['orderDetail'],
-                  })
-                },
-              })
-            }
-          }}
-          onClose={() => closeModal('SendFeedbackModal')}
-          title='Please send feedback for the deliveries.'
-          vary='successful'
-          rightButtonText='Send'
-          textarea={true}
-          textareaRequired={true}
-          textareaPlaceholder='Write down feedback for the deliveries'
-        />
-      ),
-    })
-  }
-
-  // useEffect(() => {
-  //   if (project?.deliveries?.files.length) {
-  //     setSavedFiles(project.deliveries.files)
-  //   }
-  // }, [project])
 
   return (
     <Grid container xs={12} spacing={4} sx={{ marginLeft: 0 }}>
@@ -1269,283 +1121,10 @@ const DeliveriesFeedback = ({
                         </Box>
                       </AccordionDetails>
                     </Accordion>
-                    // <Card
-                    //   key={uuidv4()}
-                    //   sx={{
-                    //     padding: '24px',
-                    //     display: 'flex',
-                    //     flexDirection: 'column',
-                    //     gap: '20px',
-                    //   }}
-                    // >
-                    //   <Box sx={{ display: 'flex', gap: '20px' }}>
-                    //     <Box
-                    //       sx={{
-                    //         display: 'flex',
-                    //         flexDirection: 'column',
-                    //         gap: '3px',
-                    //       }}
-                    //     >
-                    //       <Typography variant='body1' fontWeight={600} fontSize={14}>
-                    //         {convertTimeToTimezone(
-                    //           value.deliveredDate,
-                    //           auth.getValue().user?.timezone,
-                    //           timezone.getValue(),
-                    //         )}
-                    //       </Typography>
-                    //     </Box>
-                    //   </Box>
-                    //   {value.files.length > 0 ? (
-                    //     <Box
-                    //       sx={{
-                    //         display: 'flex',
-                    //         flexDirection: 'column',
-                    //         gap: '12px',
-                    //       }}
-                    //     >
-                    //       <Box
-                    //         sx={{
-                    //           display: 'flex',
-                    //           gap: '20px',
-                    //           alignItems: 'center',
-                    //         }}
-                    //       >
-                    //         <Typography variant='caption'>
-                    //           {formatFileSize(getFileSize(value.files))}
-                    //         </Typography>
-                    //         <Button
-                    //           variant='outlined'
-                    //           size='small'
-                    //           startIcon={<Icon icon='mdi:download' />}
-                    //           onClick={() => downloadAllFiles(value.files)}
-                    //         >
-                    //           Download all
-                    //         </Button>
-                    //       </Box>
-                    //       <Box
-                    //         sx={{
-                    //           display: 'grid',
-                    //           gridTemplateColumns: 'repeat(3, 1fr)',
-                    //           width: '100%',
-                    //           gap: '20px',
-                    //         }}
-                    //       >
-                    //         {value.files.map(file => (
-                    //           <Box key={uuidv4()} sx={{ marginTop: '5px' }}>
-                    //             <FileBox>
-                    //               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    //                 <Box sx={{ marginRight: '8px', display: 'flex' }}>
-                    //                   <Icon
-                    //                     icon='material-symbols:file-present-outline'
-                    //                     style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-                    //                     fontSize={24}
-                    //                   />
-                    //                 </Box>
-                    //                 <Box
-                    //                   sx={{
-                    //                     display: 'flex',
-                    //                     flexDirection: 'column',
-                    //                   }}
-                    //                 >
-                    //                   <Tooltip title={file.name}>
-                    //                     <FileName variant='body1'>{file.name}</FileName>
-                    //                   </Tooltip>
-
-                    //                   <Typography variant='caption' lineHeight={'14px'}>
-                    //                     {formatFileSize(file.size)}
-                    //                   </Typography>
-                    //                 </Box>
-                    //               </Box>
-
-                    //               <IconButton
-                    //                 onClick={() => downloadOneFile(file)}
-                    //                 // disabled={jobInfo.status === 'Declined'}
-                    //                 // disabled={isFileUploading || !isUserInTeamMember}
-                    //               >
-                    //                 <Icon icon='mdi:download' fontSize={24} />
-                    //               </IconButton>
-                    //             </FileBox>
-                    //           </Box>
-                    //         ))}
-                    //       </Box>
-                    //     </Box>
-                    //   ) : (
-                    //     <Box
-                    //       sx={{
-                    //         padding: '20px',
-                    //         background: '#F9F8F9',
-                    //         borderRadius: '10px',
-                    //       }}
-                    //     >
-                    //       <Typography variant='body2'>No target files</Typography>
-                    //     </Box>
-                    //   )}
-                    //   <Divider />
-                    //   <Box
-                    //     sx={{
-                    //       display: 'flex',
-                    //       flexDirection: 'column',
-                    //       gap: '10px',
-                    //     }}
-                    //   >
-                    //     <Typography variant='body1' fontWeight={600}>
-                    //       Notes to LPM
-                    //     </Typography>
-                    //     <Typography>{value.note ?? '-'}</Typography>
-                    //   </Box>
-                    // </Card>
                   )
                 })}
               </Box>
             ) : null}
-            {/* {savedFiles.length
-              ? groupedFiles.map(value => {
-                  return (
-                    <Box key={uuidv4()}>
-                      <Typography
-                        variant='body2'
-                        fontSize={14}
-                        fontWeight={400}
-                        sx={{ mb: '5px' }}
-                      >
-                        {convertTimeToTimezone(
-                          value.createdAt,
-                          auth.getValue().user?.timezone,
-                          timezone.getValue(),
-                        )}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(3,1fr)',
-                          gridGap: '16px',
-                        }}
-                      >
-                        {value.data.map(item => {
-                          return (
-                            <Box
-                              key={uuidv4()}
-                              sx={{
-                                display: 'flex',
-                                marginBottom: '8px',
-                                width: '100%',
-                                justifyContent: 'space-between',
-                                borderRadius: '8px',
-                                padding: '10px 12px',
-                                border: '1px solid rgba(76, 78, 100, 0.22)',
-                                background: '#f9f8f9',
-                              }}
-                            >
-                              <Box
-                                sx={{ display: 'flex', alignItems: 'center' }}
-                              >
-                                <Box
-                                  sx={{ marginRight: '8px', display: 'flex' }}
-                                >
-                                  <Icon
-                                    icon='material-symbols:file-present-outline'
-                                    style={{
-                                      color: 'rgba(76, 78, 100, 0.54)',
-                                    }}
-                                    fontSize={24}
-                                  />
-                                </Box>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                  }}
-                                >
-                                  <Tooltip title={item.fileName}>
-                                    <Typography
-                                      variant='body1'
-                                      fontSize={14}
-                                      fontWeight={600}
-                                      lineHeight={'20px'}
-                                      sx={{
-                                        overflow: 'hidden',
-                                        wordBreak: 'break-all',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 1,
-                                        WebkitBoxOrient: 'vertical',
-                                      }}
-                                    >
-                                      {item.fileName}
-                                    </Typography>
-                                  </Tooltip>
-
-                                  <Typography
-                                    variant='caption'
-                                    lineHeight={'14px'}
-                                  >
-                                    {formatFileSize(item.fileSize)}
-                                  </Typography>
-                                </Box>
-                              </Box>
-
-                              <IconButton
-                                onClick={() => downloadOneFile(item)}
-                                disabled={
-                                  currentRole?.name !== 'CLIENT' &&
-                                  !canUseFeature(
-                                    'button-Deliveries&Feedback-DownloadOnce',
-                                  )
-                                }
-                              >
-                                <Icon icon='mdi:download' fontSize={24} />
-                              </IconButton>
-                            </Box>
-                          )
-                        })}
-                      </Box>
-                    </Box>
-                  )
-                })
-              : // <Box
-                //   sx={{
-                //     display: 'grid',
-                //     gridTemplateColumns: 'repeat(3,1fr)',
-                //     gridGap: '16px',
-                //   }}
-                // >
-                //   {savedFileList}
-                // </Box>
-                uploadFileProcessing
-                ? null
-                : '-'} */}
-            {/* {files.length || importedFiles.length ? (
-              <>
-                {savedFiles.length ? <Divider /> : null}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3,1fr)',
-                    gridGap: '16px',
-                  }}
-                >
-                  {fileList}
-                  {importedFileList}
-                </Box>
-              </>
-            ) : uploadFileProcessing ? (
-              <>
-                {savedFiles.length > 0 ? <Divider /> : null}
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-
-                    padding: '24px',
-                  }}
-                >
-                  <Typography variant='body2'>No files uploaded</Typography>
-                </Box>
-              </>
-            ) : null} */}
           </Box>
         </Card>
       </Grid>
@@ -1802,102 +1381,6 @@ const DeliveriesFeedback = ({
             </Box>
           )}
         </Card>
-        {/* {currentRole && currentRole.name === 'CLIENT' ? (
-          <>
-            {isEditable ? (
-              <Card sx={{ padding: '24px' }}>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-                >
-                  <Button
-                    variant='contained'
-                    onClick={onClickConfirmDeliveries}
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-ConfirmDeliveries',
-                      )
-                    }
-                  >
-                    Confirm deliveries
-                  </Button>
-                  <Button
-                    variant='outlined'
-                    onClick={onClickRequestRedelivery}
-                    color='error'
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-RequestRedelivery',
-                      )
-                    }
-                  >
-                    Request redelivery
-                  </Button>
-                </Box>
-              </Card>
-            ) : null}
-          </>
-        ) : (
-          <Card sx={{ padding: '24px' }}>
-            {files.length || uploadFileProcessing ? (
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-              >
-                <Button
-                  variant='contained'
-                  color='success'
-                  onClick={onClickDeliverToClient}
-                  disabled={
-                    !canUseFeature(
-                      'button-Deliveries&Feedback-DeliverToClient',
-                    ) || files.length === 0
-                  }
-                >
-                  <Icon icon='ic:outline-send' fontSize={18} />
-                  &nbsp;Deliver to client
-                </Button>
-                <Button variant='outlined' onClick={onClickCancelDeliver}>
-                  Cancel
-                </Button>
-              </Box>
-            ) : importedFiles.length || uploadFileProcessing ? (
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
-              >
-                <Button
-                  variant='contained'
-                  color='success'
-                  onClick={onClickDeliverToClient}
-                  disabled={
-                    !canUseFeature(
-                      'button-Deliveries&Feedback-DeliverToClient',
-                    ) || importedFiles.length === 0
-                  }
-                >
-                  <Icon icon='ic:outline-send' fontSize={18} />
-                  &nbsp;Deliver to client
-                </Button>
-                <Button variant='outlined' onClick={onClickCancelDeliver}>
-                  Cancel
-                </Button>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex' }}>
-                <Button
-                  variant='contained'
-                  fullWidth
-                  onClick={onClickCompleteDelivery}
-                  disabled={
-                    !canUseFeature(
-                      'button-Deliveries&Feedback-CompleteDelivery',
-                    )
-                  }
-                >
-                  Complete delivery
-                </Button>
-              </Box>
-            )}
-          </Card>
-        )} */}
       </Grid>
     </Grid>
   )

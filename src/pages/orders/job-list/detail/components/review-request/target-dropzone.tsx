@@ -37,10 +37,6 @@ const TargetDropzone = ({
   type,
 }: Props) => {
   const { getRootProps, getInputProps } = useDropzone({
-    // accept: {
-    //   ...srtUploadFileExtension.accept,
-    // },
-
     noDragEventsBubbling: true,
 
     onDrop: (acceptedFiles: File[]) => {
@@ -73,9 +69,7 @@ const TargetDropzone = ({
                 type: 'TARGET',
                 path: file.path,
                 extension: file.extension,
-                // index: index,
               })
-            // console.log(acc)
 
             return acc
           }

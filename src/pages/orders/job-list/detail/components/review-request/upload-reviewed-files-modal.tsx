@@ -191,7 +191,6 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
             return acc
           }
         }, [])
-      console.log(uniqueFiles)
 
       setFiles(uniqueFiles)
     },

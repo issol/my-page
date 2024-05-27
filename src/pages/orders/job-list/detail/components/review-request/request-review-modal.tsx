@@ -42,12 +42,7 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import TargetDropzone from './target-dropzone'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { requestReviewSchema } from '@src/types/schema/job-detail'
-import {
-  getDownloadUrlforCommon,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from '@src/apis/common.api'
-import toast from 'react-hot-toast'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
@@ -336,159 +331,6 @@ const RequestReviewModal = ({
             : createRequestReviewMutation.mutate(result)
         })
       })
-
-      //   Promise.all([sourceArr, targetArr]).then(res => {
-      //     const result: JobRequestReviewParamsType = {
-      //       jobId: jobId,
-      //       assigneeId: data.assignee,
-      //       dueDate: data.desiredDueAt,
-      //       dueDateTimezone: data.desiredDueTimezone,
-      //       runtime: data.runtime,
-      //       wordCount: data.wordCount,
-      //       noteToAssignee: data.note,
-      //       files: [
-      //         ...fileInfo.files,
-      //         ...selectedSourceFiles
-      //           .filter(item => item.isSelected)
-      //           .map(value => ({
-      //             name: value.name,
-      //             path: value.file!,
-      //             extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-      //             size: value.size,
-      //             type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-      //             jobFileId: value.id,
-      //           })),
-      //         ...selectedTargetFiles
-      //           .filter(item => item.isSelected)
-      //           .map(value => ({
-      //             name: value.name,
-      //             path: value.file!,
-      //             extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-      //             size: value.size,
-      //             type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-      //             jobFileId: value.id,
-      //           })),
-      //       ],
-      //     }
-      //     type === 'edit'
-      //       ? updateRequestReviewMutation.mutate({
-      //           params: result,
-      //           id: requestInfo?.id!,
-      //         })
-      //       : createRequestReviewMutation.mutate(result)
-      //   })
-      // })
-
-      // savedFiles.length > 0 &&
-      //   savedFiles.map(item => {
-      //     fileInfo.files.push({
-      //       name: item.name,
-      //       path: item.path!,
-      //       extension: item.extension!,
-      //       size: item.size,
-      //       type: item.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
-      //     })
-      //   })
-
-      // const tempFiles = uploadedSourceFiles.concat(uploadedTargetFiles)
-
-      // const paths: string[] = files
-      //   .filter(value => !value.id)
-      //   .map(file => {
-      //     return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
-      //   })
-
-      // const s3URL = paths.map(value => {
-      //   return getUploadUrlforCommon('job', value).then(res => {
-      //     return res.url
-      //   })
-      // })
-
-      // Promise.all(s3URL).then(res => {
-      //   const promiseArr = res.map((url: string, idx: number) => {
-      //     const parts = url.split('/')
-      //     const index = parts.indexOf('project')
-      //     const result = parts.slice(index).join('/')
-
-      //     fileInfo.files.push({
-      //       size: uploadedFiles[idx].size,
-      //       name: uploadedFiles[idx].name,
-      //       path: result,
-      //       extension:
-      //         uploadedFiles[idx].name.split('.').pop()?.toLowerCase() ?? '',
-      //       type:
-      //         (uploadedFiles[idx].type as
-      //           | 'SOURCE'
-      //           | 'TARGET'
-      //           | 'SAMPLE'
-      //           | 'REVIEWED') ?? 'SOURCE',
-      //       // downloadAvailable: files[idx].downloadAvailable ?? false,
-      //     })
-
-      //     return uploadFileToS3(result, tempFiles[idx])
-      //   })
-      //   Promise.all(promiseArr)
-      //     .then(res => {
-      //       //TODO : Mutation call (파일 정보 Save)
-      //       // uploadFileMutation.mutate(fileInfo)
-      //       // TODO :Mutation call (기본 정보 Save)
-
-      //       const result: JobRequestReviewParamsType = {
-      //         jobId: jobId,
-      //         assigneeId: data.assignee,
-      //         dueDate: data.desiredDueAt,
-      //         dueDateTimezone: data.desiredDueTimezone,
-      //         runtime: data.runtime,
-      //         wordCount: data.wordCount,
-      //         noteToAssignee: data.note,
-      //         files: [
-      //           ...fileInfo.files,
-      //           ...selectedSourceFiles
-      //             .filter(item => item.isSelected)
-      //             .map(value => ({
-      //               name: value.name,
-      //               path: value.file!,
-      //               extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-      //               size: value.size,
-      //               type: 'SOURCE' as
-      //                 | 'SOURCE'
-      //                 | 'TARGET'
-      //                 | 'SAMPLE'
-      //                 | 'REVIEWED',
-      //               jobFileId: value.id,
-      //             })),
-      //           ...selectedTargetFiles
-      //             .filter(item => item.isSelected)
-      //             .map(value => ({
-      //               name: value.name,
-      //               path: value.file!,
-      //               extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-      //               size: value.size,
-      //               type: 'TARGET' as
-      //                 | 'SOURCE'
-      //                 | 'TARGET'
-      //                 | 'SAMPLE'
-      //                 | 'REVIEWED',
-      //               jobFileId: value.id,
-      //             })),
-      //         ],
-      //       }
-      //       type === 'edit'
-      //         ? updateRequestReviewMutation.mutate({
-      //             params: result,
-      //             id: requestInfo?.id!,
-      //           })
-      //         : createRequestReviewMutation.mutate(result)
-      //     })
-      //     .catch(err =>
-      //       toast.error(
-      //         'Something went wrong while uploading files. Please try again.',
-      //         {
-      //           position: 'bottom-left',
-      //         },
-      //       ),
-      //     )
-      // })
     } else {
       const result: JobRequestReviewParamsType = {
         jobId: jobId,
@@ -544,8 +386,6 @@ const RequestReviewModal = ({
       // TODO :Mutation call (기본 정보 Save)
     }
   }
-
-  console.log(sourceFiles)
 
   const onSubmit = (data: JobRequestReviewFormType) => {
     if (type === 'create') {
@@ -630,25 +470,15 @@ const RequestReviewModal = ({
   }
 
   const { getRootProps, getInputProps } = useDropzone({
-    // accept: {
-    //   ...srtUploadFileExtension.accept,
-    // },
-
     noDragEventsBubbling: true,
 
-    onDrop: (
-      acceptedFiles: File[],
-      fileRejections: FileRejection[],
-      event: DropEvent,
-    ) => {
+    onDrop: (acceptedFiles: File[]) => {
       const totalFileSize =
         acceptedFiles.reduce((res, file) => (res += file.size), 0) +
         sourceFileSize
       if (totalFileSize > MAXIMUM_FILE_SIZE) {
         onFileUploadReject()
       } else {
-        console.log(uploadedSourceFiles.concat(acceptedFiles))
-
         setUploadedSourceFiles(uploadedSourceFiles.concat(acceptedFiles))
       }
 

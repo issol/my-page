@@ -130,7 +130,6 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import { ReasonType } from '@src/types/quotes/quote'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { timezoneSelector } from '@src/states/permission'
-import { get } from 'lodash'
 
 interface Detail {
   id: number
@@ -1282,8 +1281,6 @@ const OrderDetail = () => {
     (historyId: number) => restoreOrder(historyId),
     {
       onSuccess: data => {
-        console.log(data)
-
         router.push(`/orders/order-list/detail/${data.id}`)
 
         // queryClient.invalidateQueries(['orderDetail'])
