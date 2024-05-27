@@ -42,14 +42,20 @@ type Props = {
   }
   clientId: number
   user: {
-    user: UserDataType | null;
-    company: ClientUserType | null | undefined;
-    loading: boolean;
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
   }
   clientAuthorId: number
   isEnrolledClient: boolean
 }
-const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnrolledClient }: Props) => {
+const NotesToClient = ({
+  notesToClient,
+  clientId,
+  user,
+  clientAuthorId,
+  isEnrolledClient,
+}: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.NOTES_TO_CLIENT
   const queryClient = useQueryClient()
 
@@ -102,7 +108,7 @@ const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnroll
           type: files[idx].type,
           size: files[idx].size,
         })
-        await uploadFileToS3(res.url, files[idx])
+        await uploadFileToS3(res, files[idx])
       } catch (error) {
         onError()
       }
@@ -175,7 +181,7 @@ const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnroll
   function fetchFile(file: FileType) {
     getDownloadUrlforCommon(S3FileType.NOTES_TO_CLIENT, file.file!).then(
       res => {
-        fetch(res.url, { method: 'GET' })
+        fetch(res, { method: 'GET' })
           .then(res => {
             return res.blob()
           })
@@ -215,8 +221,9 @@ const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnroll
   const canEdit = () => {
     if (user) {
       const isMaster = user.user?.roles?.some(
-        role => ['Manager','Master'].includes(role.type) 
-        && ['LPM','TAD','ACCOUNTING'].includes(role.name)
+        role =>
+          ['Manager', 'Master'].includes(role.type) &&
+          ['LPM', 'TAD', 'ACCOUNTING'].includes(role.name),
       )
 
       if (isMaster) return true
@@ -326,16 +333,11 @@ const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnroll
               Download all
             </Button>
           </Box>
-          {
-            canEdit()
-              ? (
-                <IconButton onClick={onClickEditNotesToClient}>
-                  <Icon icon='mdi:pencil-outline' />
-                </IconButton>
-              )
-              : null
-          }
-
+          {canEdit() ? (
+            <IconButton onClick={onClickEditNotesToClient}>
+              <Icon icon='mdi:pencil-outline' />
+            </IconButton>
+          ) : null}
         </Box>
 
         <Typography variant='body2'>

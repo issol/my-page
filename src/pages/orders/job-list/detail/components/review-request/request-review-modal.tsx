@@ -180,14 +180,15 @@ const RequestReviewModal = ({
 
   const saveData = (data: JobRequestReviewFormType) => {
     if (uploadedSourceFiles.length || uploadedTargetFiles.length) {
-      setIsSavingData(true)
+      // setIsSavingData(true)
       const fileInfo: {
         jobId: number
         files: Array<{
-          fileName: string
-          filePath: string
-          fileExtension: string
-          fileSize: number
+          id?: number
+          name: string
+          path: string
+          extension: string
+          size: number
           type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
         }>
       } = {
@@ -195,104 +196,299 @@ const RequestReviewModal = ({
         files: [],
       }
 
-      const files = sourceFiles.concat(targetFiles)
+      // const files = sourceFiles.concat(targetFiles)
 
-      const tempFiles = uploadedSourceFiles.concat(uploadedTargetFiles)
-      const paths: string[] = files.map(file => {
-        return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
+      const savedSourceFiles = sourceFiles.filter(value => value.id)
+      const uploadSourceFiles = sourceFiles.filter(value => !value.id)
+      const savedTargetFiles = targetFiles.filter(value => value.id)
+      const uploadTargetFiles = targetFiles.filter(value => !value.id)
+
+      const sourcePaths: string[] = uploadSourceFiles.map(file => {
+        return `project/${jobId}/review-request/source/${file.name}`
       })
 
-      const s3URL = paths.map(value => {
-        return getUploadUrlforCommon('job', value).then(res => {
-          return res.url
+      const targetPaths: string[] = uploadTargetFiles.map(file => {
+        return `project/${jobId}/review-request/target/${file.name}`
+      })
+
+      savedSourceFiles.concat(savedTargetFiles).map(value => {
+        fileInfo.files.push({
+          id: value.id,
+          name: value.name,
+          path: value.path!,
+          extension: value.extension!,
+          size: value.size,
+          type: value.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
         })
       })
 
-      Promise.all(s3URL).then(res => {
-        const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.files.push({
-            fileSize: files[idx].size,
-            fileName: files[idx].name,
-            filePath: url,
-            fileExtension:
-              files[idx].name.split('.').pop()?.toLowerCase() ?? '',
-            type:
-              (files[idx].type as
-                | 'SOURCE'
-                | 'TARGET'
-                | 'SAMPLE'
-                | 'REVIEWED') ?? 'SOURCE',
-            // downloadAvailable: files[idx].downloadAvailable ?? false,
+      console.log(fileInfo.files)
+
+      const s3SourceURL: Promise<{ type: 'SOURCE'; url: string }>[] =
+        sourcePaths.map(value => {
+          return getUploadUrlforCommon('job', value).then(res => {
+            return { type: 'SOURCE', url: res }
           })
-
-          console.log(tempFiles)
-
-          return uploadFileToS3(url, tempFiles[idx])
         })
-        Promise.all(promiseArr)
-          .then(res => {
-            //TODO : Mutation call (파일 정보 Save)
-            // uploadFileMutation.mutate(fileInfo)
-            // TODO :Mutation call (기본 정보 Save)
 
-            const result: JobRequestReviewParamsType = {
-              jobId: jobId,
-              assigneeId: data.assignee,
-              dueDate: data.desiredDueAt,
-              dueDateTimezone: data.desiredDueTimezone,
-              runtime: data.runtime,
-              wordCount: data.wordCount,
-              noteToAssignee: data.note,
-              files: [
-                ...fileInfo.files,
-                ...selectedSourceFiles
-                  .filter(item => item.isSelected)
-                  .map(value => ({
-                    fileName: value.name,
-                    filePath: value.file!,
-                    fileExtension:
-                      value.name.split('.').pop()?.toLowerCase() ?? '',
-                    fileSize: value.size,
-                    type: 'SOURCE' as
-                      | 'SOURCE'
-                      | 'TARGET'
-                      | 'SAMPLE'
-                      | 'REVIEWED',
-                    jobFileId: value.id,
-                  })),
-                ...selectedTargetFiles
-                  .filter(item => item.isSelected)
-                  .map(value => ({
-                    fileName: value.name,
-                    filePath: value.file!,
-                    fileExtension:
-                      value.name.split('.').pop()?.toLowerCase() ?? '',
-                    fileSize: value.size,
-                    type: 'TARGET' as
-                      | 'SOURCE'
-                      | 'TARGET'
-                      | 'SAMPLE'
-                      | 'REVIEWED',
-                    jobFileId: value.id,
-                  })),
-              ],
-            }
-            type === 'edit'
-              ? updateRequestReviewMutation.mutate({
-                  params: result,
-                  id: requestInfo?.id!,
-                })
-              : createRequestReviewMutation.mutate(result)
+      const s3TargetUrl: Promise<{ type: 'TARGET'; url: string }>[] =
+        targetPaths.map(value => {
+          return getUploadUrlforCommon('job', value).then(res => {
+            return { type: 'TARGET', url: res }
           })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
+        })
+
+      console.log(s3SourceURL)
+
+      Promise.all([...s3SourceURL, ...s3TargetUrl]).then(res => {
+        console.log(res)
+
+        const sourceArr = res
+          .filter(value => value.type === 'SOURCE')
+          .map(
+            (item: { type: 'SOURCE' | 'TARGET'; url: string }, idx: number) => {
+              console.log(item.url)
+
+              const parts = item.url.split('/')
+              const index = parts.indexOf('project')
+              const result = parts.slice(index).join('/')
+
+              console.log(result)
+
+              fileInfo.files.push({
+                size: uploadSourceFiles[idx].size,
+                name: uploadSourceFiles[idx].name,
+                path: result,
+                extension:
+                  uploadSourceFiles[idx].name.split('.').pop()?.toLowerCase() ??
+                  '',
+                type: 'SOURCE',
+              })
+
+              return uploadFileToS3(item.url, uploadedSourceFiles[idx])
+            },
           )
+
+        console.log(sourceArr)
+
+        const targetArr = res
+          .filter(value => value.type === 'TARGET')
+          .map(
+            (item: { type: 'SOURCE' | 'TARGET'; url: string }, idx: number) => {
+              const parts = item.url.split('/')
+              const index = parts.indexOf('project')
+              const result = parts.slice(index).join('/')
+
+              fileInfo.files.push({
+                size: uploadTargetFiles[idx].size,
+                name: uploadTargetFiles[idx].name,
+                path: result,
+                extension:
+                  uploadTargetFiles[idx].name.split('.').pop()?.toLowerCase() ??
+                  '',
+                type: 'TARGET',
+              })
+
+              return uploadFileToS3(item.url, uploadedTargetFiles[idx])
+            },
+          )
+
+        Promise.all([sourceArr, targetArr]).then(res => {
+          console.log(res)
+
+          const result: JobRequestReviewParamsType = {
+            jobId: jobId,
+            assigneeId: data.assignee,
+            dueDate: data.desiredDueAt,
+            dueDateTimezone: data.desiredDueTimezone,
+            runtime: data.runtime,
+            wordCount: data.wordCount,
+            noteToAssignee: data.note,
+            files: [
+              ...fileInfo.files,
+              ...selectedSourceFiles
+                .filter(item => item.isSelected)
+                .map(value => ({
+                  name: value.name,
+                  path: value.file!,
+                  extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                  size: value.size,
+                  type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                  jobFileId: value.id,
+                })),
+              ...selectedTargetFiles
+                .filter(item => item.isSelected)
+                .map(value => ({
+                  name: value.name,
+                  path: value.file!,
+                  extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                  size: value.size,
+                  type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                  jobFileId: value.id,
+                })),
+            ],
+          }
+          type === 'edit'
+            ? updateRequestReviewMutation.mutate({
+                params: result,
+                id: requestInfo?.id!,
+              })
+            : createRequestReviewMutation.mutate(result)
+        })
       })
+
+      //   Promise.all([sourceArr, targetArr]).then(res => {
+      //     const result: JobRequestReviewParamsType = {
+      //       jobId: jobId,
+      //       assigneeId: data.assignee,
+      //       dueDate: data.desiredDueAt,
+      //       dueDateTimezone: data.desiredDueTimezone,
+      //       runtime: data.runtime,
+      //       wordCount: data.wordCount,
+      //       noteToAssignee: data.note,
+      //       files: [
+      //         ...fileInfo.files,
+      //         ...selectedSourceFiles
+      //           .filter(item => item.isSelected)
+      //           .map(value => ({
+      //             name: value.name,
+      //             path: value.file!,
+      //             extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+      //             size: value.size,
+      //             type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+      //             jobFileId: value.id,
+      //           })),
+      //         ...selectedTargetFiles
+      //           .filter(item => item.isSelected)
+      //           .map(value => ({
+      //             name: value.name,
+      //             path: value.file!,
+      //             extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+      //             size: value.size,
+      //             type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+      //             jobFileId: value.id,
+      //           })),
+      //       ],
+      //     }
+      //     type === 'edit'
+      //       ? updateRequestReviewMutation.mutate({
+      //           params: result,
+      //           id: requestInfo?.id!,
+      //         })
+      //       : createRequestReviewMutation.mutate(result)
+      //   })
+      // })
+
+      // savedFiles.length > 0 &&
+      //   savedFiles.map(item => {
+      //     fileInfo.files.push({
+      //       name: item.name,
+      //       path: item.path!,
+      //       extension: item.extension!,
+      //       size: item.size,
+      //       type: item.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
+      //     })
+      //   })
+
+      // const tempFiles = uploadedSourceFiles.concat(uploadedTargetFiles)
+
+      // const paths: string[] = files
+      //   .filter(value => !value.id)
+      //   .map(file => {
+      //     return `project/${jobId}/review-request/${file.type === 'SOURCE' ? 'source' : 'target'}/${file.name}`
+      //   })
+
+      // const s3URL = paths.map(value => {
+      //   return getUploadUrlforCommon('job', value).then(res => {
+      //     return res.url
+      //   })
+      // })
+
+      // Promise.all(s3URL).then(res => {
+      //   const promiseArr = res.map((url: string, idx: number) => {
+      //     const parts = url.split('/')
+      //     const index = parts.indexOf('project')
+      //     const result = parts.slice(index).join('/')
+
+      //     fileInfo.files.push({
+      //       size: uploadedFiles[idx].size,
+      //       name: uploadedFiles[idx].name,
+      //       path: result,
+      //       extension:
+      //         uploadedFiles[idx].name.split('.').pop()?.toLowerCase() ?? '',
+      //       type:
+      //         (uploadedFiles[idx].type as
+      //           | 'SOURCE'
+      //           | 'TARGET'
+      //           | 'SAMPLE'
+      //           | 'REVIEWED') ?? 'SOURCE',
+      //       // downloadAvailable: files[idx].downloadAvailable ?? false,
+      //     })
+
+      //     return uploadFileToS3(result, tempFiles[idx])
+      //   })
+      //   Promise.all(promiseArr)
+      //     .then(res => {
+      //       //TODO : Mutation call (파일 정보 Save)
+      //       // uploadFileMutation.mutate(fileInfo)
+      //       // TODO :Mutation call (기본 정보 Save)
+
+      //       const result: JobRequestReviewParamsType = {
+      //         jobId: jobId,
+      //         assigneeId: data.assignee,
+      //         dueDate: data.desiredDueAt,
+      //         dueDateTimezone: data.desiredDueTimezone,
+      //         runtime: data.runtime,
+      //         wordCount: data.wordCount,
+      //         noteToAssignee: data.note,
+      //         files: [
+      //           ...fileInfo.files,
+      //           ...selectedSourceFiles
+      //             .filter(item => item.isSelected)
+      //             .map(value => ({
+      //               name: value.name,
+      //               path: value.file!,
+      //               extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+      //               size: value.size,
+      //               type: 'SOURCE' as
+      //                 | 'SOURCE'
+      //                 | 'TARGET'
+      //                 | 'SAMPLE'
+      //                 | 'REVIEWED',
+      //               jobFileId: value.id,
+      //             })),
+      //           ...selectedTargetFiles
+      //             .filter(item => item.isSelected)
+      //             .map(value => ({
+      //               name: value.name,
+      //               path: value.file!,
+      //               extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+      //               size: value.size,
+      //               type: 'TARGET' as
+      //                 | 'SOURCE'
+      //                 | 'TARGET'
+      //                 | 'SAMPLE'
+      //                 | 'REVIEWED',
+      //               jobFileId: value.id,
+      //             })),
+      //         ],
+      //       }
+      //       type === 'edit'
+      //         ? updateRequestReviewMutation.mutate({
+      //             params: result,
+      //             id: requestInfo?.id!,
+      //           })
+      //         : createRequestReviewMutation.mutate(result)
+      //     })
+      //     .catch(err =>
+      //       toast.error(
+      //         'Something went wrong while uploading files. Please try again.',
+      //         {
+      //           position: 'bottom-left',
+      //         },
+      //       ),
+      //     )
+      // })
     } else {
       const result: JobRequestReviewParamsType = {
         jobId: jobId,
@@ -304,36 +500,36 @@ const RequestReviewModal = ({
         noteToAssignee: data.note,
         files: [
           ...sourceFiles.map(value => ({
-            fileName: value.name,
-            filePath: value.path!,
-            fileExtension: value.extension!,
-            fileSize: value.size,
+            name: value.name,
+            path: value.path!,
+            extension: value.extension!,
+            size: value.size,
             type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
           })),
           ...targetFiles.map(value => ({
-            fileName: value.name,
-            filePath: value.path!,
-            fileExtension: value.extension!,
-            fileSize: value.size,
+            name: value.name,
+            path: value.path!,
+            extension: value.extension!,
+            size: value.size,
             type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
           })),
           ...selectedSourceFiles
             .filter(item => item.isSelected)
             .map(value => ({
-              fileName: value.name,
-              filePath: value.file!,
-              fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
-              fileSize: value.size,
+              name: value.name,
+              path: value.file!,
+              extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              size: value.size,
               type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
               jobFileId: value.id,
             })),
           ...selectedTargetFiles
             .filter(item => item.isSelected)
             .map(value => ({
-              fileName: value.name,
-              filePath: value.file!,
-              fileExtension: value.name.split('.').pop()?.toLowerCase() ?? '',
-              fileSize: value.size,
+              name: value.name,
+              path: value.file!,
+              extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              size: value.size,
               type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
               jobFileId: value.id,
             })),
@@ -348,6 +544,8 @@ const RequestReviewModal = ({
       // TODO :Mutation call (기본 정보 Save)
     }
   }
+
+  console.log(sourceFiles)
 
   const onSubmit = (data: JobRequestReviewFormType) => {
     if (type === 'create') {
@@ -449,12 +647,14 @@ const RequestReviewModal = ({
       if (totalFileSize > MAXIMUM_FILE_SIZE) {
         onFileUploadReject()
       } else {
+        console.log(uploadedSourceFiles.concat(acceptedFiles))
+
         setUploadedSourceFiles(uploadedSourceFiles.concat(acceptedFiles))
       }
 
       const uniqueFiles = sourceFiles
         .concat(acceptedFiles)
-        .reduce((acc: FileType[], file: FileType) => {
+        .reduce((acc: FileType[], file: FileType, index: number) => {
           let result = sourceFileSize
 
           acc.concat(file).forEach((file: FileType) => (result += file.size))
@@ -468,9 +668,13 @@ const RequestReviewModal = ({
 
             if (!found)
               acc.push({
+                id: file.id ?? undefined,
                 name: file.name,
                 size: file.size,
                 type: 'SOURCE',
+                path: file.path,
+                extension: file.extension,
+                // index: index,
               })
             // console.log(acc)
 

@@ -784,10 +784,10 @@ export const saveReviewedFile = async (
   params: {
     noteFromAssignee?: string
     files?: Array<{
-      fileName: string
-      filePath: string
-      fileExtension: string
-      fileSize: number
+      name: string
+      path: string
+      extension: string
+      size: number
       type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
       jobFileId?: number
     }>

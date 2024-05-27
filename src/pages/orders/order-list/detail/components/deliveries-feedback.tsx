@@ -339,7 +339,7 @@ const DeliveriesFeedback = ({
     const path = getFilePath(['delivery', project.id.toString()], fileName)
 
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, path).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -482,7 +482,7 @@ const DeliveriesFeedback = ({
               fileExtension: splitFileNameAndExtension(files[idx].name)[1],
               type: 'imported',
             })
-            return uploadFileToS3(res.url, uploadedFiles[idx])
+            return uploadFileToS3(res, uploadedFiles[idx])
           },
         )
       })

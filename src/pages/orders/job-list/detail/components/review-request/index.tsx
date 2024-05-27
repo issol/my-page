@@ -269,7 +269,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     const index = parts.indexOf('project')
     const result = parts.slice(index).join('/')
     getDownloadUrlforCommon(S3FileType.JOB, result).then((res: any) => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -614,14 +614,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               </Box>
                             ) : null}
 
-                            {(item.files.length > 0 &&
+                            {((item.files.length > 0 &&
                               item.files.filter(
                                 value => value.type === 'SOURCE',
                               ).length > 0) ||
                               (item.files.length > 0 &&
                                 item.files.filter(
                                   value => value.type === 'TARGET',
-                                ).length > 0 && <Divider />)}
+                                ).length > 0)) && <Divider />}
 
                             <div
                               style={{

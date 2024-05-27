@@ -209,7 +209,7 @@ const DeliveriesFeedback = ({
 
   const fetchFile = (file: JobsFileType) => {
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, file.file).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -340,7 +340,7 @@ const DeliveriesFeedback = ({
               size: files[idx]?.size,
               type: 'TARGET',
             })
-            return uploadFileToS3(res.url, files[idx])
+            return uploadFileToS3(res, files[idx])
           },
         )
       })

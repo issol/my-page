@@ -21,8 +21,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { saveReviewedFile } from '@src/apis/jobs/job-detail.api'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
-import { set } from 'lodash'
-import FallbackSpinner from '@src/@core/components/spinner'
+
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
@@ -50,10 +49,10 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     (params: {
       noteFromAssignee?: string
       files?: Array<{
-        fileName: string
-        filePath: string
-        fileExtension: string
-        fileSize: number
+        name: string
+        path: string
+        extension: string
+        size: number
         type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
         jobFileId?: number
       }>
@@ -71,10 +70,10 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
     if (files.length) {
       setIsSavingData(true)
       const fileInfo: Array<{
-        fileName: string
-        filePath: string
-        fileExtension: string
-        fileSize: number
+        name: string
+        path: string
+        extension: string
+        size: number
         type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
       }> = []
 
@@ -84,18 +83,17 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
 
       const s3URL = paths.map(value => {
         return getUploadUrlforCommon('job', value).then(res => {
-          return res.url
+          return res
         })
       })
 
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
           fileInfo.push({
-            fileSize: files[idx].size,
-            fileName: files[idx].name,
-            filePath: url,
-            fileExtension:
-              files[idx].name.split('.').pop()?.toLowerCase() ?? '',
+            size: files[idx].size,
+            name: files[idx].name,
+            path: url,
+            extension: files[idx].name.split('.').pop()?.toLowerCase() ?? '',
             type: 'REVIEWED',
             // downloadAvailable: files[idx].downloadAvailable ?? false,
           })

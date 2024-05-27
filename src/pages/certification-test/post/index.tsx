@@ -149,10 +149,12 @@ const TestMaterialPost = () => {
       label: GloLanguageEnum
     }[]
   >([])
-  const allLanguage = [{
-    value: 'all',
-    label: 'All',
-  }]
+  const allLanguage = [
+    {
+      value: 'all',
+      label: 'All',
+    },
+  ]
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
@@ -443,7 +445,6 @@ const TestMaterialPost = () => {
         setSavedFiles(testDetail?.currentVersion.files)
     }
   }, [isFetched])
-
 
   useEffect(() => {
     setUniqueLanguageList(_.uniqBy(languageList, 'value'))
@@ -784,7 +785,7 @@ const TestMaterialPost = () => {
                 size: data.file[idx]?.size,
                 fileKey: url,
               })
-              return uploadFileToS3(res.url, data.file[idx])
+              return uploadFileToS3(res, data.file[idx])
             },
           )
         })
@@ -978,9 +979,10 @@ const TestMaterialPost = () => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
                               }}
-                              options={getValues().testType === 'Basic test'
-                                ? uniqueLanguageList
-                                : [...allLanguage, ...uniqueLanguageList]
+                              options={
+                                getValues().testType === 'Basic test'
+                                  ? uniqueLanguageList
+                                  : [...allLanguage, ...uniqueLanguageList]
                               }
                               id='target'
                               disabled={isFetched}

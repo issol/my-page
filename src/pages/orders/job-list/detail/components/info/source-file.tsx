@@ -275,7 +275,7 @@ const SourceFileUpload = ({
         S3FileType.JOB,
         encodeURIComponent(file.file!),
       ).then(res => {
-        fetch(res.url, { method: 'GET' })
+        fetch(res, { method: 'GET' })
           .then(res => {
             return res.blob()
           })
@@ -383,7 +383,7 @@ const SourceFileUpload = ({
 
         const s3URL = paths.map(value => {
           return getUploadUrlforCommon('job', value).then(res => {
-            return res.url
+            return res
           })
         })
 

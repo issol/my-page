@@ -231,7 +231,7 @@ export default function CompanyPaymentInfo() {
     //TODO: S3FileType.RESUME는 임시로 넣어둔 값. Client의 file위치가 정해지면 S3FileType에 값 추가하고, 해당 값으로 교체하기
     getDownloadUrlforCommon(S3FileType.RESUME, file.filePath).then(res => {
       const previewFile = {
-        url: res.url,
+        url: res,
         fileName: file.fileName,
         fileExtension: file.fileExtension,
       }

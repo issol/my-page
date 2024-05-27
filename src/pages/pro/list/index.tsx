@@ -177,7 +177,7 @@ const ProsList = () => {
     fileType: string,
   ) => {
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
-      file.url = res.url
+      file.url = res
       openModal({
         type: 'FilePreviewDownloadModal',
         children: (

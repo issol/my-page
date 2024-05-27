@@ -161,7 +161,7 @@ const ProJobInfo = ({
 
   const fetchFile = (file: JobsFileType | FileType) => {
     getDownloadUrlforCommon(S3FileType.JOB, file.file!).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })

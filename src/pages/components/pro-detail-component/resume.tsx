@@ -34,15 +34,17 @@ type Props = {
 
 export default function Resume({ userInfo, onClickResume }: Props) {
   const [page, setPage] = useState(0)
-  const [resumeObj, setResumeObj] = useState<{
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }[]>([])
+  const [resumeObj, setResumeObj] = useState<
+    {
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    }[]
+  >([])
 
   useEffect(() => {
-    const resumeData: {   
+    const resumeData: {
       url: string
       filePath: string
       fileName: string
@@ -50,7 +52,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     }[] = []
     if (!userInfo) return
     if (userInfo.resume && userInfo.resume.length) {
-      userInfo.resume.map((value) => {
+      userInfo.resume.map(value => {
         if (typeof value === 'string') {
           resumeData.push({
             url: value,
@@ -64,7 +66,6 @@ export default function Resume({ userInfo, onClickResume }: Props) {
       })
     }
     setResumeObj(resumeData)
-
   }, [userInfo])
 
   const DownloadAllFile = (
@@ -81,7 +82,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
       file.map(value => {
         getDownloadUrlforCommon(S3FileType.RESUME, value.filePath).then(res => {
           const previewFile = {
-            url: res.url,
+            url: res,
             fileName: value.fileName,
             fileExtension: value.fileExtension,
           }
@@ -187,14 +188,14 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   }
 
   const extractFileName = (path: string) => {
-    console.log("extractFileName",path)
+    console.log('extractFileName', path)
     if (!path) return ''
     return path.split('/').pop() ?? ''
   }
 
   const extractFileExtension = (path: string) => {
     const fileName = extractFileName(path)
-    const fileExtension = fileName 
+    const fileExtension = fileName
       ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
       : 'default'
 
@@ -242,7 +243,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
           onClick={() =>
             DownloadAllFile(
               resumeObj && resumeObj.length
-                ? resumeObj.map((value) => (value))
+                ? resumeObj.map(value => value)
                 : null,
             )
           }
@@ -268,8 +269,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickResume(value, S3FileType.RESUME)
-                    }
+                    onClick={() => onClickResume(value, S3FileType.RESUME)}
                   >
                     <Box
                       sx={{
