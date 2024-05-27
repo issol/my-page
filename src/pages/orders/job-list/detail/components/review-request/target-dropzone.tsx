@@ -65,12 +65,15 @@ const TargetDropzone = ({
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
-
             if (!found)
               acc.push({
+                id: file.id ?? undefined,
                 name: file.name,
                 size: file.size,
                 type: 'TARGET',
+                path: file.path,
+                extension: file.extension,
+                // index: index,
               })
             // console.log(acc)
 
