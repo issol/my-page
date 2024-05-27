@@ -136,6 +136,8 @@ const DeliveriesFeedback = ({
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
   const [note, setNote] = useState<string | null>(null)
 
+  const [feedbackError, setFeedbackError] = useState(false)
+
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
@@ -270,6 +272,7 @@ const DeliveriesFeedback = ({
     if (addJobFeedbackData === '' || addJobFeedbackData === null) {
       setAddJobFeedbackData('')
       setAddFeedback(false)
+      setFeedbackError(false)
       return
     }
     openModal({
@@ -283,6 +286,7 @@ const DeliveriesFeedback = ({
           onClick={() => {
             setAddJobFeedbackData('')
             setAddFeedback(false)
+            setFeedbackError(false)
             closeModal('DiscardFeedbackModal')
           }}
           onClose={() => closeModal('DiscardFeedbackModal')}
@@ -1569,26 +1573,39 @@ const DeliveriesFeedback = ({
                   mt: '12px',
                 }}
               >
-                <TextField
-                  fullWidth
-                  autoComplete='off'
-                  rows={4}
-                  value={addJobFeedbackData}
-                  placeholder='Write down a feedback.'
-                  onChange={event => {
-                    if (event.target.value) {
-                      setAddJobFeedbackData(event.target.value)
-                    } else {
-                      setAddJobFeedbackData(null)
-                    }
-                  }}
-                  multiline
-                  error={addJobFeedbackData === null ? true : false}
-                  helperText={
-                    addJobFeedbackData === null ? FormErrors.required : null
-                  }
-                  id='textarea-outlined-static'
-                />
+                <Box>
+                  <TextField
+                    fullWidth
+                    autoComplete='off'
+                    rows={4}
+                    value={addJobFeedbackData}
+                    placeholder='Write down a feedback.'
+                    onChange={event => {
+                      if (event.target.value) {
+                        setFeedbackError(false)
+                        setAddJobFeedbackData(event.target.value)
+                      } else {
+                        setAddJobFeedbackData(null)
+                      }
+                    }}
+                    multiline
+                    error={feedbackError}
+                    helperText={feedbackError ? FormErrors.required : null}
+                    id='textarea-outlined-static'
+                  />
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      justifyContent: 'end',
+                    }}
+                  >
+                    <Typography color='#888' fontSize={12} fontWeight={400}>
+                      {addJobFeedbackData?.length ?? 0} /1000
+                    </Typography>
+                  </Box>
+                </Box>
+
                 <Box
                   sx={{
                     display: 'flex',
@@ -1606,7 +1623,17 @@ const DeliveriesFeedback = ({
                   <Button
                     variant='contained'
                     size='small'
-                    onClick={onClickAddFeedback}
+                    onClick={() => {
+                      if (
+                        addJobFeedbackData === null ||
+                        addJobFeedbackData === ''
+                      ) {
+                        setFeedbackError(true)
+                        return
+                      } else {
+                        onClickAddFeedback()
+                      }
+                    }}
                   >
                     Save
                   </Button>
