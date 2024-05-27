@@ -98,13 +98,13 @@ export function formatByRoundingProcedure(
         returnPrice = roundUp(price, precision)
         break
       case -1:
-        returnPrice = price; // 입력된 price를 변경 없이 그대로 반환
-        break;
+        returnPrice = price // 입력된 price를 변경 없이 그대로 반환
+        break
       default:
-        returnPrice = price; // 예상치 못한 type에 대해 라운딩 없이 반환
-        break;
+        returnPrice = price // 예상치 못한 type에 대해 라운딩 없이 반환
+        break
     }
-    console.log("type",type)
+
     if (type !== -1 && (currency === 'USD' || currency === 'SGD')) {
       return returnPrice.toFixed(precision)
     }

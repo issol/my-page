@@ -158,7 +158,14 @@ code[class*='language-'] {
   }
 }
 
-.filterFormAutoCompleteV2 .MuiAutocomplete-root:not(.MuiAutocomplete-popupIndicatorOpen) {
+.filterFormAutoCompleteV2:not(:has(.MuiAutocomplete-hasClearIcon)) {
+  .MuiInputBase-root {
+    padding: 1px 12px;
+  }
+}
+
+.filterFormAutoCompleteV2
+  .MuiAutocomplete-root:not(.MuiAutocomplete-popupIndicatorOpen) {
   .MuiChip-root {
     max-width: calc(100% - 75px); /* +2와 같은 숫자 표시 공간을 고려 */
     overflow: hidden; /* 오버플로우된 텍스트 숨기기 */
@@ -170,7 +177,7 @@ code[class*='language-'] {
     margin-right: 4px; /* Chip 사이의 간격 조정 */
   }
 
-  .MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"] {
+  .MuiAutocomplete-inputRoot[class*='MuiOutlinedInput-root'] {
     padding-right: 30px; /* 숫자 표시 부분을 위한 패딩 추가 */
   }
 }

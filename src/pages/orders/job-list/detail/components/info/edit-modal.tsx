@@ -57,7 +57,10 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { changeTimeZoneOffset, convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import {
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
+} from '@src/shared/helpers/date.helper'
 import PushPinIcon from '@mui/icons-material/PushPin'
 import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 
@@ -118,12 +121,14 @@ const InfoEditModal = ({
     }[]
   >([])
   const [userTimezone, setUserTimezone] = useState<
-    {
-      id: number
-      code: string
-      label: string
-      pinned: boolean
-    } | null | undefined
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }
+    | null
+    | undefined
   >(null)
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -162,10 +167,9 @@ const InfoEditModal = ({
     if (timezoneList.length === 0 || !user) return
     const userTimezone = user.getValue()?.user?.timezone
     const findTimezone = timezoneList.find(
-      (list) => list.label === userTimezone?.label
+      list => list.label === userTimezone?.label,
     )
     setUserTimezone(findTimezone)
-
   }, [timezoneList, user])
 
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
@@ -181,7 +185,7 @@ const InfoEditModal = ({
 
   const dateValue = (date: Date) => {
     return dayjs(date).format('MM/DD/YYYY, hh:mm a')
-  } 
+  }
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -355,7 +359,7 @@ const InfoEditModal = ({
         })
         const s3URL = paths.map(value => {
           return getUploadUrlforCommon('job', value).then(res => {
-            return res.url
+            return res
           })
         })
         Promise.all(s3URL).then(res => {
@@ -375,21 +379,28 @@ const InfoEditModal = ({
               const jobResult: SaveJobInfoParamsType = {
                 contactPersonId: data.contactPerson.userId,
                 description: data.description ?? null,
-                startDate: data.startedAt && data.startTimezone
-                  ? changeTimeZoneOffset(
-                      data.startedAt.toString(),
-                      data.startTimezone,
-                    )
-                  : null,
+                startDate:
+                  data.startedAt && data.startTimezone
+                    ? changeTimeZoneOffset(
+                        data.startedAt.toString(),
+                        data.startTimezone,
+                      )
+                    : null,
                 startTimezone: data.startTimezone
-                  ? { label: data.startTimezone.label, code: data.startTimezone.code }
+                  ? {
+                      label: data.startTimezone.label,
+                      code: data.startTimezone.code,
+                    }
                   : null,
 
                 dueDate: changeTimeZoneOffset(
                   data.dueAt.toString(),
                   data.dueTimezone,
                 )!,
-                dueTimezone: { label: data.dueTimezone.label, code: data.dueTimezone.code },
+                dueTimezone: {
+                  label: data.dueTimezone.label,
+                  code: data.dueTimezone.code,
+                },
                 status: data.status,
                 sourceLanguage: data.source !== ' ' ? data.source : null,
                 targetLanguage: data.target !== ' ' ? data.target : null,
@@ -418,12 +429,13 @@ const InfoEditModal = ({
         const jobResult: SaveJobInfoParamsType = {
           contactPersonId: data.contactPerson.userId,
           description: data.description ?? null,
-          startDate: data.startedAt && data.startTimezone
-            ? changeTimeZoneOffset(
-                data.startedAt.toISOString(),
-                data.startTimezone,
-              )
-            : null,
+          startDate:
+            data.startedAt && data.startTimezone
+              ? changeTimeZoneOffset(
+                  data.startedAt.toISOString(),
+                  data.startTimezone,
+                )
+              : null,
           startTimezone: data.startTimezone
             ? { label: data.startTimezone.label, code: data.startTimezone.code }
             : null,
@@ -432,7 +444,10 @@ const InfoEditModal = ({
             data.dueAt.toISOString(),
             data.dueTimezone,
           )!,
-          dueTimezone: { label: data.dueTimezone.label, code: data.dueTimezone.code },
+          dueTimezone: {
+            label: data.dueTimezone.label,
+            code: data.dueTimezone.code,
+          },
           status: data.status,
           sourceLanguage: data.source !== ' ' ? data.source : null,
           targetLanguage: data.target !== ' ' ? data.target : null,
@@ -463,8 +478,11 @@ const InfoEditModal = ({
               title='Revise job information?'
               subtitle={
                 <>
-                  Are you sure you want to revise the job information?<br/><br/>
-                  It will directly impact the Pro, and the updated job information will be communicated to the Pro.
+                  Are you sure you want to revise the job information?
+                  <br />
+                  <br />
+                  It will directly impact the Pro, and the updated job
+                  information will be communicated to the Pro.
                 </>
               }
               rightButtonText='Revise'
@@ -499,22 +517,22 @@ const InfoEditModal = ({
   }
 
   const handleTimezonePin = (option: {
-    id: number | undefined;
-    code: string;
-    label: string;
-    pinned: boolean;
+    id: number | undefined
+    code: string
+    label: string
+    pinned: boolean
   }) => {
-    const newOptions = timezoneList.map((opt) =>
-        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
-    );
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
     setTimezoneList(newOptions)
     setTimezonePin(newOptions)
   }
 
   const pinSortedOptions = timezoneList.sort((a, b) => {
-    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
-    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
-  });
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
 
   useEffect(() => {
     if (contactPersonList.length > 0 && items && timezoneList.length > 0) {
@@ -562,7 +580,7 @@ const InfoEditModal = ({
               userId: items.contactPersonId ?? null,
             },
       )
-      
+
       const convertStartedAt = () => {
         return convertTimeToTimezone(
           jobInfo.startedAt,
@@ -572,7 +590,7 @@ const InfoEditModal = ({
       }
 
       const convertDueAt = () => {
-          return convertTimeToTimezone(
+        return convertTimeToTimezone(
           jobInfo.dueAt,
           jobInfo.dueTimezone,
           timezone.getValue(),
@@ -584,9 +602,10 @@ const InfoEditModal = ({
       }
 
       if (timezoneList.length > 0 && userTimezone) {
-        const getStartTimezone = timezoneList.find(
-          (zone) => zone.label === jobInfo.startTimezone?.label
-        ) ?? userTimezone
+        const getStartTimezone =
+          timezoneList.find(
+            zone => zone.label === jobInfo.startTimezone?.label,
+          ) ?? userTimezone
         setValue('startTimezone', getStartTimezone)
       }
 
@@ -595,9 +614,10 @@ const InfoEditModal = ({
       }
 
       if (timezoneList.length > 0 && userTimezone) {
-        const getDueTimezone = timezoneList.find(
-          (zone) => zone.label === jobInfo.dueTimezone?.label
-        ) ?? userTimezone
+        const getDueTimezone =
+          timezoneList.find(
+            zone => zone.label === jobInfo.dueTimezone?.label,
+          ) ?? userTimezone
         setValue('dueTimezone', getDueTimezone)
       }
 
@@ -950,7 +970,10 @@ const InfoEditModal = ({
                   <Controller
                     name='startTimezone'
                     control={control}
-                    render={({ field: { value, onChange, onBlur }, formState }) => {
+                    render={({
+                      field: { value, onChange, onBlur },
+                      formState,
+                    }) => {
                       const showError = formState.isSubmitted
                       return (
                         <Autocomplete
@@ -969,21 +992,39 @@ const InfoEditModal = ({
                             timeZoneFormatter(option, timezone.getValue()) ?? ''
                           }
                           renderOption={(props, option) => (
-                            <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {timeZoneFormatter(option, timezone.getValue())}
-                            </Typography>
-                            <IconButton
-                              onClick={(event) => {
-                                  event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                  handleTimezonePin(option)
+                            <Box
+                              component='li'
+                              {...props}
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                               }}
-                              size="small"
-                              style={{ color: option.pinned ? '#FFAF66' : undefined }} 
                             >
-                              <PushPinIcon />
-                            </IconButton>
-                          </Box>
+                              <Typography
+                                noWrap
+                                sx={{
+                                  width: '100%',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {timeZoneFormatter(option, timezone.getValue())}
+                              </Typography>
+                              <IconButton
+                                onClick={event => {
+                                  event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                  handleTimezonePin(option)
+                                }}
+                                size='small'
+                                style={{
+                                  color: option.pinned ? '#FFAF66' : undefined,
+                                }}
+                              >
+                                <PushPinIcon />
+                              </IconButton>
+                            </Box>
                           )}
                           renderInput={params => (
                             <TextField
@@ -1067,21 +1108,39 @@ const InfoEditModal = ({
                             else onChange(v)
                           }}
                           renderOption={(props, option) => (
-                            <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {timeZoneFormatter(option, timezone.getValue())}
-                            </Typography>
-                            <IconButton
-                              onClick={(event) => {
-                                  event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                  handleTimezonePin(option)
+                            <Box
+                              component='li'
+                              {...props}
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                               }}
-                              size="small"
-                              style={{ color: option.pinned ? '#FFAF66' : undefined }} 
                             >
-                              <PushPinIcon />
-                            </IconButton>
-                          </Box>
+                              <Typography
+                                noWrap
+                                sx={{
+                                  width: '100%',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {timeZoneFormatter(option, timezone.getValue())}
+                              </Typography>
+                              <IconButton
+                                onClick={event => {
+                                  event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                  handleTimezonePin(option)
+                                }}
+                                size='small'
+                                style={{
+                                  color: option.pinned ? '#FFAF66' : undefined,
+                                }}
+                              >
+                                <PushPinIcon />
+                              </IconButton>
+                            </Box>
                           )}
                           renderInput={params => (
                             <TextField

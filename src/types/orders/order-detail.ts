@@ -77,8 +77,20 @@ export type ProjectInfoType = {
   } | null
 
   reason: ReasonType | null
-  deliveries: DeliveryFileType[]
-  feedback: string | null
+  deliveries: {
+    files: DeliveryFileType[]
+    id: number
+    note: string
+    createdAt: string
+  }[]
+  note: string | null
+  feedbacks: {
+    id: number
+    name: string
+    email: string
+    createdAt: string
+    feedback: string
+  }[]
   subtotal: string
 
   items?: ItemType
@@ -213,4 +225,25 @@ export type JobInfoType = {
   jobId: number
   jobName: string
   isProAssigned: boolean
+}
+
+export type OrderDeliveriesFeedbackType = {
+  deliveries: Array<{
+    id: number
+    createdAt: string
+    note: string
+    isWithoutFile: boolean
+    files: Array<DeliveryFileType>
+  }>
+  feedback: Array<{
+    id: number
+    createdAt: string
+    authorId: number
+    note: string
+    isChecked: boolean
+    authorInfo: {
+      email: string
+      name: string
+    }
+  }>
 }

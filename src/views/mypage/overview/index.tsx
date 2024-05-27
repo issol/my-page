@@ -485,7 +485,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       file.map(value => {
         getDownloadUrlforCommon(S3FileType.RESUME, value.filePath).then(res => {
           const previewFile = {
-            url: res.url,
+            url: res,
             fileName: value.fileName,
             fileExtension: value.fileExtension,
           }
@@ -521,7 +521,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           getResumeFilePath(user.id as number, file.name),
         )
           .then(res => {
-            return uploadFileToS3(res.url, file)
+            return uploadFileToS3(res, file)
           })
           .then(res => {
             fileData.push(file.name)
@@ -614,7 +614,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     fileType: string,
   ) => {
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
-      file.url = res.url
+      file.url = res
       openModal({
         type: 'preview',
         children: (

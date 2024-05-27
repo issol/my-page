@@ -121,6 +121,7 @@ const Jobs = () => {
             value='completed'
             label={
               <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                Completed & Inactive
                 {completedDot ? (
                   <Badge
                     variant='dot'
@@ -128,7 +129,6 @@ const Jobs = () => {
                     sx={{ marginLeft: '4px' }}
                   />
                 ) : null}
-                Completed & Inactive
               </Box>
             }
             iconPosition='start'

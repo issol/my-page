@@ -439,7 +439,7 @@ const NDASigned = ({
               type: 'pdf',
               // type: 'imported',
             })
-            return uploadFileToS3(res.url, data)
+            return uploadFileToS3(res, data)
           }),
         ]
 

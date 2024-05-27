@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField'
 import { FormControl, InputLabel, OutlinedInput } from '@mui/material'
 import { OverridableStringUnion } from '@mui/types'
 import { InputBasePropsSizeOverrides } from '@mui/material/InputBase/InputBase'
+import { Icon } from '@iconify/react'
 
 interface PickerProps {
   label?: string
@@ -14,6 +15,7 @@ interface PickerProps {
   error?: boolean
   value?: string
   placeholder?: string
+
   sx?: any
   size?: OverridableStringUnion<'small' | 'medium', InputBasePropsSizeOverrides>
 }
@@ -36,6 +38,9 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
               label={label || ''}
               placeholder={placeholder || ''}
               {...(readOnly && { inputProps: { readOnly: true } })}
+              endAdornment={
+                <Icon icon='gridicons:calendar' fontSize={24} color='#8D8E9A' />
+              }
             />
           </FormControl>
         )

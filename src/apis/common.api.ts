@@ -63,24 +63,24 @@ export const getPresignedUrl = async (
 export const getUploadUrlforCommon = async (
   fileType: string,
   filePath: string,
-) => {
+): Promise<string> => {
   const { data } = await axios.get(
     `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(
       filePath,
     )}`,
   )
-  return data
+  return data.url
 }
 
 //pro, onboarding 등 CloudFront를 통한 다운로드 주소 조회용(Signed-URL)
 export const getDownloadUrlforCommon = async (
   fileType: string,
   filePath: string,
-) => {
+): Promise<string> => {
   const { data } = await axios.get(
     `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
   )
-  return data
+  return data.url
 }
 
 export const uploadFileToS3 = async (url: string, file: any) => {

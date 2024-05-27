@@ -17,8 +17,10 @@ import {
   MenuItem,
   Tab,
   TextField,
+  Tooltip,
   Typography,
   styled,
+  useTheme,
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
@@ -29,6 +31,7 @@ import {
   useGetJobPriceHistory,
   useGetJobPrices,
   useGetJobRequestHistory,
+  useGetJobRequestReview,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
@@ -87,10 +90,13 @@ import {
   createRequestJobToPro,
   forceAssign,
   getAssignableProList,
+  getRequestAttachment,
   handleJobAssignStatus,
   handleJobReAssign,
   requestRedelivery,
   saveJobPrices,
+  setFileLock,
+  setFileUnlock,
   setJobStatus,
 } from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
@@ -98,6 +104,7 @@ import JobInfo from './components/info'
 import {
   AssignProFilterPostType,
   AssignProListType,
+  JobRequestReviewListType,
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
@@ -149,18 +156,26 @@ import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/
 import RequestHistory from './components/request-history'
 import { ErrorBoundary } from 'react-error-boundary'
 import Error500 from '@src/pages/500'
+import {
+  getCurrentRole,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
+import ReviewRequest from './components/review-request'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
-type MenuType = 'info' | 'prices' | 'assign' | 'history'
+type MenuType = 'info' | 'review' | 'prices' | 'assign' | 'history'
 
 export type TabType = 'linguistTeam' | 'pro'
-
+const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
+const subtitleExtensions = ['srt', 'dxfp', 'itt', 'cap']
 const JobDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
-  const ability = useContext(AbilityContext)
+  const currentRole = getCurrentRole()
+  const theme = useTheme()
 
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
@@ -173,6 +188,9 @@ const JobDetail = () => {
     Array<{
       jobId: number
       jobInfo: JobType | undefined
+      // jobRequestReview:
+      //   | { jobId: number; data: JobRequestReviewListType[] }
+      //   | undefined
       jobPrices: JobPricesDetailType | undefined
       jobAssign: JobAssignProRequestsType[]
       jobRequestHistory:
@@ -190,6 +208,7 @@ const JobDetail = () => {
     jobId: number
     jobInfo: JobType
     jobPrices: JobPricesDetailType
+    // jobRequestReview: { jobId: number; data: JobRequestReviewListType[] }
     jobAssign: JobAssignProRequestsType[]
     jobAssignDefaultRound: number
     jobRequestHistory: {
@@ -287,6 +306,12 @@ const JobDetail = () => {
       unknown
     >[]
   ).map(value => value)
+  // const jobRequestReviewList = (
+  //   useGetJobRequestReview(jobId) as UseQueryResult<
+  //     { jobId: number; data: JobRequestReviewListType[] },
+  //     unknown
+  //   >[]
+  // ).map(value => value)
   const jobAssignList = (
     useGetJobAssignProRequests(jobId) as UseQueryResult<
       {
@@ -311,6 +336,8 @@ const JobDetail = () => {
   ).map(value => value)
 
   const { data: jobStatusList } = useGetStatusList('Job')
+  const { data: lspList, isLoading: lspListLoading } =
+    useGetCompanyOptions('LSP')
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
   const { data: proList } = useGetAssignableProList(
@@ -334,10 +361,12 @@ const JobDetail = () => {
     Number(orderId),
   )
   const {
-    data: sourceFileList,
+    data: sourceFiles,
     isLoading,
     refetch: refetchSourceFileList,
   } = useGetSourceFile(selectedJobInfo?.jobId!)
+
+  const [sourceFileList, setSourceFileList] = useState<FileType[]>([])
 
   const {
     data: jobDeliveriesFeedbacks,
@@ -841,12 +870,169 @@ const JobDetail = () => {
     return file.map((value: FileType) => {
       if (value.type === type) {
         return (
-          <Box key={uuidv4()}>
-            <FileItem
-              key={value.name}
-              file={value}
-              onClick={() => DownloadFile(value, S3FileType.JOB)}
-            />
+          <Box
+            key={uuidv4()}
+            sx={{
+              display: 'flex',
+              marginBottom: '8px',
+              width: '100%',
+              justifyContent: 'space-between',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              border: '1px solid rgba(76, 78, 100, 0.22)',
+              background: '#f9f8f9',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Box
+                sx={{
+                  marginRight: '8px',
+                  display: 'flex',
+                }}
+              >
+                <Icon
+                  icon='material-symbols:file-present-outline'
+                  style={{
+                    color: 'rgba(76, 78, 100, 0.54)',
+                  }}
+                  fontSize={24}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <Tooltip title={value.name}>
+                  <Typography
+                    variant='body1'
+                    fontSize={14}
+                    fontWeight={600}
+                    lineHeight={'20px'}
+                    sx={{
+                      overflow: 'hidden',
+                      wordBreak: 'break-all',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {value.name}
+                  </Typography>
+                </Tooltip>
+
+                <Typography variant='caption' lineHeight={'14px'}>
+                  {formatFileSize(value.size)}
+                </Typography>
+              </Box>
+            </Box>
+            {type === 'SOURCE' ? (
+              <Box
+                sx={{ display: 'flex', alignItems: 'center' }}
+                onClick={() => {
+                  if (value.downloadAvailable)
+                    DownloadFile(value, S3FileType.JOB)
+                  else return
+                }}
+              >
+                {videoExtensions.includes(
+                  value.name?.split('.').pop()?.toLowerCase() ?? '',
+                ) ? (
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'flex',
+                      // color: file.downloadAvailable
+                      //   ? '#4C4E64'
+                      //   : 'rgba(76, 78, 100, 0.54)',
+
+                      cursor: 'pointer',
+                      padding: '4px',
+                      '& :hover': {
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.grey[300],
+                      },
+                    }}
+                    onClick={event => {
+                      event.stopPropagation()
+                      if (value.downloadAvailable) {
+                        openModal({
+                          type: 'blockDownloadModal',
+                          children: (
+                            <CustomModalV2
+                              rightButtonText='Block'
+                              onClick={() => {
+                                setFileLock(value.id!).then(res => {
+                                  // queryClient.invalidateQueries('jobInfo')
+                                  closeModal('blockDownloadModal')
+                                  refetchSourceFileList()
+                                })
+                              }}
+                              onClose={() => closeModal('blockDownloadModal')}
+                              vary='error-report'
+                              title='Block download'
+                              subtitle="Are you sure you want to block Pro from downloading this video file? There's a chance that Pro has already downloaded the file."
+                            />
+                          ),
+                        })
+                      } else {
+                        openModal({
+                          type: 'unblockDownloadModal',
+                          children: (
+                            <CustomModalV2
+                              rightButtonText='Unblock'
+                              onClick={() => {
+                                setFileUnlock(value.id!).then(res => {
+                                  // queryClient.invalidateQueries('jobInfo')
+                                  closeModal('unblockDownloadModal')
+                                  refetchSourceFileList()
+                                })
+                              }}
+                              onClose={() => closeModal('unblockDownloadModal')}
+                              vary='error-report'
+                              title='Unblock download'
+                              subtitle='Are you sure you want to allow Pro to download this video file?'
+                            />
+                          ),
+                        })
+                      }
+                      // file.downloadAvailable = !file.downloadAvailable
+                      // setFiles(prevFiles =>
+                      //   prevFiles.map(f => (f.name === file.name ? file : f)),
+                      // )
+                      // // handleRemoveFile(file)
+                    }}
+                  >
+                    <Icon
+                      icon={
+                        value.downloadAvailable
+                          ? 'mdi:unlocked-outline'
+                          : 'mdi:lock'
+                      }
+                      fontSize={20}
+                    />
+                  </Box>
+                ) : null}
+              </Box>
+            ) : (
+              <IconButton
+                onClick={() => {
+                  DownloadFile(value, S3FileType.JOB)
+                }}
+                sx={{
+                  padding: 0,
+                }}
+              >
+                <Icon icon='ic:sharp-download' />
+              </IconButton>
+            )}
           </Box>
         )
       }
@@ -904,15 +1090,67 @@ const JobDetail = () => {
           <SourceFileUpload
             info={selectedJobInfo?.jobInfo.pro!}
             row={selectedJobInfo?.jobInfo!}
-            item={
-              jobDetails.items.find(item =>
-                item.jobs.some(job => job.id === selectedJobInfo?.jobId),
-              )!
-            }
-            refetch={jobDetailsRefetch!}
-            statusList={jobStatusList!}
+            statusList={jobStatusList || []}
+            type='upload'
+            importFile={[]}
           />
         ),
+      })
+    }
+  }
+
+  const onClickImportFiles = () => {
+    if (selectedJobInfo) {
+      getRequestAttachment(selectedJobInfo?.jobId).then(res => {
+        if (res.code) {
+          if (res.code === 'Request.requestAttachment.requestNotFound') {
+            openModal({
+              type: 'NoRequestModal',
+              children: (
+                <CustomModalV2
+                  vary='error-report'
+                  title='No linked request'
+                  subtitle='There is no linked request for this job.'
+                  soloButton
+                  onClick={() => closeModal('NoRequestModal')}
+                  onClose={() => closeModal('NoRequestModal')}
+                  rightButtonText='Okay'
+                />
+              ),
+            })
+          } else if (
+            res.code === 'Request.requestAttachment.requestAttachmentNotFound'
+          ) {
+            openModal({
+              type: 'NoRequestAttachmentModal',
+              children: (
+                <CustomModalV2
+                  vary='error-report'
+                  title='No files'
+                  subtitle='There are no files in the request.'
+                  soloButton
+                  onClick={() => closeModal('NoRequestModal')}
+                  onClose={() => closeModal('NoRequestModal')}
+                  rightButtonText='Okay'
+                />
+              ),
+            })
+          }
+        } else {
+          const files = res.data || []
+          openModal({
+            type: 'ImportFileModal',
+            children: (
+              <SourceFileUpload
+                info={selectedJobInfo?.jobInfo.pro!}
+                row={selectedJobInfo?.jobInfo!}
+                type='import'
+                importFile={files}
+                statusList={jobStatusList || []}
+              />
+            ),
+          })
+        }
       })
     }
   }
@@ -1204,6 +1442,99 @@ const JobDetail = () => {
     )
   }
 
+  const viewProgressInfoButtonStatus = () => {
+    const status = selectedJobInfo?.jobInfo.status
+    if (status) {
+      if (
+        status === 60200 ||
+        status === 60250 ||
+        status === 60300 ||
+        status === 60400
+      ) {
+        return 'active'
+      } else {
+        if (status === 60000 || status === 60100) {
+          return 'No Pro has been assigned to this job yet.'
+        } else if (status === 60110) {
+          return 'This job is not in progress yet.'
+        } else if (
+          status === 60500 ||
+          status === 60600 ||
+          status === 60700 ||
+          status === 60800 ||
+          status === 60900
+        ) {
+          return 'This job is already completed.'
+        } else if (status === 601000 || status === 601100) {
+          return 'This job is no longer available.'
+        } else {
+          return 'deActive'
+        }
+      }
+    } else {
+      return 'deActive'
+    }
+  }
+
+  const reviewInGlosubButtonStatus = () => {
+    const status = selectedJobInfo?.jobInfo.status
+
+    if (status) {
+      if (
+        status === 60600 ||
+        status === 60700 ||
+        status === 60800 ||
+        status === 60900
+      ) {
+        return 'This job is already completed.'
+      } else if (status === 601000 || status === 601100) {
+        return 'This job is no longer available.'
+      } else {
+        return 'active'
+      }
+    } else {
+      return 'deActive'
+    }
+  }
+
+  const onClickViewProgressInfoButton = () => {
+    openModal({
+      type: 'ViewProgressInfoModal',
+      isCloseable: true,
+      children: (
+        <CustomModalV2
+          title='View job progress'
+          subtitle='You can see the progress of a Pro’s job in Glosub. You can view the draft saves that the Pro hasn’t delivered yet, but cannot edit them.'
+          vary='info'
+          rightButtonText=''
+          noButton
+          onClose={() => closeModal('ViewProgressInfoModal')}
+          onClick={() => closeModal('ViewProgressInfoModal')}
+          closeButton
+        />
+      ),
+    })
+  }
+
+  const onClickReviewInGloSubInfoButton = () => {
+    openModal({
+      type: 'reviewInGlosubInfoModal',
+      isCloseable: true,
+      children: (
+        <CustomModalV2
+          title='Review in GloSub'
+          subtitle='Subtitle files among the target files that a Pro delivered can be reviewed in Glosub. You can review only the files that have been delivered by the Pro in the Target files from Pro section, and cannot review draft saves.'
+          vary='info'
+          rightButtonText=''
+          noButton
+          onClose={() => closeModal('reviewInGlosubInfoModal')}
+          onClick={() => closeModal('reviewInGlosubInfoModal')}
+          closeButton
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (!router.isReady) return
     const ids = router.query.jobId
@@ -1227,11 +1558,13 @@ const JobDetail = () => {
 
   useEffect(() => {
     const jobInfo = jobInfoList.map(value => value.data)
+    // const jobRequestReview = jobRequestReviewList.map(value => value.data)
     const jobPrice = jobPriceList.map(value => value.data)
     const jobAssign = jobAssignList.map(value => value.data)
     const jobRequestHistory = jobRequestHistoryList.map(value => value.data)
     if (
       jobInfo.includes(undefined) ||
+      // jobRequestReview.includes(undefined) ||
       jobPrice.includes(undefined) ||
       jobAssign.includes(undefined) ||
       jobRequestHistory.includes(undefined)
@@ -1242,6 +1575,9 @@ const JobDetail = () => {
       .map(job => {
         const jobPrices = jobPrice.find(price => price!.id === job!.id)
         const jobAssigns = jobAssign.find(assign => assign!.id === job!.id)
+        // const jobRequestReviews = jobRequestReview.find(
+        //   review => review!.jobId === job!.id,
+        // )
         const jobRequestHistories = jobRequestHistory.find(
           history => history!.jobId === job!.id,
         )
@@ -1249,6 +1585,7 @@ const JobDetail = () => {
         return {
           jobInfo: job!,
           jobPrices: jobPrices!,
+          // jobRequestReview: jobRequestReviews!,
           jobId: job!.id,
           jobAssign: jobAssigns?.requests ?? [],
           jobRequestHistory: {
@@ -1304,6 +1641,7 @@ const JobDetail = () => {
     }
   }, [
     jobInfoList,
+    // jobRequestReviewList,
     jobPriceList,
     jobAssignList,
     selectedJobInfo,
@@ -1339,6 +1677,7 @@ const JobDetail = () => {
         const result = {
           jobId: selectedJob.jobId,
           jobInfo: selectedJob.jobInfo!,
+          // jobRequestReview: selectedJob.jobRequestReview!,
           jobPrices: selectedJob.jobPrices!,
           jobAssign: selectedJob.jobAssign!,
           jobRequestHistory: selectedJob.jobRequestHistory!,
@@ -1382,7 +1721,6 @@ const JobDetail = () => {
             priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
           },
         ]
-        console.log(result, 'prices')
 
         itemReset({ items: result })
       } else {
@@ -1414,7 +1752,11 @@ const JobDetail = () => {
     }
   }, [jobInfoList, jobPriceList, jobAssignList, jobRequestHistoryList])
 
-  console.log(getItem(), 'get Item main')
+  useEffect(() => {
+    if (sourceFiles) {
+      setSourceFileList(sourceFiles)
+    }
+  }, [sourceFiles])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -1536,6 +1878,7 @@ const JobDetail = () => {
                         setSelectedJobInfo({
                           jobId: value.jobId,
                           jobInfo: value.jobInfo!,
+                          // jobRequestReview: value.jobRequestReview!,
                           jobPrices: value.jobPrices!,
                           jobAssign: value.jobAssign!,
                           jobAssignDefaultRound: value.jobAssignDefaultRound,
@@ -1586,17 +1929,9 @@ const JobDetail = () => {
                     ? 10.416
                     : value === 'history'
                       ? 10.416
-                      : 7.632
-              // (selectedJobInfo &&
-              //   (selectedJobInfo.jobInfo.name === null ||
-              //     selectedJobInfo.jobPrices.priceId === null)) ||
-              // (selectedJobInfo?.jobAssign &&
-              //   selectedJobInfo?.jobAssign.length > 0 &&
-              //   value === 'assign') ||
-              // (!addRoundMode && !addProsMode && !assignProMode) ||
-              // (selectedJobInfo?.jobInfo.pro === null && value === 'info')
-              //   ? 10.416
-              //   : 7.632
+                      : value === 'review'
+                        ? 10.416
+                        : 7.632
             }
             sx={{ height: '100%' }}
           >
@@ -1645,6 +1980,21 @@ const JobDetail = () => {
                       iconPosition='start'
                       icon={
                         <Icon icon='iconoir:large-suitcase' fontSize={'18px'} />
+                      }
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    />
+
+                    <CustomTab
+                      value='review'
+                      label='Review request'
+                      iconPosition='start'
+                      icon={
+                        <Icon
+                          icon='material-symbols:rate-review-outline'
+                          fontSize={18}
+                        />
                       }
                       onClick={(e: MouseEvent<HTMLElement>) =>
                         e.preventDefault()
@@ -1719,6 +2069,22 @@ const JobDetail = () => {
                         setJobStatusMutation={setJobStatusMutation}
                         selectedJobUpdatable={selectedJobUpdatable()}
                         jobDetail={jobDetail}
+                      />
+                    ) : null}
+                  </TabPanel>
+                  <TabPanel value='review' sx={{ height: '100%' }}>
+                    {/* {selectedJobInfo.jobRequestReview && lspList ? (
+                      <ReviewRequest
+                        requestReviewList={selectedJobInfo.jobRequestReview}
+                        lspList={lspList ?? []}
+                      />
+                    ) : null} */}
+                    {selectedJobInfo.jobInfo ? (
+                      <ReviewRequest
+                        jobId={selectedJobInfo.jobId}
+                        // requestReviewList={selectedJobInfo.jobRequestReview}
+                        lspList={lspList ?? []}
+                        jobInfo={selectedJobInfo.jobInfo}
                       />
                     ) : null}
                   </TabPanel>
@@ -2166,7 +2532,8 @@ const JobDetail = () => {
             (selectedJobInfo.jobInfo.name === null ||
               selectedJobInfo.jobPrices?.priceId === null ||
               selectedJobInfo.jobAssign === null)) ||
-          value === 'history' ? null : (
+          value === 'history' ||
+          value === 'review' ? null : (
             <Grid item xs={2.784}>
               <Box
                 sx={{
@@ -2179,12 +2546,144 @@ const JobDetail = () => {
               >
                 <Box
                   sx={{
-                    padding: '20px',
-                    height: '64px',
+                    // padding: '20px',
+                    padding:
+                      jobDeliveriesFeedbacks?.deliveries &&
+                      jobDeliveriesFeedbacks?.deliveries.length > 0 &&
+                      jobDeliveriesFeedbacks.deliveries
+                        .flatMap(delivery => delivery.files)
+                        .some(file =>
+                          subtitleExtensions.includes(
+                            file.name.split('.').pop()?.toLowerCase() ?? '',
+                          ),
+                        )
+                        ? '20px'
+                        : '14px 20px',
+                    // height:
                     minHeight: '64px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
                     borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                   }}
-                ></Box>
+                >
+                  {sourceFileList.some(file =>
+                    videoExtensions.includes(
+                      file.name.split('.').pop()?.toLowerCase() ?? '',
+                    ),
+                  ) ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '100%',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Tooltip
+                        title={viewProgressInfoButtonStatus()}
+                        disableHoverListener={
+                          viewProgressInfoButtonStatus() === 'active'
+                        }
+                      >
+                        <Box sx={{ width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            disabled={
+                              viewProgressInfoButtonStatus() !== 'active'
+                            }
+                            sx={{ borderColor: '#B3B6FF' }}
+                            onClick={() => {
+                              window.open(
+                                `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              src='/images/icons/job-icons/glosub.svg'
+                              alt=''
+                              width={20}
+                              height={20}
+                            />
+                            &nbsp; View job progress
+                          </Button>
+                        </Box>
+                      </Tooltip>
+
+                      <IconButton
+                        sx={{ padding: 0 }}
+                        onClick={onClickViewProgressInfoButton}
+                      >
+                        <Icon
+                          icon='material-symbols:info-outline'
+                          fontSize={20}
+                          color='#8D8E9A'
+                        ></Icon>
+                      </IconButton>
+                    </Box>
+                  ) : null}
+                  {jobDeliveriesFeedbacks?.deliveries &&
+                  jobDeliveriesFeedbacks?.deliveries.length > 0 &&
+                  jobDeliveriesFeedbacks.deliveries
+                    .flatMap(delivery => delivery.files)
+                    .some(file =>
+                      subtitleExtensions.includes(
+                        file.name.split('.').pop()?.toLowerCase() ?? '',
+                      ),
+                    ) ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '100%',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Tooltip
+                        title={reviewInGlosubButtonStatus()}
+                        disableHoverListener={
+                          reviewInGlosubButtonStatus() === 'active'
+                        }
+                      >
+                        <Box sx={{ width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            disabled={reviewInGlosubButtonStatus() !== 'active'}
+                            sx={{ borderColor: '#B3B6FF' }}
+                            onClick={() => {
+                              window.open(
+                                `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${selectedJobId}&token=${getUserTokenFromBrowser()}&role=${currentRole?.name}&mode=qc`,
+                                '_blank',
+                              )
+                            }}
+                          >
+                            <Image
+                              src='/images/icons/job-icons/glosub.svg'
+                              alt=''
+                              width={20}
+                              height={20}
+                            />
+                            &nbsp; Review in GloSub
+                          </Button>
+                        </Box>
+                      </Tooltip>
+
+                      <IconButton
+                        sx={{ padding: 0 }}
+                        onClick={onClickReviewInGloSubInfoButton}
+                      >
+                        <Icon
+                          icon='material-symbols:info-outline'
+                          fontSize={20}
+                          color='#8D8E9A'
+                        ></Icon>
+                      </IconButton>
+                    </Box>
+                  ) : null}
+                </Box>
                 {value === 'info' && selectedJobInfo?.jobInfo ? (
                   <Box
                     sx={{
@@ -2240,14 +2739,31 @@ const JobDetail = () => {
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
                             {selectedJobUpdatable() && (
-                              <Button
-                                fullWidth
-                                variant='contained'
-                                sx={{ mt: '8px' }}
-                                onClick={() => onClickUploadSourceFile()}
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  mt: '8px',
+                                }}
                               >
-                                Upload files
-                              </Button>
+                                <Button
+                                  fullWidth
+                                  variant='contained'
+                                  sx={{ display: 'flex', flex: 1 }}
+                                  onClick={() => onClickUploadSourceFile()}
+                                >
+                                  Upload files
+                                </Button>
+                                <Button
+                                  fullWidth
+                                  variant='contained'
+                                  sx={{ display: 'flex', flex: 1 }}
+                                  onClick={() => onClickImportFiles()}
+                                >
+                                  Import files
+                                </Button>
+                              </Box>
                             )}
                             {sourceFileList && sourceFileList.length > 0
                               ? Object.entries(
@@ -2258,6 +2774,7 @@ const JobDetail = () => {
                                         acc[date] = []
                                       }
                                       acc[date].push(cur)
+                                      acc[date].sort((a, b) => a.id - b.id)
                                       return acc
                                     },
                                     {},
@@ -2297,7 +2814,10 @@ const JobDetail = () => {
                                           }}
                                           onClick={() => {
                                             DownloadAllFiles(
-                                              value,
+                                              value.filter(
+                                                value =>
+                                                  value.downloadAvailable,
+                                              ),
                                               S3FileType.JOB,
                                             )
                                           }}

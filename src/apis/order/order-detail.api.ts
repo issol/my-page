@@ -5,6 +5,7 @@ import {
   ClientType,
   JobInfoType,
   LanguageAndItemType,
+  OrderDeliveriesFeedbackType,
   ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
@@ -44,6 +45,16 @@ export const getLangItems = async (
       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
     })),
   }
+}
+
+export const getDeliveriesAndFeedback = async (
+  id: number,
+): Promise<OrderDeliveriesFeedbackType> => {
+  const { data } = await axios.get(
+    `/api/enough/u/order/${id}/deliveries-feedback`,
+  )
+
+  return data
 }
 
 export const deleteOrder = async (id: number): Promise<void> => {
@@ -123,9 +134,13 @@ export const deliverySendToClient = async (
     fileExtension: string
     fileSize?: number
   }[],
+  deliveryType: 'partial' | 'final',
+  notes?: string,
 ) => {
   await axios.patch(`/api/enough/u/order/${id}/deliveries/send`, {
-    deliveries: deliveries,
+    files: deliveries,
+    notes: notes,
+    deliveryType,
   })
 }
 

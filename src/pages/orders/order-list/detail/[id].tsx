@@ -54,6 +54,7 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { useRouter } from 'next/router'
 import {
   useGetClient,
+  useGetDeliveryFeedback,
   useGetJobInfo,
   useGetLangItem,
   useGetProjectInfo,
@@ -129,7 +130,6 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import { ReasonType } from '@src/types/quotes/quote'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { timezoneSelector } from '@src/states/permission'
-import { get } from 'lodash'
 
 interface Detail {
   id: number
@@ -291,6 +291,8 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
+  const { data: deliveriesFeedback } = useGetDeliveryFeedback(Number(id!))
 
   const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
     Number(id!),
@@ -504,7 +506,10 @@ const OrderDetail = () => {
         getProjectInfo().orderTimezone,
       ),
       orderTimezone: getProjectInfo().orderTimezone
-        ? { label: getProjectInfo().orderTimezone.label, code: getProjectInfo().orderTimezone.code }
+        ? {
+            label: getProjectInfo().orderTimezone.label,
+            code: getProjectInfo().orderTimezone.code,
+          }
         : '',
       projectDueAt: getProjectInfo().projectDueAt
         ? changeTimeZoneOffset(
@@ -513,7 +518,10 @@ const OrderDetail = () => {
           )
         : null,
       projectDueTimezone: getProjectInfo().projectDueTimezone
-        ? { label: getProjectInfo().projectDueTimezone.label, code: getProjectInfo().projectDueTimezone.code }
+        ? {
+            label: getProjectInfo().projectDueTimezone.label,
+            code: getProjectInfo().projectDueTimezone.code,
+          }
         : '',
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
@@ -1273,8 +1281,6 @@ const OrderDetail = () => {
     (historyId: number) => restoreOrder(historyId),
     {
       onSuccess: data => {
-        console.log(data)
-
         router.push(`/orders/order-list/detail/${data.id}`)
 
         // queryClient.invalidateQueries(['orderDetail'])
@@ -2296,6 +2302,7 @@ const OrderDetail = () => {
                   uploadFileProcessing={uploadFileProcessing}
                   setUploadFileProcessing={setUploadFileProcessing}
                   isEditable={isIncludeProjectTeam()}
+                  deliveriesFeedback={deliveriesFeedback!}
                 />
               </Suspense>
             </TabPanel>
