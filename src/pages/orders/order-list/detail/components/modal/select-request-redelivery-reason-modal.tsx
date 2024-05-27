@@ -96,7 +96,7 @@ const SelectRequestRedeliveryReasonModal = ({
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
-        padding: '20px',
+        padding: '32px 20px',
       }}
     >
       <Box
@@ -137,9 +137,14 @@ const SelectRequestRedeliveryReasonModal = ({
           ) : null}
         </Box>
         <Box>
-          <FormGroup sx={{ maxWidth: 442 }}>
+          <FormGroup>
             <Box
-              sx={{ display: 'flex', flexDirection: 'column', gap: 1, pl: 2.2 }}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                pl: '4px',
+              }}
             >
               {reason.map((value, idx) => {
                 return (
@@ -155,10 +160,10 @@ const SelectRequestRedeliveryReasonModal = ({
                     label={value.reason}
                     sx={{
                       '& .MuiFormControlLabel-label': {
-                        fontSize: '16px',
+                        fontSize: '14px',
                         fontWeight: 400,
-                        lineHeight: '24px',
-                        color: 'rgba(76, 78, 100, 0.87)',
+                        lineHeight: '21px',
+                        letterSpacing: '0.15px',
                       },
                     }}
                   />
@@ -198,8 +203,8 @@ const SelectRequestRedeliveryReasonModal = ({
                           : ''
                 : undefined
             }
-            error={messageToLsp === ''}
-            helperText={messageToLsp === '' ? 'This field is required' : null}
+            // error={messageToLsp === ''}
+            // helperText={messageToLsp === '' ? 'This field is required' : null}
           />
           <Box
             sx={{
@@ -238,7 +243,9 @@ const SelectRequestRedeliveryReasonModal = ({
               })
             }
             disabled={
-              reason.length < 1 || messageToLsp === '' || messageToLsp === null
+              reason.filter(value => value.checked).length < 1 ||
+              messageToLsp === '' ||
+              messageToLsp === null
             }
           >
             {rightButtonText}
