@@ -162,6 +162,7 @@ import {
 } from '@src/shared/auth/storage'
 import ReviewRequest from './components/review-request'
 import { useGetCompanyOptions } from '@src/queries/options.query'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type MenuType = 'info' | 'review' | 'prices' | 'assign' | 'history'
 
@@ -895,12 +896,18 @@ const JobDetail = () => {
                   display: 'flex',
                 }}
               >
-                <Icon
+                {/* <Icon
                   icon='material-symbols:file-present-outline'
                   style={{
                     color: 'rgba(76, 78, 100, 0.54)',
                   }}
                   fontSize={24}
+                /> */}
+                <Image
+                  src={`/images/icons/file-icons/${extractFileExtension(value.name)}.svg`}
+                  alt=''
+                  width={32}
+                  height={32}
                 />
               </Box>
               <Box
