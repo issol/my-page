@@ -63,6 +63,9 @@ import InfoDialogButton from '@src/views/pro/infoDialog'
 import { useGetProPreviousAndNextJob } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 
+import Image from 'next/image'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+
 type Props = {
   jobInfo: ProJobDetailType
   jobPrices: JobPricesDetailType
@@ -1172,12 +1175,11 @@ const ProJobInfo = ({
                                         display: 'flex',
                                       }}
                                     >
-                                      <Icon
-                                        icon='material-symbols:file-present-outline'
-                                        style={{
-                                          color: 'rgba(76, 78, 100, 0.54)',
-                                        }}
-                                        fontSize={24}
+                                      <Image
+                                        src={`/images/icons/file-icons/${extractFileExtension(item.name)}.svg`}
+                                        alt=''
+                                        width={32}
+                                        height={32}
                                       />
                                     </Box>
                                     <Box
