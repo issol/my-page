@@ -1597,7 +1597,7 @@ const DeliveriesFeedback = ({
                     background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528`,
                     color: '#FDB528',
                   }}
-                  size='medium'
+                  size='small'
                 />
                 <Typography fontSize={14} fontWeight={500}>
                   {getLegalName({
@@ -1684,11 +1684,13 @@ const DeliveriesFeedback = ({
             </Box>
           ) : null}
 
-          {project && project?.feedbacks && project.feedbacks.length > 0 ? (
+          {deliveriesFeedback &&
+          deliveriesFeedback?.feedback &&
+          deliveriesFeedback.feedback.length > 0 ? (
             <>
-              {project.feedbacks.length > 0 ? (
+              {deliveriesFeedback.feedback.length > 0 ? (
                 <Box sx={{ mt: '20px' }}>
-                  {project.feedbacks.map(value => (
+                  {deliveriesFeedback.feedback.map(value => (
                     <Box
                       key={uuidv4()}
                       sx={{
@@ -1719,29 +1721,35 @@ const DeliveriesFeedback = ({
                             }}
                           >
                             <CustomChip
-                              label={'LPM'}
+                              label={'CLIENT'}
                               skin='light'
                               sx={{
-                                background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #26C6F9`,
-                                color: '#26C6F9',
+                                background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528`,
+                                color: '#FDB528',
                               }}
-                              size='medium'
+                              size='small'
                             />
                             <Typography
                               variant='body1'
                               fontWeight={600}
                               fontSize={14}
                             >
-                              {value.name}
+                              {value.authorInfo.name}
                             </Typography>
                             <Divider
                               orientation='vertical'
-                              flexItem
-                              variant='middle'
+                              // flexItem
+                              sx={{
+                                color: '#D8D8DD',
+                                borderWidth: 1,
+                                height: '70%',
+                              }}
                             />
-                            <Typography variant='body2'>
-                              {value.email}
-                            </Typography>
+                            <Tooltip title={value.authorInfo.email}>
+                              <Typography variant='body2'>
+                                {value.authorInfo.email}
+                              </Typography>
+                            </Tooltip>
                           </Box>
                           <Box
                             sx={{
@@ -1768,7 +1776,7 @@ const DeliveriesFeedback = ({
                               fontSize={14}
                               fontWeight={400}
                             >
-                              {value.feedback ?? ''}
+                              {value.note ?? ''}
                             </Typography>
                           </Box>
                         </Box>
