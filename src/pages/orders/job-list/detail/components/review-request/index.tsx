@@ -60,7 +60,7 @@ type Props = {
 }
 
 interface JobReviewedGroupedFileType {
-  createdAt: string
+  savedAt: string
 
   data: FileType[]
 }
@@ -219,14 +219,12 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     const groupedFiles = files
       .filter(value => value.type === 'REVIEWED')
       .reduce((acc: JobReviewedGroupedFileType[], curr: FileType) => {
-        const existingGroup = acc.find(
-          group => group.createdAt === curr.createdAt,
-        )
+        const existingGroup = acc.find(group => group.savedAt === curr.savedAt)
         if (existingGroup) {
           existingGroup.data.push(curr)
         } else {
           acc.push({
-            createdAt: curr.createdAt!,
+            savedAt: curr.savedAt!,
             data: [curr],
           })
         }
@@ -1164,9 +1162,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               0 ? (
                                 <Box>
                                   {getGroupedReviewedFiles(item.files).map(
-                                    value => {
+                                    (value, index) => {
                                       return (
                                         <Box key={uuidv4()}>
+                                          {index > 0 && (
+                                            <Divider
+                                              sx={{ my: '20px !important' }}
+                                            />
+                                          )}
                                           <Box
                                             sx={{
                                               display: 'flex',
@@ -1180,7 +1183,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               fontWeight={600}
                                             >
                                               {convertTimeToTimezone(
-                                                value.createdAt,
+                                                value.savedAt,
                                                 auth.getValue().user?.timezone,
                                                 timezone.getValue(),
                                               )}
