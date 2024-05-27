@@ -749,40 +749,46 @@ const DeliveriesFeedback = ({
               ) : null}
               {currentRole && currentRole.name === 'CLIENT' ? (
                 <>
-                  {isEditable ? (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '12px',
-                      }}
-                    >
-                      <Button
-                        variant='outlined'
-                        onClick={onClickRequestRedelivery}
-                        color='secondary'
-                        sx={{ height: '38px' }}
-                        disabled={
-                          !canUseFeature(
-                            'button-Deliveries&Feedback-RequestRedelivery',
-                          )
-                        }
-                      >
-                        Request redelivery
-                      </Button>
-                      <Button
-                        variant='contained'
-                        onClick={onClickConfirmDeliveries}
-                        sx={{ height: '38px' }}
-                        disabled={
-                          !canUseFeature(
-                            'button-Deliveries&Feedback-ConfirmDeliveries',
-                          )
-                        }
-                      >
-                        Confirm deliveries
-                      </Button>
-                    </Box>
-                  ) : null}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '12px',
+                    }}
+                  >
+                    <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                      <Box>
+                        <Button
+                          variant='outlined'
+                          onClick={onClickRequestRedelivery}
+                          color='secondary'
+                          sx={{ height: '38px' }}
+                          disabled={
+                            !canUseFeature(
+                              'button-Deliveries&Feedback-RequestRedelivery',
+                            )
+                          }
+                        >
+                          Request redelivery
+                        </Button>
+                      </Box>
+                    </Tooltip>
+                    <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                      <Box>
+                        <Button
+                          variant='contained'
+                          onClick={onClickConfirmDeliveries}
+                          sx={{ height: '38px' }}
+                          disabled={
+                            !canUseFeature(
+                              'button-Deliveries&Feedback-ConfirmDeliveries',
+                            )
+                          }
+                        >
+                          Confirm deliveries
+                        </Button>
+                      </Box>
+                    </Tooltip>
+                  </Box>
                 </>
               ) : null}
               {/* {currentRole &&
@@ -979,6 +985,7 @@ const DeliveriesFeedback = ({
                   multiline
                   rows={2}
                   value={note ?? ''}
+                  disabled={!isEditable}
                   inputProps={{ maxLength: 1000 }}
                   onChange={e => {
                     if (e.target.value === '') {
@@ -1078,14 +1085,29 @@ const DeliveriesFeedback = ({
                               timezone.getValue(),
                             )}
                           </Typography>
-                          <Button
-                            variant='outlined'
-                            size='small'
-                            startIcon={<Icon icon='mdi:download' />}
-                            onClick={() => downloadAllFiles(value.files)}
+                          <Tooltip
+                            title={
+                              isEditable &&
+                              currentRole &&
+                              currentRole.name === 'CLIENT'
+                                ? ''
+                                : 'Not authorized'
+                            }
                           >
-                            Download all
-                          </Button>
+                            <Box>
+                              <Button
+                                variant='outlined'
+                                size='small'
+                                startIcon={<Icon icon='mdi:download' />}
+                                onClick={() => downloadAllFiles(value.files)}
+                                disabled={
+                                  !isEditable && currentRole?.name !== 'CLIENT'
+                                }
+                              >
+                                Download all
+                              </Button>
+                            </Box>
+                          </Tooltip>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ padding: '20px' }}>
@@ -1189,14 +1211,30 @@ const DeliveriesFeedback = ({
                                           alignItems: 'center',
                                         }}
                                       >
-                                        <IconButton
-                                          onClick={() => {
-                                            downloadOneFile(file)
-                                          }}
-                                          sx={{ padding: 0 }}
+                                        <Tooltip
+                                          title={
+                                            isEditable &&
+                                            currentRole &&
+                                            currentRole.name === 'CLIENT'
+                                              ? ''
+                                              : 'Not authorized'
+                                          }
                                         >
-                                          <Icon icon='ic:sharp-download' />
-                                        </IconButton>
+                                          <Box>
+                                            <IconButton
+                                              onClick={() => {
+                                                downloadOneFile(file)
+                                              }}
+                                              disabled={
+                                                !isEditable &&
+                                                currentRole?.name !== 'CLIENT'
+                                              }
+                                              sx={{ padding: 0 }}
+                                            >
+                                              <Icon icon='ic:sharp-download' />
+                                            </IconButton>
+                                          </Box>
+                                        </Tooltip>
                                       </Box>
                                     </Box>
                                   </Box>
@@ -1525,22 +1563,26 @@ const DeliveriesFeedback = ({
             >
               <Typography fontSize={20} fontWeight={500}>
                 Feedback
-              </Typography>{' '}
+              </Typography>
               {currentRole && currentRole.name === 'CLIENT' ? (
-                <Button
-                  variant='outlined'
-                  onClick={() => setAddFeedback(true)}
-                  disabled={
-                    project.status === 'New' ||
-                    project.status === 'In progress' ||
-                    project.status === 'Under revision' ||
-                    project.status === 'Invoiced' ||
-                    project.status === 'Paid' ||
-                    project.status === 'Canceled'
-                  }
-                >
-                  Add feedback
-                </Button>
+                <Tooltip title={isEditable ? '' : 'Not authorized'}>
+                  <Box>
+                    <Button
+                      variant='outlined'
+                      onClick={() => setAddFeedback(true)}
+                      disabled={
+                        project.status === 'New' ||
+                        project.status === 'In progress' ||
+                        project.status === 'Under revision' ||
+                        project.status === 'Invoiced' ||
+                        project.status === 'Paid' ||
+                        project.status === 'Canceled'
+                      }
+                    >
+                      Add feedback
+                    </Button>
+                  </Box>
+                </Tooltip>
               ) : null}
             </Box>
           </Box>
