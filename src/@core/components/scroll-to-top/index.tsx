@@ -11,12 +11,19 @@ interface ScrollToTopProps {
   children: ReactNode
 }
 
+// const ScrollToTopStyled = styled('div')(({ theme }) => ({
+//   zIndex: 11,
+//   position: 'fixed',
+//   right: theme.spacing(6),
+//   bottom: theme.spacing(10)
+// }))
 const ScrollToTopStyled = styled('div')(({ theme }) => ({
   zIndex: 11,
   position: 'fixed',
-  right: theme.spacing(6),
-  bottom: theme.spacing(10)
-}))
+  left: '50%',
+  bottom: theme.spacing(10),
+  transform: 'translateX(-50%)',
+}));
 
 const ScrollToTop = (props: ScrollToTopProps) => {
   // ** Props
