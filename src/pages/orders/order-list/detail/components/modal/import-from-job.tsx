@@ -64,10 +64,11 @@ const ImportFromJob = ({
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  const [expanded, setExpanded] = useState<string | false>(false)
+  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
+
   const handleAccordionChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false)
+    (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded({ ...expanded, [panel]: isExpanded })
     }
 
   const [rowSelectionModel, setRowSelectionModel] =
@@ -181,8 +182,8 @@ const ImportFromJob = ({
                 <Accordion
                   key={uuidv4()}
                   disableGutters
-                  expanded={expanded === value.id.toString()}
-                  onChange={handleAccordionChange(value.id.toString())}
+                  expanded={expanded[value.id]}
+                  onChange={handleAccordionChange(value.id)}
                   square
                   elevation={0}
                   sx={{

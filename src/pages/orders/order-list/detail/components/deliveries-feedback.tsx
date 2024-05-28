@@ -109,7 +109,9 @@ const DeliveriesFeedback = ({
   const router = useRouter()
   const theme = useTheme()
   const { id: orderId } = router.query
-  const [expanded, setExpanded] = useState<string | false>(false)
+
+  const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
+
   const [addJobFeedbackData, setAddJobFeedbackData] = useState<string | null>(
     '',
   )
@@ -138,9 +140,9 @@ const DeliveriesFeedback = ({
 
   const [feedbackError, setFeedbackError] = useState(false)
 
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false)
+  const handleAccordionChange =
+    (panel: number) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpanded({ ...expanded, [panel]: isExpanded })
     }
 
   const updateDeliveries = useMutation(
@@ -161,7 +163,7 @@ const DeliveriesFeedback = ({
         data.notes,
       ),
     {
-      onSuccess: () => {
+      onSuccess: data => {
         queryClient.invalidateQueries({
           queryKey: ['orderDetail'],
         })
@@ -894,8 +896,8 @@ const DeliveriesFeedback = ({
                   return (
                     <Accordion
                       key={uuidv4()}
-                      expanded={expanded === value.id?.toString()}
-                      onChange={handleChange(value.id?.toString() ?? '')}
+                      expanded={expanded[value.id]}
+                      onChange={handleAccordionChange(value.id)}
                       sx={{
                         borderRadius: '10px !important',
                         boxShadow: 'none !important',
@@ -907,10 +909,7 @@ const DeliveriesFeedback = ({
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         sx={{
-                          padding:
-                            expanded === value.id?.toString()
-                              ? '20px'
-                              : '12px 20px',
+                          padding: expanded[value.id] ? '20px' : '12px 20px',
                           background: '#F7F8FF',
                           '& .MuiAccordionSummary-content': {
                             margin: 0,
