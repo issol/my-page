@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, Tooltip, Typography } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid-pro'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
@@ -22,7 +22,9 @@ type CellType = {
       firstName: string
       lastName: string
       middleName: string
+      name?: string
     }
+    reqId: number
     isCompleted?: boolean
     id: string
   }
@@ -114,7 +116,7 @@ const getImportFromJobColumns = (
                     color='#8D8E9A'
                     sx={{ width: '54px' }}
                   >
-                    {row.id}
+                    {row.reqId.toString().padStart(3, '0')}
                   </Typography>
                   {row.isCompleted ? (
                     <Icon
@@ -274,17 +276,38 @@ const getImportFromJobColumns = (
                     display: 'flex',
                     alignItems: 'center',
                     padding: '16px 20px',
+                    gap: '8px',
+                    '& .Mui-disabled': {
+                      background: '#EDEDFF',
+                    },
                   }}
                 >
-                  <LegalName
-                    row={{
-                      firstName: row.assignedPerson.firstName,
-                      middleName: row.assignedPerson.middleName,
-                      lastName: row.assignedPerson.lastName,
-                      isOnboarded: row.assignedPerson.isOnboarded,
-                      isActive: row.assignedPerson.isActive,
+                  <IconButton
+                    sx={{
+                      padding: 1,
+                      background: '#EDEDFF',
                     }}
-                  />
+                    disabled
+                  >
+                    <Icon
+                      icon='ic:outline-manage-search'
+                      color='#666CFF'
+                      fontSize={24}
+                    />
+                  </IconButton>
+                  <Tooltip title={row.assignedPerson.name ?? '-'}>
+                    <Typography
+                      fontSize={14}
+                      fontWeight={400}
+                      sx={{
+                        overflow: 'hidden',
+                        wordBreak: 'break-all',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {row.assignedPerson.name ?? '-'}
+                    </Typography>
+                  </Tooltip>
                 </Box>
               )
             },

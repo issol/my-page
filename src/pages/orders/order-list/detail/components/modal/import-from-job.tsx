@@ -85,24 +85,35 @@ const ImportFromJob = ({
   const [selectedJob, setSelectedJob] = useState<JobType | null>(null)
 
   const onClickImportFiles = () => {
-    if (selectedJob && selectedJob.files) {
-      const selectedFiles: DeliveryFileType[] = selectedJob?.files
-        .filter(value =>
-          rowSelectionModel.concat(targetRowSelectionModel).includes(value.id),
-        )
+    if (selectedJob) {
+      const selectedTargetFiles: DeliveryFileType[] = selectedJob?.files
+        ? selectedJob?.files
+            .filter(value => targetRowSelectionModel.includes(value.id))
+            .map(item => ({
+              id: item.id,
+              filePath: item.file,
+              fileName: item.name,
+              fileExtension: item.name.split('.')[1],
+              fileSize: Number(item.size),
+            }))
+        : []
+
+      const selectedReviewedFiles: DeliveryFileType[] = reviewedFiles
+        .flatMap(item => item.files)
+        .filter(value => rowSelectionModel.includes(value.id!))
         .map(item => ({
           id: item.id,
-          filePath: item.file,
+          filePath: item.path!,
           fileName: item.name,
           fileExtension: item.name.split('.')[1],
           fileSize: Number(item.size),
         }))
 
       let result = fileSize
-      selectedFiles.forEach(
-        (file: DeliveryFileType) => (result += file.fileSize),
-      )
-      setImportedFiles(selectedFiles)
+      selectedTargetFiles
+        .concat(selectedReviewedFiles)
+        .forEach((file: DeliveryFileType) => (result += file.fileSize))
+      setImportedFiles(selectedTargetFiles.concat(selectedReviewedFiles))
       setFileSize(result)
     }
   }
@@ -110,9 +121,9 @@ const ImportFromJob = ({
   const reviewedFilesMap = reviewedFiles.flatMap(item =>
     item.files.map(file => ({
       ...file,
-      reqId: item.corporationId,
+      reqId: item.index,
       isCompleted: item.isCompleted,
-      assignedPerson: item.assigneeId,
+      assignedPerson: item.assigneeInfo,
     })),
   )
 

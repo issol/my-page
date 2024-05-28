@@ -131,6 +131,11 @@ export type JobRequestReviewListType = {
   }
   index: number
   assigneeId: number
+  assigneeInfo: {
+    email: string
+    name: string
+    userId: number
+  }
   isCompleted: boolean
   dueDate: string
   dueDateTimezone: CountryType
