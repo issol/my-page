@@ -9,6 +9,7 @@ import {
   Collapse,
   Grid,
   IconButton,
+  LinearProgress,
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns, GridSelectionModel } from '@mui/x-data-grid'
@@ -27,7 +28,11 @@ import { useRouter } from 'next/router'
 import { JobStatus } from '@src/types/common/status.type'
 import { useGetStatusList } from '@src/queries/common.query'
 
-import { DataGridPro, GridRowSelectionModel } from '@mui/x-data-grid-pro'
+import {
+  DataGridPro,
+  GridRowSelectionModel,
+  GridSlots,
+} from '@mui/x-data-grid-pro'
 import getImportFromJobColumns from '@src/shared/const/columns/import-from-job'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -411,74 +416,99 @@ const ImportFromJob = ({
                     </Box>
                   ) : null}
 
-                  {selectedJob.files &&
+                  {/* {selectedJob.files &&
                   selectedJob.files?.filter(value => value.type === 'TARGET')
-                    .length > 0 ? (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                      }}
+                    .length > 0 ? ( */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <Typography
+                      fontSize={14}
+                      fontWeight={600}
+                      sx={{ padding: '0 20px' }}
                     >
-                      <Typography
-                        fontSize={14}
-                        fontWeight={600}
-                        sx={{ padding: '0 20px' }}
-                      >
-                        Target files
-                      </Typography>
-                      <Box sx={{ width: '100%', height: '100%' }}>
-                        <DataGridPro
-                          rowHeight={46}
-                          columnHeaderHeight={46}
-                          hideFooterPagination
-                          hideFooterRowCount
-                          hideFooterSelectedRowCount
-                          sx={{
-                            '& .MuiDataGrid-columnHeader': {
-                              padding: '0 20px !important',
-                            },
-                            '& .MuiDataGrid-columnHeaderCheckbox': {
-                              minWidth: '40px !important',
-                              width: '40px !important',
-                              height: '46px !important',
-                              padding: '0 !important',
-                            },
-                            '& .MuiDataGrid-cellCheckbox': {
-                              minWidth: '40px !important',
-                              width: '40px !important',
-                            },
-                            '& .MuiDataGrid-virtualScroller': {
-                              borderRadius: '0 !important',
-                            },
-                            '& .file-name-cell': {
-                              padding: '0 !important',
-                            },
-                            '& .MuiDataGrid-cell': {
-                              padding: '0 !important',
-                            },
-                          }}
-                          columns={getImportFromJobColumns(
-                            'target',
-                            auth,
-                            timezone,
-                          )}
-                          rows={selectedJob.files
-                            ?.filter(value => value.type === 'TARGET')
-                            .map(value => ({
-                              ...value,
-                              assignedPerson: selectedJob.assignedPro,
-                            }))}
-                          checkboxSelection
-                          onRowSelectionModelChange={newRowSelectionModel => {
-                            setTargetRowSelectionModel(newRowSelectionModel)
-                          }}
-                          rowSelectionModel={targetRowSelectionModel}
-                        />
-                      </Box>
+                      Target files
+                    </Typography>
+                    <Box sx={{ width: '100%', height: '100%' }}>
+                      <DataGridPro
+                        autoHeight={
+                          selectedJob.files &&
+                          selectedJob.files?.filter(
+                            value => value.type === 'TARGET',
+                          ).length === 0
+                        }
+                        rowHeight={46}
+                        columnHeaderHeight={46}
+                        hideFooterPagination
+                        hideFooterRowCount
+                        hideFooterSelectedRowCount
+                        slots={{
+                          noRowsOverlay: () => (
+                            <Typography
+                              sx={{
+                                display: 'flex',
+                                width: '100%',
+                                height: '100%',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}
+                              fontSize={14}
+                              color='#8D8E9A'
+                            >
+                              No target files
+                            </Typography>
+                          ),
+                          loadingOverlay:
+                            LinearProgress as GridSlots['loadingOverlay'],
+                        }}
+                        sx={{
+                          '& .MuiDataGrid-columnHeader': {
+                            padding: '0 20px !important',
+                          },
+                          '& .MuiDataGrid-columnHeaderCheckbox': {
+                            minWidth: '40px !important',
+                            width: '40px !important',
+                            height: '46px !important',
+                            padding: '0 !important',
+                          },
+                          '& .MuiDataGrid-cellCheckbox': {
+                            minWidth: '40px !important',
+                            width: '40px !important',
+                          },
+                          '& .MuiDataGrid-virtualScroller': {
+                            borderRadius: '0 !important',
+                          },
+                          '& .file-name-cell': {
+                            padding: '0 !important',
+                          },
+                          '& .MuiDataGrid-cell': {
+                            padding: '0 !important',
+                          },
+                        }}
+                        columns={getImportFromJobColumns(
+                          'target',
+                          auth,
+                          timezone,
+                        )}
+                        rows={selectedJob.files
+                          ?.filter(value => value.type === 'TARGET')
+                          .map(value => ({
+                            ...value,
+                            assignedPerson: selectedJob.assignedPro,
+                          }))}
+                        checkboxSelection
+                        onRowSelectionModelChange={newRowSelectionModel => {
+                          setTargetRowSelectionModel(newRowSelectionModel)
+                        }}
+                        rowSelectionModel={targetRowSelectionModel}
+                      />
                     </Box>
-                  ) : null}
+                  </Box>
+                  {/* ) : null} */}
                 </Box>
               ) : (
                 <Box
