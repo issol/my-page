@@ -82,7 +82,9 @@ const ImportFromJob = ({
   const onClickImportFiles = () => {
     if (selectedJob && selectedJob.files) {
       const selectedFiles: DeliveryFileType[] = selectedJob?.files
-        .filter(value => rowSelectionModel.includes(value.id))
+        .filter(value =>
+          rowSelectionModel.concat(targetRowSelectionModel).includes(value.id),
+        )
         .map(item => ({
           id: item.id,
           filePath: item.file,
@@ -90,7 +92,6 @@ const ImportFromJob = ({
           fileExtension: item.name.split('.')[1],
           fileSize: Number(item.size),
         }))
-      console.log(selectedFiles)
 
       let result = fileSize
       selectedFiles.forEach(
