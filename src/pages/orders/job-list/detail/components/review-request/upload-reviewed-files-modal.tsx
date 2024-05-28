@@ -4,6 +4,7 @@ import {
   Button,
   Divider,
   IconButton,
+  TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
@@ -395,40 +396,40 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
                 </Box>
               </div>
             </Box>
-            {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Typography fontSize={16} fontWeight={600}>
-            Note
-          </Typography>
-          <Box>
-            <TextField
-              multiline
-              autoComplete='off'
-              fullWidth
-              rows={3}
-              value={note}
-              onChange={event => {
-                setNote(event.target.value)
-              }}
-            />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                fontSize: '12px',
-                lineHeight: '25px',
-                color: '#888888',
-              }}
-            >
-              {note?.length ?? 0}/500
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Typography fontSize={16} fontWeight={600}>
+                Note
+              </Typography>
+              <Box>
+                <TextField
+                  multiline
+                  autoComplete='off'
+                  fullWidth
+                  rows={3}
+                  value={note}
+                  onChange={event => {
+                    setNote(event.target.value)
+                  }}
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    fontSize: '12px',
+                    lineHeight: '25px',
+                    color: '#888888',
+                  }}
+                >
+                  {note?.length ?? 0}/500
+                </Box>
+              </Box>
             </Box>
-          </Box>
-        </Box> */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button
                 variant='contained'
                 onClick={onClickSubmit}
-                // disabled={files.length === 0 && note === ''}
-                disabled={files.length === 0 || isSavingData}
+                disabled={(files.length === 0 && note === '') || isSavingData}
+                // disabled={files.length === 0 || isSavingData}
               >
                 Save
               </Button>

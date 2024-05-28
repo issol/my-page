@@ -143,7 +143,13 @@ export type JobRequestReviewListType = {
   wordCount: string
   files: FileType[]
   noteToAssignee: string
-  reviewedNote: string
+
+  reviewedFileGroup: Array<{
+    id: number
+    createdAt: string
+    files: FileType[]
+    note: string
+  }>
 }
 
 export type JobRequestReviewFormType = {

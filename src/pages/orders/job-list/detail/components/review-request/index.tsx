@@ -1158,13 +1158,19 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 height: '100%',
                               }}
                             >
-                              {getGroupedReviewedFiles(item.files).length >
-                              0 ? (
+                              {item.reviewedFileGroup.length > 0 ? (
                                 <Box>
-                                  {getGroupedReviewedFiles(item.files).map(
+                                  {item.reviewedFileGroup.map(
                                     (value, index) => {
                                       return (
-                                        <Box key={uuidv4()}>
+                                        <Box
+                                          key={uuidv4()}
+                                          sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '20px',
+                                          }}
+                                        >
                                           {index > 0 && (
                                             <Divider
                                               sx={{ my: '20px !important' }}
@@ -1175,7 +1181,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               display: 'flex',
                                               alignItems: 'center',
                                               justifyContent: 'space-between',
-                                              mb: '20px',
+                                              // mb: '20px',
                                             }}
                                           >
                                             <Typography
@@ -1183,7 +1189,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               fontWeight={600}
                                             >
                                               {convertTimeToTimezone(
-                                                value.savedAt,
+                                                value.createdAt,
                                                 auth.getValue().user?.timezone,
                                                 timezone.getValue(),
                                               )}
@@ -1199,7 +1205,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               }}
                                               onClick={() =>
                                                 DownloadAllFiles(
-                                                  value.data,
+                                                  value.files,
                                                   S3FileType.JOB,
                                                 )
                                               }
@@ -1207,118 +1213,138 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               Download all
                                             </Typography>
                                           </Box>
-
-                                          <Box
-                                            sx={{
-                                              display: 'grid',
-                                              gridTemplateColumns:
-                                                'repeat(2,1fr)',
-                                              gridGap: '16px',
-                                            }}
-                                          >
-                                            {value.data.map(item => {
-                                              return (
-                                                <Box key={uuidv4()}>
-                                                  <Box
-                                                    sx={{
-                                                      display: 'flex',
-                                                      marginBottom: '8px',
-                                                      width: '100%',
-                                                      justifyContent:
-                                                        'space-between',
-                                                      borderRadius: '8px',
-                                                      padding: '10px 12px',
-                                                      border:
-                                                        '1px solid rgba(76, 78, 100, 0.22)',
-                                                      background: '#f9f8f9',
-                                                    }}
-                                                  >
+                                          {value.files.length > 0 && (
+                                            <Box
+                                              sx={{
+                                                display: 'grid',
+                                                gridTemplateColumns:
+                                                  'repeat(2,1fr)',
+                                                gridGap: '16px',
+                                              }}
+                                            >
+                                              {value.files.map(item => {
+                                                return (
+                                                  <Box key={uuidv4()}>
                                                     <Box
                                                       sx={{
                                                         display: 'flex',
-                                                        alignItems: 'center',
+                                                        marginBottom: '8px',
+                                                        width: '100%',
+                                                        justifyContent:
+                                                          'space-between',
+                                                        borderRadius: '8px',
+                                                        padding: '10px 12px',
+                                                        border:
+                                                          '1px solid rgba(76, 78, 100, 0.22)',
+                                                        background: '#f9f8f9',
                                                       }}
                                                     >
                                                       <Box
                                                         sx={{
-                                                          marginRight: '8px',
                                                           display: 'flex',
+                                                          alignItems: 'center',
                                                         }}
                                                       >
-                                                        <Image
-                                                          src={`/images/icons/file-icons/${extractFileExtension(
-                                                            item.name,
-                                                          )}.svg`}
-                                                          alt=''
-                                                          width={32}
-                                                          height={32}
-                                                        />
-                                                      </Box>
-                                                      <Box
-                                                        sx={{
-                                                          display: 'flex',
-                                                          flexDirection:
-                                                            'column',
-                                                        }}
-                                                      >
-                                                        <Tooltip
-                                                          title={item.name}
+                                                        <Box
+                                                          sx={{
+                                                            marginRight: '8px',
+                                                            display: 'flex',
+                                                          }}
                                                         >
-                                                          <Typography
-                                                            variant='body1'
-                                                            fontSize={14}
-                                                            fontWeight={600}
-                                                            lineHeight={'20px'}
-                                                            sx={{
-                                                              overflow:
-                                                                'hidden',
-                                                              wordBreak:
-                                                                'break-all',
-                                                              textOverflow:
-                                                                'ellipsis',
-                                                              display:
-                                                                '-webkit-box',
-                                                              WebkitLineClamp: 1,
-                                                              WebkitBoxOrient:
-                                                                'vertical',
-                                                            }}
+                                                          <Image
+                                                            src={`/images/icons/file-icons/${extractFileExtension(
+                                                              item.name,
+                                                            )}.svg`}
+                                                            alt=''
+                                                            width={32}
+                                                            height={32}
+                                                          />
+                                                        </Box>
+                                                        <Box
+                                                          sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                              'column',
+                                                          }}
+                                                        >
+                                                          <Tooltip
+                                                            title={item.name}
                                                           >
-                                                            {item.name}
-                                                          </Typography>
-                                                        </Tooltip>
+                                                            <Typography
+                                                              variant='body1'
+                                                              fontSize={14}
+                                                              fontWeight={600}
+                                                              lineHeight={
+                                                                '20px'
+                                                              }
+                                                              sx={{
+                                                                overflow:
+                                                                  'hidden',
+                                                                wordBreak:
+                                                                  'break-all',
+                                                                textOverflow:
+                                                                  'ellipsis',
+                                                                display:
+                                                                  '-webkit-box',
+                                                                WebkitLineClamp: 1,
+                                                                WebkitBoxOrient:
+                                                                  'vertical',
+                                                              }}
+                                                            >
+                                                              {item.name}
+                                                            </Typography>
+                                                          </Tooltip>
 
-                                                        <Typography
-                                                          variant='caption'
-                                                          lineHeight={'14px'}
-                                                        >
-                                                          {formatFileSize(
-                                                            item.size,
-                                                          )}
-                                                        </Typography>
+                                                          <Typography
+                                                            variant='caption'
+                                                            lineHeight={'14px'}
+                                                          >
+                                                            {formatFileSize(
+                                                              item.size,
+                                                            )}
+                                                          </Typography>
+                                                        </Box>
                                                       </Box>
-                                                    </Box>
-                                                    <Box
-                                                      sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                      }}
-                                                    >
-                                                      <IconButton
-                                                        onClick={() => {
-                                                          downloadFile(item)
+                                                      <Box
+                                                        sx={{
+                                                          display: 'flex',
+                                                          alignItems: 'center',
                                                         }}
                                                       >
-                                                        <Icon
-                                                          icon='ic:sharp-download'
-                                                          fontSize={24}
-                                                        />
-                                                      </IconButton>
+                                                        <IconButton
+                                                          onClick={() => {
+                                                            downloadFile(item)
+                                                          }}
+                                                        >
+                                                          <Icon
+                                                            icon='ic:sharp-download'
+                                                            fontSize={24}
+                                                          />
+                                                        </IconButton>
+                                                      </Box>
                                                     </Box>
                                                   </Box>
-                                                </Box>
-                                              )
-                                            })}
-                                          </Box>
+                                                )
+                                              })}
+                                            </Box>
+                                          )}
+
+                                          {value.note && (
+                                            <Box
+                                              sx={{
+                                                borderRadius: '10px',
+                                                background: '#F7F7F9',
+                                                padding: '20px 12px',
+                                              }}
+                                            >
+                                              <Typography
+                                                fontSize={14}
+                                                fontWeight={400}
+                                              >
+                                                {value.note ?? '-'}
+                                              </Typography>
+                                            </Box>
+                                          )}
                                         </Box>
                                       )
                                     },
@@ -1347,19 +1373,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 </Box>
                               )}
                             </Box>
-                            {item.reviewedNote && (
-                              <Box
-                                sx={{
-                                  borderRadius: '10px',
-                                  background: '#F7F7F9',
-                                  padding: '20px 12px',
-                                }}
-                              >
-                                <Typography fontSize={14} fontWeight={400}>
-                                  {item.reviewedNote}
-                                </Typography>
-                              </Box>
-                            )}
                           </Box>
                         </Grid>
                       </Grid>
