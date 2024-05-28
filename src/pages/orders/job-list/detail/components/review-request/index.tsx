@@ -1169,11 +1169,17 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                             display: 'flex',
                                             flexDirection: 'column',
                                             gap: '20px',
+                                            mb:
+                                              index ===
+                                              item.reviewedFileGroup.length - 1
+                                                ? '20px'
+                                                : '0',
                                           }}
                                         >
                                           {index > 0 && (
                                             <Divider
-                                              sx={{ my: '20px !important' }}
+                                              sx={{ mt: '20px !important' }}
+                                              // sx={{ my: '20px !important' }}
                                             />
                                           )}
                                           <Box
@@ -1181,6 +1187,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                               display: 'flex',
                                               alignItems: 'center',
                                               justifyContent: 'space-between',
+
                                               // mb: '20px',
                                             }}
                                           >
