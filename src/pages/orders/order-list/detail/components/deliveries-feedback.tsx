@@ -1193,7 +1193,9 @@ const DeliveriesFeedback = ({
                   mt: '12px',
                 }}
               >
-                <Box>
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+                >
                   <TextField
                     fullWidth
                     autoComplete='off'
@@ -1268,98 +1270,103 @@ const DeliveriesFeedback = ({
             <>
               {deliveriesFeedback.feedback.length > 0 ? (
                 <Box sx={{ mt: '20px' }}>
-                  {deliveriesFeedback.feedback.map(value => (
-                    <Box
-                      key={uuidv4()}
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '20px',
-                      }}
-                    >
+                  {deliveriesFeedback.feedback.map((value, index) => (
+                    <>
+                      {(index > 0 || addFeedback) && (
+                        <Divider sx={{ my: '20px !important' }} />
+                      )}
                       <Box
+                        key={uuidv4()}
                         sx={{
                           display: 'flex',
-                          justifyContent: 'space-between',
+                          flexDirection: 'column',
+                          gap: '20px',
                         }}
                       >
                         <Box
                           sx={{
                             display: 'flex',
-                            flexDirection: 'column',
-                            gap: '10px',
-                            width: '100%',
+                            justifyContent: 'space-between',
                           }}
                         >
                           <Box
                             sx={{
                               display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
+                              flexDirection: 'column',
+                              gap: '10px',
+                              width: '100%',
                             }}
                           >
-                            <CustomChip
-                              label={'CLIENT'}
-                              skin='light'
+                            <Box
                               sx={{
-                                background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528`,
-                                color: '#FDB528',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
                               }}
-                              size='small'
-                            />
-                            <Typography
-                              variant='body1'
-                              fontWeight={600}
-                              fontSize={14}
                             >
-                              {value.authorInfo.name}
-                            </Typography>
-                            <Divider
-                              orientation='vertical'
-                              // flexItem
-                              sx={{
-                                color: '#D8D8DD',
-                                borderWidth: 1,
-                                height: '70%',
-                              }}
-                            />
-                            <Tooltip title={value.authorInfo.email}>
-                              <Typography variant='body2'>
-                                {value.authorInfo.email}
+                              <CustomChip
+                                label={'CLIENT'}
+                                skin='light'
+                                sx={{
+                                  background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528`,
+                                  color: '#FDB528',
+                                }}
+                                size='small'
+                              />
+                              <Typography
+                                variant='body1'
+                                fontWeight={600}
+                                fontSize={14}
+                              >
+                                {value.authorInfo.name}
                               </Typography>
-                            </Tooltip>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              gap: '16px',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Typography
-                              fontSize={12}
-                              fontWeight={400}
-                              color={'rgba(76, 78, 100, 0.60)'}
+                              <Divider
+                                orientation='vertical'
+                                // flexItem
+                                sx={{
+                                  color: '#D8D8DD',
+                                  borderWidth: 1,
+                                  height: '70%',
+                                }}
+                              />
+                              <Tooltip title={value.authorInfo.email}>
+                                <Typography variant='body2'>
+                                  {value.authorInfo.email}
+                                </Typography>
+                              </Tooltip>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '16px',
+                                alignItems: 'center',
+                              }}
                             >
-                              {convertTimeToTimezone(
-                                value.createdAt,
-                                auth.getValue().user?.timezone,
-                                timezone.getValue(),
-                              )}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Typography
-                              variant='body1'
-                              fontSize={14}
-                              fontWeight={400}
-                            >
-                              {value.note ?? ''}
-                            </Typography>
+                              <Typography
+                                fontSize={12}
+                                fontWeight={400}
+                                color={'rgba(76, 78, 100, 0.60)'}
+                              >
+                                {convertTimeToTimezone(
+                                  value.createdAt,
+                                  auth.getValue().user?.timezone,
+                                  timezone.getValue(),
+                                )}
+                              </Typography>
+                            </Box>
+                            <Box>
+                              <Typography
+                                variant='body1'
+                                fontSize={14}
+                                fontWeight={400}
+                              >
+                                {value.note ?? ''}
+                              </Typography>
+                            </Box>
                           </Box>
                         </Box>
                       </Box>
-                    </Box>
+                    </>
                   ))}
                 </Box>
               ) : null}
