@@ -457,11 +457,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           />
                           <Typography fontSize={14}>Assignee:</Typography>
                           <Typography fontSize={14} fontWeight={600}>
-                            {
-                              memberList.find(
-                                value => value.value === item.assigneeId,
-                              )?.label
-                            }
+                            {item.assigneeInfo.name ?? '-'}
                           </Typography>
                         </Box>
                         {item.isCompleted && (
