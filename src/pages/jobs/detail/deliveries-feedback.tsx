@@ -61,6 +61,7 @@ import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 import Image from 'next/image'
 import SubmitModal from './components/modal/submit-modal'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 // NOTE : 리딜리버리 코드 필요
 const NOT_FILE_UPLOAD_JOB_STATUS = [
@@ -74,8 +75,6 @@ type Props = {
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<QueryObserverResult<ProJobDetailType, unknown>>
 }
-
-const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
 
 const DeliveriesFeedback = ({
   jobInfo,
@@ -523,16 +522,9 @@ const DeliveriesFeedback = ({
                                     }}
                                   >
                                     <Image
-                                      src={`/images/icons/file-icons/${
-                                        videoExtensions.includes(
-                                          file.name
-                                            ?.split('.')
-                                            .pop()
-                                            ?.toLowerCase() ?? '',
-                                        )
-                                          ? 'video'
-                                          : 'document'
-                                      }.svg`}
+                                      src={`/images/icons/file-icons/${extractFileExtension(
+                                        file.name,
+                                      )}.svg`}
                                       alt=''
                                       width={32}
                                       height={32}

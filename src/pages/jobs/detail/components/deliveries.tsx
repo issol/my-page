@@ -5,27 +5,23 @@ import {
   AccordionSummary,
   Box,
   Button,
-  Card,
-  Divider,
   IconButton,
   Tooltip,
   Typography,
 } from '@mui/material'
-import {
-  FileBox,
-  FileName,
-} from '@src/pages/invoice/receivable/detail/components/invoice-info'
+
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { JobsFileType, ProJobDeliveryType } from '@src/types/jobs/jobs.type'
-import { Dispatch, useState, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Image from 'next/image'
-import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
+
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   delivery: Array<ProJobDeliveryType>
@@ -164,16 +160,9 @@ const Deliveries = ({
                                 }}
                               >
                                 <Image
-                                  src={`/images/icons/file-icons/${
-                                    videoExtensions.includes(
-                                      file.name
-                                        ?.split('.')
-                                        .pop()
-                                        ?.toLowerCase() ?? '',
-                                    )
-                                      ? 'video'
-                                      : 'document'
-                                  }.svg`}
+                                  src={`/images/icons/file-icons/${extractFileExtension(
+                                    file.name,
+                                  )}.svg`}
                                   alt=''
                                   width={32}
                                   height={32}

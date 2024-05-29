@@ -163,11 +163,12 @@ import {
 import ReviewRequest from './components/review-request'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
 
 type MenuType = 'info' | 'review' | 'prices' | 'assign' | 'history'
 
 export type TabType = 'linguistTeam' | 'pro'
-const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
+
 const subtitleExtensions = ['srt', 'dxfp', 'itt', 'cap']
 const JobDetail = () => {
   const router = useRouter()

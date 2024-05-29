@@ -16,20 +16,12 @@ import { AssignProListType } from '@src/types/orders/job-detail'
 import { useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
-import JobInfoDetailView from '../..'
-import { JobItemType, JobType } from '@src/types/common/item.type'
+
+import { JobType } from '@src/types/common/item.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import {
-  JobsStatusChip,
-  assignmentStatusChip,
-} from '@src/@core/components/chips/chips'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
-import {
-  RefetchOptions,
-  RefetchQueryFilters,
-  QueryObserverResult,
-  useMutation,
-} from 'react-query'
+import { JobsStatusChip } from '@src/@core/components/chips/chips'
+
+import { useMutation } from 'react-query'
 import {
   importFileFromRequest,
   setFileLock,
@@ -48,10 +40,13 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import {
+  srtUploadFileExtension,
+  videoExtensions,
+} from '@src/shared/const/upload-file-extention/file-extension'
+
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
@@ -83,7 +78,6 @@ type Props = {
     label: string
   }[]
 }
-const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
 
 const SourceFileUpload = ({
   info,

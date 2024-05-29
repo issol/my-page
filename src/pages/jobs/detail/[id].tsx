@@ -37,6 +37,7 @@ import Image from 'next/image'
 import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
+import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
 
 type MenuType = 'jobInfo' | 'feedback'
 
@@ -56,8 +57,6 @@ const excludedStatuses = [
 
 const activeStatus = [60200, 60250, 60300, 60400, 70300]
 const deActiveStatus = [60500, 60600, 60700, 60800, 60900, 601000, 601100]
-
-const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
 
 const ProJobsDetail = () => {
   const router = useRouter()
