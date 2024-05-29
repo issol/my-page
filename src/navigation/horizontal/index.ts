@@ -187,6 +187,14 @@ const navigation = (): HorizontalNavItemsType => {
       role: ['TAD'],
     },
     {
+      title: 'Job List',
+      icon: 'material-symbols:person',
+      action: 'read',
+      subject: 'job_list',
+      path: `/orders/job-list`,
+      role: ['TAD'],
+    },
+    {
       title: 'Certification Test',
       icon: 'mi:clipboard-check',
       action: 'read',
@@ -267,7 +275,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:list-alt-outline-sharp',
       action: 'read',
       subject: 'order',
-      role: ['LPM', 'ACCOUNT_MANAGER', 'CLIENT'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Order List',
@@ -285,6 +293,16 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'job_list',
         },
       ],
+    },
+
+    {
+      title: 'Order List',
+      path: `/orders/order-list`,
+      action: 'read',
+
+      icon: 'material-symbols:list-alt-outline-sharp',
+      subject: 'order',
+      role: ['CLIENT'],
     },
     {
       title: 'Invoices',
