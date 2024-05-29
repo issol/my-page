@@ -58,4 +58,19 @@ export const srtUploadFileExtension = {
   },
 }
 
-export const videoExtensions = ['mp4', 'avi', 'mkv', 'mov']
+export const videoExtensions = [
+  'mp4',
+  'mkv',
+  'avi',
+  'mov',
+  'flv',
+  'wmv',
+  'webm',
+  'mpeg',
+  'mpg',
+  'm4v',
+  '3gp',
+  'ts',
+  'vob',
+  'ogv',
+]

@@ -24,6 +24,17 @@ export const extractFileExtension = (fileName: string) => {
     case 'mp4':
     case 'mov':
     case 'avi':
+    case 'mkv':
+    case 'flv':
+    case 'wmv':
+    case 'webm':
+    case 'mpeg':
+    case 'mpg':
+    case 'm4v':
+    case '3gp':
+    case 'ts':
+    case 'vob':
+    case 'ogv':
       return 'video'
     default:
       return 'default'
