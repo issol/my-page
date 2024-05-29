@@ -624,6 +624,9 @@ const Row = ({
             {formatCurrency(
               getValues(`${detailName}.${idx}.unitPrice`) || 0,
               getValues(`${initialPriceName}.currency`) || 'KRW',
+              getValues(`${initialPriceName}.priceId`) === -1
+                ? 4
+                : Number(getValues(`${initialPriceName}.numberPlace`)) || 4,
             ) ?? '-'}
             {/* </Typography> */}
           </Box>
