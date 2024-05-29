@@ -13,4 +13,5 @@ export type FileType = {
   isSelected?: boolean
   reviewRequested?: boolean
   uploadedBy?: string
+  uniqueId?: string
 }

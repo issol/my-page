@@ -216,6 +216,7 @@ const SourceFileUpload = ({
 
             if (!found)
               acc.push({
+                uniqueId: uuidv4(),
                 name: file.name,
                 size: file.size,
                 type: file.type,
@@ -610,16 +611,19 @@ const SourceFileUpload = ({
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     mt: '20px',
                     width: '100%',
-                    gap: '20px',
+                    // gap: '20px',
+                    rowGap: '8px',
+                    columnGap: '20px',
+                    // gap: '20px',
                   }}
                 >
                   {files.map((file: FileType, index: number) => {
                     return (
-                      <Box key={uuidv4()}>
+                      <Box key={file.uniqueId}>
                         <Box
                           sx={{
                             display: 'flex',
-                            marginBottom: type === 'import' ? 0 : '8px',
+                            // marginBottom: type === 'import' ? 0 : '8px',
                             width: '100%',
                             justifyContent: 'space-between',
                             borderRadius: '8px',
