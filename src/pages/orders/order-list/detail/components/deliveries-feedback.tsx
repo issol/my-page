@@ -259,6 +259,7 @@ const DeliveriesFeedback = ({
                 newFileName = file.name.replace(/(\.[^/.]+)$/, ` (${index})$1`)
               }
               file = new File([file as File], newFileName)
+              file.uniqueId = uuidv4()
             }
             acc.push(file)
             return acc
@@ -721,12 +722,13 @@ const DeliveriesFeedback = ({
                         gridTemplateColumns: 'repeat(2, 1fr)',
                         mt: '20px',
                         width: '100%',
-                        gap: '20px',
+                        gap: '8px',
                       }}
                     >
                       {files
                         .concat(
                           importedFiles.map((file: DeliveryFileType) => ({
+                            uniqueId: file.uniqueId,
                             name: file.fileName,
                             size: file.fileSize,
                             uploadedBy: 'import',
@@ -734,11 +736,11 @@ const DeliveriesFeedback = ({
                         )
                         .map((file: FileType, index: number) => {
                           return (
-                            <Box key={uuidv4()}>
+                            <Box key={file.uniqueId}>
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  marginBottom: '8px',
+                                  // marginBottom: '8px',
                                   width: '100%',
                                   justifyContent: 'space-between',
                                   borderRadius: '8px',
@@ -1001,7 +1003,7 @@ const DeliveriesFeedback = ({
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(2, 1fr)',
                                 width: '100%',
-                                gap: '20px',
+                                gap: '8px',
                                 mt: '20px',
                               }}
                             >
@@ -1011,7 +1013,7 @@ const DeliveriesFeedback = ({
                                     <Box
                                       sx={{
                                         display: 'flex',
-                                        marginBottom: '8px',
+                                        // marginBottom: '8px',
                                         width: '100%',
                                         justifyContent: 'space-between',
                                         borderRadius: '8px',
@@ -1034,16 +1036,9 @@ const DeliveriesFeedback = ({
                                           }}
                                         >
                                           <Image
-                                            src={`/images/icons/file-icons/${
-                                              videoExtensions.includes(
-                                                file.fileName
-                                                  ?.split('.')
-                                                  .pop()
-                                                  ?.toLowerCase() ?? '',
-                                              )
-                                                ? 'video'
-                                                : 'document'
-                                            }.svg`}
+                                            src={`/images/icons/file-icons/${extractFileExtension(
+                                              file.fileName,
+                                            )}.svg`}
                                             alt=''
                                             width={32}
                                             height={32}

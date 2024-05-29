@@ -500,6 +500,7 @@ const RequestReviewModal = ({
 
             if (!found)
               acc.push({
+                uniqueId: uuidv4(),
                 id: file.id ?? undefined,
                 name: file.name,
                 size: file.size,
@@ -563,8 +564,16 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
-      setSourceFiles(requestInfo.files.filter(value => value.type === 'SOURCE'))
-      setTargetFiles(requestInfo.files.filter(value => value.type === 'TARGET'))
+      setSourceFiles(
+        requestInfo.files
+          .filter(value => value.type === 'SOURCE')
+          .map(value => ({ ...value, uniqueId: uuidv4() })),
+      )
+      setTargetFiles(
+        requestInfo.files
+          .filter(value => value.type === 'TARGET')
+          .map(value => ({ ...value, uniqueId: uuidv4() })),
+      )
 
       setValue('assignee', requestInfo.assigneeInfo.userId, {
         shouldDirty: false,
@@ -1006,17 +1015,17 @@ const RequestReviewModal = ({
                               gridTemplateColumns: 'repeat(2, 1fr)',
                               mt: '20px',
                               width: '100%',
-                              gap: '20px',
+                              gap: '8px',
                             }}
                           >
                             {sourceFiles.map(
                               (file: FileType, index: number) => {
                                 return (
-                                  <Box key={uuidv4()}>
+                                  <Box key={file.uniqueId}>
                                     <Box
                                       sx={{
                                         display: 'flex',
-                                        marginBottom: '8px',
+                                        // marginBottom: '8px',
                                         width: '100%',
                                         justifyContent: 'space-between',
                                         borderRadius: '8px',

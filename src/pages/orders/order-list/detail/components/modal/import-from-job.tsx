@@ -103,6 +103,7 @@ const ImportFromJob = ({
         .flatMap(item => item.files)
         .filter(value => rowSelectionModel.includes(value.id!))
         .map(item => ({
+          uniqueId: uuidv4(),
           id: item.id,
           filePath: item.path!,
           fileName: item.name,

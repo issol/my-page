@@ -64,6 +64,7 @@ const TargetDropzone = ({
             const found = acc.find(f => f.name === file.name)
             if (!found)
               acc.push({
+                uniqueId: uuidv4(),
                 id: file.id ?? undefined,
                 name: file.name,
                 size: file.size,
@@ -116,16 +117,16 @@ const TargetDropzone = ({
               gridTemplateColumns: 'repeat(2, 1fr)',
               mt: '20px',
               width: '100%',
-              gap: '20px',
+              gap: '8px',
             }}
           >
             {targetFiles.map((file: FileType, index: number) => {
               return (
-                <Box key={uuidv4()}>
+                <Box key={file.uniqueId}>
                   <Box
                     sx={{
                       display: 'flex',
-                      marginBottom: '8px',
+                      // marginBottom: '8px',
                       width: '100%',
                       justifyContent: 'space-between',
                       borderRadius: '8px',

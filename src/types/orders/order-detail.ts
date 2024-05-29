@@ -33,6 +33,7 @@ export type DeliveryFileType = {
   fileName: string
   fileExtension: string
   fileSize: number
+  uniqueId?: string
 }
 
 export type ProjectInfoType = {
