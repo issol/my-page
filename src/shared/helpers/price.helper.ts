@@ -40,14 +40,18 @@ export function formatCurrency(
     minimumFractionDigits: decimalPlace ?? 0,
   })
 
-  const formattedNumber = formatter.format(Number(num))
+  let formattedNumber = formatter.format(Number(num));
+
+  // Remove trailing zeros after the decimal point
+  formattedNumber = formattedNumber.replace(/(\.0+|(\.\d*[1-9])0+)$/, '$2');
+
   const [currencySymbol, value] = [
     formattedNumber.substring(0, 1),
     formattedNumber.substring(1),
-  ]
-  const result = `${currencySymbol} ${value}`
+  ];
+  const result = `${currencySymbol} ${value}`;
 
-  return result
+  return result;
 }
 
 export function formatByRoundingProcedure(
