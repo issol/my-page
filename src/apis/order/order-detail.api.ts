@@ -136,12 +136,16 @@ export const deliverySendToClient = async (
   }[],
   deliveryType: 'partial' | 'final',
   notes?: string,
-) => {
-  await axios.patch(`/api/enough/u/order/${id}/deliveries/send`, {
-    files: deliveries,
-    notes: notes,
-    deliveryType,
-  })
+): Promise<{ id: number }> => {
+  const { data } = await axios.patch(
+    `/api/enough/u/order/${id}/deliveries/send`,
+    {
+      files: deliveries,
+      notes: notes,
+      deliveryType,
+    },
+  )
+  return data
 }
 
 export const completeDelivery = async (id: number) => {

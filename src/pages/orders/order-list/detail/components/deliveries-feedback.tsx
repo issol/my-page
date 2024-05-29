@@ -133,6 +133,8 @@ const DeliveriesFeedback = ({
   const [files, setFiles] = useState<FileType[]>([])
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
+  const [delivering, setDelivering] = useState<boolean>(false)
+
   const [addFeedback, setAddFeedback] = useState<boolean>(false)
 
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
@@ -164,6 +166,8 @@ const DeliveriesFeedback = ({
       ),
     {
       onSuccess: data => {
+        setExpanded({ [data.id]: true })
+        setDelivering(false)
         queryClient.invalidateQueries({
           queryKey: ['orderDetail'],
         })
@@ -430,6 +434,7 @@ const DeliveriesFeedback = ({
   const onSubmit = (deliveryType: 'partial' | 'final') => {
     closeModal('DeliverToClientModal')
     setUploadFileProcessing(false)
+    setDelivering(true)
     if (files.length || importedFiles.length) {
       const fileInfo: Array<DeliveryFileType> = [
         // ...files,
@@ -563,7 +568,8 @@ const DeliveriesFeedback = ({
     <Grid container xs={12} spacing={4} sx={{ marginLeft: 0 }}>
       {updateDeliveries.isLoading ||
       completeDeliveryMutation.isLoading ||
-      updateProject.isLoading ? (
+      updateProject.isLoading ||
+      delivering ? (
         <OverlaySpinner />
       ) : null}
       <Grid item xs={6}>
@@ -601,7 +607,7 @@ const DeliveriesFeedback = ({
                       disabled={
                         !canUseFeature(
                           'button-Deliveries&Feedback-ImportFromJob',
-                        )
+                        ) || delivering
                       }
                       onClick={onClickImportJob}
                     >
@@ -897,7 +903,8 @@ const DeliveriesFeedback = ({
                         !canUseFeature(
                           'button-Deliveries&Feedback-DeliverToClient',
                         ) ||
-                        (importedFiles.length === 0 && files.length === 0)
+                        (importedFiles.length === 0 && files.length === 0) ||
+                        delivering
                       }
                       onClick={onClickDeliverToClient}
                     >
