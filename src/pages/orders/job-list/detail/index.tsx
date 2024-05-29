@@ -882,7 +882,9 @@ const JobDetail = () => {
               padding: '10px 12px',
               border: '1px solid rgba(76, 78, 100, 0.22)',
               background: '#f9f8f9',
+              cursor: type === 'SOURCE' ? 'pointer' : 'default',
             }}
+            onClick={() => DownloadFile(value, S3FileType.JOB)}
           >
             <Box
               sx={{
@@ -942,7 +944,10 @@ const JobDetail = () => {
             </Box>
             {type === 'SOURCE' ? (
               <Box
-                sx={{ display: 'flex', alignItems: 'center' }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
                 onClick={() => {
                   if (value.downloadAvailable)
                     DownloadFile(value, S3FileType.JOB)
@@ -2567,7 +2572,18 @@ const JobDetail = () => {
                         ? '20px'
                         : '14px 20px',
                     // height:
-                    minHeight: '64px',
+                    minHeight:
+                      jobDeliveriesFeedbacks?.deliveries &&
+                      jobDeliveriesFeedbacks?.deliveries.length > 0 &&
+                      jobDeliveriesFeedbacks.deliveries
+                        .flatMap(delivery => delivery.files)
+                        .some(file =>
+                          subtitleExtensions.includes(
+                            file.name.split('.').pop()?.toLowerCase() ?? '',
+                          ),
+                        )
+                        ? 'none'
+                        : '64px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '10px',
@@ -2776,7 +2792,7 @@ const JobDetail = () => {
                               ? Object.entries(
                                   sourceFileList.reduce(
                                     (acc: { [key: string]: any[] }, cur) => {
-                                      const date = cur.createdAt!
+                                      const date = cur.savedAt!
                                       if (!acc[date]) {
                                         acc[date] = []
                                       }
