@@ -24,6 +24,7 @@ import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
 
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   onClose: any
@@ -320,16 +321,9 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
                                   }}
                                 >
                                   <Image
-                                    src={`/images/icons/file-icons/${
-                                      videoExtensions.includes(
-                                        file.name
-                                          ?.split('.')
-                                          .pop()
-                                          ?.toLowerCase() ?? '',
-                                      )
-                                        ? 'video'
-                                        : 'document'
-                                    }.svg`}
+                                    src={`/images/icons/file-icons/${extractFileExtension(
+                                      file.name,
+                                    )}.svg`}
                                     alt=''
                                     width={32}
                                     height={32}
