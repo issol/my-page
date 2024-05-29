@@ -791,7 +791,7 @@ const SourceFileUpload = ({
             }
             onClick={onSubmit}
           >
-            {type === 'import' ? 'Import' : 'Send'}
+            {type === 'import' ? 'Import' : 'Save'}
           </Button>
         </Box>
       </Box>
