@@ -533,9 +533,8 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (jobSourceFiles.length > 0) {
-      const source = jobSourceFiles.filter(value => value.type === 'SOURCE')
       setSelectedSourceFiles(
-        source.map(value => ({
+        jobSourceFiles.map(value => ({
           name: value.name,
           size: value.size,
           type: value.type,
@@ -549,9 +548,8 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (jobTargetFiles.length > 0) {
-      const target = jobTargetFiles.filter(value => value.type === 'SOURCE')
       setSelectedTargetFiles(
-        target.map(value => ({
+        jobTargetFiles.map(value => ({
           name: value.name,
           size: value.size,
           type: value.type,
@@ -626,7 +624,6 @@ const RequestReviewModal = ({
             </Typography>
             <IconButton
               onClick={() => {
-                console.log(isDirty)
                 if (isDirty) {
                   openModal({
                     type: 'DiscardChangeModal',
@@ -647,7 +644,6 @@ const RequestReviewModal = ({
                 } else {
                   onClose()
                 }
-                // onClose()
               }}
             >
               <Icon icon='mdi:close'></Icon>
@@ -657,7 +653,6 @@ const RequestReviewModal = ({
           <DatePickerWrapper
             sx={{
               width: '100%',
-              // padding: '20px',
             }}
           >
             <form
@@ -1148,7 +1143,8 @@ const RequestReviewModal = ({
                             gridTemplateColumns: 'repeat(2, 1fr)',
                             mt: '8px',
                             width: '100%',
-                            gap: '20px',
+                            // gap: '20px',
+                            gap: '8px',
                           }}
                         >
                           {selectedSourceFiles.map(
@@ -1158,7 +1154,7 @@ const RequestReviewModal = ({
                                   <Box
                                     sx={{
                                       display: 'flex',
-                                      marginBottom: '8px',
+                                      // marginBottom: '8px',
                                       width: '100%',
                                       justifyContent: 'space-between',
                                       borderRadius: '8px',
@@ -1332,7 +1328,7 @@ const RequestReviewModal = ({
                           fontWeight={400}
                           color='#8D8E9A'
                         >
-                          or select source files
+                          or select target files
                         </Typography>
                         <Box
                           sx={{
@@ -1340,7 +1336,8 @@ const RequestReviewModal = ({
                             gridTemplateColumns: 'repeat(2, 1fr)',
                             mt: '8px',
                             width: '100%',
-                            gap: '20px',
+                            gap: '8px',
+                            // gap: '20px',
                           }}
                         >
                           {selectedTargetFiles.map(
@@ -1350,7 +1347,7 @@ const RequestReviewModal = ({
                                   <Box
                                     sx={{
                                       display: 'flex',
-                                      marginBottom: '8px',
+                                      // marginBottom: '8px',
                                       width: '100%',
                                       justifyContent: 'space-between',
                                       borderRadius: '8px',

@@ -5,9 +5,10 @@ import { Dispatch, SetStateAction } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
-import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
+
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { Icon } from '@iconify/react'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   setTargetFiles: Dispatch<SetStateAction<FileType[]>>
@@ -146,13 +147,9 @@ const TargetDropzone = ({
                         }}
                       >
                         <Image
-                          src={`/images/icons/file-icons/${
-                            videoExtensions.includes(
-                              file.name?.split('.').pop()?.toLowerCase() ?? '',
-                            )
-                              ? 'video'
-                              : 'document'
-                          }.svg`}
+                          src={`/images/icons/file-icons/${extractFileExtension(
+                            file.name,
+                          )}.svg`}
                           alt=''
                           width={32}
                           height={32}
