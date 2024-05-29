@@ -733,6 +733,7 @@ const JobListCard = ({
                           : row.id === Number(jobId!)
                             ? '#F7F8FF'
                             : '#fff',
+                        cursor: 'pointer',
                         '&:hover': {
                           background: 'rgba(76, 78, 100, 0.05)',
                         },
