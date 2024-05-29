@@ -219,8 +219,6 @@ const RequestReviewModal = ({
         })
       })
 
-      console.log(fileInfo.files)
-
       const s3SourceURL: Promise<{ type: 'SOURCE'; url: string }>[] =
         sourcePaths.map(value => {
           return getUploadUrlforCommon('job', value).then(res => {
@@ -291,8 +289,6 @@ const RequestReviewModal = ({
           )
 
         Promise.all([sourceArr, targetArr]).then(res => {
-          console.log(res)
-
           const result: JobRequestReviewParamsType = {
             jobId: jobId,
             assigneeId: data.assignee,
@@ -301,6 +297,8 @@ const RequestReviewModal = ({
             runtime: data.runtime,
             wordCount: data.wordCount,
             noteToAssignee: data.note,
+            reviewedFileGroup:
+              type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
             files: [
               ...fileInfo.files,
               ...selectedSourceFiles
@@ -342,6 +340,8 @@ const RequestReviewModal = ({
         runtime: data.runtime,
         wordCount: data.wordCount,
         noteToAssignee: data.note,
+        reviewedFileGroup:
+          type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
         files: [
           ...sourceFiles.map(value => ({
             name: value.name,
@@ -568,7 +568,9 @@ const RequestReviewModal = ({
       setSourceFiles(requestInfo.files.filter(value => value.type === 'SOURCE'))
       setTargetFiles(requestInfo.files.filter(value => value.type === 'TARGET'))
 
-      setValue('assignee', requestInfo.assigneeId, { shouldDirty: false })
+      setValue('assignee', requestInfo.assigneeInfo.userId, {
+        shouldDirty: false,
+      })
       setValue('desiredDueAt', new Date(requestInfo.dueDate), {
         shouldDirty: false,
       })

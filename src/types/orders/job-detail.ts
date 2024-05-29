@@ -177,4 +177,10 @@ export type JobRequestReviewParamsType = {
     type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
     jobFileId?: number
   }>
+  reviewedFileGroup: Array<{
+    id: number
+    createdAt: string
+    files: FileType[]
+    note: string
+  }>
 }
