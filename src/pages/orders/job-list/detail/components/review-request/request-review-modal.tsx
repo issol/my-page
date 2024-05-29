@@ -344,6 +344,7 @@ const RequestReviewModal = ({
           type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
         files: [
           ...sourceFiles.map(value => ({
+            id: value.id,
             name: value.name,
             path: value.path!,
             extension: value.extension!,
@@ -351,6 +352,7 @@ const RequestReviewModal = ({
             type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
           })),
           ...targetFiles.map(value => ({
+            id: value.id,
             name: value.name,
             path: value.path!,
             extension: value.extension!,
