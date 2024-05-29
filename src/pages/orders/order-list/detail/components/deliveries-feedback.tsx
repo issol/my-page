@@ -577,13 +577,21 @@ const DeliveriesFeedback = ({
             >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography fontSize={20} fontWeight={600}>
-                  Deliveries
+                  Deliveries ({project.deliveries.length})
                 </Typography>
                 <Typography fontSize={12} fontWeight={400} color='#4C4E6499'>
                   {formatFileSize(fileSize)} / {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
+              {isSubmittable &&
+              currentRole &&
+              currentRole.name !== 'CLIENT' &&
+              project.status !== 'Delivery completed' &&
+              project.status !== 'Delivery confirmed' &&
+              project.status !== 'Invoiced' &&
+              project.status !== 'Canceled' &&
+              project.status !== 'Paid' &&
+              project.status !== 'Without invoice' ? (
                 <Tooltip title={isEditable ? '' : 'Not authorized'}>
                   <Box sx={{ display: 'flex', gap: '16px' }}>
                     <Button
@@ -661,7 +669,13 @@ const DeliveriesFeedback = ({
                 </Button>
               ) : null} */}
             </Box>
-            {currentRole && currentRole.name === 'CLIENT' ? null : (
+            {(currentRole && currentRole.name === 'CLIENT') ||
+            project.status === 'Delivery completed' ||
+            project.status === 'Delivery confirmed' ||
+            project.status === 'Invoiced' ||
+            project.status === 'Canceled' ||
+            project.status === 'Paid' ||
+            project.status === 'Without invoice' ? null : (
               <div
                 {...getRootProps({
                   className: 'dropzone',
@@ -827,7 +841,13 @@ const DeliveriesFeedback = ({
               </div>
             )}
 
-            {currentRole && currentRole.name === 'CLIENT' ? null : (
+            {(currentRole && currentRole.name === 'CLIENT') ||
+            project.status === 'Delivery completed' ||
+            project.status === 'Delivery confirmed' ||
+            project.status === 'Invoiced' ||
+            project.status === 'Canceled' ||
+            project.status === 'Paid' ||
+            project.status === 'Without invoice' ? null : (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography fontSize={14} fontWeight={600} sx={{ mb: '8px' }}>
                   Notes to client
@@ -859,7 +879,13 @@ const DeliveriesFeedback = ({
               </Box>
             )}
 
-            {currentRole && currentRole.name === 'CLIENT' ? null : (
+            {(currentRole && currentRole.name === 'CLIENT') ||
+            project.status === 'Delivery completed' ||
+            project.status === 'Delivery confirmed' ||
+            project.status === 'Invoiced' ||
+            project.status === 'Canceled' ||
+            project.status === 'Paid' ||
+            project.status === 'Without invoice' ? null : (
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Tooltip title={isEditable ? '' : 'Not authorized'}>
                   <Box>
