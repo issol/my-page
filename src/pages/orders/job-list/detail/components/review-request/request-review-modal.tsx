@@ -54,6 +54,7 @@ import { useGetMemberList } from '@src/queries/quotes.query'
 import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { authState } from '@src/states/auth'
 
 type Props = {
   onClose: any
@@ -84,6 +85,7 @@ const RequestReviewModal = ({
   requestInfo,
 }: Props) => {
   const queryClient = useQueryClient()
+  const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
   const theme = useTheme()
   const { direction } = theme
@@ -563,7 +565,6 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
-      console.log(requestInfo.dueDateTimezone)
       setSourceFiles(requestInfo.files.filter(value => value.type === 'SOURCE'))
       setTargetFiles(requestInfo.files.filter(value => value.type === 'TARGET'))
 
@@ -576,6 +577,10 @@ const RequestReviewModal = ({
       })
       setValue('runtime', requestInfo.runtime, { shouldDirty: false })
       setValue('wordCount', requestInfo.wordCount, { shouldDirty: false })
+    } else if (type === 'create') {
+      setValue('desiredDueTimezone', auth.getValue().user?.timezone!, {
+        shouldDirty: false,
+      })
     }
   }, [type, requestInfo])
 
