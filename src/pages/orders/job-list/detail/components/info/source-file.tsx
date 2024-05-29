@@ -456,7 +456,11 @@ const SourceFileUpload = ({
           size: value.fileSize,
           type: value.fileExtension,
           file: value.filePath,
-          downloadAvailable: false,
+          downloadAvailable: videoExtensions.includes(
+            value.fileName?.split('.').pop()?.toLowerCase() ?? '',
+          )
+            ? false
+            : true,
           isImported: value.isImported,
           isSelected: false,
         })),

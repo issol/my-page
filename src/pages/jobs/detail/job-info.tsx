@@ -217,7 +217,7 @@ const ProJobInfo = ({
   }
 
   interface JobFileGroupType {
-    createdAt: string
+    savedAt: string
     isDownloaded: boolean
     data: JobsFileType[]
   }
@@ -240,14 +240,12 @@ const ProJobInfo = ({
       }
     })
     .reduce((acc: JobFileGroupType[], curr: JobsFileType) => {
-      const existingGroup = acc.find(
-        group => group.createdAt === curr.createdAt,
-      )
+      const existingGroup = acc.find(group => group.savedAt === curr.savedAt)
       if (existingGroup) {
         existingGroup.data.push(curr)
       } else {
         acc.push({
-          createdAt: curr.createdAt!,
+          savedAt: curr.savedAt!,
           data: [curr],
           isDownloaded: curr.isDownloaded!,
           // downloadAvailable: curr.downloadAvailable!,
@@ -1091,7 +1089,7 @@ const ProJobInfo = ({
                   padding: '0 20px',
                   overflowY: 'scroll',
                   marginBottom: '12px',
-                  maxHeight: '300px',
+                  maxHeight: '500px',
                   // height: '300px',
 
                   '&::-webkit-scrollbar': { width: 4 },
@@ -1102,161 +1100,160 @@ const ProJobInfo = ({
                 }}
               >
                 {/* {fileList?.length > 0 ? fileList : null} */}
-                {jobInfo.files?.length
-                  ? groupedFiles.map((value, index) => {
-                      return (
-                        <Box key={uuidv4()}>
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              gap: '10px',
-                              alignItems: 'center',
-                              mb: '16px',
-                            }}
-                          >
-                            {jobDetailDots.includes('download') &&
-                            value.isDownloaded ? null : (
-                              <Badge
-                                variant='dot'
-                                color='primary'
-                                sx={{ marginLeft: '4px' }}
-                              ></Badge>
-                            )}
-
-                            <Typography
-                              variant='body2'
-                              fontSize={14}
-                              fontWeight={400}
-                              color={
-                                // '#666CFF'
-                                value.isDownloaded
-                                  ? 'rgba(76, 78, 100, 0.60)'
-                                  : '#666CFF'
-                              }
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+                >
+                  {jobInfo.files?.length
+                    ? groupedFiles.map((value, index) => {
+                        return (
+                          <Box key={uuidv4()}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '10px',
+                                alignItems: 'center',
+                                mb: '16px',
+                              }}
                             >
-                              {convertTimeToTimezone(
-                                value.createdAt,
-                                auth.getValue().user?.timezone,
-                                timezone.getValue(),
+                              {jobDetailDots.includes('download') &&
+                              value.isDownloaded ? null : (
+                                <Badge
+                                  variant='dot'
+                                  color='primary'
+                                  sx={{ marginLeft: '4px' }}
+                                ></Badge>
                               )}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: 'grid',
-                              gridTemplateColumns: 'repeat(1,1fr)',
-                              gridGap: '16px',
-                            }}
-                          >
-                            {value.data.map(item => {
-                              return (
-                                <Box
-                                  key={uuidv4()}
-                                  sx={{
-                                    display: 'flex',
-                                    marginBottom: '8px',
-                                    width: '100%',
-                                    justifyContent: 'space-between',
-                                    borderRadius: '8px',
-                                    padding: '10px 12px',
-                                    border: '1px solid rgba(76, 78, 100, 0.22)',
-                                    background: '#f9f8f9',
-                                  }}
-                                >
+
+                              <Typography
+                                variant='body2'
+                                fontSize={14}
+                                fontWeight={400}
+                                color={
+                                  // '#666CFF'
+                                  value.isDownloaded
+                                    ? 'rgba(76, 78, 100, 0.60)'
+                                    : '#666CFF'
+                                }
+                              >
+                                {convertTimeToTimezone(
+                                  value.savedAt,
+                                  auth.getValue().user?.timezone,
+                                  timezone.getValue(),
+                                )}
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(1,1fr)',
+                                gridGap: '12px',
+                              }}
+                            >
+                              {value.data.map(item => {
+                                return (
                                   <Box
+                                    key={uuidv4()}
                                     sx={{
                                       display: 'flex',
-                                      alignItems: 'center',
+                                      // marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
                                     }}
                                   >
                                     <Box
                                       sx={{
-                                        marginRight: '8px',
                                         display: 'flex',
+                                        alignItems: 'center',
                                       }}
                                     >
-                                      <Image
-                                        src={`/images/icons/file-icons/${extractFileExtension(item.name)}.svg`}
-                                        alt=''
-                                        width={32}
-                                        height={32}
-                                      />
-                                    </Box>
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                      }}
-                                    >
-                                      <Tooltip title={item.name}>
-                                        <Typography
-                                          variant='body1'
-                                          fontSize={14}
-                                          fontWeight={600}
-                                          lineHeight={'20px'}
-                                          sx={{
-                                            overflow: 'hidden',
-                                            wordBreak: 'break-all',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 1,
-                                            WebkitBoxOrient: 'vertical',
-                                          }}
-                                        >
-                                          {item.name}
-                                        </Typography>
-                                      </Tooltip>
-
-                                      <Typography
-                                        variant='caption'
-                                        lineHeight={'14px'}
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
                                       >
-                                        {formatFileSize(item.size)}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
-                                  {!item.downloadAvailable &&
-                                  item.type === 'SOURCE' ? (
-                                    <Tooltip title='Download blocked'>
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(item.name)}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
                                       <Box
                                         sx={{
                                           display: 'flex',
-                                          alignItems: 'center',
-                                          padding: '4px',
+                                          flexDirection: 'column',
                                         }}
                                       >
-                                        <Icon
-                                          icon='mdi:lock'
-                                          fontSize={20}
-                                          color='#8D8E9A'
-                                        />
+                                        <Tooltip title={item.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {item.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(item.size)}
+                                        </Typography>
                                       </Box>
-                                    </Tooltip>
-                                  ) : (
-                                    <IconButton
-                                      onClick={() => downloadOneFile(item)}
-                                      sx={{ padding: '4px' }}
-                                    >
-                                      <Icon icon='mdi:download' fontSize={24} />
-                                    </IconButton>
-                                  )}
-                                </Box>
-                              )
-                            })}
+                                    </Box>
+                                    {!item.downloadAvailable &&
+                                    item.type === 'SOURCE' ? (
+                                      <Tooltip title='Download blocked'>
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '4px',
+                                          }}
+                                        >
+                                          <Icon
+                                            icon='mdi:lock'
+                                            fontSize={20}
+                                            color='#8D8E9A'
+                                          />
+                                        </Box>
+                                      </Tooltip>
+                                    ) : (
+                                      <IconButton
+                                        onClick={() => downloadOneFile(item)}
+                                        sx={{ padding: '4px' }}
+                                      >
+                                        <Icon
+                                          icon='mdi:download'
+                                          fontSize={24}
+                                        />
+                                      </IconButton>
+                                    )}
+                                  </Box>
+                                )
+                              })}
+                            </Box>
                           </Box>
-                        </Box>
-                      )
-                    })
-                  : // <Box
-                    //   sx={{
-                    //     display: 'grid',
-                    //     gridTemplateColumns: 'repeat(3,1fr)',
-                    //     gridGap: '16px',
-                    //   }}
-                    // >
-                    //   {savedFileList}
-                    // </Box>
-                    null}
+                        )
+                      })
+                    : null}
+                </Box>
               </Box>
             </Card>
           )}
