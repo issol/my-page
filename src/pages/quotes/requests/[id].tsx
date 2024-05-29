@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import parse from 'html-react-parser';
+import parse from 'html-react-parser'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
