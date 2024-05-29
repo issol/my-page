@@ -567,116 +567,6 @@ const SourceFileUpload = ({
                 </IconButton>
               </Box>
             </Box>
-
-            {/* <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px',
-                // mt: '24px',
-              }}
-            >
-              {sourceFileList &&
-                sourceFileList?.length > 0 &&
-                // uploadedFileList(sourceFileList!, 'SOURCE')}
-                groupedFiles.map(value => {
-                  return (
-                    <Box key={uuidv4()}>
-                      <Typography
-                        variant='body2'
-                        fontSize={14}
-                        fontWeight={400}
-                        sx={{ mb: '5px' }}
-                      >
-                        {convertTimeToTimezone(
-                          value.createdAt,
-                          auth.getValue().user?.timezone,
-                          timezone.getValue(),
-                        )}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2,1fr)',
-                          gridGap: '16px',
-                        }}
-                      >
-                        {value.data.map(item => {
-                          return (
-                            <Box
-                              key={uuidv4()}
-                              sx={{
-                                display: 'flex',
-                                marginBottom: '8px',
-                                width: '100%',
-                                justifyContent: 'space-between',
-                                borderRadius: '8px',
-                                padding: '10px 12px',
-                                border: '1px solid rgba(76, 78, 100, 0.22)',
-                                background: '#f9f8f9',
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    marginRight: '8px',
-                                    display: 'flex',
-                                  }}
-                                >
-                                  <Icon
-                                    icon='material-symbols:file-present-outline'
-                                    style={{
-                                      color: 'rgba(76, 78, 100, 0.54)',
-                                    }}
-                                    fontSize={24}
-                                  />
-                                </Box>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                  }}
-                                >
-                                  <Tooltip title={item.name}>
-                                    <Typography
-                                      variant='body1'
-                                      fontSize={14}
-                                      fontWeight={600}
-                                      lineHeight={'20px'}
-                                      sx={{
-                                        overflow: 'hidden',
-                                        wordBreak: 'break-all',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 1,
-                                        WebkitBoxOrient: 'vertical',
-                                      }}
-                                    >
-                                      {item.name}
-                                    </Typography>
-                                  </Tooltip>
-
-                                  <Typography
-                                    variant='caption'
-                                    lineHeight={'14px'}
-                                  >
-                                    {formatFileSize(item.size)}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </Box>
-                          )
-                        })}
-                      </Box>
-                    </Box>
-                  )
-                })}
-            </Box> */}
           </Box>
           <div
             {...getRootProps({
@@ -696,20 +586,21 @@ const SourceFileUpload = ({
                   Linked Request: {requestData?.corporationId}
                 </Typography>
               ) : (
-                <Button
-                  variant='outlined'
-                  disabled={[
-                    60500, 60600, 60700, 601000, 60800, 60900,
-                  ].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
-                >
-                  <input {...getInputProps()} />
-                  <Icon
-                    icon='ic:baseline-attachment'
-                    color='#666CFF'
-                    fontSize={18}
-                  ></Icon>
-                  &nbsp; Upload files
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Typography fontSize={12} fontWeight={400} color='#8D8E9A'>
+                    Drag and drop or{' '}
+                  </Typography>
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    disabled={[
+                      60500, 60600, 60700, 601000, 60800, 60900,
+                    ].includes(row.status)}
+                  >
+                    <input {...getInputProps()} />
+                    Browse files
+                  </Button>
+                </Box>
               )}
 
               {files.length > 0 && (
