@@ -54,6 +54,7 @@ import Image from 'next/image'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   info:
@@ -184,11 +185,12 @@ const SourceFileUpload = ({
     accept: {
       ...srtUploadFileExtension.accept,
     },
-    noDragEventsBubbling: true,
-    disabled: type === 'import',
+    // noClick: files.length > 0,
+    // noDragEventsBubbling: true,
+    disabled:
+      type === 'import' ||
+      [60500, 60600, 60700, 601000, 60800, 60900].includes(row.status),
     onDrop: (acceptedFiles: File[]) => {
-      console.log(acceptedFiles)
-
       const totalFileSize =
         acceptedFiles.reduce((res, file) => (res += file.size), 0) + fileSize
       if (totalFileSize > MAXIMUM_FILE_SIZE) {
@@ -579,6 +581,7 @@ const SourceFileUpload = ({
                 padding: '20px',
               }}
             >
+              <input {...getInputProps()} />
               {type === 'import' ? (
                 <Typography color='#666CFF' fontWeight={600} fontSize={14}>
                   Linked Request: {requestData?.corporationId}
@@ -595,7 +598,6 @@ const SourceFileUpload = ({
                       60500, 60600, 60700, 601000, 60800, 60900,
                     ].includes(row.status)}
                   >
-                    <input {...getInputProps()} />
                     Browse files
                   </Button>
                 </Box>
@@ -655,16 +657,9 @@ const SourceFileUpload = ({
                               }}
                             >
                               <Image
-                                src={`/images/icons/file-icons/${
-                                  videoExtensions.includes(
-                                    file.name
-                                      ?.split('.')
-                                      .pop()
-                                      ?.toLowerCase() ?? '',
-                                  )
-                                    ? 'video'
-                                    : 'document'
-                                }.svg`}
+                                src={`/images/icons/file-icons/${extractFileExtension(
+                                  file.name,
+                                )}.svg`}
                                 alt=''
                                 width={32}
                                 height={32}
@@ -751,6 +746,8 @@ const SourceFileUpload = ({
                                   padding: '4px',
                                 }}
                                 onClick={event => {
+                                  event.stopPropagation()
+
                                   handleRemoveFile(file)
                                 }}
                               >
