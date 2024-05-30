@@ -1,6 +1,5 @@
 import { Icon } from '@iconify/react'
 import {
-  Badge,
   Box,
   Button,
   Card,
@@ -8,17 +7,12 @@ import {
   Divider,
   FormControlLabel,
   Grid,
-  IconButton,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import useModal from '@src/hooks/useModal'
-import {
-  FileBox,
-  FileName,
-} from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
@@ -28,7 +22,7 @@ import {
   ProJobDeliveryType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import PartialDeliveryModal from './components/modal/partial-delivery-modal'
@@ -47,11 +41,11 @@ import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
 import {
+  QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
   useMutation,
   useQueryClient,
-  QueryObserverResult,
 } from 'react-query'
 import {
   patchProJobFeedbackCheck,
@@ -328,16 +322,20 @@ const DeliveriesFeedback = ({
         size: number
         type: 'SAMPLE' | 'TARGET' | 'SOURCE'
       }> = []
+
+      const fileType = 'TARGET'
+
       const paths: string[] = files.map(file => {
-        return `project/${jobInfo.id}/${file.name}`
+        return `project/${jobInfo.id}/${fileType.toLowerCase()}/${file.name}`
       })
+
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.ORDER_DELIVERY, url).then(
           res => {
             fileInfo.push({
               name: files[idx].name,
               size: files[idx]?.size,
-              type: 'TARGET',
+              type: fileType,
             })
             return uploadFileToS3(res, files[idx])
           },
