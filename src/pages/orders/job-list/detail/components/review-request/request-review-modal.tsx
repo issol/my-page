@@ -143,6 +143,10 @@ const RequestReviewModal = ({
 
   const notes = watch('note')
 
+  const [memberList, setMemberList] = useState<
+    Array<{ value: number; label: string; jobTitle?: string }>
+  >([])
+
   const [sourceFileSize, setSourceFileSize] = useState(0)
   const [targetFileSize, setTargetFileSize] = useState(0)
 
@@ -535,6 +539,14 @@ const RequestReviewModal = ({
   }, [timezone])
 
   useEffect(() => {
+    if (members) {
+      let init = [...members].sort((a, b) => a.label.localeCompare(b.label))
+      init.unshift({ value: -1, label: 'Not specified', jobTitle: '' })
+      setMemberList(init)
+    }
+  }, [members])
+
+  useEffect(() => {
     if (jobSourceFiles.length > 0) {
       setSelectedSourceFiles(
         jobSourceFiles.map(value => ({
@@ -716,11 +728,12 @@ const RequestReviewModal = ({
                           // label='legalName_pronounce'
                           fullWidth
                           value={
-                            members?.find(option => option.value === value) ??
-                            null
+                            memberList?.find(
+                              option => option.value === value,
+                            ) ?? null
                           }
                           onChange={(e, newValue) => onChange(newValue?.value)}
-                          options={members || []}
+                          options={memberList || []}
                           renderInput={params => (
                             <TextField
                               {...params}
