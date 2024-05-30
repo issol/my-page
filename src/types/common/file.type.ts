@@ -14,4 +14,5 @@ export type FileType = {
   reviewRequested?: boolean
   uploadedBy?: string
   uniqueId?: string
+  jobFileId?: number
 }

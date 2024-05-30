@@ -55,6 +55,7 @@ import { extractFileExtension } from '@src/shared/transformer/file-extension.tra
 import { displayCustomToast } from '@src/shared/utils/toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { authState } from '@src/states/auth'
+import { request } from 'http'
 
 type Props = {
   onClose: any
@@ -547,34 +548,48 @@ const RequestReviewModal = ({
   }, [members])
 
   useEffect(() => {
-    if (jobSourceFiles.length > 0) {
+    if (jobSourceFiles.length > 0 && requestInfo) {
+      const savedSourceFilesId = requestInfo.files
+        .filter(value => value.type === 'SOURCE')
+        .map(value => value.jobFileId)
+
+      console.log(savedSourceFilesId)
+
       setSelectedSourceFiles(
-        jobSourceFiles.map(value => ({
-          name: value.name,
-          size: value.size,
-          type: value.type,
-          file: value.file,
-          isSelected: false,
-          isRequested: value.reviewRequested,
-        })),
+        jobSourceFiles.map(value => {
+          return {
+            name: value.name,
+            size: value.size,
+            type: value.type,
+            file: value.file,
+            isSelected: savedSourceFilesId.includes(value.id),
+            isRequested: value.reviewRequested,
+            id: value.id,
+          }
+        }),
       )
     }
-  }, [jobSourceFiles])
+  }, [jobSourceFiles, requestInfo])
 
   useEffect(() => {
-    if (jobTargetFiles.length > 0) {
+    if (jobTargetFiles.length > 0 && requestInfo) {
+      const savedTargetFilesId = requestInfo.files
+        .filter(value => value.type === 'TARGET')
+        .map(value => value.jobFileId)
+
       setSelectedTargetFiles(
         jobTargetFiles.map(value => ({
           name: value.name,
           size: value.size,
           type: value.type,
           file: value.file,
-          isSelected: false,
+          isSelected: savedTargetFilesId.includes(value.id),
           isRequested: value.reviewRequested,
+          id: value.id,
         })),
       )
     }
-  }, [jobTargetFiles])
+  }, [jobTargetFiles, requestInfo])
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
