@@ -1388,7 +1388,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                     fontWeight={400}
                                     color='#8D8E9A'
                                   >
-                                    There are reviewed files
+                                    There are no reviewed files
                                   </Typography>
                                 </Box>
                               )}
