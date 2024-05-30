@@ -97,13 +97,13 @@ const Jobs = () => {
             label={
               <Box display='flex' alignItems='center' gap='8px'>
                 Requested & Ongoing
-                {ongoingDot ? (
+                {/* {ongoingDot ? (
                   <Badge
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
                   />
-                ) : null}
+                ) : null} */}
               </Box>
             }
             iconPosition='start'
@@ -122,13 +122,13 @@ const Jobs = () => {
             label={
               <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 Completed & Inactive
-                {completedDot ? (
+                {/* {completedDot ? (
                   <Badge
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
                   />
-                ) : null}
+                ) : null} */}
               </Box>
             }
             iconPosition='start'
