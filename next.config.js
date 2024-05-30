@@ -2,13 +2,13 @@
 
 const nextConfig = {
   output: 'export',
-  swcMinify: true,
+  // swcMinify: true,
   productionBrowserSourceMaps: true,
   trailingSlash: true,
   experimental: {
     esmExternals: false,
   },
-  swcMinify: true,
+
   images: {
     unoptimized: true,
     loader: 'akamai',
