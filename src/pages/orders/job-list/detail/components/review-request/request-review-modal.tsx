@@ -726,6 +726,7 @@ const RequestReviewModal = ({
                               {...params}
                               inputRef={ref}
                               autoComplete='off'
+                              placeholder='Select'
                               error={isSubmitted && Boolean(errors.assignee)}
                               helperText={
                                 isSubmitted && Boolean(errors.assignee)
@@ -773,18 +774,21 @@ const RequestReviewModal = ({
                               id='date-range-picker-months'
                               onChange={onChange}
                               popperPlacement={popperPlacement}
+                              placeholderText='MM/DD/YYYY, HH:MM'
                               customInput={
                                 <Box>
                                   <CustomInput
                                     icon='calendar'
                                     sx={{ height: '46px' }}
-                                    placeholder='MM/DD/YYYY, HH:MM'
+                                    label='MM/DD/YYYY, HH:MM'
+                                    noLabel={true}
+                                    // placeholder='MM/DD/YYYY, HH:MM'
                                     error={
                                       Boolean(errors.desiredDueAt) &&
                                       isSubmitted
                                     }
-                                    // placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                    // readOnly
+                                    placeholder='MM/DD/YYYY, HH:MM'
+                                    readOnly
                                     value={value ? dateValue(value) : ''}
                                     ref={ref}
                                   />
