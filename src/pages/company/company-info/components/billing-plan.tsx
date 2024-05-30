@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, ChangeEvent, useEffect } from 'react'
+import useModal from '@src/hooks/useModal'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -32,88 +33,16 @@ import TableContainer from '@mui/material/TableContainer'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import DialogContentText from '@mui/material/DialogContentText'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
-// ** Third Party Imports
-import Payment from 'payment'
-import Cards, { Focused } from 'react-credit-cards'
-
-// ** Custom Components
-import CustomChip from 'src/@core/components/mui/chip'
-
-// ** Util Import
-import { formatCVC, formatExpirationDate, formatCreditCardNumber } from 'src/@core/utils/format'
-
-// ** Types
-import { ThemeColor } from 'src/@core/layouts/types'
-
-// ** Styled Component Imports
-import CardWrapper from 'src/@core/styles/libs/react-credit-cards'
-
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
-import { CompanyInfoType } from '@src/types/company/info'
 import { CurrentPlanType } from '@src/types/company/billing-plan'
 import Link from 'next/link'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-
-interface DataType {
-  name: string
-  imgSrc: string
-  imgAlt: string
-  cardCvc: string
-  expiryDate: string
-  cardNumber: string
-  cardStatus?: string
-  badgeColor?: ThemeColor
-}
-
-// ** Styled <sup> component
-const Sup = styled('sup')(({ theme }) => ({
-  top: '0.2rem',
-  left: '-0.6rem',
-  position: 'absolute',
-  color: theme.palette.primary.main
-}))
-
-// ** Styled <sub> component
-const Sub = styled('sub')({
-  fontWeight: 300,
-  fontSize: '1rem',
-  alignSelf: 'flex-end'
-})
-
-const data: DataType[] = [
-  {
-    cardCvc: '587',
-    name: 'Tom McBride',
-    expiryDate: '12/24',
-    imgAlt: 'Mastercard',
-    badgeColor: 'primary',
-    cardStatus: 'Popular',
-    cardNumber: '5577 0000 5577 9865',
-    imgSrc: '/images/logos/mastercard.png'
-  },
-  {
-    cardCvc: '681',
-    imgAlt: 'Visa card',
-    expiryDate: '02/24',
-    name: 'Mildred Wagner',
-    cardNumber: '4532 3616 2070 5678',
-    imgSrc: '/images/logos/visa.png'
-  },
-  {
-    cardCvc: '3845',
-    expiryDate: '08/20',
-    badgeColor: 'error',
-    cardStatus: 'Expired',
-    name: 'Lester Jennings',
-    imgAlt: 'American Express card',
-    cardNumber: '3700 000000 00002',
-    imgSrc: '/images/logos/american-express.png'
-  }
-]
+import { useGetPlanList } from '@src/queries/company/billing-plan.query'
+import StartSubscriptionModal from '../../components/billing-plan/modal/start-subscription-modal'
+import { getCustomerPortalLink, getPaymentLink } from '@src/apis/company/billing-plan.api'
+import { toast } from 'react-hot-toast'
+import { BASEURL } from '@src/configs/axios'
 
 const defaultCurrentPlan: CurrentPlanType = {
     id: 0,
@@ -136,28 +65,66 @@ const BillingPlan = ({
 
 }: Props) => {
   // ** States
-  const [cvc, setCvc] = useState<string>('')
-  const [name, setName] = useState<string>('')
-  const [focus, setFocus] = useState<Focused>()
-  const [cardId, setCardId] = useState<number>(0)
-  const [expiry, setExpiry] = useState<string>('')
-  const [cardNumber, setCardNumber] = useState<string>('')
-  const [dialogTitle, setDialogTitle] = useState<string>('Add')
-  const [openEditCard, setOpenEditCard] = useState<boolean>(false)
-  const [openAddressCard, setOpenAddressCard] = useState<boolean>(false)
-  const [openUpgradePlans, setOpenUpgradePlans] = useState<boolean>(false)
-  const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState<boolean>(false)
+  const { openModal, closeModal } = useModal()
 
   const [currentPlan, setCurrentPlan] = useState<CurrentPlanType>(defaultCurrentPlan);
+  const [hasPlan, setHasPlan] = useState<boolean>(false)
+
+  const { data: planList, refetch: planListRefetch } = useGetPlanList()
+
+  const onStartSubscription = async (planId: string) => {
+    try {
+      const subscriptionLink = await getPaymentLink(planId)
+      console.log("subscriptionLink", subscriptionLink)
+      window.open(subscriptionLink, '_blank');
+      
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    } finally {
+      closeModal('signup-not-approval-modal')
+    }
+  }
+  const onClickManageSubscription = async () => {
+    const customerPortalLink = await getCustomerPortalLink()
+    window.open(customerPortalLink, '_blank');
+  }
+
+  const onClickStartSubscription = () => {
+    openModal({
+      type: 'start-subscription-modal',
+      children: (
+        <StartSubscriptionModal
+          title='Start Subscription'
+          planList={planList!}
+          onSubscription={onStartSubscription}
+          onClose={() => closeModal('signup-not-approval-modal')}
+        />
+      ),
+
+
+    })
+  }
+
+  const isPlanExpired = (expiredDate: string) => {
+    const expiredAt = new Date(expiredDate)
+    const now = new Date()
+    return expiredAt < now
+  }
 
   useEffect(() => {
-    const eventSource = new EventSource('/api/sse');
+    const eventSource = new EventSource(`${BASEURL}/api/enough/u/payment/sse`);
 
     eventSource.onmessage = (event: MessageEvent) => {
       try {
         const newMessage: CurrentPlanType = JSON.parse(event.data);
         console.log('EventSource message:', newMessage);
         setCurrentPlan(newMessage); // 새로운 메시지로 상태를 업데이트
+        isPlanExpired(newMessage.expiredAt)
+          ? setHasPlan(false)
+          : setHasPlan(true)
+
       } catch (error) {
         console.error('Failed to parse message:', error);
       }
@@ -172,58 +139,6 @@ const BillingPlan = ({
       eventSource.close();
     };
   }, []);
-
-  // Handle Edit Card dialog and get card ID
-  const handleEditCardClickOpen = (id: number) => {
-    setDialogTitle('Edit')
-    setCardId(id)
-    setCardNumber(data[id].cardNumber)
-    setName(data[id].name)
-    setCvc(data[id].cardCvc)
-    setExpiry(data[id].expiryDate)
-    setOpenEditCard(true)
-  }
-
-  const handleAddCardClickOpen = () => {
-    setDialogTitle('Add')
-    setCardNumber('')
-    setName('')
-    setCvc('')
-    setExpiry('')
-    setOpenEditCard(true)
-  }
-
-  const handleEditCardClose = () => {
-    setDialogTitle('Add')
-    setCardNumber('')
-    setName('')
-    setCvc('')
-    setExpiry('')
-    setOpenEditCard(false)
-  }
-
-  const onClickManageSubscription = () => {
-    window.open('https://billing.stripe.com/p/session/test_YWNjdF8xR3kxaUZBbHF2S3B4SkN1LF9RQm9HN2R0Y3FiSThuYVNyTW1hN25mN2JJTkMzSENM0100AGHkzZDP/subscriptions/sub_1PLQe9AlqvKpxJCud6jg31lk/preview/price_1Gy5zeAlqvKpxJCuvoRf2DEF?quantity=1', '_blank');
-  };
-
-  const onClickStartSubscription = () => {
-    window.open('https://buy.stripe.com/test_00g162djy7ZY0Fi4gy', '_blank');
-  }
-
-  const handleBlur = () => setFocus(undefined)
-
-  const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    if (target.name === 'number') {
-      target.value = formatCreditCardNumber(target.value, Payment)
-      setCardNumber(target.value)
-    } else if (target.name === 'expiry') {
-      target.value = formatExpirationDate(target.value)
-      setExpiry(target.value)
-    } else if (target.name === 'cvc') {
-      target.value = formatCVC(target.value, cardNumber, Payment)
-      setCvc(target.value)
-    }
-  }
 
   return (
     <Grid container spacing={6}>
@@ -241,7 +156,10 @@ const BillingPlan = ({
                 </Box>
                 <Box sx={{ mb: 4 }}>
                   <Typography sx={{ fontWeight: 500, mb: 1, fontSize: '0.875rem' }}>
-                    Plan expired date: {currentPlan.expiredAt}
+                    Plan expired date: {currentPlan.expiredAt || '-'}
+                  </Typography>
+                  <Typography sx={{ fontWeight: 500, mb: 1, fontSize: '0.875rem' }}>
+                    Auto Renewed: {currentPlan.isAutoRenewalEnabled || '-'}
                   </Typography>
                   {/* <Typography variant='body2'>We will send you a notification upon Subscription expiration</Typography> */}
                 </Box>
@@ -260,11 +178,15 @@ const BillingPlan = ({
                 </Typography> */}
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                <Button variant='contained' onClick={onClickStartSubscription} sx={{ mr: 3, mb: [3, 0] }}>
+              <Grid
+                item
+                xs={12}
+                sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '8px' }}
+              >
+                <Button variant='contained' onClick={onClickStartSubscription} disabled={hasPlan}>
                   Start Subscription
                 </Button>
-                <Button variant='outlined' onClick={onClickManageSubscription} >
+                <Button variant='outlined' onClick={onClickManageSubscription} disabled={!hasPlan}>
                   Manage Subscription
                 </Button>
               </Grid>

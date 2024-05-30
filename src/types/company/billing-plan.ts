@@ -6,6 +6,19 @@ export interface TimezoneType {
   phone?: string
 }
 
+export type PlanListType = {
+	createdAt: string
+	currency: Currency
+	id: number
+	isActive: boolean
+	name: string
+	period: "Month" | "Year",
+	periodDuration: number
+	price: string
+	stripePriceId: string
+	updatedAt: string
+}
+
 export type CurrentPlanType = {
 	id: number
 	planName: string
