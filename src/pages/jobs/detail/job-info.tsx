@@ -1036,7 +1036,8 @@ const ProJobInfo = ({
                       jobInfo.status !== 60100
                         ? 'Source files'
                         : 'Sample files'}
-                      &nbsp;({groupedFiles?.length ?? 0})
+                      &nbsp;(
+                      {groupedFiles?.flatMap(value => value.data).length ?? 0})
                     </Typography>
                     <Typography
                       fontSize={12}

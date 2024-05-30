@@ -235,7 +235,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
 
   useEffect(() => {
     if (members) {
-      let init = [...members]
+      let init = [...members].sort((a, b) => a.label.localeCompare(b.label))
       init.unshift({ value: -1, label: 'Not specified', jobTitle: '' })
       setMemberList(init)
     }
@@ -430,8 +430,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           />
                           <Typography fontSize={14} fontWeight={600}>
                             {convertTimeToTimezone(
-                              item.dueDate,
-                              item.dueDateTimezone,
+                              item.createdAt,
+                              auth.getValue().user?.timezone,
                               timezone.getValue(),
                             )}
                           </Typography>
@@ -1388,7 +1388,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                     fontWeight={400}
                                     color='#8D8E9A'
                                   >
-                                    There are reviewed files
+                                    There are no reviewed files
                                   </Typography>
                                 </Box>
                               )}

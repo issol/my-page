@@ -55,6 +55,7 @@ import { extractFileExtension } from '@src/shared/transformer/file-extension.tra
 import { displayCustomToast } from '@src/shared/utils/toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { authState } from '@src/states/auth'
+import { request } from 'http'
 
 type Props = {
   onClose: any
@@ -142,6 +143,10 @@ const RequestReviewModal = ({
   })
 
   const notes = watch('note')
+
+  const [memberList, setMemberList] = useState<
+    Array<{ value: number; label: string; jobTitle?: string }>
+  >([])
 
   const [sourceFileSize, setSourceFileSize] = useState(0)
   const [targetFileSize, setTargetFileSize] = useState(0)
@@ -535,34 +540,56 @@ const RequestReviewModal = ({
   }, [timezone])
 
   useEffect(() => {
-    if (jobSourceFiles.length > 0) {
-      setSelectedSourceFiles(
-        jobSourceFiles.map(value => ({
-          name: value.name,
-          size: value.size,
-          type: value.type,
-          file: value.file,
-          isSelected: false,
-          isRequested: value.reviewRequested,
-        })),
-      )
+    if (members) {
+      let init = [...members].sort((a, b) => a.label.localeCompare(b.label))
+      init.unshift({ value: -1, label: 'Not specified', jobTitle: '' })
+      setMemberList(init)
     }
-  }, [jobSourceFiles])
+  }, [members])
 
   useEffect(() => {
-    if (jobTargetFiles.length > 0) {
+    if (jobSourceFiles.length > 0 && requestInfo) {
+      const savedSourceFilesId = requestInfo.files
+        .filter(value => value.type === 'SOURCE')
+        .map(value => value.jobFileId)
+
+      console.log(savedSourceFilesId)
+
+      setSelectedSourceFiles(
+        jobSourceFiles.map(value => {
+          return {
+            name: value.name,
+            size: value.size,
+            type: value.type,
+            file: value.file,
+            isSelected: savedSourceFilesId.includes(value.id),
+            isRequested: value.reviewRequested,
+            id: value.id,
+          }
+        }),
+      )
+    }
+  }, [jobSourceFiles, requestInfo])
+
+  useEffect(() => {
+    if (jobTargetFiles.length > 0 && requestInfo) {
+      const savedTargetFilesId = requestInfo.files
+        .filter(value => value.type === 'TARGET')
+        .map(value => value.jobFileId)
+
       setSelectedTargetFiles(
         jobTargetFiles.map(value => ({
           name: value.name,
           size: value.size,
           type: value.type,
           file: value.file,
-          isSelected: false,
+          isSelected: savedTargetFilesId.includes(value.id),
           isRequested: value.reviewRequested,
+          id: value.id,
         })),
       )
     }
-  }, [jobTargetFiles])
+  }, [jobTargetFiles, requestInfo])
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
@@ -716,16 +743,18 @@ const RequestReviewModal = ({
                           // label='legalName_pronounce'
                           fullWidth
                           value={
-                            members?.find(option => option.value === value) ??
-                            null
+                            memberList?.find(
+                              option => option.value === value,
+                            ) ?? null
                           }
                           onChange={(e, newValue) => onChange(newValue?.value)}
-                          options={members || []}
+                          options={memberList || []}
                           renderInput={params => (
                             <TextField
                               {...params}
                               inputRef={ref}
                               autoComplete='off'
+                              placeholder='Select'
                               error={isSubmitted && Boolean(errors.assignee)}
                               helperText={
                                 isSubmitted && Boolean(errors.assignee)
@@ -773,18 +802,21 @@ const RequestReviewModal = ({
                               id='date-range-picker-months'
                               onChange={onChange}
                               popperPlacement={popperPlacement}
+                              placeholderText='MM/DD/YYYY, HH:MM'
                               customInput={
                                 <Box>
                                   <CustomInput
                                     icon='calendar'
                                     sx={{ height: '46px' }}
-                                    placeholder='MM/DD/YYYY, HH:MM'
+                                    label='MM/DD/YYYY, HH:MM'
+                                    noLabel={true}
+                                    // placeholder='MM/DD/YYYY, HH:MM'
                                     error={
                                       Boolean(errors.desiredDueAt) &&
                                       isSubmitted
                                     }
-                                    // placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                    // readOnly
+                                    placeholder='MM/DD/YYYY, HH:MM'
+                                    readOnly
                                     value={value ? dateValue(value) : ''}
                                     ref={ref}
                                   />

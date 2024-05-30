@@ -15,27 +15,29 @@ interface PickerProps {
   error?: boolean
   value?: string
   placeholder?: string
-
+  noLabel?: boolean
   sx?: any
   size?: OverridableStringUnion<'small' | 'medium', InputBasePropsSizeOverrides>
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
   // ** Props
-  const { label, readOnly, value, placeholder, size } = props
+  const { label, readOnly, value, placeholder, size, noLabel } = props
 
   if (props.icon) {
     switch (props.icon) {
       case 'calendar':
         return (
           <FormControl fullWidth size={size}>
-            <InputLabel error={props.error}>{label || ''}</InputLabel>
+            {noLabel ? null : (
+              <InputLabel error={props.error}>{label || ''}</InputLabel>
+            )}
             <OutlinedInput
               inputRef={ref}
               error={props.error}
               {...props}
               value={value}
-              label={label || ''}
+              label={noLabel ? undefined : label || ''}
               placeholder={placeholder || ''}
               {...(readOnly && { inputProps: { readOnly: true } })}
               endAdornment={
