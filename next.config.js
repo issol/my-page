@@ -3,6 +3,7 @@
 const nextConfig = {
   output: 'export',
   // swcMinify: true,
+  swcMinify: false,
   productionBrowserSourceMaps: true,
   trailingSlash: true,
   experimental: {
