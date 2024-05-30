@@ -349,6 +349,13 @@ const ProJobInfo = ({
             closeModal('AvailableModal')
           }
         },
+        onError: () => {
+          toast.error('Something went wrong, Please try again.', {
+            position: 'bottom-left',
+          })
+          closeModal('DeclineModal')
+          closeModal('AvailableModal')
+        },
       },
     )
     // updateJob.mutate(response === 'Decline' ? 60300 : 60200, {})
