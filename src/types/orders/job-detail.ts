@@ -149,6 +149,11 @@ export type JobRequestReviewListType = {
     createdAt: string
     files: FileType[]
     note: string
+    reviewerInfo: {
+      email: string
+      userId: number
+      name: string
+    }
   }>
 }
 
@@ -182,5 +187,10 @@ export type JobRequestReviewParamsType = {
     createdAt: string
     files: FileType[]
     note: string
+    reviewerInfo: {
+      email: string
+      userId: number
+      name: string
+    }
   }>
 }

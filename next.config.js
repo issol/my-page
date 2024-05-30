@@ -8,6 +8,7 @@ const nextConfig = {
   experimental: {
     esmExternals: false,
   },
+  swcMinify: true,
   images: {
     unoptimized: true,
     loader: 'akamai',

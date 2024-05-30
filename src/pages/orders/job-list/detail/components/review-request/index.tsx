@@ -1181,22 +1181,39 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                           <Box
                                             sx={{
                                               display: 'flex',
-                                              alignItems: 'center',
+                                              // alignItems: 'center',
+
                                               justifyContent: 'space-between',
 
                                               // mb: '20px',
                                             }}
                                           >
-                                            <Typography
-                                              fontSize={14}
-                                              fontWeight={600}
+                                            <Box
+                                              sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '4px',
+                                              }}
                                             >
-                                              {convertTimeToTimezone(
-                                                value.createdAt,
-                                                auth.getValue().user?.timezone,
-                                                timezone.getValue(),
-                                              )}
-                                            </Typography>
+                                              <Typography
+                                                fontSize={14}
+                                                fontWeight={600}
+                                              >
+                                                {convertTimeToTimezone(
+                                                  value.createdAt,
+                                                  auth.getValue().user
+                                                    ?.timezone,
+                                                  timezone.getValue(),
+                                                )}
+                                              </Typography>
+                                              <Typography
+                                                fontSize={14}
+                                                fontWeight={400}
+                                                color='#8D8E9A'
+                                              >
+                                                {value.reviewerInfo.name ?? '-'}
+                                              </Typography>
+                                            </Box>
 
                                             <Typography
                                               color='#8D8E9A'
