@@ -15,11 +15,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  styled,
   Tab,
   TextField,
   Tooltip,
   Typography,
-  styled,
   useTheme,
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
@@ -31,7 +31,6 @@ import {
   useGetJobPriceHistory,
   useGetJobPrices,
   useGetJobRequestHistory,
-  useGetJobRequestReview,
   useGetSourceFile,
 } from '@src/queries/order/job.query'
 import Image from 'next/image'
@@ -39,15 +38,12 @@ import { useRouter } from 'next/router'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import {
-  useEffect,
-  useState,
   MouseEvent,
   SyntheticEvent,
+  useEffect,
   useMemo,
-  Dispatch,
-  SetStateAction,
   useRef,
-  useContext,
+  useState,
 } from 'react'
 import AssignPro from './components/assign-pro'
 import {
@@ -64,32 +60,28 @@ import {
   useGetLinguistTeamDetail,
 } from '@src/queries/pro/linguist-team'
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
-import { useGetProList } from '@src/queries/pro/pro-list.query'
-import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { ItemType, JobType } from '@src/types/common/item.type'
 import {
   JobAddProsFormType,
   JobAssignProRequestsType,
   JobBulkRequestFormType,
+  jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
   JobRequestHistoryType,
-  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
-import select from '@src/@core/theme/overrides/select'
 import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
-import { UseQueryResult, useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient, UseQueryResult } from 'react-query'
 import {
   addJobFeedback,
   addProCurrentRequest,
   createBulkRequestJobToPro,
   createRequestJobToPro,
   forceAssign,
-  getAssignableProList,
   getRequestAttachment,
   handleJobAssignStatus,
   handleJobReAssign,
@@ -104,15 +96,12 @@ import JobInfo from './components/info'
 import {
   AssignProFilterPostType,
   AssignProListType,
-  JobRequestReviewListType,
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
   useGetLangItem,
-  useGetProjectInfo,
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
-import FileItem from '@src/@core/components/fileItem'
 import { FileType } from '@src/types/common/file.type'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import {
@@ -127,9 +116,6 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
-
-import { ReasonType } from '@src/types/quotes/quote'
-import { RequestRedeliveryReason } from '@src/shared/const/reason/reason'
 import SelectRequestRedeliveryReasonModal from './components/info/request-redelivery-modal'
 import SourceFileUpload from './components/info/source-file'
 import Chip from '@src/@core/components/mui/chip'
@@ -144,18 +130,13 @@ import { jobItemSchema } from '@src/types/schema/item.schema'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
 import toast from 'react-hot-toast'
 import { job_list } from '@src/shared/const/permission-class'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import { log } from 'console'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import RequestHistory from './components/request-history'
-import { ErrorBoundary } from 'react-error-boundary'
-import Error500 from '@src/pages/500'
 import {
   getCurrentRole,
   getUserTokenFromBrowser,
@@ -1405,6 +1386,7 @@ const JobDetail = () => {
     itemTrigger(`items.${0}.minimumPriceApplied`)
     getTotalPrice()
   }
+
   function getTotalPrice() {
     const itemMinimumPrice = Number(getItem(`items.${0}.minimumPrice`))
     const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
@@ -1488,6 +1470,23 @@ const JobDetail = () => {
       return 'deActive'
     }
   }
+
+  const getFileExtension = (fileName: string) => {
+    const parts = fileName.split('.')
+    return parts.length > 1 ? parts.pop()?.toUpperCase() : ''
+  }
+
+  const hiddenGlosubButton = useMemo(() => {
+    const sourceFiles =
+      selectedJobInfo?.jobInfo.files?.filter(file => file.type === 'SOURCE') ||
+      []
+
+    const findVideoFile = sourceFiles.find(item => {
+      const name = item.name || ''
+      return videoExtensions.includes(getFileExtension(name) || '')
+    })
+    return !!findVideoFile
+  }, [selectedJobInfo?.jobInfo])
 
   const reviewInGlosubButtonStatus = () => {
     const status = selectedJobInfo?.jobInfo.status
@@ -2598,7 +2597,7 @@ const JobDetail = () => {
                   ) ? (
                     <Box
                       sx={{
-                        display: 'flex',
+                        display: hiddenGlosubButton ? 'none' : 'flex',
                         gap: '10px',
                         width: '100%',
                         alignItems: 'center',
@@ -2659,7 +2658,7 @@ const JobDetail = () => {
                     ) ? (
                     <Box
                       sx={{
-                        display: 'flex',
+                        display: hiddenGlosubButton ? 'none' : 'flex',
                         gap: '10px',
                         width: '100%',
                         alignItems: 'center',
@@ -2720,7 +2719,6 @@ const JobDetail = () => {
                     <Box
                       sx={{
                         display: 'flex',
-
                         flexDirection: 'column',
                       }}
                     >
