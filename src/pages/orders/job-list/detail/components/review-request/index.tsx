@@ -430,8 +430,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           />
                           <Typography fontSize={14} fontWeight={600}>
                             {convertTimeToTimezone(
-                              item.dueDate,
-                              item.dueDateTimezone,
+                              item.createdAt,
+                              auth.getValue().user?.timezone,
                               timezone.getValue(),
                             )}
                           </Typography>
