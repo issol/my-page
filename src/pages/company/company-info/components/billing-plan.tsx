@@ -139,7 +139,7 @@ const BillingPlan = ({
       eventSource.close();
     };
   }, []);
-
+  console.log("currentPlan", currentPlan)
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -159,7 +159,10 @@ const BillingPlan = ({
                     Plan expired date: {currentPlan.expiredAt || '-'}
                   </Typography>
                   <Typography sx={{ fontWeight: 500, mb: 1, fontSize: '0.875rem' }}>
-                    Auto Renewed: {currentPlan.isAutoRenewalEnabled || '-'}
+                  Auto Renewal: {currentPlan.isAutoRenewalEnabled !== undefined && currentPlan.isAutoRenewalEnabled !== null ? 
+                    (currentPlan.isAutoRenewalEnabled ? 'On' : 'Off') : 
+                    '-'
+                  }
                   </Typography>
                   {/* <Typography variant='body2'>We will send you a notification upon Subscription expiration</Typography> */}
                 </Box>
