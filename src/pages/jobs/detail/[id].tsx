@@ -260,7 +260,7 @@ const ProJobsDetail = () => {
                     sx={{ display: 'flex', alignItems: 'center' }}
                   >
                     <Image
-                      src='/images/icons/job-icons/glosub.svg'
+                      src='/images/icons/job-icons/glosub-disable.svg'
                       alt=''
                       width={16}
                       height={16}

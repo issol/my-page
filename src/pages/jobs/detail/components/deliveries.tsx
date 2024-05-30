@@ -25,7 +25,6 @@ import { extractFileExtension } from '@src/shared/transformer/file-extension.tra
 
 type Props = {
   delivery: Array<ProJobDeliveryType>
-
   downloadAllFiles: (files: Array<JobsFileType> | [] | undefined) => void
   downloadOneFile: (file: JobsFileType) => void
   expanded: string | false
