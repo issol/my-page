@@ -235,7 +235,7 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
 
   useEffect(() => {
     if (members) {
-      let init = [...members]
+      let init = [...members].sort((a, b) => a.label.localeCompare(b.label))
       init.unshift({ value: -1, label: 'Not specified', jobTitle: '' })
       setMemberList(init)
     }
