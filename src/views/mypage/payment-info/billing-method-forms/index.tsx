@@ -214,6 +214,10 @@ const BillingMethod = ({
   }, [billingMethod, isSolo, billingMethodData])
 
   const onBillingMethodSaveClick = () => {
+    console.log("onBillingMethodSaveClick")
+    console.log("billingMethod",getValues())
+    console.log("bankInfo",getBankInfo())
+    console.log("correspondentBankInfo",getCorrBankInfo())
     openModal({
       type: 'save',
       children: (
