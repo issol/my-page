@@ -35,7 +35,7 @@ import DialogContentText from '@mui/material/DialogContentText'
 
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
-import { CurrentPlanType } from '@src/types/company/billing-plan'
+import { CurrentPlanType, PlanPeriodType } from '@src/types/company/billing-plan'
 import Link from 'next/link'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useGetPlanList } from '@src/queries/company/billing-plan.query'
@@ -43,6 +43,8 @@ import StartSubscriptionModal from '../../components/billing-plan/modal/start-su
 import { getCustomerPortalLink, getPaymentLink } from '@src/apis/company/billing-plan.api'
 import { toast } from 'react-hot-toast'
 import { BASEURL } from '@src/configs/axios'
+import StripeScript from '@src/shared/scripts/stripe'
+import { ClientUserType, UserDataType } from '@src/context/types'
 
 const defaultCurrentPlan: CurrentPlanType = {
     id: 0,
@@ -50,25 +52,36 @@ const defaultCurrentPlan: CurrentPlanType = {
     period: "Month",
     price: 0,
     currency: "USD",
-    startedAt: "",
+    startedAt: "2023-02-10T07:33:53.740Z",
     startedTimezone: {label: "Asia/Seoul"},
-    expiredAt: "",
+    expiredAt: "2024-06-14T07:33:53.740Z",
     expiredTimezone: {label: "Asia/Seoul"},
     isAutoRenewalEnabled: false
 }
 
-type Props = {
+const defaultPlanPeriod: PlanPeriodType = {
+  totalPeriod: 0,
+  usedPeriod: 0,
+  usedPercentage: "0.000",
+}
 
+type Props = {
+  auth: {
+    user: UserDataType | null;
+    company: ClientUserType | null | undefined;
+    loading: boolean;
+}
 }
 
 const BillingPlan = ({
-
+  auth,
 }: Props) => {
   // ** States
   const { openModal, closeModal } = useModal()
 
   const [currentPlan, setCurrentPlan] = useState<CurrentPlanType>(defaultCurrentPlan);
   const [hasPlan, setHasPlan] = useState<boolean>(false)
+  const [planPeriod, setPlanPeriod] = useState<PlanPeriodType>(defaultPlanPeriod)
 
   const { data: planList, refetch: planListRefetch } = useGetPlanList()
 
@@ -98,12 +111,11 @@ const BillingPlan = ({
         <StartSubscriptionModal
           title='Start Subscription'
           planList={planList!}
+          userInfo={auth.user}
           onSubscription={onStartSubscription}
           onClose={() => closeModal('signup-not-approval-modal')}
         />
       ),
-
-
     })
   }
 
@@ -113,6 +125,43 @@ const BillingPlan = ({
     return expiredAt < now
   }
 
+  const calculatePeriods = (startedAt: string, expiredAt: string) => {
+    if (!startedAt || !expiredAt) {
+      return defaultPlanPeriod
+    }
+  
+    const startDate = new Date(startedAt);
+    const endDate = new Date(expiredAt);
+    const currentDate = new Date();
+  
+    // 총 기간 (밀리초 단위)
+    const totalPeriodMs = endDate.getTime() - startDate.getTime();
+    // 남은 기간 (밀리초 단위)
+    const remainingPeriodMs = endDate.getTime() - currentDate.getTime();
+  
+    // 총 기간 (일 단위)
+    const totalPeriod = totalPeriodMs / (1000 * 60 * 60 * 24);
+    // 남은 기간 (일 단위)
+    const remainingPeriod = remainingPeriodMs / (1000 * 60 * 60 * 24);
+  
+    let usedPeriodDays = Math.floor(Math.max(totalPeriod - remainingPeriod, 0));
+    let usedPercentage = ((totalPeriod - remainingPeriod) / totalPeriod) * 100;
+  
+    if (currentDate > endDate) {
+      usedPeriodDays = Math.floor(totalPeriod);
+      usedPercentage = 100;
+    } else if (currentDate < startDate) {
+      usedPeriodDays = 0;
+      usedPercentage = 0;
+    }
+  
+    setPlanPeriod({
+      totalPeriod: Math.max(totalPeriod, 0), // 총 기간이 음수가 되지 않도록 보장
+      usedPeriod: usedPeriodDays, // 사용 기간이 음수가 되지 않도록 보장
+      usedPercentage: usedPercentage.toFixed(3), // 퍼센트를 0~100 사이로 보장하고 소수점 3자리까지
+    })
+  }
+  console.log("planPeriod", planPeriod)
   useEffect(() => {
     const eventSource = new EventSource(`${BASEURL}/api/enough/u/payment/sse`);
 
@@ -124,22 +173,24 @@ const BillingPlan = ({
         isPlanExpired(newMessage.expiredAt)
           ? setHasPlan(false)
           : setHasPlan(true)
-
+        calculatePeriods(newMessage.startedAt, newMessage.expiredAt)
       } catch (error) {
         console.error('Failed to parse message:', error);
+        calculatePeriods(defaultCurrentPlan.startedAt, defaultCurrentPlan.expiredAt)
       }
     };
 
     eventSource.onerror = (error) => {
       console.error('EventSource failed:', error);
       eventSource.close();
+      calculatePeriods(defaultCurrentPlan.startedAt, defaultCurrentPlan.expiredAt)
     };
 
     return () => {
       eventSource.close();
     };
   }, []);
-  console.log("currentPlan", currentPlan)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -173,9 +224,9 @@ const BillingPlan = ({
 
                 <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>Days</Typography>
-                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>26 of 30 Days</Typography>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>{planPeriod.usedPeriod} of {planPeriod.totalPeriod} Days</Typography>
                 </Box>
-                <LinearProgress value={86.6666666} variant='determinate' sx={{ height: 10, borderRadius: '5px' }} />
+                <LinearProgress value={Number(planPeriod.usedPercentage)} variant='determinate' sx={{ height: 10, borderRadius: '5px' }} />
                 {/* <Typography variant='body2' sx={{ mt: 2, mb: 4 }}>
                   Your plan requires update
                 </Typography> */}

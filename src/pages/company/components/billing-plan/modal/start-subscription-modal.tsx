@@ -1,5 +1,6 @@
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, Typography, IconButton } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
+import CloseIcon from '@mui/icons-material/Close';
 
 import { TitleTypography } from '@src/@core/styles/typography'
 import Dialog from '@mui/material/Dialog'
@@ -12,6 +13,8 @@ import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@m
 
 import { PlanListType } from '@src/types/company/billing-plan'
 import { useState } from 'react'
+import StripeScript, { STRIPE_PRICING_TABLE_ID, STRIPE_PUBLIC_APIKEY } from '@src/shared/scripts/stripe'
+import { UserDataType } from '@src/context/types';
 
 const Sup = styled('sup')(({ theme }) => ({
   top: '0.2rem',
@@ -29,10 +32,11 @@ const Sub = styled('sub')({
 type Props = {
   title: string
   planList: PlanListType[]
+  userInfo: UserDataType | null
   onSubscription: (planId: string) => void
   onClose: () => void
 }
-export default function StartSubscriptionModal({ title, planList, onSubscription, onClose }: Props) {
+export default function StartSubscriptionModal({ title, planList, userInfo, onSubscription, onClose }: Props) {
   const [planId, setPlanId] = useState<string>('')
 
   const handleChange = (event: SelectChangeEvent<string>) => {
@@ -42,16 +46,36 @@ export default function StartSubscriptionModal({ title, planList, onSubscription
   return (
     <Box
       sx={{
+        position: 'relative',
         maxWidth: '700px',
         width: '100%',
-        background: '#ffffff',
+        background: '#5f14c5',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
+        padding: '16px',
       }}
     >
-      <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
+      <StripeScript
+        pricingTableId={STRIPE_PRICING_TABLE_ID}
+        publishableKey={STRIPE_PUBLIC_APIKEY}
+        clientReferenceId={String(userInfo?.id!)}
+        customerEmail={userInfo?.email!}
+      />
+      <IconButton
+        aria-label="close"
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      {/* <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         Subscription
-      </DialogTitle>
+      </DialogTitle> */}
 
       {/* <DialogContent>
         <DialogContentText variant='body2' sx={{ textAlign: 'center' }} id='user-view-plans-description'>
@@ -59,7 +83,7 @@ export default function StartSubscriptionModal({ title, planList, onSubscription
         </DialogContentText>
       </DialogContent> */}
 
-      <Box
+      {/* <Box
         sx={{
           padding: '20px',
           display: 'flex',
@@ -91,10 +115,7 @@ export default function StartSubscriptionModal({ title, planList, onSubscription
                   <MenuItem key={plan.id} value={plan.id}>{plan.name} - ${plan.price}/{plan.period}</MenuItem>
                 ))
               }
-              {/* <MenuItem value='Basic'>Basic - $0/month</MenuItem>
-              <MenuItem value='Standard'>Standard - $99/month</MenuItem>
-              <MenuItem value='Enterprise'>Enterprise - $499/month</MenuItem>
-              <MenuItem value='Company'>Company - $999/month</MenuItem> */}
+
             </Select>
           </FormControl>
 
@@ -109,7 +130,7 @@ export default function StartSubscriptionModal({ title, planList, onSubscription
             Cancel
           </Button>
         </Box>
-      </Box>
+      </Box> */}
 
       {/* <Divider sx={{ m: '0 !important' }} /> */}
 

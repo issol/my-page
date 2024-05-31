@@ -33,3 +33,9 @@ export type CurrentPlanType = {
 }
 
 export type BillingPlanHistoryType = Array<CurrentPlanType>
+
+export type PlanPeriodType = {
+	totalPeriod: number,
+  usedPeriod: number,
+  usedPercentage: string,
+}
