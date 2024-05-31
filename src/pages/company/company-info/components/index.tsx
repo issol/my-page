@@ -45,6 +45,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import CompanyInfoCard from './info-card'
 import CompanyInfoOverview from './overview'
 import CompanyInfoAddress from './address'
+import BillingPlan from './billing-plan'
 
 interface FileProp {
   name: string
@@ -452,7 +453,9 @@ const CompanyInfoPageComponent = () => {
             )}
           </TabPanel>
 
-          <TabPanel value='billingPlan'></TabPanel>
+          <TabPanel value='billingPlan'>
+            <BillingPlan />
+          </TabPanel>
         </TabContext>
       </Box>
     </Suspense>

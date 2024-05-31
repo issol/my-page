@@ -34,10 +34,17 @@ export function formatCurrency(
   if (!currency) return num?.toString()
   const currentLocale = locale[currency]
 
+  // Ensure decimalPlace is within a reasonable range
+  const validDecimalPlace = decimalPlace !== undefined && decimalPlace >= 0 && decimalPlace <= 20 ? decimalPlace : 0;
+
+  // Override decimalPlace for KRW if it is set to an unreasonable value
+  const effectiveDecimalPlace = ((currency === 'KRW' || currency === 'JPY') && validDecimalPlace > 2) ? 0 : validDecimalPlace;
+  
   const formatter = new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: decimalPlace ?? 0,
+    minimumFractionDigits: effectiveDecimalPlace,
+    maximumFractionDigits: effectiveDecimalPlace,
   })
 
   let formattedNumber = formatter.format(Number(num));
