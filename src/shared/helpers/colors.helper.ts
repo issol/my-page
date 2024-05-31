@@ -164,7 +164,7 @@ export const getProJobStatusColor = (status: JobStatus) => {
     60200: '#FDB528', // 'In progress'
     60400: '#686A80', // Partially delivered
     70300: '#FDB528', // Also 'In progress'
-    60300: '#FFCFCF', // 'Job overdue'
+    60300: '#FF4D49', // 'Job overdue'
     60500: '#1A6BBA', // 'Delivered to LPM'
     60600: '#64C623', // 'Approved'
     60700: '#9B6CD8', // 'Invoiced'
