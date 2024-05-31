@@ -21,7 +21,7 @@ import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/lega
 import languageHelper from '@src/shared/helpers/language.helper'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { DeliveryFileType } from '@src/types/orders/order-detail'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'next/router'
@@ -129,7 +129,15 @@ const ImportFromJob = ({
     })),
   )
 
-  console.log(reviewedFiles)
+  useEffect(() => {
+    if (items) {
+      const tempExpanded: { [key: number]: boolean } = {}
+      items.forEach((value, index) => {
+        tempExpanded[value.id] = true
+      })
+      setExpanded(tempExpanded)
+    }
+  }, [items])
 
   return (
     <Box
