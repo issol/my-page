@@ -307,7 +307,7 @@ const RequestReviewModal = ({
             files: [
               ...fileInfo.files,
               ...selectedSourceFiles
-                .filter(item => item.isSelected)
+                .filter(item => item.isSelected && !item.isImported)
                 .map(value => ({
                   name: value.name,
                   path: value.file!,
@@ -317,7 +317,7 @@ const RequestReviewModal = ({
                   jobFileId: value.id,
                 })),
               ...selectedTargetFiles
-                .filter(item => item.isSelected)
+                .filter(item => item.isSelected && !item.isImported)
                 .map(value => ({
                   name: value.name,
                   path: value.file!,
@@ -365,7 +365,7 @@ const RequestReviewModal = ({
             type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
           })),
           ...selectedSourceFiles
-            .filter(item => item.isSelected)
+            .filter(item => item.isSelected && !item.isImported)
             .map(value => ({
               name: value.name,
               path: value.file!,
@@ -375,7 +375,7 @@ const RequestReviewModal = ({
               jobFileId: value.id,
             })),
           ...selectedTargetFiles
-            .filter(item => item.isSelected)
+            .filter(item => item.isSelected && !item.isImported)
             .map(value => ({
               name: value.name,
               path: value.file!,
@@ -548,12 +548,15 @@ const RequestReviewModal = ({
   }, [members])
 
   useEffect(() => {
-    if (jobSourceFiles.length > 0 && requestInfo) {
-      const savedSourceFilesId = requestInfo.files
-        .filter(value => value.type === 'SOURCE')
-        .map(value => value.jobFileId)
-
-      console.log(savedSourceFilesId)
+    if (jobSourceFiles.length > 0) {
+      const savedSourceFilesId =
+        type === 'edit'
+          ? requestInfo && requestInfo.files
+            ? requestInfo.files
+                .filter(value => value.type === 'SOURCE')
+                .map(value => value.jobFileId)
+            : []
+          : []
 
       setSelectedSourceFiles(
         jobSourceFiles.map(value => {
@@ -563,6 +566,7 @@ const RequestReviewModal = ({
             type: value.type,
             file: value.file,
             isSelected: savedSourceFilesId.includes(value.id),
+            isImported: savedSourceFilesId.includes(value.id),
             isRequested: value.reviewRequested,
             id: value.id,
           }
@@ -572,10 +576,15 @@ const RequestReviewModal = ({
   }, [jobSourceFiles, requestInfo])
 
   useEffect(() => {
-    if (jobTargetFiles.length > 0 && requestInfo) {
-      const savedTargetFilesId = requestInfo.files
-        .filter(value => value.type === 'TARGET')
-        .map(value => value.jobFileId)
+    if (jobTargetFiles.length > 0) {
+      const savedTargetFilesId =
+        type === 'edit'
+          ? requestInfo && requestInfo.files
+            ? requestInfo.files
+                .filter(value => value.type === 'TARGET')
+                .map(value => value.jobFileId)
+            : []
+          : []
 
       setSelectedTargetFiles(
         jobTargetFiles.map(value => ({
