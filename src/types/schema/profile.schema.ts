@@ -8,6 +8,21 @@ enum PronounceEnum {
   NONE = 'NONE',
 }
 
+export const userProfileSchema = yup.object().shape({
+  legalNamePronunciation: yup.string().nullable(),
+  pronounce: yup.string().nullable(),
+  havePreferred: yup.boolean().required(),
+  preferredName: yup.string().nullable(),
+  preferredNamePronunciation: yup.string().nullable(),
+  mobile: yup.string().nullable(),
+  birthday: yup.date().nullable(),
+  timezone: yup.object().shape({
+    code: yup.string().nullable(),
+    label: yup.string().required(FormErrors.required),
+  }),
+  phone: yup.string().nullable(),
+})
+
 export const getProfileSchema = (type: 'join' | 'edit') => {
   return yup.object().shape({
     firstName:
