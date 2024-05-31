@@ -418,7 +418,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           }}
                         >
                           <Typography fontSize={14} fontWeight={600}>
-                            {item.index.toString().padStart(3, '0')}.
+                            {/* {item.index.toString().padStart(3, '0')}. */}
+                            {item.corporationId}
                           </Typography>
                           <Divider
                             flexItem
