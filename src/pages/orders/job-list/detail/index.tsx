@@ -2579,31 +2579,21 @@ const JobDetail = () => {
                 <Box
                   sx={{
                     // padding: '20px',
-                    padding:
-                      jobDeliveriesFeedbacks?.deliveries &&
-                      jobDeliveriesFeedbacks?.deliveries.length > 0 &&
-                      jobDeliveriesFeedbacks.deliveries
-                        .flatMap(delivery => delivery.files)
-                        .some(file =>
-                          subtitleExtensions.includes(
-                            file.name.split('.').pop()?.toLowerCase() ?? '',
-                          ),
-                        )
-                        ? '20px'
-                        : '14px 20px',
+                    padding: sourceFileList.some(file =>
+                      videoExtensions.includes(
+                        file.name.split('.').pop()?.toLowerCase() ?? '',
+                      ),
+                    )
+                      ? '20px'
+                      : '14px 20px',
                     // height:
-                    minHeight:
-                      jobDeliveriesFeedbacks?.deliveries &&
-                      jobDeliveriesFeedbacks?.deliveries.length > 0 &&
-                      jobDeliveriesFeedbacks.deliveries
-                        .flatMap(delivery => delivery.files)
-                        .some(file =>
-                          subtitleExtensions.includes(
-                            file.name.split('.').pop()?.toLowerCase() ?? '',
-                          ),
-                        )
-                        ? 'none'
-                        : '64px',
+                    minHeight: sourceFileList.some(file =>
+                      videoExtensions.includes(
+                        file.name.split('.').pop()?.toLowerCase() ?? '',
+                      ),
+                    )
+                      ? 'none'
+                      : '64px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '10px',
@@ -2667,15 +2657,11 @@ const JobDetail = () => {
                       </IconButton>
                     </Box>
                   ) : null}
-                  {jobDeliveriesFeedbacks?.deliveries &&
-                  jobDeliveriesFeedbacks?.deliveries.length > 0 &&
-                  jobDeliveriesFeedbacks.deliveries
-                    .flatMap(delivery => delivery.files)
-                    .some(file =>
-                      subtitleExtensions.includes(
-                        file.name.split('.').pop()?.toLowerCase() ?? '',
-                      ),
-                    ) ? (
+                  {sourceFileList.some(file =>
+                    videoExtensions.includes(
+                      file.name.split('.').pop()?.toLowerCase() ?? '',
+                    ),
+                  ) ? (
                     <Box
                       sx={{
                         display: hiddenGlosubButton ? 'none' : 'flex',
