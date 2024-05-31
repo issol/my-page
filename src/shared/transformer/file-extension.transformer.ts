@@ -20,6 +20,7 @@ export const extractFileExtension = (fileName: string) => {
     case 'jpg':
     case 'jpeg':
     case 'gif':
+    case 'webp':
       return 'img'
     case 'mp4':
     case 'mov':
