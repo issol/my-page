@@ -1,7 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Button, Divider, Grid, Typography } from '@mui/material'
-import useAuth from '@src/hooks/useAuth'
-import useModal from '@src/hooks/useModal'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import ProProfileForm from '@src/pages/components/forms/pro/profile.form'
 import { authState } from '@src/states/auth'
@@ -11,12 +9,11 @@ import {
   clientBillingAddressDefaultValue,
   clientBillingAddressSchema,
 } from '@src/types/schema/client-billing-address.schema'
-import { getProfileSchema } from '@src/types/schema/profile.schema'
-import { PersonalInfo } from '@src/types/sign/personalInfoTypes'
-import { useRouter } from 'next/router'
+import { userProfileSchema } from '@src/types/schema/profile.schema'
 import { useEffect } from 'react'
 import { Resolver, useForm } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
+import { PersonalInfo } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   userInfo: DetailUserType
@@ -25,9 +22,6 @@ type Props = {
 }
 
 const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
-  const { openModal, closeModal } = useModal()
-  const router = useRouter()
-  const setAuth = useAuth()
   const auth = useRecoilValueLoadable(authState)
 
   console.log(userInfo)
@@ -47,7 +41,7 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       timezone: { code: '', label: '' },
     },
     mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('edit')) as unknown as Resolver<
+    resolver: yupResolver(userProfileSchema) as unknown as Resolver<
       Omit<PersonalInfo, 'address'>
     >,
   })
@@ -71,6 +65,8 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       clientBillingAddressSchema,
     ) as Resolver<ClientAddressType>,
   })
+
+  console.log('isAddressValid', isAddressValid)
 
   useEffect(() => {
     if (userInfo) {
@@ -97,18 +93,22 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
     }
   }, [userInfo])
 
+  console.log('EEEEEEE', isValid, isAddressValid)
+
   return (
     <Box
       sx={{
         maxWidth: '900px',
         width: '100%',
+        maxHeight: '90vh',
+        overflowY: 'auto',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
       }}
     >
       <Box sx={{ padding: '50px 60px' }}>
-        <Grid container spacing={6}>
+        <Grid container spacing={6} sx={{ maxHeight: '60%' }}>
           <Grid item xs={12}>
             <Typography variant='h6'>My Profile</Typography>
           </Grid>
@@ -127,22 +127,18 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
               />
             </Grid>
           </Grid>
-          <Grid item xs={12} display='flex' gap='16px' justifyContent='center'>
-            <Button variant='outlined' onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant='contained'
-              disabled={
-                !isValid ||
-                // (!isFieldDirty && !isAddressFieldDirty) ||
-                !isAddressValid
-              }
-              onClick={() => onClick(getValues(), getAddress())}
-            >
-              Save
-            </Button>
-          </Grid>
+        </Grid>
+        <Grid container display='flex' gap='16px' justifyContent='center'>
+          <Button variant='outlined' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => onClick(getValues(), getAddress())}
+            disabled={!isValid || !isAddressValid}
+          >
+            Save
+          </Button>
         </Grid>
       </Box>
     </Box>
