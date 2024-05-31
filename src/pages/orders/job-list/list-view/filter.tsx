@@ -218,7 +218,7 @@ export default function Filters({
                 </Box>
               </Grid>
               <Grid item xs={6} sm={6} md={3}>
-                <Box>
+                <Box className='filterFormAutoComplete'>
                   <Autocomplete
                     autoHighlight
                     fullWidth
