@@ -1064,7 +1064,7 @@ const RequestReviewModal = ({
                             {sourceFiles.map(
                               (file: FileType, index: number) => {
                                 return (
-                                  <Box key={file.uniqueId}>
+                                  <Box key={index}>
                                     <Box
                                       sx={{
                                         display: 'flex',

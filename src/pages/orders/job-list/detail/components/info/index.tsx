@@ -13,6 +13,7 @@ import {
   SelectChangeEvent,
   Typography,
   Badge,
+  Tooltip,
 } from '@mui/material'
 import {
   JobsStatusChip,
@@ -70,6 +71,7 @@ import { job_list } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import Message from '../../../components/message-modal'
 import { TriggerIcon } from '@src/views/svgIcons'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   jobInfo: JobType
@@ -90,11 +92,11 @@ type Props = {
   >
   selectedJobUpdatable: boolean
   jobDetail: {
-    jobId: number;
-    jobInfo: JobType | undefined;
-    jobPrices: JobPricesDetailType | undefined;
-    jobAssign: JobAssignProRequestsType[];
-    jobAssignDefaultRound: number;
+    jobId: number
+    jobInfo: JobType | undefined
+    jobPrices: JobPricesDetailType | undefined
+    jobAssign: JobAssignProRequestsType[]
+    jobAssignDefaultRound: number
   }[]
 }
 
@@ -514,7 +516,10 @@ const JobInfo = ({
                 {jobInfo.corporationId}
               </Typography>
               <Box sx={{ margin: '0 auto' }}>
-                <Badge badgeContent={jobInfo.message?.unReadCount} color='primary'>
+                <Badge
+                  badgeContent={jobInfo.message?.unReadCount}
+                  color='primary'
+                >
                   <IconButton
                     sx={{ padding: 0 }}
                     onClick={() =>
@@ -540,36 +545,32 @@ const JobInfo = ({
                   alignItems='center'
                   justifyContent='flex-end'
                   gap='8px'
-                  visibility={
-                    jobInfo.templateId ? 'visible' : 'hidden'
-                  }
+                  visibility={jobInfo.templateId ? 'visible' : 'hidden'}
                 >
                   <Box
-                    visibility={
-                      jobInfo.nextJobId ? 'visible' : 'hidden'
-                    }
+                    visibility={jobInfo.nextJobId ? 'visible' : 'hidden'}
                     margin={0}
                   >
                     <TriggerIcon />
                   </Box>
                   <Box
-                    visibility={
-                      jobInfo.nextJobId ? 'visible' : 'hidden'
-                    }
+                    visibility={jobInfo.nextJobId ? 'visible' : 'hidden'}
                     margin={0}
                   >
                     <TriggerSwitchStatus
                       variant='body2'
-                      color={jobInfo.autoNextJob ? theme.palette.success.main : '#BBBCC4'}
+                      color={
+                        jobInfo.autoNextJob
+                          ? theme.palette.success.main
+                          : '#BBBCC4'
+                      }
                       bgcolor={jobInfo.autoNextJob ? '#EEFBE5' : '#E9EAEC'}
                     >
                       {jobInfo.autoNextJob ? 'On' : 'Off'}
                     </TriggerSwitchStatus>
                   </Box>
                   <Box
-                    visibility={
-                      jobInfo.nextJobId ? 'visible' : 'hidden'
-                    }
+                    visibility={jobInfo.nextJobId ? 'visible' : 'hidden'}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -585,14 +586,16 @@ const JobInfo = ({
                     />
                   </Box>
                   <Box
-                    visibility={
-                      jobInfo.nextJobId ? 'visible' : 'hidden'
-                    }
+                    visibility={jobInfo.nextJobId ? 'visible' : 'hidden'}
                     margin={0}
                   >
                     <TriggerSwitchStatus
                       variant='body2'
-                      color={jobInfo.autoSharingFile ? theme.palette.success.main : '#BBBCC4'}
+                      color={
+                        jobInfo.autoSharingFile
+                          ? theme.palette.success.main
+                          : '#BBBCC4'
+                      }
                       bgcolor={jobInfo.autoSharingFile ? '#EEFBE5' : '#E9EAEC'}
                     >
                       {jobInfo.autoSharingFile ? 'On' : 'Off'}
@@ -994,7 +997,96 @@ const JobInfo = ({
                     gap: '20px',
                   }}
                 >
-                  {jobInfo.files && fileList(jobInfo.files, 'SAMPLE')}
+                  {/* {jobInfo.files && fileList(jobInfo.files, 'SAMPLE')} */}
+                  {jobInfo.files &&
+                    jobInfo.files
+                      .filter(value => value.type === 'SAMPLE')
+                      .map((file: FileType) => (
+                        <Box key={file.name}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              // marginBottom: '8px',
+                              width: '100%',
+                              justifyContent: 'space-between',
+                              borderRadius: '8px',
+                              padding: '10px 12px',
+                              border: '1px solid rgba(76, 78, 100, 0.22)',
+                              background: '#f9f8f9',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  marginRight: '8px',
+                                  display: 'flex',
+                                }}
+                              >
+                                <Image
+                                  src={`/images/icons/file-icons/${extractFileExtension(
+                                    file.name,
+                                  )}.svg`}
+                                  alt=''
+                                  width={32}
+                                  height={32}
+                                />
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                }}
+                              >
+                                <Tooltip title={file.name}>
+                                  <Typography
+                                    variant='body1'
+                                    fontSize={14}
+                                    fontWeight={600}
+                                    lineHeight={'20px'}
+                                    sx={{
+                                      overflow: 'hidden',
+                                      wordBreak: 'break-all',
+                                      textOverflow: 'ellipsis',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 1,
+                                      WebkitBoxOrient: 'vertical',
+                                    }}
+                                  >
+                                    {file.name}
+                                  </Typography>
+                                </Tooltip>
+
+                                <Typography
+                                  variant='caption'
+                                  lineHeight={'14px'}
+                                >
+                                  {formatFileSize(file.size)}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <IconButton
+                                onClick={() => {
+                                  DownloadFile(file, S3FileType.JOB)
+                                }}
+                                sx={{ padding: 0 }}
+                              >
+                                <Icon icon='ic:sharp-download' />
+                              </IconButton>
+                            </Box>
+                          </Box>
+                        </Box>
+                      ))}
                 </Box>
 
                 <Box>

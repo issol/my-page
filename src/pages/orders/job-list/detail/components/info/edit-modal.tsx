@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
   useTheme,
+  Tooltip,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -65,8 +66,10 @@ import PushPinIcon from '@mui/icons-material/PushPin'
 import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
 
 import { authState } from '@src/states/auth'
+import Image from 'next/image'
 import { set } from 'lodash'
 import { visibility } from 'html2canvas/dist/types/css/property-descriptors/visibility'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   onClose: () => void
@@ -188,6 +191,7 @@ const InfoEditModal = ({
   }
 
   const { getRootProps, getInputProps } = useDropzone({
+    noDragEventsBubbling: true,
     accept: {
       ...srtUploadFileExtension.accept,
     },
@@ -376,13 +380,14 @@ const InfoEditModal = ({
             .then(res => {
               setIsFileUploading(false)
               uploadFileMutation.mutate(fileInfo)
+
               const jobResult: SaveJobInfoParamsType = {
                 contactPersonId: data.contactPerson.userId,
                 description: data.description ?? null,
                 startDate:
                   data.startedAt && data.startTimezone
                     ? changeTimeZoneOffset(
-                        data.startedAt.toString(),
+                        data.startedAt.toISOString(),
                         data.startTimezone,
                       )
                     : null,
@@ -394,7 +399,7 @@ const InfoEditModal = ({
                   : null,
 
                 dueDate: changeTimeZoneOffset(
-                  data.dueAt.toString(),
+                  data.dueAt.toISOString(),
                   data.dueTimezone,
                 )!,
                 dueTimezone: {
@@ -1282,7 +1287,112 @@ const InfoEditModal = ({
                             overflowY: 'scroll',
                           }}
                         >
-                          {uploadedFiles && (
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              // mt: '20px',
+                              width: '100%',
+                              gap: '8px',
+                            }}
+                          >
+                            {uploadedFiles.length > 0 &&
+                              uploadedFiles.map((file, index) => (
+                                <Box key={file.name}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      // marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
+                                      >
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          alignItems: 'center',
+                                          display: 'flex',
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                          cursor: 'pointer',
+                                          padding: '4px',
+                                        }}
+                                        onClick={event => {
+                                          event.stopPropagation()
+                                          handleRemoveUploadedFile(file)
+                                        }}
+                                      >
+                                        <Icon icon='mdi:close' fontSize={20} />
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              ))}
+                          </Box>
+                          {/* {uploadedFiles && (
                             <Box
                               sx={{
                                 display:
@@ -1295,8 +1405,115 @@ const InfoEditModal = ({
                             >
                               {uploadedFileList(uploadedFiles, 'SAMPLE')}
                             </Box>
-                          )}
-                          {fileList.length > 0 && (
+                          )} */}
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              // mt: '20px',
+                              mt: uploadedFiles.length > 0 ? '20px' : 0,
+                              width: '100%',
+                              gap: '8px',
+                            }}
+                          >
+                            {files.length > 0 &&
+                              files.map((file, index) => (
+                                <Box key={file.name}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      // marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
+                                      >
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          alignItems: 'center',
+                                          display: 'flex',
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                          cursor: 'pointer',
+                                          padding: '4px',
+                                        }}
+                                        onClick={event => {
+                                          event.stopPropagation()
+                                          handleRemoveFile(file)
+                                        }}
+                                      >
+                                        <Icon icon='mdi:close' fontSize={20} />
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              ))}
+                          </Box>
+
+                          {/* {fileList.length > 0 && (
                             <Box
                               sx={{
                                 display: fileList.length > 0 ? 'grid' : 'none',
@@ -1308,7 +1525,7 @@ const InfoEditModal = ({
                             >
                               {fileList}
                             </Box>
-                          )}
+                          )} */}
                         </Box>
                       )}
 
