@@ -2760,33 +2760,38 @@ const JobDetail = () => {
                               )}
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
-                            {selectedJobUpdatable() && (
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  mt: '8px',
-                                }}
-                              >
-                                <Button
-                                  fullWidth
-                                  variant='contained'
-                                  sx={{ display: 'flex', flex: 1 }}
-                                  onClick={() => onClickUploadSourceFile()}
+                            {selectedJobUpdatable() &&
+                              (selectedJobInfo.jobInfo.status === 60200 ||
+                                selectedJobInfo.jobInfo.status === 60250 ||
+                                selectedJobInfo.jobInfo.status === 60300 ||
+                                selectedJobInfo.jobInfo.status === 60400 ||
+                                selectedJobInfo.jobInfo.status === 60500) && (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    mt: '8px',
+                                  }}
                                 >
-                                  Upload files
-                                </Button>
-                                <Button
-                                  fullWidth
-                                  variant='contained'
-                                  sx={{ display: 'flex', flex: 1 }}
-                                  onClick={() => onClickImportFiles()}
-                                >
-                                  Import files
-                                </Button>
-                              </Box>
-                            )}
+                                  <Button
+                                    fullWidth
+                                    variant='contained'
+                                    sx={{ display: 'flex', flex: 1 }}
+                                    onClick={() => onClickUploadSourceFile()}
+                                  >
+                                    Upload files
+                                  </Button>
+                                  <Button
+                                    fullWidth
+                                    variant='contained'
+                                    sx={{ display: 'flex', flex: 1 }}
+                                    onClick={() => onClickImportFiles()}
+                                  >
+                                    Import files
+                                  </Button>
+                                </Box>
+                              )}
                             {sourceFileList && sourceFileList.length > 0
                               ? Object.entries(
                                   sourceFileList.reduce(
