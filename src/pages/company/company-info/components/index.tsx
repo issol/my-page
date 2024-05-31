@@ -46,6 +46,7 @@ import CompanyInfoCard from './info-card'
 import CompanyInfoOverview from './overview'
 import CompanyInfoAddress from './address'
 import BillingPlan from './billing-plan'
+import { useRouter } from 'next/router'
 
 interface FileProp {
   name: string
@@ -53,8 +54,12 @@ interface FileProp {
   size: number
 }
 
+type tabMenu = 'overview' | 'billing'
+
 const CompanyInfoPageComponent = () => {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
+  const tabQuery = router.query.tab as tabMenu
 
   const [tab, setTab] = useState<string>('overview')
 
@@ -154,7 +159,8 @@ const CompanyInfoPageComponent = () => {
             onClose={() => closeModal('EditAlertModal')}
             onClick={() => {
               closeModal('EditAlertModal')
-              setTab(newValue)
+              // setTab(newValue)
+              router.push({ pathname: '/company/company-info/', query: { tab: newValue } })
               setInfoEdit(false)
               setAddressEdit(false)
             }}
@@ -164,7 +170,8 @@ const CompanyInfoPageComponent = () => {
 
       return
     }
-    setTab(newValue)
+    router.push({ pathname: '/company/company-info/', query: { tab: newValue } })
+    // setTab(newValue)
   }
 
   const handleCancel = (type: 'info' | 'address') => {
@@ -391,6 +398,10 @@ const CompanyInfoPageComponent = () => {
     }
   }, [companyInfo])
 
+  useEffect(() => {
+    if (tabQuery && ['overview', 'billing'].includes(tabQuery)) setTab(tabQuery)
+  }, [tabQuery])
+
   return (
     <Suspense>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -410,7 +421,7 @@ const CompanyInfoPageComponent = () => {
             />
 
             <CustomTab
-              value='billingPlan'
+              value='billing'
               label='Billing Plan'
               iconPosition='start'
               icon={<Icon icon='mdi:dollar' />}
@@ -453,7 +464,7 @@ const CompanyInfoPageComponent = () => {
             )}
           </TabPanel>
 
-          <TabPanel value='billingPlan'>
+          <TabPanel value='billing'>
             <BillingPlan
               auth={auth.getValue()}
             />
