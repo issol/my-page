@@ -127,12 +127,14 @@ const ImportFromJob = ({
   }
 
   const reviewedFilesMap = reviewedFiles.flatMap(item =>
-    item.files.map(file => ({
-      ...file,
-      reqId: item.index,
-      isCompleted: item.isCompleted,
-      assignedPerson: item.assigneeInfo,
-    })),
+    item.files
+      .filter(value => value.type === 'REVIEWED')
+      .map(file => ({
+        ...file,
+        reqId: item.index,
+        isCompleted: item.isCompleted,
+        assignedPerson: item.assigneeInfo,
+      })),
   )
 
   useEffect(() => {
