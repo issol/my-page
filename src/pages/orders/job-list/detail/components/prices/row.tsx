@@ -18,7 +18,11 @@ import {
 } from 'react'
 import {
   Control,
+  FieldArrayWithId,
   useFieldArray,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
@@ -79,6 +83,29 @@ type Props = {
     },
   ) => LanguagePairListType | undefined
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
+  details: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >[]
+  append: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
+  remove: UseFieldArrayRemove
+  update: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
 }
 
 const Row = ({
@@ -100,6 +127,10 @@ const Row = ({
   useUnitPriceOverrideInPrice,
   findMatchedLanguagePairInItems,
   errorRefs,
+  details,
+  append,
+  remove,
+  update,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -157,16 +188,6 @@ const Row = ({
       return minimumPrice()
     }
   }
-
-  const {
-    fields: details,
-    append,
-    update,
-    remove,
-  } = useFieldArray({
-    control: itemControl,
-    name: itemName,
-  })
 
   useEffect(() => {
     // Price가 세팅되어 있지 않을때는 Order의 Item에 설정된 Price unit을 설정해준다.

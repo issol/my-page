@@ -613,7 +613,7 @@ const RequestReviewModal = ({
           .map(value => ({ ...value, uniqueId: uuidv4() })),
       )
 
-      setValue('assignee', requestInfo.assigneeInfo.userId, {
+      setValue('assignee', requestInfo.assigneeInfo.userId ?? -1, {
         shouldDirty: false,
       })
       setValue('desiredDueAt', new Date(requestInfo.dueDate), {

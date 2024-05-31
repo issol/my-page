@@ -618,9 +618,12 @@ export function ProJobStatusChip(label: string, status: JobStatus) {
   return (
     <CustomChip
       label={label}
-      skin='light'
+      skin={status === 60300 ? undefined : 'light'}
       sx={{
-        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        background:
+          status === 60300
+            ? '#FFCFCF'
+            : `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
         color: color,
       }}
       size='small'

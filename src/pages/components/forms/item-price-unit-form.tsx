@@ -339,43 +339,7 @@ export default function ItemPriceUnitForm({
         </table>
       </Box>
       {/* </Box> */}
-      {type === 'detail' ||
-      type === 'invoiceDetail' ||
-      type === 'invoiceHistory' ||
-      type === 'invoiceCreate' ||
-      type === 'job-detail' ? null : (
-        <Grid item xs={12}>
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='flex'
-            height={60}
-            marginLeft={5}
-          >
-            <Button
-              onClick={() => {
-                append({
-                  // id: id + index,
-                  priceUnitId: -1,
-                  quantity: null,
-                  unitPrice: null,
-                  prices: 0,
-                  unit: '',
-                  // currency: priceData?.currency ?? 'USD',
-                  currency:
-                    getValues(`items.${index}.detail.${0}.currency`) ?? null,
-                })
-                setId(id + 1)
-              }}
-              variant='outlined'
-              disabled={!isValid}
-              sx={{ p: 0.7, minWidth: 26 }}
-            >
-              <Icon icon='material-symbols:add' />
-            </Button>
-          </Box>
-        </Grid>
-      )}
+
       {type === 'job-edit' || type === 'job-detail' ? null : (
         <Grid item xs={12}>
           <Box
