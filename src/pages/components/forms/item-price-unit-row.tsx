@@ -55,18 +55,18 @@ interface Props {
   onDeletePriceUnit: (idx: number) => void
   updateTotalPrice: () => void
   control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
-  remove: UseFieldArrayRemove
+  remove?: UseFieldArrayRemove
   priceData: StandardPriceListType | null
   allPriceUnits: MutableRefObject<NestedPriceUnitType[]>
   index: number
-  update: UseFieldArrayUpdate<
+  update?: UseFieldArrayUpdate<
     {
       items: ItemType[]
       languagePairs: languageType[]
     },
     `items.${number}.detail`
   >
-  append: UseFieldArrayAppend<
+  append?: UseFieldArrayAppend<
     { items: ItemType[]; languagePairs: languageType[] },
     `items.${number}.detail`
   >
@@ -233,7 +233,7 @@ const Row = ({
   const handleDeletePriceUnit = (idx: number) => {
     onDeletePriceUnit(idx)
     updateTotalPrice()
-    remove(idx)
+    remove && remove(idx)
     closeModal('DeletePriceUnitModal')
   }
 
@@ -274,7 +274,7 @@ const Row = ({
         ),
       })
     } else {
-      remove(idx)
+      remove && remove(idx)
       updateTotalPrice()
     }
   }
@@ -495,35 +495,39 @@ const Row = ({
                         : v.price
 
                       if (!isNotApplicable) {
-                        update(idx, {
-                          ...savedValue,
-                          priceUnitId: v.priceUnitId,
-                          quantity: v.quantity ?? 0,
-                          unit: v?.unit,
-                          unitPrice: unitPrice,
-                          priceFactor: priceFactor?.toString(),
-                          prices:
-                            v?.unit !== 'Percent'
-                              ? Number(v.quantity! * unitPrice)
-                              : PercentPrice(v.quantity!),
-                        })
+                        update &&
+                          update(idx, {
+                            ...savedValue,
+                            priceUnitId: v.priceUnitId,
+                            quantity: v.quantity ?? 0,
+                            unit: v?.unit,
+                            unitPrice: unitPrice,
+                            priceFactor: priceFactor?.toString(),
+                            prices:
+                              v?.unit !== 'Percent'
+                                ? Number(v.quantity! * unitPrice)
+                                : PercentPrice(v.quantity!),
+                          })
                       } else {
-                        update(idx, {
-                          ...savedValue,
-                          priceUnitId: v.priceUnitId,
-                          unit: v?.unit,
-                          priceFactor: priceFactor?.toString(),
-                          prices:
-                            v?.unit !== 'Percent'
-                              ? Number(
-                                  getValues(`${detailName}.${idx}.quantity`) ??
-                                    0 * unitPrice,
-                                )
-                              : PercentPrice(
-                                  getValues(`${detailName}.${idx}.quantity`) ??
-                                    0,
-                                ),
-                        })
+                        update &&
+                          update(idx, {
+                            ...savedValue,
+                            priceUnitId: v.priceUnitId,
+                            unit: v?.unit,
+                            priceFactor: priceFactor?.toString(),
+                            prices:
+                              v?.unit !== 'Percent'
+                                ? Number(
+                                    getValues(
+                                      `${detailName}.${idx}.quantity`,
+                                    ) ?? 0 * unitPrice,
+                                  )
+                                : PercentPrice(
+                                    getValues(
+                                      `${detailName}.${idx}.quantity`,
+                                    ) ?? 0,
+                                  ),
+                          })
                       }
 
                       if (v.subPriceUnits && v.subPriceUnits.length > 0) {
@@ -532,18 +536,19 @@ const Row = ({
                             ? priceFactor * item.price
                             : item.price
 
-                          append({
-                            ...savedValue,
-                            priceFactor: priceFactor?.toString(),
-                            priceUnitId: item.priceUnitId,
-                            quantity: item.quantity!,
-                            unit: item?.unit,
-                            unitPrice: unitPrice,
-                            prices:
-                              item?.unit !== 'Percent'
-                                ? Number(item.quantity! * unitPrice)
-                                : PercentPrice(item.quantity!),
-                          })
+                          append &&
+                            append({
+                              ...savedValue,
+                              priceFactor: priceFactor?.toString(),
+                              priceUnitId: item.priceUnitId,
+                              quantity: item.quantity!,
+                              unit: item?.unit,
+                              unitPrice: unitPrice,
+                              prices:
+                                item?.unit !== 'Percent'
+                                  ? Number(item.quantity! * unitPrice)
+                                  : PercentPrice(item.quantity!),
+                            })
                         })
                       }
                     } else {

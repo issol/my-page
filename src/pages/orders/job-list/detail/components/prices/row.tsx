@@ -83,7 +83,7 @@ type Props = {
     },
   ) => LanguagePairListType | undefined
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
-  details: FieldArrayWithId<
+  details?: FieldArrayWithId<
     {
       items: ItemType[]
       languagePairs: languageType[]
@@ -91,15 +91,15 @@ type Props = {
     `items.${number}.detail`,
     'id'
   >[]
-  append: UseFieldArrayAppend<
+  append?: UseFieldArrayAppend<
     {
       items: ItemType[]
       languagePairs: languageType[]
     },
     `items.${number}.detail`
   >
-  remove: UseFieldArrayRemove
-  update: UseFieldArrayUpdate<
+  remove?: UseFieldArrayRemove
+  update?: UseFieldArrayUpdate<
     {
       items: ItemType[]
       languagePairs: languageType[]
@@ -199,11 +199,12 @@ const Row = ({
         orderItem => orderItem.id === currentOrderItemId && currentOrderItemId,
       )
       currentItem?.detail?.map(item => {
-        append({
-          ...item,
-          unitPrice: null,
-          currency: selectedPrice?.currency!,
-        })
+        append &&
+          append({
+            ...item,
+            unitPrice: null,
+            currency: selectedPrice?.currency!,
+          })
       })
     }
   }, [orderItems])
@@ -221,38 +222,41 @@ const Row = ({
           findMatchedLanguagePairInItems(selectedPrice)
 
         selectedPrice.priceUnit.map(selectedUnit => {
-          const matchedCurrentUnit = details.findIndex(
+          const matchedCurrentUnit = details?.findIndex(
             currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId,
           )
 
           if (matchedCurrentUnit !== -1) {
             // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면
             // 현재 unitPrice 정보에 selectedPrice의 unitPrice만 업데이트 한다.
-            update(matchedCurrentUnit, {
-              ...details[matchedCurrentUnit],
-              quantity:
-                getItem()?.items[0]?.detail?.[matchedCurrentUnit]?.quantity ??
-                details[matchedCurrentUnit].quantity,
-              unitPrice:
-                selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                  ? (selectedUnit?.weighting / 100) *
-                    matchedLanguagePair?.priceFactor
-                  : 0,
-            })
+            update &&
+              details &&
+              update(matchedCurrentUnit!, {
+                ...details[matchedCurrentUnit!],
+                quantity:
+                  getItem()?.items[0]?.detail?.[matchedCurrentUnit!]
+                    ?.quantity ?? details[matchedCurrentUnit!].quantity,
+                unitPrice:
+                  selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                    ? (selectedUnit?.weighting / 100) *
+                      matchedLanguagePair?.priceFactor
+                    : 0,
+              })
           } else {
             // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면
             // selectedPrice의 unitPrice를 추가 한다.
-            append({
-              ...selectedUnit,
-              prices: 0,
-              currency: selectedPrice.currency!,
-              weighting: selectedUnit.weighting ?? 100,
-              unitPrice:
-                selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                  ? (selectedUnit?.weighting / 100) *
-                    matchedLanguagePair?.priceFactor
-                  : 0,
-            })
+            append &&
+              append({
+                ...selectedUnit,
+                prices: 0,
+                currency: selectedPrice.currency!,
+                weighting: selectedUnit.weighting ?? 100,
+                unitPrice:
+                  selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                    ? (selectedUnit?.weighting / 100) *
+                      matchedLanguagePair?.priceFactor
+                    : 0,
+              })
           }
         })
       }
@@ -260,15 +264,15 @@ const Row = ({
   }, [selectedPrice, useUnitPriceOverrideInPrice])
 
   function onDeletePriceUnit(index: number) {
-    const findIndex = details.findIndex(item => item.priceUnitId === index)
+    const findIndex = details?.findIndex(item => item.priceUnitId === index)
 
     if (findIndex !== -1) {
-      remove(findIndex)
+      remove && remove(findIndex)
     }
   }
 
   const onDeleteNoPriceUnit = (index: number) => {
-    remove(index)
+    remove && remove(index)
   }
 
   const handleShowMinimum = (value: boolean) => {
