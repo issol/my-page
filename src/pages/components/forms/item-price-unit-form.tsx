@@ -52,7 +52,7 @@ type Props = {
   index: number
   priceUnitsList: Array<PriceUnitListType>
   minimumPrice: number | undefined
-  details: FieldArrayWithId<
+  details?: FieldArrayWithId<
     { items: ItemType[] },
     `items.${number}.detail`,
     'id'
@@ -66,15 +66,15 @@ type Props = {
     items: ItemType[]
     languagePairs: languageType[]
   }>
-  append: UseFieldArrayAppend<
+  append?: UseFieldArrayAppend<
     { items: ItemType[]; languagePairs: languageType[] },
     `items.${number}.detail`
   >
-  update: UseFieldArrayUpdate<
+  update?: UseFieldArrayUpdate<
     { items: ItemType[]; languagePairs: languageType[] },
     `items.${number}.detail`
   >
-  remove: UseFieldArrayRemove
+  remove?: UseFieldArrayRemove
   getTotalPrice: () => void
   // getEachPrice: (idx: number, isNotApplicable?: boolean) => void
   onDeletePriceUnit: (priceUnitId: number) => void

@@ -181,6 +181,7 @@ export type JobRequestReviewParamsType = {
     size: number
     type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
     jobFileId?: number
+    savedType: 'UPLOAD' | 'IMPORT'
   }>
   reviewedFileGroup: Array<{
     id: number

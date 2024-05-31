@@ -11,8 +11,9 @@ export type FileType = {
   downloadAvailable?: boolean
   isImported?: boolean
   isSelected?: boolean
-  reviewRequested?: boolean
+  alreadyInReviewRequest?: boolean
   uploadedBy?: string
   uniqueId?: string
   jobFileId?: number
+  savedType?: 'UPLOAD' | 'IMPORT'
 }

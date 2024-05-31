@@ -122,7 +122,7 @@ type Props = {
   setPriceId: Dispatch<SetStateAction<number | null>>
   setIsNotApplicable: Dispatch<SetStateAction<boolean>>
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
-  details: FieldArrayWithId<
+  details?: FieldArrayWithId<
     {
       items: ItemType[]
       languagePairs: languageType[]
@@ -130,15 +130,15 @@ type Props = {
     `items.${number}.detail`,
     'id'
   >[]
-  append: UseFieldArrayAppend<
+  append?: UseFieldArrayAppend<
     {
       items: ItemType[]
       languagePairs: languageType[]
     },
     `items.${number}.detail`
   >
-  remove: UseFieldArrayRemove
-  update: UseFieldArrayUpdate<
+  remove?: UseFieldArrayRemove
+  update?: UseFieldArrayUpdate<
     {
       items: ItemType[]
       languagePairs: languageType[]
@@ -491,16 +491,18 @@ const EditPrices = ({
           >
             <Button
               onClick={() => {
-                append({
-                  // id: id + index,
-                  priceUnitId: -1,
-                  quantity: null,
-                  unitPrice: null,
-                  prices: 0,
-                  unit: '',
-                  // currency: priceData?.currency ?? 'USD',
-                  currency: getItem(`items.${0}.detail.${0}.currency`) ?? null,
-                })
+                append &&
+                  append({
+                    // id: id + index,
+                    priceUnitId: -1,
+                    quantity: null,
+                    unitPrice: null,
+                    prices: 0,
+                    unit: '',
+                    // currency: priceData?.currency ?? 'USD',
+                    currency:
+                      getItem(`items.${0}.detail.${0}.currency`) ?? null,
+                  })
                 // setId(id + 1)
               }}
               variant='outlined'
