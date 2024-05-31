@@ -192,6 +192,7 @@ const RequestReviewModal = ({
           extension: string
           size: number
           type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+          savedType: 'UPLOAD' | 'IMPORT'
         }>
       } = {
         jobId: jobId,
@@ -221,6 +222,7 @@ const RequestReviewModal = ({
           extension: value.extension!,
           size: value.size,
           type: value.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
+          savedType: 'UPLOAD',
         })
       })
 
@@ -263,13 +265,12 @@ const RequestReviewModal = ({
                   uploadSourceFiles[idx].name.split('.').pop()?.toLowerCase() ??
                   '',
                 type: 'SOURCE',
+                savedType: 'UPLOAD',
               })
 
               return uploadFileToS3(item.url, uploadedSourceFiles[idx])
             },
           )
-
-        console.log(sourceArr)
 
         const targetArr = res
           .filter(value => value.type === 'TARGET')
@@ -287,6 +288,7 @@ const RequestReviewModal = ({
                   uploadTargetFiles[idx].name.split('.').pop()?.toLowerCase() ??
                   '',
                 type: 'TARGET',
+                savedType: 'UPLOAD',
               })
 
               return uploadFileToS3(item.url, uploadedTargetFiles[idx])
@@ -315,6 +317,7 @@ const RequestReviewModal = ({
                   size: value.size,
                   type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
                   jobFileId: value.id,
+                  savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
                 })),
               ...selectedTargetFiles
                 .filter(item => item.isSelected && !item.isImported)
@@ -325,6 +328,7 @@ const RequestReviewModal = ({
                   size: value.size,
                   type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
                   jobFileId: value.id,
+                  savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
                 })),
             ],
           }
@@ -355,6 +359,7 @@ const RequestReviewModal = ({
             extension: value.extension!,
             size: value.size,
             type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+            savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
           })),
           ...targetFiles.map(value => ({
             id: value.id,
@@ -363,6 +368,7 @@ const RequestReviewModal = ({
             extension: value.extension!,
             size: value.size,
             type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+            savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
           })),
           ...selectedSourceFiles
             .filter(item => item.isSelected && !item.isImported)
@@ -373,6 +379,7 @@ const RequestReviewModal = ({
               size: value.size,
               type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
               jobFileId: value.id,
+              savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
             })),
           ...selectedTargetFiles
             .filter(item => item.isSelected && !item.isImported)
@@ -383,6 +390,7 @@ const RequestReviewModal = ({
               size: value.size,
               type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
               jobFileId: value.id,
+              savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
             })),
         ],
       }
@@ -567,7 +575,7 @@ const RequestReviewModal = ({
             file: value.file,
             isSelected: savedSourceFilesId.includes(value.id),
             isImported: savedSourceFilesId.includes(value.id),
-            isRequested: value.reviewRequested,
+            isRequested: value.alreadyInReviewRequest,
             id: value.id,
           }
         }),
@@ -593,7 +601,7 @@ const RequestReviewModal = ({
           type: value.type,
           file: value.file,
           isSelected: savedTargetFilesId.includes(value.id),
-          isRequested: value.reviewRequested,
+          isRequested: value.alreadyInReviewRequest,
           id: value.id,
         })),
       )
@@ -604,12 +612,16 @@ const RequestReviewModal = ({
     if (type === 'edit' && requestInfo) {
       setSourceFiles(
         requestInfo.files
-          .filter(value => value.type === 'SOURCE')
+          .filter(
+            value => value.type === 'SOURCE' && value.savedType === 'UPLOAD',
+          )
           .map(value => ({ ...value, uniqueId: uuidv4() })),
       )
       setTargetFiles(
         requestInfo.files
-          .filter(value => value.type === 'TARGET')
+          .filter(
+            value => value.type === 'TARGET' && value.savedType === 'UPLOAD',
+          )
           .map(value => ({ ...value, uniqueId: uuidv4() })),
       )
 
@@ -1225,7 +1237,7 @@ const RequestReviewModal = ({
                                       <Checkbox
                                         checked={file.isSelected}
                                         value={file.isSelected}
-                                        disabled={file.reviewRequested}
+                                        disabled={file.alreadyInReviewRequest}
                                         onChange={event => {
                                           event.stopPropagation()
                                           file.isSelected = !file.isSelected
@@ -1294,7 +1306,7 @@ const RequestReviewModal = ({
                                       </Box>
                                     </Box>
                                   </Box>
-                                  {file.reviewRequested ? (
+                                  {file.alreadyInReviewRequest ? (
                                     <Typography
                                       sx={{ textAlign: 'right' }}
                                       fontSize={12}
@@ -1418,7 +1430,7 @@ const RequestReviewModal = ({
                                       <Checkbox
                                         checked={file.isSelected}
                                         value={file.isSelected}
-                                        disabled={file.reviewRequested}
+                                        disabled={file.alreadyInReviewRequest}
                                         onChange={event => {
                                           event.stopPropagation()
                                           file.isSelected = !file.isSelected
@@ -1485,7 +1497,7 @@ const RequestReviewModal = ({
                                       </Box>
                                     </Box>
                                   </Box>
-                                  {file.reviewRequested ? (
+                                  {file.alreadyInReviewRequest ? (
                                     <Typography
                                       sx={{ textAlign: 'right' }}
                                       fontSize={12}
