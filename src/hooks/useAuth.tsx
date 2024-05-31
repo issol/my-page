@@ -36,6 +36,7 @@ import {
   permissionSelector,
   permissionState,
 } from '@src/states/permission'
+import { setCookie } from 'cookies-next'
 
 const useAuth = () => {
   const setAuth = useSetRecoilState(authState)
@@ -112,6 +113,7 @@ const useAuth = () => {
 
           params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
           saveUserTokenToBrowser(response.accessToken)
+          setCookie('accessToken', response.accessToken)
         }
       })
 
