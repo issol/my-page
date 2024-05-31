@@ -132,13 +132,28 @@ const ProPaymentInfo = ({ user }: Props) => {
   )
 
   const onBillingMethodSave = (saveData: ProPaymentFormType) => {
+    console.log("onBillingMethodSave", saveData)
     // ** !isRegister인 경우 수정, 아닌 경우 create
     if (!isRegister) {
       const { data, finalData, fileData } = updatePaymentMethod(saveData)
+      console.log("filedata", fileData)
       updateBillingMethodMutation
         .mutateAsync({
           ...data,
           billingMethod: finalData!,
+        })
+        .then(() => {
+          if (fileData.length) {
+            const formData = new FormData()
+            fileData.forEach(async i => {
+              formData.append('file', i.file)
+              // await uploadProPaymentFile(i.position, formData)
+              updateProPaymentFileMutation.mutate({
+                position: i.position,
+                formData: formData,
+              })
+            })
+          }
         })
         .then(() => {
           invalidatePaymentInfo()
@@ -148,6 +163,7 @@ const ProPaymentInfo = ({ user }: Props) => {
   }
 
   const updatePaymentMethod = (data: ProPaymentFormType) => {
+    console.log("updatePaymentMethod")
     for (const key in data.correspondentBankInfo) {
       //@ts-ignore
       if (!data.correspondentBankInfo[key]) {
