@@ -40,6 +40,12 @@ import { timezoneSelector } from '@src/states/permission'
 import { FileType } from '@src/types/common/file.type'
 import { getJobRequestReview } from '@src/apis/jobs/job-detail.api'
 import { JobRequestReviewListType } from '@src/types/orders/job-detail'
+import {
+  getCurrentRole,
+  getUserDataFromBrowser,
+  getUserTokenFromBrowser,
+} from '@src/shared/auth/storage'
+import Link from 'next/link'
 
 type Props = {
   items: JobItemType[]
@@ -121,12 +127,14 @@ const ImportFromJob = ({
   }
 
   const reviewedFilesMap = reviewedFiles.flatMap(item =>
-    item.files.map(file => ({
-      ...file,
-      reqId: item.index,
-      isCompleted: item.isCompleted,
-      assignedPerson: item.assigneeInfo,
-    })),
+    item.files
+      .filter(value => value.type === 'REVIEWED')
+      .map(file => ({
+        ...file,
+        reqId: item.index,
+        isCompleted: item.isCompleted,
+        assignedPerson: item.assigneeInfo,
+      })),
   )
 
   useEffect(() => {
@@ -275,22 +283,40 @@ const ImportFromJob = ({
                             key={uuidv4()}
                           >
                             <Grid item xs={2.8}>
-                              <Typography
-                                fontSize={14}
-                                fontWeight={400}
-                                sx={{
-                                  textDecoration: 'underline',
-                                  cursor: 'pointer',
+                              <Link
+                                href={{
+                                  pathname: `/orders/job-list/detail/?orderId=${orderId}&jobId=${value.id}&selectedJobId=${value.id}`,
+                                  query: {
+                                    accessToken: getUserTokenFromBrowser(),
+                                    userData: getUserDataFromBrowser(),
+                                    currentRole: JSON.stringify(
+                                      getCurrentRole()!,
+                                    ),
+                                  },
                                 }}
+                                style={{ textDecoration: 'none' }}
+                                target='_blank'
                                 onClick={event => {
                                   event.stopPropagation()
-                                  router.push(
-                                    `/orders/job-list/detail/?orderId=${orderId}&jobId=${value.id}&selectedJobId=${value.id}`,
-                                  )
                                 }}
                               >
-                                {value.corporationId}
-                              </Typography>
+                                <Typography
+                                  fontSize={14}
+                                  fontWeight={400}
+                                  sx={{
+                                    textDecoration: 'underline',
+                                    cursor: 'pointer',
+                                  }}
+                                  // onClick={event => {
+                                  //   event.stopPropagation()
+                                  //   router.push(
+                                  //     `/orders/job-list/detail/?orderId=${orderId}&jobId=${value.id}&selectedJobId=${value.id}`,
+                                  //   )
+                                  // }}
+                                >
+                                  {value.corporationId}
+                                </Typography>
+                              </Link>
                             </Grid>
                             <Grid item xs={6.2}>
                               <Typography

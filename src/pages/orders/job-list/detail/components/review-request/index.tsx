@@ -127,12 +127,12 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
           onClose={() => {
             closeModal('RequestReviewModal')
           }}
-          jobSourceFiles={
-            jobInfo.files?.filter(value => value.type === 'SOURCE') || []
-          }
-          jobTargetFiles={
-            jobInfo.files?.filter(value => value.type === 'TARGET') || []
-          }
+          // jobSourceFiles={
+          //   jobInfo.files?.filter(value => value.type === 'SOURCE') || []
+          // }
+          // jobTargetFiles={
+          //   jobInfo.files?.filter(value => value.type === 'TARGET') || []
+          // }
           type={type}
           jobId={jobId}
           requestInfo={info}
@@ -418,7 +418,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                           }}
                         >
                           <Typography fontSize={14} fontWeight={600}>
-                            {item.index.toString().padStart(3, '0')}.
+                            {/* {item.index.toString().padStart(3, '0')}. */}
+                            {item.corporationId}
                           </Typography>
                           <Divider
                             flexItem

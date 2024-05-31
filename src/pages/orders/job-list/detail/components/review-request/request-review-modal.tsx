@@ -48,6 +48,7 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   createRequestReview,
+  deleteRequestReviewFile,
   updateRequestReview,
 } from '@src/apis/jobs/job-detail.api'
 import { useGetMemberList } from '@src/queries/quotes.query'
@@ -56,12 +57,17 @@ import { displayCustomToast } from '@src/shared/utils/toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { authState } from '@src/states/auth'
 import { request } from 'http'
+import {
+  useGetSourceFile,
+  useGetTargetFile,
+} from '@src/queries/order/job.query'
+import { set } from 'lodash'
 
 type Props = {
   onClose: any
 
-  jobSourceFiles: FileType[]
-  jobTargetFiles: FileType[]
+  // jobSourceFiles: FileType[]
+  // jobTargetFiles: FileType[]
   type: 'edit' | 'create'
   jobId: number
   expanded: { [key: number]: boolean }
@@ -77,8 +83,8 @@ const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
 const RequestReviewModal = ({
   onClose,
-  jobSourceFiles,
-  jobTargetFiles,
+  // jobSourceFiles,
+  // jobTargetFiles,
   type,
   jobId,
   expanded,
@@ -93,6 +99,18 @@ const RequestReviewModal = ({
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const [isSavingData, setIsSavingData] = useState<boolean>(false)
 
+  const {
+    data: jobSourceFiles,
+
+    refetch: refetchSourceFiles,
+  } = useGetSourceFile(jobId)
+
+  const {
+    data: jobTargetFiles,
+
+    refetch: refetchTargetFiles,
+  } = useGetTargetFile(jobId)
+
   const createRequestReviewMutation = useMutation(
     (params: JobRequestReviewParamsType) => createRequestReview(params),
     {
@@ -102,6 +120,8 @@ const RequestReviewModal = ({
         onClose()
         setExpanded({ ...expanded, [data.id]: true })
         displayCustomToast(' Submitted successfully.', 'success')
+        refetchSourceFiles()
+        refetchTargetFiles()
       },
     },
   )
@@ -116,6 +136,8 @@ const RequestReviewModal = ({
         setExpanded({ ...expanded, [data.id]: true })
         displayCustomToast(' Saved successfully.', 'success')
         onClose()
+        refetchSourceFiles()
+        refetchTargetFiles()
       },
     },
   )
@@ -165,6 +187,8 @@ const RequestReviewModal = ({
   const [uploadedSourceFiles, setUploadedSourceFiles] = useState<File[]>([])
   const [uploadedTargetFiles, setUploadedTargetFiles] = useState<File[]>([])
 
+  const [deleteFiles, setDeleteFiles] = useState<FileType[]>([])
+
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
@@ -181,227 +205,257 @@ const RequestReviewModal = ({
   >([])
 
   const saveData = (data: JobRequestReviewFormType) => {
-    if (uploadedSourceFiles.length || uploadedTargetFiles.length) {
-      // setIsSavingData(true)
-      const fileInfo: {
-        jobId: number
-        files: Array<{
-          id?: number
-          name: string
-          path: string
-          extension: string
-          size: number
-          type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
-          savedType: 'UPLOAD' | 'IMPORT'
-        }>
-      } = {
-        jobId: jobId,
-        files: [],
+    const asyncDeleteFile = deleteFiles.map(file => {
+      console.log(file.id)
+
+      if (file.id) {
+        return deleteRequestReviewFile(file.id)
       }
+    })
+    Promise.all(asyncDeleteFile).then(res => {
+      if (uploadedSourceFiles.length || uploadedTargetFiles.length) {
+        // setIsSavingData(true)
+        const fileInfo: {
+          jobId: number
+          files: Array<{
+            id?: number
+            name: string
+            path: string
+            extension: string
+            size: number
+            type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+            savedType: 'UPLOAD' | 'IMPORT'
+          }>
+        } = {
+          jobId: jobId,
+          files: [],
+        }
 
-      // const files = sourceFiles.concat(targetFiles)
+        // const files = sourceFiles.concat(targetFiles)
 
-      const savedSourceFiles = sourceFiles.filter(value => value.id)
-      const uploadSourceFiles = sourceFiles.filter(value => !value.id)
-      const savedTargetFiles = targetFiles.filter(value => value.id)
-      const uploadTargetFiles = targetFiles.filter(value => !value.id)
+        const savedSourceFiles = sourceFiles.filter(value => value.id)
+        const uploadSourceFiles = sourceFiles.filter(value => !value.id)
+        const savedTargetFiles = targetFiles.filter(value => value.id)
+        const uploadTargetFiles = targetFiles.filter(value => !value.id)
 
-      const sourcePaths: string[] = uploadSourceFiles.map(file => {
-        return `project/${jobId}/review-request/source/${file.name}`
-      })
-
-      const targetPaths: string[] = uploadTargetFiles.map(file => {
-        return `project/${jobId}/review-request/target/${file.name}`
-      })
-
-      savedSourceFiles.concat(savedTargetFiles).map(value => {
-        fileInfo.files.push({
-          id: value.id,
-          name: value.name,
-          path: value.path!,
-          extension: value.extension!,
-          size: value.size,
-          type: value.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
-          savedType: 'UPLOAD',
-        })
-      })
-
-      const s3SourceURL: Promise<{ type: 'SOURCE'; url: string }>[] =
-        sourcePaths.map(value => {
-          return getUploadUrlforCommon('job', value).then(res => {
-            return { type: 'SOURCE', url: res }
-          })
+        const sourcePaths: string[] = uploadSourceFiles.map(file => {
+          return `project/${jobId}/review-request/source/${file.name}`
         })
 
-      const s3TargetUrl: Promise<{ type: 'TARGET'; url: string }>[] =
-        targetPaths.map(value => {
-          return getUploadUrlforCommon('job', value).then(res => {
-            return { type: 'TARGET', url: res }
-          })
+        const targetPaths: string[] = uploadTargetFiles.map(file => {
+          return `project/${jobId}/review-request/target/${file.name}`
         })
 
-      console.log(s3SourceURL)
-
-      Promise.all([...s3SourceURL, ...s3TargetUrl]).then(res => {
-        console.log(res)
-
-        const sourceArr = res
-          .filter(value => value.type === 'SOURCE')
-          .map(
-            (item: { type: 'SOURCE' | 'TARGET'; url: string }, idx: number) => {
-              console.log(item.url)
-
-              const parts = item.url.split('/')
-              const index = parts.indexOf('project')
-              const result = parts.slice(index).join('/')
-
-              console.log(result)
-
-              fileInfo.files.push({
-                size: uploadSourceFiles[idx].size,
-                name: uploadSourceFiles[idx].name,
-                path: result,
-                extension:
-                  uploadSourceFiles[idx].name.split('.').pop()?.toLowerCase() ??
-                  '',
-                type: 'SOURCE',
-                savedType: 'UPLOAD',
-              })
-
-              return uploadFileToS3(item.url, uploadedSourceFiles[idx])
-            },
-          )
-
-        const targetArr = res
-          .filter(value => value.type === 'TARGET')
-          .map(
-            (item: { type: 'SOURCE' | 'TARGET'; url: string }, idx: number) => {
-              const parts = item.url.split('/')
-              const index = parts.indexOf('project')
-              const result = parts.slice(index).join('/')
-
-              fileInfo.files.push({
-                size: uploadTargetFiles[idx].size,
-                name: uploadTargetFiles[idx].name,
-                path: result,
-                extension:
-                  uploadTargetFiles[idx].name.split('.').pop()?.toLowerCase() ??
-                  '',
-                type: 'TARGET',
-                savedType: 'UPLOAD',
-              })
-
-              return uploadFileToS3(item.url, uploadedTargetFiles[idx])
-            },
-          )
-
-        Promise.all([sourceArr, targetArr]).then(res => {
-          const result: JobRequestReviewParamsType = {
-            jobId: jobId,
-            assigneeId: data.assignee,
-            dueDate: data.desiredDueAt,
-            dueDateTimezone: data.desiredDueTimezone,
-            runtime: data.runtime,
-            wordCount: data.wordCount,
-            noteToAssignee: data.note,
-            reviewedFileGroup:
-              type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
-            files: [
-              ...fileInfo.files,
-              ...selectedSourceFiles
-                .filter(item => item.isSelected && !item.isImported)
-                .map(value => ({
-                  name: value.name,
-                  path: value.file!,
-                  extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-                  size: value.size,
-                  type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                  jobFileId: value.id,
-                  savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
-                })),
-              ...selectedTargetFiles
-                .filter(item => item.isSelected && !item.isImported)
-                .map(value => ({
-                  name: value.name,
-                  path: value.file!,
-                  extension: value.name.split('.').pop()?.toLowerCase() ?? '',
-                  size: value.size,
-                  type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                  jobFileId: value.id,
-                  savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
-                })),
-            ],
-          }
-          type === 'edit'
-            ? updateRequestReviewMutation.mutate({
-                params: result,
-                id: requestInfo?.id!,
-              })
-            : createRequestReviewMutation.mutate(result)
-        })
-      })
-    } else {
-      const result: JobRequestReviewParamsType = {
-        jobId: jobId,
-        assigneeId: data.assignee,
-        dueDate: data.desiredDueAt,
-        dueDateTimezone: data.desiredDueTimezone,
-        runtime: data.runtime,
-        wordCount: data.wordCount,
-        noteToAssignee: data.note,
-        reviewedFileGroup:
-          type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
-        files: [
-          ...sourceFiles.map(value => ({
+        savedSourceFiles.concat(savedTargetFiles).map(value => {
+          fileInfo.files.push({
             id: value.id,
             name: value.name,
             path: value.path!,
             extension: value.extension!,
             size: value.size,
-            type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-            savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
-          })),
-          ...targetFiles.map(value => ({
-            id: value.id,
-            name: value.name,
-            path: value.path!,
-            extension: value.extension!,
-            size: value.size,
-            type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-            savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
-          })),
-          ...selectedSourceFiles
-            .filter(item => item.isSelected && !item.isImported)
-            .map(value => ({
+            type: value.type as 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED',
+            savedType: 'UPLOAD',
+          })
+        })
+
+        const s3SourceURL: Promise<{ type: 'SOURCE'; url: string }>[] =
+          sourcePaths.map(value => {
+            return getUploadUrlforCommon('job', value).then(res => {
+              return { type: 'SOURCE', url: res }
+            })
+          })
+
+        const s3TargetUrl: Promise<{ type: 'TARGET'; url: string }>[] =
+          targetPaths.map(value => {
+            return getUploadUrlforCommon('job', value).then(res => {
+              return { type: 'TARGET', url: res }
+            })
+          })
+
+        console.log(s3SourceURL)
+
+        Promise.all([...s3SourceURL, ...s3TargetUrl]).then(res => {
+          console.log(res)
+
+          const sourceArr = res
+            .filter(value => value.type === 'SOURCE')
+            .map(
+              (
+                item: { type: 'SOURCE' | 'TARGET'; url: string },
+                idx: number,
+              ) => {
+                console.log(item.url)
+
+                const parts = item.url.split('/')
+                const index = parts.indexOf('project')
+                const result = parts.slice(index).join('/')
+
+                console.log(result)
+
+                fileInfo.files.push({
+                  size: uploadSourceFiles[idx].size,
+                  name: uploadSourceFiles[idx].name,
+                  path: result,
+                  extension:
+                    uploadSourceFiles[idx].name
+                      .split('.')
+                      .pop()
+                      ?.toLowerCase() ?? '',
+                  type: 'SOURCE',
+                  savedType: 'UPLOAD',
+                })
+
+                return uploadFileToS3(item.url, uploadedSourceFiles[idx])
+              },
+            )
+
+          const targetArr = res
+            .filter(value => value.type === 'TARGET')
+            .map(
+              (
+                item: { type: 'SOURCE' | 'TARGET'; url: string },
+                idx: number,
+              ) => {
+                const parts = item.url.split('/')
+                const index = parts.indexOf('project')
+                const result = parts.slice(index).join('/')
+
+                fileInfo.files.push({
+                  size: uploadTargetFiles[idx].size,
+                  name: uploadTargetFiles[idx].name,
+                  path: result,
+                  extension:
+                    uploadTargetFiles[idx].name
+                      .split('.')
+                      .pop()
+                      ?.toLowerCase() ?? '',
+                  type: 'TARGET',
+                  savedType: 'UPLOAD',
+                })
+
+                return uploadFileToS3(item.url, uploadedTargetFiles[idx])
+              },
+            )
+
+          Promise.all([sourceArr, targetArr]).then(res => {
+            const result: JobRequestReviewParamsType = {
+              jobId: jobId,
+              assigneeId: data.assignee,
+              dueDate: data.desiredDueAt,
+              dueDateTimezone: data.desiredDueTimezone,
+              runtime: data.runtime,
+              wordCount: data.wordCount,
+              noteToAssignee: data.note,
+              reviewedFileGroup:
+                type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
+              files: [
+                ...fileInfo.files,
+                ...selectedSourceFiles
+                  .filter(item => item.isSelected && !item.isImported)
+                  .map(value => ({
+                    name: value.name,
+                    path: value.file!,
+                    extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                    size: value.size,
+                    type: 'SOURCE' as
+                      | 'SOURCE'
+                      | 'TARGET'
+                      | 'SAMPLE'
+                      | 'REVIEWED',
+                    jobFileId: value.id,
+                    savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+                  })),
+                ...selectedTargetFiles
+                  .filter(item => item.isSelected && !item.isImported)
+                  .map(value => ({
+                    name: value.name,
+                    path: value.file!,
+                    extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                    size: value.size,
+                    type: 'TARGET' as
+                      | 'SOURCE'
+                      | 'TARGET'
+                      | 'SAMPLE'
+                      | 'REVIEWED',
+                    jobFileId: value.id,
+                    savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+                  })),
+              ],
+            }
+            type === 'edit'
+              ? updateRequestReviewMutation.mutate({
+                  params: result,
+                  id: requestInfo?.id!,
+                })
+              : createRequestReviewMutation.mutate(result)
+          })
+        })
+      } else {
+        const result: JobRequestReviewParamsType = {
+          jobId: jobId,
+          assigneeId: data.assignee,
+          dueDate: data.desiredDueAt,
+          dueDateTimezone: data.desiredDueTimezone,
+          runtime: data.runtime,
+          wordCount: data.wordCount,
+          noteToAssignee: data.note,
+          reviewedFileGroup:
+            type === 'create' ? [] : requestInfo?.reviewedFileGroup ?? [],
+          files: [
+            ...sourceFiles.map(value => ({
+              id: value.id,
               name: value.name,
-              path: value.file!,
-              extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              path: value.path!,
+              extension: value.extension!,
               size: value.size,
               type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-              jobFileId: value.id,
-              savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+              savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
             })),
-          ...selectedTargetFiles
-            .filter(item => item.isSelected && !item.isImported)
-            .map(value => ({
+            ...targetFiles.map(value => ({
+              id: value.id,
               name: value.name,
-              path: value.file!,
-              extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+              path: value.path!,
+              extension: value.extension!,
               size: value.size,
               type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-              jobFileId: value.id,
-              savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+              savedType: 'UPLOAD' as 'UPLOAD' | 'IMPORT',
             })),
-        ],
+            ...selectedSourceFiles
+              .filter(item => item.isSelected && !item.isImported)
+              .map(value => ({
+                name: value.name,
+                path: value.file!,
+                extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                size: value.size,
+                type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                jobFileId: value.id,
+                savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+              })),
+            ...selectedTargetFiles
+              .filter(item => item.isSelected && !item.isImported)
+              .map(value => ({
+                name: value.name,
+                path: value.file!,
+                extension: value.name.split('.').pop()?.toLowerCase() ?? '',
+                size: value.size,
+                type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
+                jobFileId: value.id,
+                savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
+              })),
+          ],
+        }
+
+        console.log(result)
+
+        type === 'edit'
+          ? updateRequestReviewMutation.mutate({
+              params: result,
+              id: requestInfo?.id!,
+            })
+          : createRequestReviewMutation.mutate(result)
+        // TODO :Mutation call (기본 정보 Save)
       }
-      type === 'edit'
-        ? updateRequestReviewMutation.mutate({
-            params: result,
-            id: requestInfo?.id!,
-          })
-        : createRequestReviewMutation.mutate(result)
-      // TODO :Mutation call (기본 정보 Save)
-    }
+    })
   }
 
   const onSubmit = (data: JobRequestReviewFormType) => {
@@ -449,6 +503,8 @@ const RequestReviewModal = ({
     const uploadedFiles = type === 'source' ? sourceFiles : targetFiles
     const tempFiles =
       type === 'source' ? uploadedSourceFiles : uploadedTargetFiles
+
+    file.id && setDeleteFiles([...deleteFiles, file])
 
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     const tempFiltered = tempFiles.filter((i: File) => i.name !== file.name)
@@ -536,6 +592,10 @@ const RequestReviewModal = ({
   })
 
   useEffect(() => {
+    console.log(deleteFiles)
+  }, [deleteFiles])
+
+  useEffect(() => {
     const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
@@ -556,7 +616,7 @@ const RequestReviewModal = ({
   }, [members])
 
   useEffect(() => {
-    if (jobSourceFiles.length > 0) {
+    if (jobSourceFiles && jobSourceFiles.length > 0) {
       const savedSourceFilesId =
         type === 'edit'
           ? requestInfo && requestInfo.files
@@ -575,8 +635,14 @@ const RequestReviewModal = ({
             file: value.file,
             isSelected: savedSourceFilesId.includes(value.id),
             isImported: savedSourceFilesId.includes(value.id),
-            isRequested: value.alreadyInReviewRequest,
-            id: value.id,
+            alreadyInReviewRequest: savedSourceFilesId.includes(value.id)
+              ? false
+              : value.alreadyInReviewRequest,
+
+            jobFileId: value.id,
+            id:
+              requestInfo?.files.find(item => item.jobFileId === value.id)
+                ?.id ?? undefined,
           }
         }),
       )
@@ -584,7 +650,7 @@ const RequestReviewModal = ({
   }, [jobSourceFiles, requestInfo])
 
   useEffect(() => {
-    if (jobTargetFiles.length > 0) {
+    if (jobTargetFiles && jobTargetFiles.length > 0) {
       const savedTargetFilesId =
         type === 'edit'
           ? requestInfo && requestInfo.files
@@ -601,8 +667,15 @@ const RequestReviewModal = ({
           type: value.type,
           file: value.file,
           isSelected: savedTargetFilesId.includes(value.id),
-          isRequested: value.alreadyInReviewRequest,
-          id: value.id,
+          isImported: savedTargetFilesId.includes(value.id),
+          alreadyInReviewRequest: savedTargetFilesId.includes(value.id)
+            ? false
+            : value.alreadyInReviewRequest,
+
+          jobFileId: value.id,
+          id:
+            requestInfo?.files.find(item => item.jobFileId === value.id)?.id ??
+            undefined,
         })),
       )
     }
@@ -610,6 +683,16 @@ const RequestReviewModal = ({
 
   useEffect(() => {
     if (type === 'edit' && requestInfo) {
+      const sourceFileSize = requestInfo.files
+        .filter(value => value.type === 'SOURCE')
+        .reduce((acc, file) => acc + file.size, 0)
+      setSourceFileSize(sourceFileSize)
+
+      const targetFileSize = requestInfo.files
+        .filter(value => value.type === 'TARGET')
+        .reduce((acc, file) => acc + file.size, 0)
+      setTargetFileSize(targetFileSize)
+
       setSourceFiles(
         requestInfo.files
           .filter(
@@ -643,15 +726,30 @@ const RequestReviewModal = ({
     }
   }, [type, requestInfo])
 
-  useEffect(() => {
-    const totalSize = sourceFiles.reduce((acc, file) => acc + file.size, 0)
-    setSourceFileSize(totalSize)
-  }, [sourceFiles])
+  // useEffect(() => {
+  //   const totalSize = sourceFiles.reduce((acc, file) => acc + file.size, 0)
 
-  useEffect(() => {
-    const totalSize = targetFiles.reduce((acc, file) => acc + file.size, 0)
-    setTargetFileSize(totalSize)
-  }, [targetFiles])
+  //   setSourceFileSize(totalSize)
+  // }, [sourceFiles])
+
+  // useEffect(() => {
+  //   const totalSize = targetFiles.reduce((acc, file) => acc + file.size, 0)
+  //   const selectedFileSize = selectedTargetFiles.reduce(
+  //     (acc, file) => (file.isSelected ? acc + file.size : 0),
+  //     0,
+  //   )
+  //   setTargetFileSize(totalSize + selectedFileSize)
+  // }, [targetFiles, selectedTargetFiles])
+
+  // useEffect(() => {
+  //   const totalSize = selectedSourceFiles.reduce(
+  //     (acc, file) => acc + file.size,
+  //     0,
+  //   )
+  //   setSourceFileSize(totalSize)
+  // }, [selectedSourceFiles])
+
+  console.log(selectedSourceFiles)
 
   return (
     <>
@@ -1244,6 +1342,23 @@ const RequestReviewModal = ({
 
                                           type === 'edit' &&
                                             setImportSourceFileUpdate(true)
+
+                                          if (file.isSelected) {
+                                            deleteFiles.findIndex(
+                                              value => value.id === file.id,
+                                            ) !== -1 &&
+                                              setDeleteFiles(
+                                                deleteFiles.filter(
+                                                  value => value.id !== file.id,
+                                                ),
+                                              )
+                                          } else {
+                                            setDeleteFiles([
+                                              ...deleteFiles,
+                                              file,
+                                            ])
+                                          }
+
                                           setSourceFileSize(prev => {
                                             return file.isSelected
                                               ? prev + file.size
@@ -1434,6 +1549,22 @@ const RequestReviewModal = ({
                                         onChange={event => {
                                           event.stopPropagation()
                                           file.isSelected = !file.isSelected
+                                          setImportTargetFileUpdate(true)
+                                          if (file.isSelected) {
+                                            deleteFiles.findIndex(
+                                              value => value.id === file.id,
+                                            ) !== -1 &&
+                                              setDeleteFiles(
+                                                deleteFiles.filter(
+                                                  value => value.id !== file.id,
+                                                ),
+                                              )
+                                          } else {
+                                            setDeleteFiles([
+                                              ...deleteFiles,
+                                              file,
+                                            ])
+                                          }
                                           setTargetFileSize(prev => {
                                             return file.isSelected
                                               ? prev + file.size
