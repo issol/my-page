@@ -948,6 +948,7 @@ const AssignPro = ({
                   jobStatusList || [],
                   selectedUsers,
                   selectedJobUpdatable,
+                  jobInfo.status,
                 )}
                 keepNonExistentRowsSelected
                 getRowId={row => row.userId}

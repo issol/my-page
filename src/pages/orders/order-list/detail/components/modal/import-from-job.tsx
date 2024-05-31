@@ -129,6 +129,8 @@ const ImportFromJob = ({
     })),
   )
 
+  console.log(reviewedFiles)
+
   return (
     <Box
       sx={{
@@ -343,9 +345,7 @@ const ImportFromJob = ({
             >
               {selectedJob ? (
                 <Box>
-                  {reviewedFiles.find(
-                    value => selectedJob.id === value.jobId,
-                  ) ? (
+                  {reviewedFilesMap.length > 0 ? (
                     <Box
                       sx={{
                         display: 'flex',

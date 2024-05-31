@@ -554,7 +554,8 @@ export const getProJobAssignColumnsForRequest = (
       jobReqId: number | null
     } | null
   },
-  selectedJobUpdatable: boolean
+  selectedJobUpdatable: boolean,
+  jobStatus: number,
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -719,12 +720,12 @@ export const getProJobAssignColumnsForRequest = (
       sortable: false,
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
-
         return (
           <>
-            {selectedJobUpdatable ?
+            {selectedJobUpdatable ? (
               isAssigned ? (
-                [70300, 70350].includes(row.assignmentStatus) ? (
+                [70300, 70350].includes(row.assignmentStatus) &&
+                jobStatus !== 601000 ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -919,7 +920,8 @@ export const getProJobAssignColumnsForRequest = (
                     ) : null}
                   </Menu>
                 </Box>
-              ) : null}
+              )
+            ) : null}
             {/* {requestType === 'bulkManualAssign' ? (
               row.assignmentStatus === 70100 && !isAssigned ? (
                 <Button
