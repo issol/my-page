@@ -270,6 +270,9 @@ const ProPaymentInfo = ({ user }: Props) => {
           const copyOfRrCard = paymentInfo?.files?.find(
             i => i.positionType === 'copyOfRrCard',
           )
+          const copyOfBankStatement = paymentInfo?.files?.find(
+            i => i.positionType === 'copyOfBankStatement',
+          )
           //@ts-ignore
           const isSolo = !billingMethod?.copyOfBankStatement
           billingMethod = billingMethod as KoreaDomesticTransferType
@@ -279,6 +282,13 @@ const ProPaymentInfo = ({ user }: Props) => {
               'copyOfRrCard',
             )
             if (file) billingMethod.copyOfRrCard = file
+          }
+          if (copyOfBankStatement) {
+            const file = await transferBlobToFile(
+              copyOfBankStatement.id!,
+              'copyOfBankStatement',
+            )
+            if (file) billingMethod.copyOfBankStatement = file
           }
           if (!isSolo) {
             const copyOfBankStatement = paymentInfo?.files?.find(

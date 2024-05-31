@@ -181,7 +181,7 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
           }}
         >
           <Typography fontSize={14} fontWeight={600}>
-            Country
+            Country&nbsp;
             <Typography component={'span'} color='#666CFF'>
               *
             </Typography>

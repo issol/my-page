@@ -31,7 +31,7 @@
     "@fullcalendar/react": "^6.1.10",
     "@fullcalendar/timegrid": "^6.1.10",
     "@glocalize-inc/glo-languages": "^1.0.4",
-    "@glocalize-inc/glodex": "^2.8.9",
+    "@glocalize-inc/glodex": "^2.8.10",
     "@hookform/resolvers": "^3.3.4",
     "@iconify/react": "4.1.1",
     "@mui/icons-material": "^5.15.4",
