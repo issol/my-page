@@ -423,6 +423,18 @@ const JobDetail = () => {
     name: 'items',
   })
 
+  const itemName: `items.${number}.detail` = `items.${0}.detail`
+
+  const {
+    fields: details,
+    append,
+    update,
+    remove,
+  } = useFieldArray({
+    control: itemControl,
+    name: itemName,
+  })
+
   const [isNotApplicable, setIsNotApplicable] = useState<boolean>(false)
   const itemData = getItem(`items.${0}`)
 
@@ -2128,6 +2140,7 @@ const JobDetail = () => {
                       <Card
                         sx={{
                           height: 'calc(100% - 50px)',
+                          maxHeight: 'calc(100% - 50px)',
                           position: 'relative',
                         }}
                       >
@@ -2136,6 +2149,9 @@ const JobDetail = () => {
                             onClickUpdatePrice,
                             onError,
                           )}
+                          style={{
+                            height: '100%',
+                          }}
                         >
                           {selectedJobInfo.jobPrices?.priceId === null ||
                           editPrices ? (
@@ -2163,6 +2179,10 @@ const JobDetail = () => {
                                 setPriceId={setPriceId}
                                 setIsNotApplicable={setIsNotApplicable}
                                 errorRefs={errorRefs}
+                                details={details}
+                                append={append}
+                                remove={remove}
+                                update={update}
                               />
                             </>
                           ) : (
