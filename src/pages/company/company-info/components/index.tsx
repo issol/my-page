@@ -454,7 +454,9 @@ const CompanyInfoPageComponent = () => {
           </TabPanel>
 
           <TabPanel value='billingPlan'>
-            <BillingPlan />
+            <BillingPlan
+              auth={auth.getValue()}
+            />
           </TabPanel>
         </TabContext>
       </Box>
