@@ -334,6 +334,19 @@ export const getSourceFileToPro = async (
   }
 }
 
+export const getTargetFileToPro = async (
+  jobId: number,
+): Promise<FileType[]> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/target-file?jobId=${jobId}`,
+    )
+    return data
+  } catch (e: any) {
+    return []
+  }
+}
+
 export const getProJobDetail = async (
   id: number,
   isHistory: boolean,
@@ -797,4 +810,8 @@ export const saveReviewedFile = async (
   await axios.patch(`/api/enough/u/job-review-request/${id}/submit`, {
     ...params,
   })
+}
+
+export const deleteRequestReviewFile = async (id: number) => {
+  await axios.delete(`/api/enough/u/job-review-request/file/${id}`)
 }

@@ -127,12 +127,12 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
           onClose={() => {
             closeModal('RequestReviewModal')
           }}
-          jobSourceFiles={
-            jobInfo.files?.filter(value => value.type === 'SOURCE') || []
-          }
-          jobTargetFiles={
-            jobInfo.files?.filter(value => value.type === 'TARGET') || []
-          }
+          // jobSourceFiles={
+          //   jobInfo.files?.filter(value => value.type === 'SOURCE') || []
+          // }
+          // jobTargetFiles={
+          //   jobInfo.files?.filter(value => value.type === 'TARGET') || []
+          // }
           type={type}
           jobId={jobId}
           requestInfo={info}

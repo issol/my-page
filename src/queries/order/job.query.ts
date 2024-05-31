@@ -10,6 +10,7 @@ import {
   getMessageList,
   getRequestedProHistory,
   getSourceFileToPro,
+  getTargetFileToPro,
 } from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
@@ -217,6 +218,14 @@ export const useGetJobRequestHistory = (jobId: number | number[]) => {
 
 export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
+    staleTime: 10 * 1000,
+    suspense: false,
+    enabled: !!jobId,
+  })
+}
+
+export const useGetTargetFile = (jobId: number) => {
+  return useQuery(['targetFile', jobId], () => getTargetFileToPro(jobId), {
     staleTime: 10 * 1000,
     suspense: false,
     enabled: !!jobId,
