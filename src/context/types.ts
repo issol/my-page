@@ -66,6 +66,7 @@ export type UserDataType = {
   addresses: ClientAddressType<number>[]
   fromSNS?: null | 'GOOGLE'
   roles?: Array<UserRoleType>
+  companyId?: string
 }
 
 export type LoginSuccessResponse = {
