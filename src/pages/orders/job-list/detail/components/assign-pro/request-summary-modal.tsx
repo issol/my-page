@@ -656,6 +656,7 @@ const RequestSummaryModal = ({
                     width: '205px',
                   }}
                   inputProps={{
+                    maxLength: 5,
                     style: {
                       height: '46px',
                       padding: '0 14px',
