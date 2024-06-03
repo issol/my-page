@@ -52,6 +52,7 @@ import {
 import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import toast from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 type Props = {
   jobId: number
@@ -72,6 +73,8 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
+  const router = useRouter()
+  const requestReviewId = router.query.requestReviewId as string
   const leftContainer = useRef<Array<HTMLDivElement | null>>([])
 
   const [memberList, setMemberList] = useState<
@@ -293,6 +296,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
         })
     })
   }
+
+  useEffect(() => {
+    if (requestReviewId) {
+      console.log(requestReviewId)
+
+      setExpanded({ [Number(requestReviewId)]: true })
+    }
+  }, [requestReviewId])
 
   return (
     <Box sx={{ padding: '20px' }}>
