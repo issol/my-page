@@ -681,7 +681,7 @@ const ProJobInfo = ({
         </Card>
 
         <Card sx={{ padding: '20px' }}>
-          <Box display='flex' flexDirection='column' gap='36px'>
+          <Box display='flex' flexDirection='column'>
             <Box
               display='flex'
               // alignItems='center'
@@ -711,23 +711,6 @@ const ProJobInfo = ({
                   // alignItems: 'center',
                 }}
               >
-                {/* <RowItem
-                  label={
-                    !excludedStatusCodes.includes(jobInfo.status)
-                      ? 'Job start date'
-                      : 'Job due date'
-                  }
-                >
-                  <Typography variant='body2'>
-                    {convertTimeToTimezone(
-                      !excludedStatusCodes.includes(jobInfo.status)
-                        ? jobInfo.startedAt
-                        : jobInfo.dueAt,
-                      auth.getValue()?.user?.timezone,
-                      timezone.getValue(),
-                    )}
-                  </Typography>
-                </RowItem> */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Typography fontSize={16} fontWeight={600}>
                     Total:
@@ -742,9 +725,10 @@ const ProJobInfo = ({
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Typography fontSize={14} fontWeight={600}>
-                    {!excludedStatusCodes.includes(jobInfo.status)
+                    Job due date
+                    {/* {!excludedStatusCodes.includes(jobInfo.status)
                       ? 'Job start date'
-                      : 'Job due date'}
+                      : 'Job due date'} */}
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     {[60300, 60500].includes(jobInfo.status) ? (
@@ -761,10 +745,8 @@ const ProJobInfo = ({
                         color='#8D8E9A'
                       >
                         {convertTimeToTimezone(
-                          !excludedStatusCodes.includes(jobInfo.status)
-                            ? jobInfo.startedAt
-                            : jobInfo.dueAt,
-                          auth.getValue()?.user?.timezone,
+                          jobInfo.dueAt,
+                          jobInfo.dueTimezone,
                           timezone.getValue(),
                         )}
                       </Typography>
@@ -783,37 +765,14 @@ const ProJobInfo = ({
                 }}
               ></Box> */}
             </Box>
-
+            <Divider sx={{ my: '20px !important' }} />
             <Box display='flex' flexDirection='column' gap='20px'>
-              {/* <RowItem
-                label='Status'
-                isBadge={jobDetailDots.includes('status')}
-              >
-                {ProJobStatusChip(
-                  statusList?.find(i => i.value === jobInfo.status)?.label ||
-                    '',
-                  jobInfo.status as JobStatus,
-                )}
-
-                {jobInfo.status === 60900 ||
-                  jobInfo.status === 70400 ||
-                  (jobInfo.status === 60300 && (
-                    <IconButton
-                      sx={{ padding: 0 }}
-                      onClick={() =>
-                        onClickOnClickStatusMoreInfo(
-                          jobInfo.status as JobStatus,
-                        )
-                      }
-                    >
-                      <Icon icon='fe:question' fontSize={18}></Icon>
-                    </IconButton>
-                  ))}
-              </RowItem> */}
               <Rows>
                 <RowItem
                   label='Contact person'
                   isBadge={jobDetailDots.includes('contactPersonId')}
+                  width='100%'
+                  firstItemWidth='19.25%'
                 >
                   <Typography variant='body2'>
                     {getLegalName({
@@ -880,11 +839,13 @@ const ProJobInfo = ({
               </Box>
               <Divider sx={{ margin: '0 !important' }} />
               <Rows>
-                <RowItem label='Client'>
+                <RowItem label='Client' width='100%' firstItemWidth='19.25%'>
                   <Typography variant='body2'>
                     {jobInfo.order?.client?.name}
                   </Typography>
                 </RowItem>
+              </Rows>
+              <Rows>
                 <RowItem label='Requested date'>
                   <Typography variant='body2'>
                     {convertTimeToTimezone(
@@ -894,18 +855,18 @@ const ProJobInfo = ({
                     )}
                   </Typography>
                 </RowItem>
+                <RowItem label='Job start date'>
+                  <Typography variant='body2'>
+                    {convertTimeToTimezone(
+                      jobInfo.startedAt,
+                      auth.getValue()?.user?.timezone,
+                      timezone.getValue(),
+                    )}
+                  </Typography>
+                </RowItem>
               </Rows>
               <Rows>
                 <RowItem label='Service type'>
-                  {/* {jobInfo.category ? (
-                    <JobTypeChip
-                      size='small'
-                      label={jobInfo.category}
-                      type={jobInfo.category}
-                    />
-                  ) : (
-                    '-'
-                  )} */}
                   {jobInfo.serviceType ? (
                     <ServiceTypeChip size='small' label={jobInfo.serviceType} />
                   ) : (
@@ -919,27 +880,6 @@ const ProJobInfo = ({
                   </Typography>
                 </RowItem>
               </Rows>
-
-              {/* {!excludedStatusCodes.includes(jobInfo.status) && (
-                <RowItem label='Job due date'>
-                  {[60300, 60500].includes(jobInfo.status) ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      {getJobDateDiff(
-                        jobInfo.dueAt,
-                        jobInfo.finalProDeliveredAt,
-                      )}
-                    </Box>
-                  ) : (
-                    <Typography variant='body2'>
-                      {convertTimeToTimezone(
-                        jobInfo.dueAt,
-                        auth.getValue()?.user?.timezone,
-                        timezone.getValue(),
-                      )}
-                    </Typography>
-                  )}
-                </RowItem>
-              )} */}
 
               <Divider sx={{ margin: '0 !important' }} />
 
@@ -1067,29 +1007,6 @@ const ProJobInfo = ({
                     </Box>
                   ) : null}
                 </Box>
-
-                {/* {fileList?.length === 0 &&
-                jobInfo.status !== 70200 &&
-                jobInfo.status !== 70400 &&
-                jobInfo.status !== 70500 &&
-                jobInfo.status !== 70600 ? null : fileList?.length > 0 ? (
-                  <Button
-                    variant='outlined'
-                    fullWidth
-                    startIcon={<Icon icon='mdi:download' />}
-                    onClick={() => downloadAllFiles(jobInfo?.files)}
-                    disabled={
-                      fileList?.length === 0 ||
-                      jobInfo.status === 70200 ||
-                      jobInfo.status === 70400 ||
-                      jobInfo.status === 70500 ||
-                      jobInfo.status === 70600 ||
-                      jobInfo.status === 601000
-                    }
-                  >
-                    Download all
-                  </Button>
-                ) : null} */}
               </Box>
               <Divider sx={{ mb: '20px !important', mt: '0 !important' }} />
               <Box
@@ -1403,6 +1320,8 @@ interface RowItemProps {
   label: string
   isBadge?: boolean
   alignItems?: string
+  width?: string
+  firstItemWidth?: string
   infoButton?: React.ReactNode
   children: React.ReactNode
 }
@@ -1413,10 +1332,17 @@ const RowItem = ({
   alignItems = 'center',
   infoButton,
   children,
+  width = '50%',
+  firstItemWidth = '38.5%',
 }: RowItemProps) => {
   return (
-    <Box display='flex' width='50%' gap='8px'>
-      <Box display='flex' alignItems={alignItems} gap='10px' width='38.5%'>
+    <Box display='flex' width={width} gap='8px'>
+      <Box
+        display='flex'
+        alignItems={alignItems}
+        gap='10px'
+        width={firstItemWidth}
+      >
         {isBadge && (
           <Badge variant='dot' color='primary' sx={{ marginLeft: '4px' }} />
         )}

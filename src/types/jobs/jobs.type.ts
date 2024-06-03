@@ -231,6 +231,7 @@ export type ProJobDetailType = {
   requestedAt: string
   startedAt: string
   dueAt: string
+  dueTimezone: CountryType
   price: {
     data: ItemDetailType[]
     totalPrice: number
