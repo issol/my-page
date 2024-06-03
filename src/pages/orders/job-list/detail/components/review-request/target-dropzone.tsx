@@ -1,7 +1,7 @@
 import { Box, Button, Tooltip, Typography } from '@mui/material'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileType } from '@src/types/common/file.type'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import Image from 'next/image'
@@ -80,6 +80,99 @@ const TargetDropzone = ({
       setTargetFiles(uniqueFiles)
     },
   })
+
+  const renderedTargetFiles = useMemo(
+    () =>
+      targetFiles.map((file: FileType, index: number) => {
+        return (
+          <Box key={file.uniqueId}>
+            <Box
+              sx={{
+                display: 'flex',
+                // marginBottom: '8px',
+                width: '100%',
+                justifyContent: 'space-between',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                border: '1px solid rgba(76, 78, 100, 0.22)',
+                background: '#f9f8f9',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Box
+                  sx={{
+                    marginRight: '8px',
+                    display: 'flex',
+                  }}
+                >
+                  <Image
+                    src={`/images/icons/file-icons/${extractFileExtension(
+                      file.name,
+                    )}.svg`}
+                    alt=''
+                    width={32}
+                    height={32}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Tooltip title={file.name}>
+                    <Typography
+                      variant='body1'
+                      fontSize={14}
+                      fontWeight={600}
+                      lineHeight={'20px'}
+                      sx={{
+                        overflow: 'hidden',
+                        wordBreak: 'break-all',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {file.name}
+                    </Typography>
+                  </Tooltip>
+
+                  <Typography variant='caption' lineHeight={'14px'}>
+                    {formatFileSize(file.size)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    color: 'rgba(76, 78, 100, 0.54)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                  onClick={event => {
+                    event.stopPropagation()
+                    handleRemoveFile(file, 'target')
+                  }}
+                >
+                  <Icon icon='mdi:close' fontSize={20} />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        )
+      }),
+    [targetFiles],
+  )
+
   return (
     <div
       {...getRootProps({
@@ -120,7 +213,8 @@ const TargetDropzone = ({
               gap: '8px',
             }}
           >
-            {targetFiles.map((file: FileType, index: number) => {
+            {renderedTargetFiles}
+            {/* {targetFiles.map((file: FileType, index: number) => {
               return (
                 <Box key={file.uniqueId}>
                   <Box
@@ -206,7 +300,7 @@ const TargetDropzone = ({
                   </Box>
                 </Box>
               )
-            })}
+            })} */}
           </Box>
         )}
       </Box>

@@ -620,14 +620,14 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                               </Box>
                             ) : null}
 
-                            {((item.files.length > 0 &&
+                            {/* {((item.files.length > 0 &&
                               item.files.filter(
                                 value => value.type === 'SOURCE',
                               ).length > 0) ||
                               (item.files.length > 0 &&
                                 item.files.filter(
                                   value => value.type === 'TARGET',
-                                ).length > 0)) && <Divider />}
+                                ).length > 0)) && <Divider />} */}
 
                             <div
                               style={{
@@ -641,185 +641,194 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 item.files.filter(
                                   value => value.type === 'SOURCE',
                                 ).length > 0 && (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      gap: '20px',
-                                    }}
-                                  >
+                                  <>
+                                    <Divider />
                                     <Box
                                       sx={{
                                         display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
+                                        flexDirection: 'column',
+                                        gap: '20px',
                                       }}
                                     >
                                       <Box
                                         sx={{
                                           display: 'flex',
+                                          justifyContent: 'space-between',
                                           alignItems: 'center',
-                                          gap: '8px',
                                         }}
                                       >
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                          }}
+                                        >
+                                          <Typography
+                                            fontSize={14}
+                                            fontWeight={600}
+                                          >
+                                            Source files
+                                          </Typography>
+                                          <Typography
+                                            fontSize={12}
+                                            fontWeight={400}
+                                            color='rgba(76, 78, 100, 0.60)'
+                                          >
+                                            {formatFileSize(
+                                              getFileSize(item.files, 'SOURCE'),
+                                            )}{' '}
+                                            / {byteToGB(MAXIMUM_FILE_SIZE)}
+                                          </Typography>
+                                        </Box>
                                         <Typography
+                                          color='#8D8E9A'
                                           fontSize={14}
-                                          fontWeight={600}
+                                          fontWeight={500}
+                                          sx={{
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer',
+                                          }}
+                                          onClick={() =>
+                                            DownloadAllFiles(
+                                              item.files!.filter(
+                                                value =>
+                                                  value.type === 'SOURCE',
+                                              ),
+                                              S3FileType.JOB,
+                                            )
+                                          }
                                         >
-                                          Source files
-                                        </Typography>
-                                        <Typography
-                                          fontSize={12}
-                                          fontWeight={400}
-                                          color='rgba(76, 78, 100, 0.60)'
-                                        >
-                                          {formatFileSize(
-                                            getFileSize(item.files, 'SOURCE'),
-                                          )}{' '}
-                                          / {byteToGB(MAXIMUM_FILE_SIZE)}
+                                          Download all
                                         </Typography>
                                       </Box>
-                                      <Typography
-                                        color='#8D8E9A'
-                                        fontSize={14}
-                                        fontWeight={500}
+
+                                      <Box
                                         sx={{
-                                          textDecoration: 'underline',
-                                          cursor: 'pointer',
+                                          display: 'grid',
+                                          gridTemplateColumns: 'repeat(2, 1fr)',
+
+                                          width: '100%',
+                                          gap: '20px',
                                         }}
-                                        onClick={() =>
-                                          DownloadAllFiles(
-                                            item.files!.filter(
-                                              value => value.type === 'SOURCE',
-                                            ),
-                                            S3FileType.JOB,
-                                          )
-                                        }
                                       >
-                                        Download all
-                                      </Typography>
-                                    </Box>
-
-                                    <Box
-                                      sx={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(2, 1fr)',
-
-                                        width: '100%',
-                                        gap: '20px',
-                                      }}
-                                    >
-                                      {item.files.length > 0 &&
-                                        item.files
-                                          .filter(
-                                            value => value.type === 'SOURCE',
-                                          )
-                                          .map(
-                                            (file: FileType, index: number) => {
-                                              return (
-                                                <Box key={uuidv4()}>
-                                                  <Box
-                                                    sx={{
-                                                      display: 'flex',
-                                                      marginBottom: '8px',
-                                                      width: '100%',
-                                                      justifyContent:
-                                                        'space-between',
-                                                      borderRadius: '8px',
-                                                      padding: '10px 12px',
-                                                      border:
-                                                        '1px solid rgba(76, 78, 100, 0.22)',
-                                                      background: '#f9f8f9',
-                                                    }}
-                                                  >
+                                        {item.files.length > 0 &&
+                                          item.files
+                                            .filter(
+                                              value => value.type === 'SOURCE',
+                                            )
+                                            .map(
+                                              (
+                                                file: FileType,
+                                                index: number,
+                                              ) => {
+                                                return (
+                                                  <Box key={uuidv4()}>
                                                     <Box
                                                       sx={{
                                                         display: 'flex',
-                                                        alignItems: 'center',
+                                                        marginBottom: '8px',
+                                                        width: '100%',
+                                                        justifyContent:
+                                                          'space-between',
+                                                        borderRadius: '8px',
+                                                        padding: '10px 12px',
+                                                        border:
+                                                          '1px solid rgba(76, 78, 100, 0.22)',
+                                                        background: '#f9f8f9',
                                                       }}
                                                     >
                                                       <Box
                                                         sx={{
-                                                          marginRight: '8px',
                                                           display: 'flex',
+                                                          alignItems: 'center',
                                                         }}
                                                       >
-                                                        <Image
-                                                          src={`/images/icons/file-icons/${extractFileExtension(
-                                                            file.name,
-                                                          )}.svg`}
-                                                          alt=''
-                                                          width={32}
-                                                          height={32}
-                                                        />
-                                                      </Box>
-                                                      <Box
-                                                        sx={{
-                                                          display: 'flex',
-                                                          flexDirection:
-                                                            'column',
-                                                        }}
-                                                      >
-                                                        <Tooltip
-                                                          title={file.name}
+                                                        <Box
+                                                          sx={{
+                                                            marginRight: '8px',
+                                                            display: 'flex',
+                                                          }}
                                                         >
-                                                          <Typography
-                                                            variant='body1'
-                                                            fontSize={14}
-                                                            fontWeight={600}
-                                                            lineHeight={'20px'}
-                                                            sx={{
-                                                              overflow:
-                                                                'hidden',
-                                                              wordBreak:
-                                                                'break-all',
-                                                              textOverflow:
-                                                                'ellipsis',
-                                                              display:
-                                                                '-webkit-box',
-                                                              WebkitLineClamp: 1,
-                                                              WebkitBoxOrient:
-                                                                'vertical',
-                                                            }}
+                                                          <Image
+                                                            src={`/images/icons/file-icons/${extractFileExtension(
+                                                              file.name,
+                                                            )}.svg`}
+                                                            alt=''
+                                                            width={32}
+                                                            height={32}
+                                                          />
+                                                        </Box>
+                                                        <Box
+                                                          sx={{
+                                                            display: 'flex',
+                                                            flexDirection:
+                                                              'column',
+                                                          }}
+                                                        >
+                                                          <Tooltip
+                                                            title={file.name}
                                                           >
-                                                            {file.name}
-                                                          </Typography>
-                                                        </Tooltip>
+                                                            <Typography
+                                                              variant='body1'
+                                                              fontSize={14}
+                                                              fontWeight={600}
+                                                              lineHeight={
+                                                                '20px'
+                                                              }
+                                                              sx={{
+                                                                overflow:
+                                                                  'hidden',
+                                                                wordBreak:
+                                                                  'break-all',
+                                                                textOverflow:
+                                                                  'ellipsis',
+                                                                display:
+                                                                  '-webkit-box',
+                                                                WebkitLineClamp: 1,
+                                                                WebkitBoxOrient:
+                                                                  'vertical',
+                                                              }}
+                                                            >
+                                                              {file.name}
+                                                            </Typography>
+                                                          </Tooltip>
 
-                                                        <Typography
-                                                          variant='caption'
-                                                          lineHeight={'14px'}
-                                                        >
-                                                          {formatFileSize(
-                                                            file.size,
-                                                          )}
-                                                        </Typography>
+                                                          <Typography
+                                                            variant='caption'
+                                                            lineHeight={'14px'}
+                                                          >
+                                                            {formatFileSize(
+                                                              file.size,
+                                                            )}
+                                                          </Typography>
+                                                        </Box>
                                                       </Box>
-                                                    </Box>
-                                                    <Box
-                                                      sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                      }}
-                                                    >
-                                                      <IconButton
-                                                        onClick={() => {
-                                                          downloadFile(file)
+                                                      <Box
+                                                        sx={{
+                                                          display: 'flex',
+                                                          alignItems: 'center',
                                                         }}
                                                       >
-                                                        <Icon
-                                                          icon='ic:sharp-download'
-                                                          fontSize={24}
-                                                        />
-                                                      </IconButton>
+                                                        <IconButton
+                                                          onClick={() => {
+                                                            downloadFile(file)
+                                                          }}
+                                                        >
+                                                          <Icon
+                                                            icon='ic:sharp-download'
+                                                            fontSize={24}
+                                                          />
+                                                        </IconButton>
+                                                      </Box>
                                                     </Box>
                                                   </Box>
-                                                </Box>
-                                              )
-                                            },
-                                          )}
+                                                )
+                                              },
+                                            )}
+                                      </Box>
                                     </Box>
-                                  </Box>
+                                  </>
                                 )}
                               {item.files.length > 0 &&
                                 item.files.filter(
