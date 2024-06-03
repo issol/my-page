@@ -492,6 +492,9 @@ const JobDetail = () => {
 
         // queryClient.invalidateQueries('jobRequest')
       },
+      onError: () => {
+        displayCustomToast('Something went wrong. Please try again.', 'error')
+      },
     },
   )
 
@@ -507,6 +510,9 @@ const JobDetail = () => {
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+      onError: () => {
+        displayCustomToast('Something went wrong. Please try again.', 'error')
       },
     },
   )
@@ -578,6 +584,9 @@ const JobDetail = () => {
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+      onError: () => {
+        displayCustomToast('Something went wrong. Please try again.', 'error')
       },
     },
   )
@@ -2183,6 +2192,7 @@ const JobDetail = () => {
                                 append={append}
                                 remove={remove}
                                 update={update}
+                                isNotApplicable={isNotApplicable}
                               />
                             </>
                           ) : (
@@ -2206,6 +2216,8 @@ const JobDetail = () => {
                               append={append}
                               remove={remove}
                               update={update}
+                              isNotApplicable={isNotApplicable}
+                              setIsNotApplicable={setIsNotApplicable}
                             />
                           )}
 

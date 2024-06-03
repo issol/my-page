@@ -564,32 +564,35 @@ export default function AddNewOrder() {
             onClick={onSubmit}
             onClose={() => closeModal('SaveOrderNotUsedPriceModal')}
             title={'Unused language pair(s)'}
-            subtitle={'Language pair(s) not registered to the item(s) will be deleted from the order. Would you like to continue and create the order?'}
+            subtitle={
+              'Language pair(s) not registered to the item(s) will be deleted from the order. Would you like to continue and create the order?'
+            }
             vary='error-report'
             rightButtonText='Create'
           />
         ),
       })
     } else {
-      openModal({
-        type: 'SaveOrderModal',
-        children: (
-          <CustomModal
-            onClick={onSubmit}
-            onClose={() => closeModal('SaveOrderModal')}
-            title={
-              <>
-                Are you sure you want to create this order?
-                <Typography variant='body2' fontWeight={600} fontSize={16}>
-                  {getProjectInfoValues().projectName}
-                </Typography>
-              </>
-            }
-            vary='successful'
-            rightButtonText='Save'
-          />
-        ),
-      })
+      onSubmit()
+      // openModal({
+      //   type: 'SaveOrderModal',
+      //   children: (
+      //     <CustomModal
+      //       onClick={onSubmit}
+      //       onClose={() => closeModal('SaveOrderModal')}
+      //       title={
+      //         <>
+      //           Are you sure you want to create this order?
+      //           <Typography variant='body2' fontWeight={600} fontSize={16}>
+      //             {getProjectInfoValues().projectName}
+      //           </Typography>
+      //         </>
+      //       }
+      //       vary='successful'
+      //       rightButtonText='Save'
+      //     />
+      //   ),
+      // })
     }
   }
 
@@ -597,7 +600,7 @@ export default function AddNewOrder() {
     setIsWarn(false)
     try {
       setIsFatching(true)
-    
+
       const teams = transformTeamData(getTeamValues())
       const clients: any = {
         ...getClientValue(),
@@ -620,7 +623,10 @@ export default function AddNewOrder() {
           rawProjectInfo.orderTimezone,
         ),
         orderTimezone: rawProjectInfo.orderTimezone
-          ? { label: rawProjectInfo.orderTimezone.label, code: rawProjectInfo.orderTimezone.code}
+          ? {
+              label: rawProjectInfo.orderTimezone.label,
+              code: rawProjectInfo.orderTimezone.code,
+            }
           : '',
         projectDueAt: rawProjectInfo.projectDueAt
           ? changeTimeZoneOffset(
@@ -629,7 +635,10 @@ export default function AddNewOrder() {
             )
           : undefined,
         projectDueTimezone: rawProjectInfo.projectDueTimezone
-          ? { label: rawProjectInfo.projectDueTimezone.label, code: rawProjectInfo.projectDueTimezone.code}
+          ? {
+              label: rawProjectInfo.projectDueTimezone.label,
+              code: rawProjectInfo.projectDueTimezone.code,
+            }
           : '',
         isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
         tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
@@ -962,12 +971,15 @@ export default function AddNewOrder() {
                   )!,
                 )
               : undefined,
-            projectDueTimezone: res?.projectDueTimezone 
-            ? { label: res?.projectDueTimezone.label, code: res?.projectDueTimezone.code }
-            : {
-              label: '',
-              code: '',
-            },
+            projectDueTimezone: res?.projectDueTimezone
+              ? {
+                  label: res?.projectDueTimezone.label,
+                  code: res?.projectDueTimezone.code,
+                }
+              : {
+                  label: '',
+                  code: '',
+                },
 
             isTaxable: res.isTaxable,
             tax: res.tax ?? null,
@@ -1133,12 +1145,15 @@ export default function AddNewOrder() {
                   )!,
                 )
               : undefined,
-            projectDueTimezone: res?.projectDueTimezone 
-              ? { label: res?.projectDueTimezone.label, code: res?.projectDueTimezone.code }
+            projectDueTimezone: res?.projectDueTimezone
+              ? {
+                  label: res?.projectDueTimezone.label,
+                  code: res?.projectDueTimezone.code,
+                }
               : {
-                label: '',
-                code: '',
-              },
+                  label: '',
+                  code: '',
+                },
 
             isTaxable: res.isTaxable,
             tax: res.tax ?? null,

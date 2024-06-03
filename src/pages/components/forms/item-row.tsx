@@ -1088,6 +1088,7 @@ const Row = ({
               fields={fields}
               remove={remove}
               onChangeCurrency={onChangeCurrency}
+              // isNotApplicableAtPrice={isNotApplicableAtPrice}
             />
             {/* price unit end */}
             <Grid item xs={12}>

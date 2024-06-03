@@ -1,5 +1,5 @@
 // ** react
-import { MutableRefObject, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 
 // ** styled components
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
@@ -96,7 +96,7 @@ type Props = {
   isValid: boolean
   showMinimum: boolean
   setShowMinimum: (n: boolean) => void
-  // isNotApplicable: boolean
+  isNotApplicableAtPrice?: boolean
   type: string
   sumTotalPrice: () => void
   // checkMinimumPrice: () => void
@@ -149,6 +149,7 @@ export default function ItemPriceUnitForm({
   append,
   update,
   getTotalPrice,
+  isNotApplicableAtPrice,
   // getEachPrice,
   onDeletePriceUnit,
   onDeleteNoPriceUnit,
@@ -256,6 +257,12 @@ export default function ItemPriceUnitForm({
     getTotalPrice()
   }
 
+  useEffect(() => {
+    if (type === 'job-edit' && isNotApplicableAtPrice !== undefined) {
+      setIsNotApplicable([isNotApplicableAtPrice])
+    }
+  }, [type, isNotApplicableAtPrice])
+
   return (
     <Grid item xs={12} sx={{ height: '100%' }}>
       <table
@@ -339,6 +346,45 @@ export default function ItemPriceUnitForm({
         </table>
       </Box>
       {/* </Box> */}
+      {type === 'detail' ||
+      type === 'invoiceDetail' ||
+      type === 'invoiceHistory' ||
+      type === 'invoiceCreate' ||
+      type === 'job-detail' ||
+      type === 'job-edit' ? null : (
+        <Grid item xs={12}>
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='flex'
+            height={60}
+            marginLeft={5}
+          >
+            <Button
+              onClick={() => {
+                append &&
+                  append({
+                    // id: id + index,
+                    priceUnitId: -1,
+                    quantity: null,
+                    unitPrice: null,
+                    prices: 0,
+                    unit: '',
+                    // currency: priceData?.currency ?? 'USD',
+                    currency:
+                      getValues(`items.${index}.detail.${0}.currency`) ?? null,
+                  })
+                setId(id + 1)
+              }}
+              variant='outlined'
+              disabled={!isValid}
+              sx={{ p: 0.7, minWidth: 26 }}
+            >
+              <Icon icon='material-symbols:add' />
+            </Button>
+          </Box>
+        </Grid>
+      )}
 
       {type === 'job-edit' || type === 'job-detail' ? null : (
         <Grid item xs={12}>
