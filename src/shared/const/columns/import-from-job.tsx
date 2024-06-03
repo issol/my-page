@@ -462,11 +462,11 @@ const getImportFromJobColumns = (
                 >
                   <LegalName
                     row={{
-                      firstName: row.assignedPerson.firstName,
-                      middleName: row.assignedPerson.middleName,
-                      lastName: row.assignedPerson.lastName,
-                      isOnboarded: row.assignedPerson.isOnboarded,
-                      isActive: row.assignedPerson.isActive,
+                      firstName: row.assignedPerson?.firstName,
+                      middleName: row.assignedPerson?.middleName,
+                      lastName: row.assignedPerson?.lastName,
+                      isOnboarded: row.assignedPerson?.isOnboarded,
+                      isActive: row.assignedPerson?.isActive,
                     }}
                   />
                 </Box>

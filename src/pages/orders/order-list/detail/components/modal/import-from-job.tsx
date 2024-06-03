@@ -121,7 +121,10 @@ const ImportFromJob = ({
       selectedTargetFiles
         .concat(selectedReviewedFiles)
         .forEach((file: DeliveryFileType) => (result += file.fileSize))
-      setImportedFiles(selectedTargetFiles.concat(selectedReviewedFiles))
+      setImportedFiles(prev => [
+        ...prev,
+        ...selectedTargetFiles.concat(selectedReviewedFiles),
+      ])
       setFileSize(result)
     }
   }
