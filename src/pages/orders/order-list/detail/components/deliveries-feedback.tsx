@@ -1134,17 +1134,19 @@ const DeliveriesFeedback = ({
                               </Typography>
                             </Box>
                           )}
-                          <Box
-                            sx={{
-                              background: '#F7F7F9',
-                              borderRadius: '10px',
-                              padding: '20px',
-                            }}
-                          >
-                            <Typography fontSize={14} fontWeight={400}>
-                              {value.note ?? '-'}
-                            </Typography>
-                          </Box>
+                          {value.note && value.note !== '' ? (
+                            <Box
+                              sx={{
+                                background: '#F7F7F9',
+                                borderRadius: '10px',
+                                padding: '20px',
+                              }}
+                            >
+                              <Typography fontSize={14} fontWeight={400}>
+                                {value.note ?? '-'}
+                              </Typography>
+                            </Box>
+                          ) : null}
                         </Box>
                       </AccordionDetails>
                     </Accordion>

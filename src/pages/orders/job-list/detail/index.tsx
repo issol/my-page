@@ -2202,6 +2202,10 @@ const JobDetail = () => {
                               jobPriceHistory={jobPriceHistory!}
                               type='view'
                               selectedJobUpdatable={selectedJobUpdatable()}
+                              details={details}
+                              append={append}
+                              remove={remove}
+                              update={update}
                             />
                           )}
 
@@ -2447,6 +2451,9 @@ const JobDetail = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
+                            justifyContent: 'center',
+
+                            height: '100%',
                           }}
                         >
                           <Image
