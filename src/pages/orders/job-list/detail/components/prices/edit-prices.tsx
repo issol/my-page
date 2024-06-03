@@ -331,6 +331,7 @@ const EditPrices = ({
           // padding: '20px',
           height: '100%',
 
+          minHeight: 'calc(100% - 50px)',
           // height: 'calc(100% - 100px)',
         }}
       >
@@ -511,6 +512,7 @@ const EditPrices = ({
                 // setId(id + 1)
               }}
               variant='outlined'
+              disabled={!!!itemData.priceId}
               // disabled={
               //   !!itemData.source &&
               //   !!itemData.target &&

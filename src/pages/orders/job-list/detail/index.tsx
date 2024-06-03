@@ -2148,8 +2148,10 @@ const JobDetail = () => {
                       </Box>
                       <Card
                         sx={{
-                          height: 'calc(100% - 50px)',
-                          maxHeight: 'calc(100% - 50px)',
+                          height: '100px',
+                          // height: 'calc(100% - 50px)',
+                          minHeight: '600px',
+                          // maxHeight: 'calc(100% - 50px)',
                           position: 'relative',
                         }}
                       >
