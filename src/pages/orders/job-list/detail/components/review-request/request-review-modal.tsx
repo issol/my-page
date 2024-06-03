@@ -362,7 +362,7 @@ const RequestReviewModal = ({
                       | 'TARGET'
                       | 'SAMPLE'
                       | 'REVIEWED',
-                    jobFileId: value.id,
+                    jobFileId: value.jobFileId,
                     savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
                   })),
                 ...selectedTargetFiles
@@ -377,17 +377,19 @@ const RequestReviewModal = ({
                       | 'TARGET'
                       | 'SAMPLE'
                       | 'REVIEWED',
-                    jobFileId: value.id,
+                    jobFileId: value.jobFileId,
                     savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
                   })),
               ],
             }
-            type === 'edit'
-              ? updateRequestReviewMutation.mutate({
-                  params: result,
-                  id: requestInfo?.id!,
-                })
-              : createRequestReviewMutation.mutate(result)
+
+            console.log(result)
+            // type === 'edit'
+            //   ? updateRequestReviewMutation.mutate({
+            //       params: result,
+            //       id: requestInfo?.id!,
+            //     })
+            //   : createRequestReviewMutation.mutate(result)
           })
         })
       } else {
@@ -428,7 +430,7 @@ const RequestReviewModal = ({
                 extension: value.name.split('.').pop()?.toLowerCase() ?? '',
                 size: value.size,
                 type: 'SOURCE' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                jobFileId: value.id,
+                jobFileId: value.jobFileId,
                 savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
               })),
             ...selectedTargetFiles
@@ -439,7 +441,7 @@ const RequestReviewModal = ({
                 extension: value.name.split('.').pop()?.toLowerCase() ?? '',
                 size: value.size,
                 type: 'TARGET' as 'SOURCE' | 'TARGET' | 'SAMPLE' | 'REVIEWED',
-                jobFileId: value.id,
+                jobFileId: value.jobFileId,
                 savedType: 'IMPORT' as 'UPLOAD' | 'IMPORT',
               })),
           ],
@@ -625,6 +627,7 @@ const RequestReviewModal = ({
                 .map(value => value.jobFileId)
             : []
           : []
+      console.log(jobSourceFiles)
 
       setSelectedSourceFiles(
         jobSourceFiles.map(value => {
