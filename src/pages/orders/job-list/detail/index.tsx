@@ -2447,6 +2447,9 @@ const JobDetail = () => {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
+                            justifyContent: 'center',
+
+                            height: '100%',
                           }}
                         >
                           <Image
