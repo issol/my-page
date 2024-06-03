@@ -163,7 +163,7 @@ const BillingPlan = ({
   }
   console.log("planPeriod", planPeriod)
   useEffect(() => {
-    const eventSource = new EventSource(`${BASEURL}/api/enough/u/payment/sse`);
+    const eventSource = new EventSource(`${BASEURL}/api/enough/u/payment/sse?lspId=${auth?.user?.companyId}`);
 
     eventSource.onmessage = (event: MessageEvent) => {
       try {
