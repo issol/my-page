@@ -26,6 +26,8 @@ import {
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormReset,
   UseFormSetValue,
@@ -95,6 +97,30 @@ type Props = {
   type: string
   jobPriceHistory?: Array<jobPriceHistoryType>
   selectedJobUpdatable: boolean
+
+  details?: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >[]
+  append?: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
+  remove?: UseFieldArrayRemove
+  update?: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
 }
 const ViewPrices = ({
   row,
@@ -112,6 +138,10 @@ const ViewPrices = ({
   type,
   jobPriceHistory,
   selectedJobUpdatable,
+  details,
+  append,
+  remove,
+  update,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -491,6 +521,10 @@ const ViewPrices = ({
           closeModal={closeModal}
           priceUnitsList={priceUnitsList}
           type='job-detail'
+          details={details}
+          append={append}
+          remove={remove}
+          update={update}
         />
       </Box>
 

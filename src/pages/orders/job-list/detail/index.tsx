@@ -2202,6 +2202,10 @@ const JobDetail = () => {
                               jobPriceHistory={jobPriceHistory!}
                               type='view'
                               selectedJobUpdatable={selectedJobUpdatable()}
+                              details={details}
+                              append={append}
+                              remove={remove}
+                              update={update}
                             />
                           )}
 
