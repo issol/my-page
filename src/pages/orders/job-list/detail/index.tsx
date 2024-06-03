@@ -1583,7 +1583,7 @@ const JobDetail = () => {
   useEffect(() => {
     if (
       menuQuery &&
-      ['info', 'prices', 'assign', 'history'].includes(menuQuery)
+      ['info', 'prices', 'assign', 'history', 'review'].includes(menuQuery)
     ) {
       setValue(menuQuery)
     }
