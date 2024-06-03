@@ -13,7 +13,7 @@ import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
 import { FileType } from '@src/types/common/file.type'
 import { AssignProListType } from '@src/types/orders/job-detail'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -104,12 +104,6 @@ const SourceFileUpload = ({
     Number(row.order.requestId),
   )
 
-  const [groupedFiles, setGroupedFiles] = useState<
-    { createdAt: string; data: FileType[] }[]
-  >([])
-
-  // console.log(row)
-
   const {
     data: sourceFileList,
 
@@ -186,7 +180,8 @@ const SourceFileUpload = ({
       ...srtUploadFileExtension.accept,
     },
     // noClick: files.length > 0,
-    // noDragEventsBubbling: true,
+    noDragEventsBubbling: true,
+
     disabled:
       type === 'import' ||
       [60500, 60600, 60700, 601000, 60800, 60900].includes(row.status),
@@ -216,7 +211,7 @@ const SourceFileUpload = ({
 
             if (!found)
               acc.push({
-                uniqueId: uuidv4(),
+                // uniqueId: uuidv4(),
                 name: file.name,
                 size: file.size,
                 type: file.type,
@@ -232,7 +227,6 @@ const SourceFileUpload = ({
             return acc
           }
         }, [])
-      console.log(uniqueFiles)
 
       setFiles(uniqueFiles)
     },
@@ -264,6 +258,17 @@ const SourceFileUpload = ({
 
     setFiles([...filtered])
     setUploadedFiles([...filterUploaded])
+  }
+
+  const handleBlockFile = (file: FileType) => {
+    const postFiles = files
+    const filtered = postFiles.map((i: FileType) => {
+      if (i.name === file.name) {
+        i.downloadAvailable = !i.downloadAvailable
+      }
+      return i
+    })
+    setFiles([...filtered])
   }
 
   const DownloadFile = (file: FileType) => {
@@ -425,23 +430,6 @@ const SourceFileUpload = ({
         (file: { name: string; size: number }) => (result += Number(file.size)),
       )
       setFileSize(result)
-
-      const groupedFiles: { createdAt: string; data: FileType[] }[] =
-        sourceFileList.reduce(
-          (acc: { createdAt: string; data: FileType[] }[], curr: FileType) => {
-            const existingGroup = acc.find(
-              group => group.createdAt === curr.createdAt,
-            )
-            if (existingGroup) {
-              existingGroup.data.push(curr)
-            } else {
-              acc.push({ createdAt: curr.createdAt!, data: [curr] })
-            }
-            return acc
-          },
-          [],
-        )
-      setGroupedFiles(groupedFiles)
     }
   }, [sourceFileList, files])
 
@@ -464,6 +452,154 @@ const SourceFileUpload = ({
       )
     }
   }, [importFile])
+
+  const renderedFiles = useMemo(
+    () =>
+      files.map((file: FileType, index: number) => {
+        return (
+          <Box key={index}>
+            <Box
+              sx={{
+                display: 'flex',
+                // marginBottom: type === 'import' ? 0 : '8px',
+                width: '100%',
+                justifyContent: 'space-between',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                border: '1px solid rgba(76, 78, 100, 0.22)',
+                background: '#f9f8f9',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {type === 'import' ? (
+                  <Checkbox
+                    checked={file.isSelected}
+                    value={file.isSelected}
+                    onChange={event => {
+                      event.stopPropagation()
+                      file.isSelected = !file.isSelected
+                      setFiles(prevFiles =>
+                        prevFiles.map(f => (f.name === file.name ? file : f)),
+                      )
+                    }}
+                  />
+                ) : null}
+
+                <Box
+                  sx={{
+                    marginRight: '8px',
+                    display: 'flex',
+                  }}
+                >
+                  <Image
+                    src={`/images/icons/file-icons/${extractFileExtension(
+                      file.name,
+                    )}.svg`}
+                    alt=''
+                    width={32}
+                    height={32}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Tooltip title={file.name}>
+                    <Typography
+                      variant='body1'
+                      fontSize={14}
+                      fontWeight={600}
+                      lineHeight={'20px'}
+                      sx={{
+                        overflow: 'hidden',
+                        wordBreak: 'break-all',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {file.name}
+                    </Typography>
+                  </Tooltip>
+
+                  <Typography variant='caption' lineHeight={'14px'}>
+                    {formatFileSize(file.size)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {videoExtensions.includes(
+                  file.name?.split('.').pop()?.toLowerCase() ?? '',
+                ) ? (
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'flex',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      '& :hover': {
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.grey[300],
+                      },
+                    }}
+                    onClick={event => {
+                      event.stopPropagation()
+                      handleBlockFile(file)
+                    }}
+                  >
+                    <Icon
+                      icon={
+                        file.downloadAvailable
+                          ? 'mdi:unlocked-outline'
+                          : 'mdi:lock'
+                      }
+                      fontSize={20}
+                    />
+                  </Box>
+                ) : null}
+                {type === 'import' ? null : (
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'flex',
+                      color: 'rgba(76, 78, 100, 0.54)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                    }}
+                    onClick={event => {
+                      event.stopPropagation()
+
+                      handleRemoveFile(file)
+                    }}
+                  >
+                    <Icon icon='mdi:close' fontSize={20} />
+                  </Box>
+                )}
+              </Box>
+            </Box>
+            {type === 'import' && file.isImported ? (
+              <Typography
+                sx={{ textAlign: 'right' }}
+                fontSize={12}
+                fontStyle={'italic'}
+                color='#666CFF'
+              >
+                Already imported
+              </Typography>
+            ) : null}
+          </Box>
+        )
+      }),
+    [files],
+  )
 
   return (
     <Box
@@ -582,7 +718,6 @@ const SourceFileUpload = ({
                 padding: '20px',
               }}
             >
-              <input {...getInputProps()} />
               {type === 'import' ? (
                 <Typography color='#666CFF' fontWeight={600} fontSize={14}>
                   Linked Request: {requestData?.corporationId}
@@ -599,6 +734,7 @@ const SourceFileUpload = ({
                       60500, 60600, 60700, 601000, 60800, 60900,
                     ].includes(row.status)}
                   >
+                    <input {...getInputProps()} />
                     Browse files
                   </Button>
                 </Box>
@@ -611,15 +747,15 @@ const SourceFileUpload = ({
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     mt: '20px',
                     width: '100%',
-                    // gap: '20px',
+
                     rowGap: '8px',
                     columnGap: '20px',
-                    // gap: '20px',
                   }}
                 >
-                  {files.map((file: FileType, index: number) => {
+                  {renderedFiles}
+                  {/* {files.map((file: FileType, index: number) => {
                     return (
-                      <Box key={file.uniqueId}>
+                      <Box key={index}>
                         <Box
                           sx={{
                             display: 'flex',
@@ -700,7 +836,6 @@ const SourceFileUpload = ({
                             </Box>
                           </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {' '}
                             {videoExtensions.includes(
                               file.name?.split('.').pop()?.toLowerCase() ?? '',
                             ) ? (
@@ -708,9 +843,6 @@ const SourceFileUpload = ({
                                 sx={{
                                   alignItems: 'center',
                                   display: 'flex',
-                                  // color: file.downloadAvailable
-                                  //   ? '#4C4E64'
-                                  //   : 'rgba(76, 78, 100, 0.54)',
                                   cursor: 'pointer',
                                   padding: '4px',
                                   '& :hover': {
@@ -720,14 +852,7 @@ const SourceFileUpload = ({
                                 }}
                                 onClick={event => {
                                   event.stopPropagation()
-                                  file.downloadAvailable =
-                                    !file.downloadAvailable
-                                  setFiles(prevFiles =>
-                                    prevFiles.map(f =>
-                                      f.name === file.name ? file : f,
-                                    ),
-                                  )
-                                  // handleRemoveFile(file)
+                                  handleBlockFile(file)
                                 }}
                               >
                                 <Icon
@@ -772,7 +897,7 @@ const SourceFileUpload = ({
                         ) : null}
                       </Box>
                     )
-                  })}
+                  })} */}
                 </Box>
               )}
             </Box>
