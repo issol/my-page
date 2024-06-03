@@ -93,6 +93,8 @@ type Props = {
     'items',
     'id'
   >[]
+  isNotApplicable: boolean
+  setIsNotApplicable: Dispatch<SetStateAction<boolean>>
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
   jobPriceHistory?: Array<jobPriceHistoryType>
@@ -137,7 +139,9 @@ const ViewPrices = ({
   setEditPrices,
   type,
   jobPriceHistory,
+  isNotApplicable,
   selectedJobUpdatable,
+  setIsNotApplicable,
   details,
   append,
   remove,
@@ -295,6 +299,12 @@ const ViewPrices = ({
       </Card>
     )
   }
+
+  useEffect(() => {
+    if (fields) {
+      setIsNotApplicable(fields[0]?.priceId === -1 ? true : false)
+    }
+  }, [fields])
 
   return (
     <Box
@@ -525,6 +535,7 @@ const ViewPrices = ({
           append={append}
           remove={remove}
           update={update}
+          isNotApplicable={isNotApplicable}
         />
       </Box>
 

@@ -1,7 +1,7 @@
 // ** react
 import { Dispatch, SetStateAction, useEffect } from 'react'
 
-import { Box, Grid, Typography } from '@mui/material'
+import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { Icon } from '@iconify/react'
 
@@ -450,32 +450,34 @@ export default function ItemForm({
       ) : (
         <>
           {fields.map((item, idx) => (
-            <Row
-              key={item.id}
-              idx={idx}
-              control={control}
-              setValue={setValue}
-              getValues={getValues}
-              getPriceOptions={getPriceOptions}
-              fields={fields}
-              itemTrigger={itemTrigger}
-              sumTotalPrice={sumTotalPrice}
-              // openMinimumPriceModal={openMinimumPriceModal}
-              splitReady={splitReady!}
-              type={type}
-              onItemRemove={onItemRemove}
-              teamMembers={teamMembers}
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-              errors={errors}
-              languagePairs={languagePairs}
-              selectNotApplicableModal={selectNotApplicableModal}
-              priceUnitsList={priceUnitsList}
-              checkPriceCurrency={checkPriceCurrency}
-              validateCurrency={validateCurrency}
-              findLangPairIndex={findLangPairIndex}
-              from={from}
-            />
+            <>
+              <Row
+                key={item.id}
+                idx={idx}
+                control={control}
+                setValue={setValue}
+                getValues={getValues}
+                getPriceOptions={getPriceOptions}
+                fields={fields}
+                itemTrigger={itemTrigger}
+                sumTotalPrice={sumTotalPrice}
+                // openMinimumPriceModal={openMinimumPriceModal}
+                splitReady={splitReady!}
+                type={type}
+                onItemRemove={onItemRemove}
+                teamMembers={teamMembers}
+                selectedIds={selectedIds}
+                setSelectedIds={setSelectedIds}
+                errors={errors}
+                languagePairs={languagePairs}
+                selectNotApplicableModal={selectNotApplicableModal}
+                priceUnitsList={priceUnitsList}
+                checkPriceCurrency={checkPriceCurrency}
+                validateCurrency={validateCurrency}
+                findLangPairIndex={findLangPairIndex}
+                from={from}
+              />
+            </>
           ))}
         </>
       )}

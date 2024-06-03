@@ -68,6 +68,7 @@ type Props = {
     items: ItemType[]
     languagePairs: languageType[]
   }>
+  isNotApplicable: boolean
   setDarkMode?: boolean
   selectedPrice?:
     | (StandardPriceListType & {
@@ -118,6 +119,7 @@ const Row = ({
   openModal,
   closeModal,
   priceUnitsList,
+  isNotApplicable,
   type,
   itemTrigger,
   setDarkMode,
@@ -361,6 +363,8 @@ const Row = ({
     return true
   }
 
+  console.log(isNotApplicable, 'row not applicable')
+
   return (
     <Box sx={{ height: '100%' }}>
       {/* price unit start */}
@@ -381,6 +385,7 @@ const Row = ({
           !!itemData.target &&
           (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
         }
+        isNotApplicableAtPrice={isNotApplicable}
         // isNotApplicable={itemData.priceId === NOT_APPLICABLE}
         priceUnitsList={priceUnitsList}
         showMinimum={false} //이거 쓰나?

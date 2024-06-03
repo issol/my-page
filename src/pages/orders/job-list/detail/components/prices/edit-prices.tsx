@@ -121,6 +121,7 @@ type Props = {
   orderItems: ItemType[]
   setPriceId: Dispatch<SetStateAction<number | null>>
   setIsNotApplicable: Dispatch<SetStateAction<boolean>>
+  isNotApplicable: boolean
   errorRefs?: MutableRefObject<(HTMLInputElement | null)[]>
   details?: FieldArrayWithId<
     {
@@ -166,6 +167,7 @@ const EditPrices = ({
   orderItems,
   setPriceId,
   setIsNotApplicable,
+  isNotApplicable,
   errorRefs,
   append,
   details,
@@ -316,6 +318,8 @@ const EditPrices = ({
       ),
     })
   }
+
+  console.log(itemData.priceId)
 
   return (
     <>
@@ -475,6 +479,7 @@ const EditPrices = ({
               type='job-edit'
               orderItems={orderItems}
               currentOrderItemId={item?.id}
+              isNotApplicable={isNotApplicable}
               errorRefs={errorRefs}
               details={details}
               append={append}
@@ -506,11 +511,11 @@ const EditPrices = ({
                 // setId(id + 1)
               }}
               variant='outlined'
-              disabled={
-                !!itemData.source &&
-                !!itemData.target &&
-                (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
-              }
+              // disabled={
+              //   !!itemData.source &&
+              //   !!itemData.target &&
+              //   (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
+              // }
               sx={{ p: 0.7, minWidth: 26 }}
             >
               <Icon icon='material-symbols:add' fontSize={24} />
