@@ -22,7 +22,7 @@ import {
   JobRequestReviewParamsType,
 } from '@src/types/orders/job-detail'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
@@ -383,13 +383,12 @@ const RequestReviewModal = ({
               ],
             }
 
-            console.log(result)
-            // type === 'edit'
-            //   ? updateRequestReviewMutation.mutate({
-            //       params: result,
-            //       id: requestInfo?.id!,
-            //     })
-            //   : createRequestReviewMutation.mutate(result)
+            type === 'edit'
+              ? updateRequestReviewMutation.mutate({
+                  params: result,
+                  id: requestInfo?.id!,
+                })
+              : createRequestReviewMutation.mutate(result)
           })
         })
       } else {
@@ -446,8 +445,6 @@ const RequestReviewModal = ({
               })),
           ],
         }
-
-        console.log(result)
 
         type === 'edit'
           ? updateRequestReviewMutation.mutate({
@@ -729,30 +726,102 @@ const RequestReviewModal = ({
     }
   }, [type, requestInfo])
 
-  // useEffect(() => {
-  //   const totalSize = sourceFiles.reduce((acc, file) => acc + file.size, 0)
+  const renderedSourceFiles = useMemo(
+    () =>
+      sourceFiles.map((file: FileType, index: number) => {
+        return (
+          <Box key={index}>
+            <Box
+              sx={{
+                display: 'flex',
+                // marginBottom: '8px',
+                width: '100%',
+                justifyContent: 'space-between',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                border: '1px solid rgba(76, 78, 100, 0.22)',
+                background: '#f9f8f9',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Box
+                  sx={{
+                    marginRight: '8px',
+                    display: 'flex',
+                  }}
+                >
+                  <Image
+                    src={`/images/icons/file-icons/${extractFileExtension(
+                      file.name,
+                    )}.svg`}
+                    alt=''
+                    width={32}
+                    height={32}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Tooltip title={file.name}>
+                    <Typography
+                      variant='body1'
+                      fontSize={14}
+                      fontWeight={600}
+                      lineHeight={'20px'}
+                      sx={{
+                        overflow: 'hidden',
+                        wordBreak: 'break-all',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {file.name}
+                    </Typography>
+                  </Tooltip>
 
-  //   setSourceFileSize(totalSize)
-  // }, [sourceFiles])
-
-  // useEffect(() => {
-  //   const totalSize = targetFiles.reduce((acc, file) => acc + file.size, 0)
-  //   const selectedFileSize = selectedTargetFiles.reduce(
-  //     (acc, file) => (file.isSelected ? acc + file.size : 0),
-  //     0,
-  //   )
-  //   setTargetFileSize(totalSize + selectedFileSize)
-  // }, [targetFiles, selectedTargetFiles])
-
-  // useEffect(() => {
-  //   const totalSize = selectedSourceFiles.reduce(
-  //     (acc, file) => acc + file.size,
-  //     0,
-  //   )
-  //   setSourceFileSize(totalSize)
-  // }, [selectedSourceFiles])
-
-  console.log(selectedSourceFiles)
+                  <Typography variant='caption' lineHeight={'14px'}>
+                    {formatFileSize(file.size)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Box
+                  sx={{
+                    alignItems: 'center',
+                    display: 'flex',
+                    color: 'rgba(76, 78, 100, 0.54)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                  }}
+                  onClick={event => {
+                    event.stopPropagation()
+                    handleRemoveFile(file, 'source')
+                  }}
+                >
+                  <Icon icon='mdi:close' fontSize={20} />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        )
+      }),
+    [sourceFiles],
+  )
 
   return (
     <>
@@ -1174,7 +1243,8 @@ const RequestReviewModal = ({
                               gap: '8px',
                             }}
                           >
-                            {sourceFiles.map(
+                            {renderedSourceFiles}
+                            {/* {sourceFiles.map(
                               (file: FileType, index: number) => {
                                 return (
                                   <Box key={index}>
@@ -1274,7 +1344,7 @@ const RequestReviewModal = ({
                                   </Box>
                                 )
                               },
-                            )}
+                            )} */}
                           </Box>
                         )}
                       </Box>
