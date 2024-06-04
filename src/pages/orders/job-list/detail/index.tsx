@@ -960,21 +960,23 @@ const JobDetail = () => {
                 {videoExtensions.includes(
                   value.name?.split('.').pop()?.toLowerCase() ?? '',
                 ) ? (
-                  <Box
-                    sx={{
-                      alignItems: 'center',
-                      display: 'flex',
-                      // color: file.downloadAvailable
-                      //   ? '#4C4E64'
-                      //   : 'rgba(76, 78, 100, 0.54)',
+                  <IconButton
+                    sx={{ padding: '4px' }}
+                    disabled={currentRole?.name === 'TAD'}
+                    // sx={{
+                    //   alignItems: 'center',
+                    //   display: 'flex',
+                    //   // color: file.downloadAvailable
+                    //   //   ? '#4C4E64'
+                    //   //   : 'rgba(76, 78, 100, 0.54)',
 
-                      cursor: 'pointer',
-                      padding: '4px',
-                      '& :hover': {
-                        borderRadius: '50%',
-                        backgroundColor: theme.palette.grey[300],
-                      },
-                    }}
+                    //   cursor: 'pointer',
+                    //   padding: '4px',
+                    //   '& :hover': {
+                    //     borderRadius: '50%',
+                    //     backgroundColor: theme.palette.grey[300],
+                    //   },
+                    // }}
                     onClick={event => {
                       event.stopPropagation()
                       if (value.downloadAvailable) {
@@ -1032,8 +1034,9 @@ const JobDetail = () => {
                           : 'mdi:lock'
                       }
                       fontSize={20}
+                      color='#4C4E64'
                     />
-                  </Box>
+                  </IconButton>
                 ) : null}
               </Box>
             ) : (
@@ -2164,8 +2167,9 @@ const JobDetail = () => {
                             height: '100%',
                           }}
                         >
-                          {selectedJobInfo.jobPrices?.priceId === null ||
-                          editPrices ? (
+                          {(selectedJobInfo.jobPrices?.priceId === null ||
+                            editPrices) &&
+                          currentRole?.name !== 'TAD' ? (
                             <>
                               <EditPrices
                                 priceUnitsList={priceUnitsList ?? []}
@@ -2227,8 +2231,9 @@ const JobDetail = () => {
                             display='flex'
                             alignItems='center'
                             justifyContent={
-                              !editPrices &&
-                              selectedJobInfo.jobPrices?.priceId !== null
+                              (!editPrices &&
+                                selectedJobInfo.jobPrices?.priceId !== null) ||
+                              currentRole?.name === 'TAD'
                                 ? 'flex-end'
                                 : 'space-between'
                             }
@@ -2403,8 +2408,10 @@ const JobDetail = () => {
                                           : 0}
                                   </Typography>
                                 )}
-                                {editPrices ||
-                                selectedJobInfo.jobPrices?.priceId === null ? (
+                                {(editPrices ||
+                                  selectedJobInfo.jobPrices?.priceId ===
+                                    null) &&
+                                currentRole?.name !== 'TAD' ? (
                                   <IconButton
                                     onClick={() => {
                                       // getTotalPrice()
@@ -2416,8 +2423,9 @@ const JobDetail = () => {
                                 ) : null}
                               </Box>
                             </Box>
-                            {editPrices ||
-                            selectedJobInfo.jobPrices?.priceId === null ? (
+                            {(editPrices ||
+                              selectedJobInfo.jobPrices?.priceId === null) &&
+                            currentRole?.name !== 'TAD' ? (
                               <Box
                                 display='flex'
                                 alignItems='center'
@@ -2458,8 +2466,9 @@ const JobDetail = () => {
                         selectedJobInfo?.jobPrices?.priceId === null ||
                         selectedJobInfo?.jobAssign === null)) ||
                     (selectedJobInfo?.jobAssign.length === 0 &&
-                      !selectedJobUpdatable()) ? (
-                      selectedJobUpdatable() ? (
+                      !selectedJobUpdatable()) ||
+                    currentRole?.name === 'TAD' ? (
+                      selectedJobUpdatable() && currentRole?.name !== 'TAD' ? (
                         <Box
                           sx={{
                             display: 'flex',
@@ -2788,6 +2797,7 @@ const JobDetail = () => {
                               / {byteToGB(MAXIMUM_FILE_SIZE)}
                             </Typography>
                             {selectedJobUpdatable() &&
+                              currentRole?.name !== 'TAD' &&
                               (selectedJobInfo.jobInfo.status === 60200 ||
                                 selectedJobInfo.jobInfo.status === 60250 ||
                                 selectedJobInfo.jobInfo.status === 60300 ||
@@ -2975,32 +2985,43 @@ const JobDetail = () => {
                                       padding: 0,
                                     }}
                                   >
-                                    <Button
-                                      startIcon={
-                                        <Icon
-                                          icon='ic:sharp-refresh'
-                                          color='#4C4E648A'
-                                          fontSize={24}
-                                        />
+                                    <Tooltip
+                                      title={
+                                        currentRole?.name === 'TAD'
+                                          ? 'Not authorized'
+                                          : ''
                                       }
-                                      fullWidth
-                                      onClick={e => {
-                                        e.stopPropagation()
-                                        handleClose()
-                                        onClickRequestRedelivery()
-                                        // onClickEdit()
-                                      }}
-                                      sx={{
-                                        justifyContent: 'flex-start',
-                                        padding: '6px 16px',
-                                        fontSize: 16,
-                                        fontWeight: 400,
-                                        color: 'rgba(76, 78, 100, 0.87)',
-                                        borderRadius: 0,
-                                      }}
                                     >
-                                      Request redelivery
-                                    </Button>
+                                      <Box>
+                                        <Button
+                                          startIcon={
+                                            <Icon
+                                              icon='ic:sharp-refresh'
+                                              color='#4C4E648A'
+                                              fontSize={24}
+                                            />
+                                          }
+                                          fullWidth
+                                          onClick={e => {
+                                            e.stopPropagation()
+                                            handleClose()
+                                            onClickRequestRedelivery()
+                                            // onClickEdit()
+                                          }}
+                                          disabled={currentRole?.name === 'TAD'}
+                                          sx={{
+                                            justifyContent: 'flex-start',
+                                            padding: '6px 16px',
+                                            fontSize: 16,
+                                            fontWeight: 400,
+                                            color: 'rgba(76, 78, 100, 0.87)',
+                                            borderRadius: 0,
+                                          }}
+                                        >
+                                          Request redelivery
+                                        </Button>
+                                      </Box>
+                                    </Tooltip>
                                   </MenuItem>
                                 </Menu>
                               </>
@@ -3181,19 +3202,20 @@ const JobDetail = () => {
                             {/* {selectedJobInfo.jobInfo.status === 60400 ||
                           selectedJobInfo.jobInfo.status === 60500 ||
                           selectedJobInfo.jobInfo.status === 60250 ? ( */}
-                            {selectedJobUpdatable() && (
-                              <>
-                                <Button
-                                  fullWidth
-                                  variant='contained'
-                                  sx={{ mt: '8px' }}
-                                  onClick={() => setUseJobFeedbackForm(true)}
-                                >
-                                  Add feedback
-                                </Button>
-                                {/* <Divider /> */}
-                              </>
-                            )}
+                            {selectedJobUpdatable() &&
+                              currentRole?.name !== 'TAD' && (
+                                <>
+                                  <Button
+                                    fullWidth
+                                    variant='contained'
+                                    sx={{ mt: '8px' }}
+                                    onClick={() => setUseJobFeedbackForm(true)}
+                                  >
+                                    Add feedback
+                                  </Button>
+                                  {/* <Divider /> */}
+                                </>
+                              )}
                             {/* ) : null} */}
 
                             {useJobFeedbackForm ? (

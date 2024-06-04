@@ -55,6 +55,7 @@ import { JobListMode } from '@src/views/jobDetails/viewModes'
 import { displayCustomToast } from '@src/shared/utils/toast'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { JobType } from '@src/types/common/item.type'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export type ItemOptionType = {
   items: {
@@ -92,6 +93,7 @@ const JobDetails = () => {
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
   const [isLoadingDeleteState, setIsLoadingDeleteState] = useState(false)
   const [isMasterManagerUser, setIsMasterManagerUser] = useState(false)
+  const currentRole = getCurrentRole()
 
   const [mode, setMode] = useState<JobListMode>('view')
   const [scrolled, setScrolled] = useState(false)
@@ -631,49 +633,50 @@ const JobDetails = () => {
               </Box>
             )}
           </Box>
-          {(isUserInTeamMember || isMasterManagerUser) && (
-            <Box display='flex' alignItems='center'>
-              <JobButton
-                label='Auto-create jobs'
-                onClick={() =>
-                  onAutoCreateJob(
-                    'JobUnit',
-                    jobDetails?.items.map(item => item.id)!,
-                  )
-                }
-                disabled={mode !== 'view'}
-              >
-                <AutoMode sx={{ fontSize: 20 }} />
-              </JobButton>
-              <JobButton
-                label='Delete jobs'
-                onClick={onDeleteJobs}
-                disabled={mode !== 'view' || !hasJobs()}
-              >
-                <DeleteOutline
-                  color='inherit'
-                  sx={{ fontSize: 20 }}
-                  fontWeight={500}
-                />
-              </JobButton>
-              <JobButton
-                label='Edit trigger'
-                onClick={onEditTrigger}
-                disabled={mode !== 'view'}
-                // disabled={true} // 에딧 모드는 추후 개발
-              >
-                {/* <TriggerIcon disabled={mode !== 'view'} /> */}
-                <TriggerIcon disabled={true} />
-              </JobButton>
-              <JobButton
-                label='Manage job status'
-                onClick={onManageJobStatus}
-                disabled={mode !== 'view' || !hasJobs()}
-              >
-                <JobStatusIcon disabled={mode !== 'view' || !hasJobs()} />
-              </JobButton>
-            </Box>
-          )}
+          {(isUserInTeamMember || isMasterManagerUser) &&
+            currentRole?.name !== 'TAD' && (
+              <Box display='flex' alignItems='center'>
+                <JobButton
+                  label='Auto-create jobs'
+                  onClick={() =>
+                    onAutoCreateJob(
+                      'JobUnit',
+                      jobDetails?.items.map(item => item.id)!,
+                    )
+                  }
+                  disabled={mode !== 'view'}
+                >
+                  <AutoMode sx={{ fontSize: 20 }} />
+                </JobButton>
+                <JobButton
+                  label='Delete jobs'
+                  onClick={onDeleteJobs}
+                  disabled={mode !== 'view' || !hasJobs()}
+                >
+                  <DeleteOutline
+                    color='inherit'
+                    sx={{ fontSize: 20 }}
+                    fontWeight={500}
+                  />
+                </JobButton>
+                <JobButton
+                  label='Edit trigger'
+                  onClick={onEditTrigger}
+                  disabled={mode !== 'view'}
+                  // disabled={true} // 에딧 모드는 추후 개발
+                >
+                  {/* <TriggerIcon disabled={mode !== 'view'} /> */}
+                  <TriggerIcon disabled={true} />
+                </JobButton>
+                <JobButton
+                  label='Manage job status'
+                  onClick={onManageJobStatus}
+                  disabled={mode !== 'view' || !hasJobs()}
+                >
+                  <JobStatusIcon disabled={mode !== 'view' || !hasJobs()} />
+                </JobButton>
+              </Box>
+            )}
         </JobTitleSection>
 
         <CardListSection

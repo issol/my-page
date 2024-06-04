@@ -72,6 +72,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import Message from '../../../components/message-modal'
 import { TriggerIcon } from '@src/views/svgIcons'
 import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   jobInfo: JobType
@@ -116,6 +117,7 @@ const JobInfo = ({
   const theme = useTheme()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+  const currentRole = getCurrentRole()
   const ability = useContext(AbilityContext)
 
   const Writer = new job_list(jobInfo.authorId)
@@ -515,27 +517,33 @@ const JobInfo = ({
               <Typography fontSize={20} fontWeight={500}>
                 {jobInfo.corporationId}
               </Typography>
-              <Box sx={{ margin: '0 auto' }}>
-                <Badge
-                  badgeContent={jobInfo.message?.unReadCount}
-                  color='primary'
-                >
-                  <IconButton
-                    sx={{ padding: 0 }}
-                    onClick={() =>
-                      onClickMessage({
-                        userId: jobInfo.pro?.id!,
-                        firstName: jobInfo.pro?.firstName!,
-                        middleName: jobInfo.pro?.middleName!,
-                        lastName: jobInfo.pro?.lastName!,
-                      })
-                    }
-                    disabled={jobInfo.pro === null}
+              <Tooltip
+                title={currentRole?.name === 'TAD' ? 'Not authorized' : ''}
+              >
+                <Box sx={{ margin: '0 auto' }}>
+                  <Badge
+                    badgeContent={jobInfo.message?.unReadCount}
+                    color='primary'
                   >
-                    <Icon icon='mdi:message-text' />
-                  </IconButton>
-                </Badge>
-              </Box>
+                    <IconButton
+                      sx={{ padding: 0 }}
+                      onClick={() =>
+                        onClickMessage({
+                          userId: jobInfo.pro?.id!,
+                          firstName: jobInfo.pro?.firstName!,
+                          middleName: jobInfo.pro?.middleName!,
+                          lastName: jobInfo.pro?.lastName!,
+                        })
+                      }
+                      disabled={
+                        jobInfo.pro === null || currentRole?.name === 'TAD'
+                      }
+                    >
+                      <Icon icon='mdi:message-text' />
+                    </IconButton>
+                  </Badge>
+                </Box>
+              </Tooltip>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -623,7 +631,7 @@ const JobInfo = ({
                   </Button>
                 ) : null
               ) : null}
-              {selectedJobUpdatable ? (
+              {selectedJobUpdatable && currentRole?.name !== 'TAD' ? (
                 <Box>
                   <IconButton sx={{ padding: 0 }} onClick={handleMenuClick}>
                     <Icon icon='mdi:dots-vertical' />
@@ -764,7 +772,7 @@ const JobInfo = ({
                   </Typography>
                 </Grid>
                 <Grid item xs={jobInfo.pro === null ? 7.68 : 8.946}>
-                  {selectedJobUpdatable ? (
+                  {selectedJobUpdatable && currentRole?.name !== 'TAD' ? (
                     <Box
                       sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                     >

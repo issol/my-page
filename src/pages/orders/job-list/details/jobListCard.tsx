@@ -77,6 +77,7 @@ import {
   UseFormTrigger,
 } from 'react-hook-form'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const HeadRowItemNames = [
   '',
@@ -247,6 +248,7 @@ const JobListCard = ({
 }: JobListCardProps) => {
   const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
+  const currentRole = getCurrentRole()
 
   const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
@@ -611,43 +613,44 @@ const JobListCard = ({
               {info.itemName}
             </Typography>
           </Box>
-          {(isUserInTeamMember || isMasterManagerUser) && (
-            <Box display='flex' alignItems='center'>
-              <JobButton
-                label='Auto-create'
-                onClick={() => onAutoCreateJob('itemUnit', [info.id])}
-                disabled={mode !== 'view'}
-              >
-                <AutoMode sx={{ fontSize: 20 }} />
-              </JobButton>
-              <Box position='relative'>
+          {(isUserInTeamMember || isMasterManagerUser) &&
+            currentRole?.name !== 'TAD' && (
+              <Box display='flex' alignItems='center'>
                 <JobButton
-                  label='Add job'
-                  onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                  label='Auto-create'
+                  onClick={() => onAutoCreateJob('itemUnit', [info.id])}
+                  disabled={mode !== 'view'}
+                >
+                  <AutoMode sx={{ fontSize: 20 }} />
+                </JobButton>
+                <Box position='relative'>
+                  <JobButton
+                    label='Add job'
+                    onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                    disabled={viewState}
+                  >
+                    <AddFrameIcon disabled={viewState} />
+                  </JobButton>
+                  {isAddJobMenuOpen && (
+                    <AddJobMenu
+                      mode={mode}
+                      onChangeViewMode={onChangeViewMode}
+                      alertClose={() => setIsAddJobMenuOpen(false)}
+                      onClickAddJob={onClickAddJob}
+                      itemId={info.id}
+                      jobIndex={info.jobs.length}
+                    />
+                  )}
+                </Box>
+                <JobButton
+                  label='Add Job template'
+                  onClick={() => onOpen()}
                   disabled={viewState}
                 >
-                  <AddFrameIcon disabled={viewState} />
+                  <TemplateIcon disabled={viewState} />
                 </JobButton>
-                {isAddJobMenuOpen && (
-                  <AddJobMenu
-                    mode={mode}
-                    onChangeViewMode={onChangeViewMode}
-                    alertClose={() => setIsAddJobMenuOpen(false)}
-                    onClickAddJob={onClickAddJob}
-                    itemId={info.id}
-                    jobIndex={info.jobs.length}
-                  />
-                )}
               </Box>
-              <JobButton
-                label='Add Job template'
-                onClick={() => onOpen()}
-                disabled={viewState}
-              >
-                <TemplateIcon disabled={viewState} />
-              </JobButton>
-            </Box>
-          )}
+            )}
         </Box>
       </Box>
       <Collapse in={open} timeout='auto' unmountOnExit>
@@ -835,7 +838,8 @@ const JobListCard = ({
                               onClick={() => {}}
                               disabled={
                                 mode !== 'view' ||
-                                !canUseRequestAssignButton(row)
+                                !canUseRequestAssignButton(row) ||
+                                currentRole?.name === 'TAD'
                               }
                             >
                               Request/Assign
