@@ -24,6 +24,7 @@ const FreshdeskWidget: React.FC = () => {
         };
         n.q = [];
         window.FreshworksWidget = n;
+        window.FreshworksWidget('hide','ticketForm',['name']);
       }
     })();
 
