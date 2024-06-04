@@ -325,7 +325,7 @@ const LPMDashboards = () => {
 
           <Grid container gap='24px'>
             {onboardingStatistic && totalStatistics ? (
-              <GridItem height={87}>
+              <GridItem height={87} width={'55%'}>
                 <UserStatistic
                   onboardingStatistic={onboardingStatistic}
                   totalStatistics={totalStatistics}
@@ -333,7 +333,7 @@ const LPMDashboards = () => {
               </GridItem>
             ) : null}
             {recruitingStatistic ? (
-              <GridItem height={87}>
+              <GridItem height={87} sm>
                 <RecruitingStatistic recruitingData={recruitingStatistic} />
               </GridItem>
             ) : null}

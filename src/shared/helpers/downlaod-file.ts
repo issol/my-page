@@ -8,7 +8,7 @@ export const DownloadAllFiles = (files: FileType[], fileType: string) => {
     files.map(value => {
       getDownloadUrlforCommon(fileType, encodeURIComponent(value.file!)).then(
         res => {
-          fetch(res.url, { method: 'GET' })
+          fetch(res, { method: 'GET' })
             .then(res => {
               return res.blob()
             })
@@ -43,7 +43,7 @@ export const DownloadFile = (file: FileType, fileType: string) => {
   if (file) {
     getDownloadUrlforCommon(fileType, encodeURIComponent(file.file!)).then(
       res => {
-        fetch(res.url, { method: 'GET' })
+        fetch(res, { method: 'GET' })
           .then(res => {
             return res.blob()
           })

@@ -321,7 +321,7 @@ const CompanyInfoPageComponent = () => {
   const uploadCompanyLogo = (file: File) => {
     const filePath = makeCompanyLogoPath(file.name)
     getUploadUrlforCommon(S3FileType.COMPANY_LOGO, filePath).then(res => {
-      uploadFileToS3(res.url, file)
+      uploadFileToS3(res, file)
     })
   }
 
@@ -334,7 +334,7 @@ const CompanyInfoPageComponent = () => {
     if (companyInfo?.logo) {
       getDownloadUrlforCommon(S3FileType.COMPANY_LOGO, companyInfo?.logo).then(
         res => {
-          setlogoURL(res.url)
+          setlogoURL(res)
         },
       )
     } else {

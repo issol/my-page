@@ -96,6 +96,7 @@ import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 import BeusableScript from '@src/shared/scripts/beusable'
 
 import { Inter } from 'next/font/google'
+import FreshdeskWidget from './components/freshdesk'
 
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({ subsets: ['latin'] })
@@ -347,6 +348,7 @@ const App = (props: ExtendedAppProps) => {
         </RecoilRoot>
       </QueryClientProvider>
       <BeusableScript />
+      <FreshdeskWidget />
     </>
   )
 }

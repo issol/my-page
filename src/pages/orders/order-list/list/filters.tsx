@@ -530,7 +530,7 @@ export default function OrdersFilters({
                     </Grid>
                   )}
 
-                  <Grid item xs={role.name === 'CLIENT' ? 6 : 2}>
+                  <Grid item xs={role.name === 'CLIENT' ? 3 : 2}>
                     <Box className='filterFormAutoCompleteV2'>
                       <FormControl fullWidth>
                         <Controller

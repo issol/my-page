@@ -1,5 +1,6 @@
 import {
   getClient,
+  getDeliveriesAndFeedback,
   getItemJob,
   getJobInfo,
   getLangItems,
@@ -132,6 +133,18 @@ export const useGetVersionHistory = (id: number) => {
   return useQuery(
     [`orderDetail`, { type: 'history' }, id],
     () => getVersionHistory(id),
+    {
+      staleTime: 10 * 1000, // 1
+
+      suspense: true,
+    },
+  )
+}
+
+export const useGetDeliveryFeedback = (id: number) => {
+  return useQuery(
+    [`orderDetail`, { type: 'deliveries-feedback' }, id],
+    () => getDeliveriesAndFeedback(id),
     {
       staleTime: 10 * 1000, // 1
 

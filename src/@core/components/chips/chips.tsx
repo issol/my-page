@@ -352,6 +352,7 @@ export function JobsStatusChip(status: JobStatus, statusList: StatusItem[]) {
     70100: '#6D788D', // 'Awaiting approval (Request accepted)'
     70200: '#6D788D', // 'Declined (Request rejected)'
     70300: '#6D788D', // 'In progress (Assigned)'
+    70350: '#6D788D', // Awaiting prior job
     70400: '#6D788D', // 'Canceled'
     70500: '#6D788D', // 'Unassigned'
     70600: '#6D788D', // 'Unassigned'
@@ -617,9 +618,12 @@ export function ProJobStatusChip(label: string, status: JobStatus) {
   return (
     <CustomChip
       label={label}
-      skin='light'
+      skin={status === 60300 ? undefined : 'light'}
       sx={{
-        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        background:
+          status === 60300
+            ? '#FFCFCF'
+            : `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
         color: color,
       }}
       size='small'

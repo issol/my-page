@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import parse from 'html-react-parser'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
@@ -98,7 +99,7 @@ export default function RequestDetail() {
   const downloadFile = (file: FileType) => {
     const url = file?.file?.substring(1) || ''
     getDownloadUrlforCommon(S3FileType.REQUEST, url).then((res: any) => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -378,8 +379,16 @@ export default function RequestDetail() {
           </Box>
           <Card sx={{ padding: '24px' }}>
             <Typography fontWeight='bold'>Notes</Typography>
-            <Typography variant='body2' mt='24px'>
-              {data?.notes ? data?.notes : '-'}
+            <Typography
+              variant='body2'
+              mt='24px'
+              sx={{
+                whiteSpace: 'pre-wrap',
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+              }}
+            >
+              {data?.notes ? parse(data?.notes) : '-'}
             </Typography>
           </Card>
         </Box>

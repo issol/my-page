@@ -92,7 +92,7 @@ const FileInfo = ({
     console.log('file', file)
     if (fileType) {
       getDownloadUrlforCommon(fileType, file.filePath).then(res => {
-        file.url = res.url
+        file.url = res
         openModal({
           type: 'filePreview',
           children: (

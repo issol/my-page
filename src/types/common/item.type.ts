@@ -77,7 +77,7 @@ export type JobItemType = {
 
 export type JobType = {
   id: number
-  order: { id: number }
+  order: { id: number; requestId: number }
   authorId: number
   corporationId: string
   templateId: number | null
@@ -117,10 +117,11 @@ export type JobType = {
   feedback?: string
 
   files?: Array<{
+    id: number
     name: string
     size: number
     file: string // s3 key
-    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
   }>
   pro: {
     id: number

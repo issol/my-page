@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
   useTheme,
+  Tooltip,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -57,9 +58,18 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { changeTimeZoneOffset, convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import {
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
+} from '@src/shared/helpers/date.helper'
 import PushPinIcon from '@mui/icons-material/PushPin'
 import { getTimezonePin, setTimezonePin } from '@src/shared/auth/storage'
+
+import { authState } from '@src/states/auth'
+import Image from 'next/image'
+import { set } from 'lodash'
+import { visibility } from 'html2canvas/dist/types/css/property-descriptors/visibility'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 type Props = {
   onClose: () => void
@@ -97,6 +107,8 @@ const InfoEditModal = ({
   languagePair,
   saveJobInfoMutation,
 }: Props) => {
+  const user = useRecoilValueLoadable(authState)
+
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const theme = useTheme()
@@ -111,7 +123,17 @@ const InfoEditModal = ({
       pinned: boolean
     }[]
   >([])
-  
+  const [userTimezone, setUserTimezone] = useState<
+    | {
+        id: number
+        code: string
+        label: string
+        pinned: boolean
+      }
+    | null
+    | undefined
+  >(null)
+
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const loadTimezonePin = ():
@@ -144,6 +166,15 @@ const InfoEditModal = ({
     setTimezoneList(filteredTimezone)
   }, [timezone])
 
+  useEffect(() => {
+    if (timezoneList.length === 0 || !user) return
+    const userTimezone = user.getValue()?.user?.timezone
+    const findTimezone = timezoneList.find(
+      list => list.label === userTimezone?.label,
+    )
+    setUserTimezone(findTimezone)
+  }, [timezoneList, user])
+
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const [fileSize, setFileSize] = useState<number>(0)
@@ -157,9 +188,10 @@ const InfoEditModal = ({
 
   const dateValue = (date: Date) => {
     return dayjs(date).format('MM/DD/YYYY, hh:mm a')
-  } 
+  }
 
   const { getRootProps, getInputProps } = useDropzone({
+    noDragEventsBubbling: true,
     accept: {
       ...srtUploadFileExtension.accept,
     },
@@ -331,7 +363,7 @@ const InfoEditModal = ({
         })
         const s3URL = paths.map(value => {
           return getUploadUrlforCommon('job', value).then(res => {
-            return res.url
+            return res
           })
         })
         Promise.all(s3URL).then(res => {
@@ -348,24 +380,32 @@ const InfoEditModal = ({
             .then(res => {
               setIsFileUploading(false)
               uploadFileMutation.mutate(fileInfo)
+
               const jobResult: SaveJobInfoParamsType = {
                 contactPersonId: data.contactPerson.userId,
                 description: data.description ?? null,
-                startDate: data.startedAt && data.startTimezone
-                  ? changeTimeZoneOffset(
-                      data.startedAt.toString(),
-                      data.startTimezone,
-                    )
-                  : null,
+                startDate:
+                  data.startedAt && data.startTimezone
+                    ? changeTimeZoneOffset(
+                        data.startedAt.toISOString(),
+                        data.startTimezone,
+                      )
+                    : null,
                 startTimezone: data.startTimezone
-                  ? { label: data.startTimezone.label, code: data.startTimezone.code }
+                  ? {
+                      label: data.startTimezone.label,
+                      code: data.startTimezone.code,
+                    }
                   : null,
 
                 dueDate: changeTimeZoneOffset(
-                  data.dueAt.toString(),
+                  data.dueAt.toISOString(),
                   data.dueTimezone,
                 )!,
-                dueTimezone: { label: data.dueTimezone.label, code: data.dueTimezone.code },
+                dueTimezone: {
+                  label: data.dueTimezone.label,
+                  code: data.dueTimezone.code,
+                },
                 status: data.status,
                 sourceLanguage: data.source !== ' ' ? data.source : null,
                 targetLanguage: data.target !== ' ' ? data.target : null,
@@ -394,12 +434,13 @@ const InfoEditModal = ({
         const jobResult: SaveJobInfoParamsType = {
           contactPersonId: data.contactPerson.userId,
           description: data.description ?? null,
-          startDate: data.startedAt && data.startTimezone
-            ? changeTimeZoneOffset(
-                data.startedAt.toISOString(),
-                data.startTimezone,
-              )
-            : null,
+          startDate:
+            data.startedAt && data.startTimezone
+              ? changeTimeZoneOffset(
+                  data.startedAt.toISOString(),
+                  data.startTimezone,
+                )
+              : null,
           startTimezone: data.startTimezone
             ? { label: data.startTimezone.label, code: data.startTimezone.code }
             : null,
@@ -408,7 +449,10 @@ const InfoEditModal = ({
             data.dueAt.toISOString(),
             data.dueTimezone,
           )!,
-          dueTimezone: { label: data.dueTimezone.label, code: data.dueTimezone.code },
+          dueTimezone: {
+            label: data.dueTimezone.label,
+            code: data.dueTimezone.code,
+          },
           status: data.status,
           sourceLanguage: data.source !== ' ' ? data.source : null,
           targetLanguage: data.target !== ' ' ? data.target : null,
@@ -439,8 +483,11 @@ const InfoEditModal = ({
               title='Revise job information?'
               subtitle={
                 <>
-                  Are you sure you want to revise the job information?<br/><br/>
-                  It will directly impact the Pro, and the updated job information will be communicated to the Pro.
+                  Are you sure you want to revise the job information?
+                  <br />
+                  <br />
+                  It will directly impact the Pro, and the updated job
+                  information will be communicated to the Pro.
                 </>
               }
               rightButtonText='Revise'
@@ -475,22 +522,22 @@ const InfoEditModal = ({
   }
 
   const handleTimezonePin = (option: {
-    id: number | undefined;
-    code: string;
-    label: string;
-    pinned: boolean;
+    id: number | undefined
+    code: string
+    label: string
+    pinned: boolean
   }) => {
-    const newOptions = timezoneList.map((opt) =>
-        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
-    );
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
     setTimezoneList(newOptions)
     setTimezonePin(newOptions)
   }
 
   const pinSortedOptions = timezoneList.sort((a, b) => {
-    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
-    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
-  });
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
 
   useEffect(() => {
     if (contactPersonList.length > 0 && items && timezoneList.length > 0) {
@@ -538,7 +585,7 @@ const InfoEditModal = ({
               userId: items.contactPersonId ?? null,
             },
       )
-      
+
       const convertStartedAt = () => {
         return convertTimeToTimezone(
           jobInfo.startedAt,
@@ -548,7 +595,7 @@ const InfoEditModal = ({
       }
 
       const convertDueAt = () => {
-          return convertTimeToTimezone(
+        return convertTimeToTimezone(
           jobInfo.dueAt,
           jobInfo.dueTimezone,
           timezone.getValue(),
@@ -559,10 +606,11 @@ const InfoEditModal = ({
         setValue('startedAt', new Date(convertStartedAt()))
       }
 
-      if (jobInfo.startTimezone && timezoneList.length > 0) {
-        const getStartTimezone = timezoneList.find(
-          (zone) => zone.label === jobInfo.startTimezone.label
-        ) ?? { id: undefined, code: '', label: '', pinned: false }
+      if (timezoneList.length > 0 && userTimezone) {
+        const getStartTimezone =
+          timezoneList.find(
+            zone => zone.label === jobInfo.startTimezone?.label,
+          ) ?? userTimezone
         setValue('startTimezone', getStartTimezone)
       }
 
@@ -570,10 +618,11 @@ const InfoEditModal = ({
         setValue('dueAt', new Date(convertDueAt()))
       }
 
-      if (jobInfo.dueTimezone && timezoneList.length > 0) {
-        const getDueTimezone = timezoneList.find(
-          (zone) => zone.label === jobInfo.dueTimezone.label
-        ) ?? { id: undefined, code: '', label: '', pinned: false }
+      if (timezoneList.length > 0 && userTimezone) {
+        const getDueTimezone =
+          timezoneList.find(
+            zone => zone.label === jobInfo.dueTimezone?.label,
+          ) ?? userTimezone
         setValue('dueTimezone', getDueTimezone)
       }
 
@@ -583,7 +632,7 @@ const InfoEditModal = ({
       }, 0)
       setFileSize(uploadedFileSize ?? 0)
     }
-  }, [jobInfo, items, contactPersonList, timezoneList])
+  }, [jobInfo, items, contactPersonList, timezoneList, userTimezone])
 
   return (
     <Box
@@ -885,15 +934,33 @@ const InfoEditModal = ({
                           popperPlacement={popperPlacement}
                           customInput={
                             <Box>
-                              <CustomInput
-                                label='Job start date'
-                                icon='calendar'
-                                sx={{ height: '46px' }}
-                                placeholder='MM/DD/YYYY, HH:MM'
-                                // placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                readOnly
-                                value={value ? dateValue(value) : ''}
-                              />
+                              {jobInfo.pro ? (
+                                <TextField
+                                  disabled
+                                  autoComplete='off'
+                                  id='startedAt'
+                                  label='Job start date'
+                                  fullWidth
+                                  sx={{ height: '46px' }}
+                                  inputProps={{
+                                    style: {
+                                      height: '46px',
+                                      padding: '0 14px',
+                                    },
+                                  }}
+                                  value={value ? dateValue(value) : ''}
+                                />
+                              ) : (
+                                <CustomInput
+                                  label='Job start date'
+                                  icon='calendar'
+                                  sx={{ height: '46px' }}
+                                  placeholder='MM/DD/YYYY, HH:MM'
+                                  // placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                                  readOnly={Boolean(jobInfo.pro)}
+                                  value={value ? dateValue(value) : ''}
+                                />
+                              )}
                             </Box>
                           }
                           disabled={Boolean(jobInfo.pro)}
@@ -908,49 +975,78 @@ const InfoEditModal = ({
                   <Controller
                     name='startTimezone'
                     control={control}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        fullWidth
-                        disabled={Boolean(jobInfo.pro)}
-                        value={value || null}
-                        options={pinSortedOptions}
-                        onChange={(e, v) => {
-                          if (v) {
-                            onChange(v)
-                          } else {
-                            onChange(null)
+                    render={({
+                      field: { value, onChange, onBlur },
+                      formState,
+                    }) => {
+                      const showError = formState.isSubmitted
+                      return (
+                        <Autocomplete
+                          fullWidth
+                          disabled={Boolean(jobInfo.pro)}
+                          value={value || null}
+                          options={pinSortedOptions}
+                          onChange={(e, v) => {
+                            if (v) {
+                              onChange(v)
+                            } else {
+                              onChange(null)
+                            }
+                          }}
+                          getOptionLabel={option =>
+                            timeZoneFormatter(option, timezone.getValue()) ?? ''
                           }
-                        }}
-                        getOptionLabel={option =>
-                          timeZoneFormatter(option, timezone.getValue()) ?? ''
-                        }
-                        renderOption={(props, option) => (
-                          <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {timeZoneFormatter(option, timezone.getValue())}
-                          </Typography>
-                          <IconButton
-                            onClick={(event) => {
-                                event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                handleTimezonePin(option)
-                            }}
-                            size="small"
-                            style={{ color: option.pinned ? '#FFAF66' : undefined }} 
-                          >
-                            <PushPinIcon />
-                          </IconButton>
-                        </Box>
-                        )}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            autoComplete='off'
-                            label='Timezone'
-                            // error={Boolean(errors.startTimezone)}
-                          />
-                        )}
-                      />
-                    )}
+                          renderOption={(props, option) => (
+                            <Box
+                              component='li'
+                              {...props}
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Typography
+                                noWrap
+                                sx={{
+                                  width: '100%',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {timeZoneFormatter(option, timezone.getValue())}
+                              </Typography>
+                              <IconButton
+                                onClick={event => {
+                                  event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                  handleTimezonePin(option)
+                                }}
+                                size='small'
+                                style={{
+                                  color: option.pinned ? '#FFAF66' : undefined,
+                                }}
+                              >
+                                <PushPinIcon />
+                              </IconButton>
+                            </Box>
+                          )}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              autoComplete='off'
+                              label='Timezone*'
+                              error={showError && Boolean(errors.startTimezone)}
+                              helperText={
+                                showError &&
+                                Boolean(errors.startTimezone) &&
+                                FormErrors.required
+                              }
+                            />
+                          )}
+                        />
+                      )
+                    }}
                   />
                 </Box>
               </Grid>
@@ -1017,21 +1113,39 @@ const InfoEditModal = ({
                             else onChange(v)
                           }}
                           renderOption={(props, option) => (
-                            <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {timeZoneFormatter(option, timezone.getValue())}
-                            </Typography>
-                            <IconButton
-                              onClick={(event) => {
-                                  event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                  handleTimezonePin(option)
+                            <Box
+                              component='li'
+                              {...props}
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                               }}
-                              size="small"
-                              style={{ color: option.pinned ? '#FFAF66' : undefined }} 
                             >
-                              <PushPinIcon />
-                            </IconButton>
-                          </Box>
+                              <Typography
+                                noWrap
+                                sx={{
+                                  width: '100%',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {timeZoneFormatter(option, timezone.getValue())}
+                              </Typography>
+                              <IconButton
+                                onClick={event => {
+                                  event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                  handleTimezonePin(option)
+                                }}
+                                size='small'
+                                style={{
+                                  color: option.pinned ? '#FFAF66' : undefined,
+                                }}
+                              >
+                                <PushPinIcon />
+                              </IconButton>
+                            </Box>
                           )}
                           renderInput={params => (
                             <TextField
@@ -1173,7 +1287,112 @@ const InfoEditModal = ({
                             overflowY: 'scroll',
                           }}
                         >
-                          {uploadedFiles && (
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              // mt: '20px',
+                              width: '100%',
+                              gap: '8px',
+                            }}
+                          >
+                            {uploadedFiles.length > 0 &&
+                              uploadedFiles.map((file, index) => (
+                                <Box key={file.name}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      // marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
+                                      >
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          alignItems: 'center',
+                                          display: 'flex',
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                          cursor: 'pointer',
+                                          padding: '4px',
+                                        }}
+                                        onClick={event => {
+                                          event.stopPropagation()
+                                          handleRemoveUploadedFile(file)
+                                        }}
+                                      >
+                                        <Icon icon='mdi:close' fontSize={20} />
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              ))}
+                          </Box>
+                          {/* {uploadedFiles && (
                             <Box
                               sx={{
                                 display:
@@ -1186,8 +1405,115 @@ const InfoEditModal = ({
                             >
                               {uploadedFileList(uploadedFiles, 'SAMPLE')}
                             </Box>
-                          )}
-                          {fileList.length > 0 && (
+                          )} */}
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(2, 1fr)',
+                              // mt: '20px',
+                              mt: uploadedFiles.length > 0 ? '20px' : 0,
+                              width: '100%',
+                              gap: '8px',
+                            }}
+                          >
+                            {files.length > 0 &&
+                              files.map((file, index) => (
+                                <Box key={file.name}>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      // marginBottom: '8px',
+                                      width: '100%',
+                                      justifyContent: 'space-between',
+                                      borderRadius: '8px',
+                                      padding: '10px 12px',
+                                      border:
+                                        '1px solid rgba(76, 78, 100, 0.22)',
+                                      background: '#f9f8f9',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          marginRight: '8px',
+                                          display: 'flex',
+                                        }}
+                                      >
+                                        <Image
+                                          src={`/images/icons/file-icons/${extractFileExtension(
+                                            file.name,
+                                          )}.svg`}
+                                          alt=''
+                                          width={32}
+                                          height={32}
+                                        />
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                        }}
+                                      >
+                                        <Tooltip title={file.name}>
+                                          <Typography
+                                            variant='body1'
+                                            fontSize={14}
+                                            fontWeight={600}
+                                            lineHeight={'20px'}
+                                            sx={{
+                                              overflow: 'hidden',
+                                              wordBreak: 'break-all',
+                                              textOverflow: 'ellipsis',
+                                              display: '-webkit-box',
+                                              WebkitLineClamp: 1,
+                                              WebkitBoxOrient: 'vertical',
+                                            }}
+                                          >
+                                            {file.name}
+                                          </Typography>
+                                        </Tooltip>
+
+                                        <Typography
+                                          variant='caption'
+                                          lineHeight={'14px'}
+                                        >
+                                          {formatFileSize(file.size)}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}
+                                    >
+                                      <Box
+                                        sx={{
+                                          alignItems: 'center',
+                                          display: 'flex',
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                          cursor: 'pointer',
+                                          padding: '4px',
+                                        }}
+                                        onClick={event => {
+                                          event.stopPropagation()
+                                          handleRemoveFile(file)
+                                        }}
+                                      >
+                                        <Icon icon='mdi:close' fontSize={20} />
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              ))}
+                          </Box>
+
+                          {/* {fileList.length > 0 && (
                             <Box
                               sx={{
                                 display: fileList.length > 0 ? 'grid' : 'none',
@@ -1199,7 +1525,7 @@ const InfoEditModal = ({
                             >
                               {fileList}
                             </Box>
-                          )}
+                          )} */}
                         </Box>
                       )}
 

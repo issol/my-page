@@ -26,6 +26,8 @@ import {
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormReset,
   UseFormSetValue,
@@ -47,6 +49,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 import PriceHistoryModal from './price-history-modal'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   row: JobType
@@ -91,10 +94,36 @@ type Props = {
     'items',
     'id'
   >[]
+  isNotApplicable: boolean
+  setIsNotApplicable: Dispatch<SetStateAction<boolean>>
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
   jobPriceHistory?: Array<jobPriceHistoryType>
   selectedJobUpdatable: boolean
+
+  details?: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >[]
+  append?: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
+  remove?: UseFieldArrayRemove
+  update?: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    `items.${number}.detail`
+  >
 }
 const ViewPrices = ({
   row,
@@ -111,9 +140,16 @@ const ViewPrices = ({
   setEditPrices,
   type,
   jobPriceHistory,
+  isNotApplicable,
   selectedJobUpdatable,
+  setIsNotApplicable,
+  details,
+  append,
+  remove,
+  update,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const currentRole = getCurrentRole()
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -266,6 +302,12 @@ const ViewPrices = ({
     )
   }
 
+  useEffect(() => {
+    if (fields) {
+      setIsNotApplicable(fields[0]?.priceId === -1 ? true : false)
+    }
+  }, [fields])
+
   return (
     <Box
       sx={{
@@ -291,7 +333,124 @@ const ViewPrices = ({
           <Typography fontSize={20} fontWeight={500}>
             {row.corporationId}
           </Typography>
-          {row.pro ? (
+          {currentRole?.name !== 'TAD' ? (
+            row.pro ? (
+              <>
+                <IconButton
+                  onClick={e => {
+                    e.stopPropagation()
+                    handleMenuClick(e)
+                  }}
+                  sx={{ padding: 0 }}
+                >
+                  <Icon icon='mdi:dots-horizontal' />
+                </IconButton>
+                <Menu
+                  elevation={8}
+                  anchorEl={anchorEl}
+                  id='customized-menu'
+                  onClose={(e: React.MouseEvent) => {
+                    e.stopPropagation()
+                    handleClose()
+                  }}
+                  open={Boolean(anchorEl)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                >
+                  <MenuItem
+                    sx={{
+                      gap: 2,
+                      '&:hover': {
+                        background: 'inherit',
+                        cursor: 'default',
+                      },
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start',
+                      padding: 0,
+                    }}
+                  >
+                    <Button
+                      startIcon={
+                        <Icon
+                          icon='mdi:pencil-outline'
+                          color='#4C4E648A'
+                          fontSize={24}
+                        />
+                      }
+                      fullWidth
+                      onClick={e => {
+                        e.stopPropagation()
+                        setEditPrices && setEditPrices(true)
+                        handleClose()
+                      }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        padding: '6px 16px',
+                        fontSize: 16,
+                        fontWeight: 400,
+                        color: 'rgba(76, 78, 100, 0.87)',
+                        borderRadius: 0,
+                      }}
+                    >
+                      Edit price
+                    </Button>
+                  </MenuItem>
+                  <MenuItem
+                    sx={{
+                      gap: 2,
+                      '&:hover': {
+                        background: 'inherit',
+                        cursor: 'default',
+                      },
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start',
+                      padding: 0,
+                    }}
+                  >
+                    <Button
+                      startIcon={
+                        <Icon
+                          icon='ic:outline-history'
+                          color='#4C4E648A'
+                          fontSize={24}
+                        />
+                      }
+                      fullWidth
+                      onClick={e => {
+                        e.stopPropagation()
+                        onClickPriceHistory()
+                        handleClose()
+                      }}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        padding: '6px 16px',
+                        fontSize: 16,
+                        fontWeight: 400,
+                        color: 'rgba(76, 78, 100, 0.87)',
+                        borderRadius: 0,
+                      }}
+                    >
+                      Price history
+                    </Button>
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button
+                variant='outlined'
+                onClick={() => setEditPrices && setEditPrices(true)}
+              >
+                Edit before request
+              </Button>
+            )
+          ) : null}
+          {/* {row.pro ? (
             <>
               <IconButton
                 onClick={e => {
@@ -405,7 +564,7 @@ const ViewPrices = ({
             >
               Edit before request
             </Button>
-          )}
+          )} */}
         </Box>
       ) : null}
       <Divider sx={{ my: '5px !important' }} />
@@ -491,6 +650,11 @@ const ViewPrices = ({
           closeModal={closeModal}
           priceUnitsList={priceUnitsList}
           type='job-detail'
+          details={details}
+          append={append}
+          remove={remove}
+          update={update}
+          isNotApplicable={isNotApplicable}
         />
       </Box>
 

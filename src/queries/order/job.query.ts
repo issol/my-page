@@ -6,9 +6,11 @@ import {
   getJobPriceHistory,
   getJobPrices,
   getJobRequestHistory,
+  getJobRequestReview,
   getMessageList,
   getRequestedProHistory,
   getSourceFileToPro,
+  getTargetFileToPro,
 } from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
@@ -77,6 +79,44 @@ export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
       }),
     )
   }
+}
+
+// export const useGetJobRequestReview = (jobId: number[] | number) => {
+//   if (typeof jobId === 'number') {
+//     return useQuery(
+//       ['jobRequestReview', jobId],
+//       () => getJobRequestReview(jobId),
+//       {
+//         staleTime: 10 * 1000, // 1
+
+//         suspense: false,
+//       },
+//     )
+//   } else {
+//     return useQueries(
+//       jobId.map(id => {
+//         return {
+//           queryKey: ['jobInfo', id],
+//           queryFn: () => getJobRequestReview(id),
+//           staleTime: 10 * 1000, // 1
+
+//           suspense: false,
+//         }
+//       }),
+//     )
+//   }
+// }
+
+export const useGetJobRequestReview = (jobId: number, lsp: number[]) => {
+  return useQuery(
+    ['jobRequestReview', jobId, lsp],
+    () => getJobRequestReview(jobId, lsp),
+    {
+      staleTime: 10 * 1000, // 1
+
+      suspense: false,
+    },
+  )
 }
 
 export const useGetJobPrices = (
@@ -178,6 +218,14 @@ export const useGetJobRequestHistory = (jobId: number | number[]) => {
 
 export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
+    staleTime: 10 * 1000,
+    suspense: false,
+    enabled: !!jobId,
+  })
+}
+
+export const useGetTargetFile = (jobId: number) => {
+  return useQuery(['targetFile', jobId], () => getTargetFileToPro(jobId), {
     staleTime: 10 * 1000,
     suspense: false,
     enabled: !!jobId,

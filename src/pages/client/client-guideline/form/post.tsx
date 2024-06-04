@@ -358,7 +358,7 @@ const ClientGuidelineForm = () => {
                 size: data.file[idx]?.size,
                 fileUrl: url,
               })
-              return uploadFileToS3(res.url, data.file[idx])
+              return uploadFileToS3(res, data.file[idx])
             },
           )
         })
