@@ -236,6 +236,7 @@ const Row = ({
               details &&
               update(matchedCurrentUnit!, {
                 ...details[matchedCurrentUnit!],
+
                 quantity:
                   getItem()?.items[0]?.detail?.[matchedCurrentUnit!]
                     ?.quantity ?? details[matchedCurrentUnit!].quantity,
@@ -243,6 +244,15 @@ const Row = ({
                   selectedUnit?.price && matchedLanguagePair?.priceFactor
                     ? selectedUnit.price * matchedLanguagePair.priceFactor
                     : 0,
+
+                prices:
+                  (getItem()?.items[0]?.detail?.[matchedCurrentUnit!]
+                    ?.quantity ??
+                    details[matchedCurrentUnit!].quantity ??
+                    0) *
+                  (selectedUnit?.price && matchedLanguagePair?.priceFactor
+                    ? selectedUnit.price * matchedLanguagePair.priceFactor
+                    : 0),
                 // selectedUnit?.weighting && matchedLanguagePair?.priceFactor
                 //   ? (selectedUnit?.weighting / 100) *
                 //     matchedLanguagePair?.priceFactor
