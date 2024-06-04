@@ -319,8 +319,6 @@ const EditPrices = ({
     })
   }
 
-  console.log(itemData.priceId)
-
   return (
     <>
       <Box
