@@ -66,8 +66,6 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
-    console.log(router.pathname)
-
     if (
       auth.state === 'hasValue' &&
       roles.state === 'hasValue' &&
@@ -80,7 +78,6 @@ const AuthProvider = ({ children }: Props) => {
       const roleNames = roles.getValue().map(item => item.name)
 
       const redirectPath = getRedirectPath()
-      console.log(redirectPath)
 
       const storageRole = currentRole.getValue()
       if (!storageRole) {
@@ -171,8 +168,6 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = getUserTokenFromBrowser()!
 
       if (storedToken) {
-        console.log(storedToken)
-
         setAuth(prev => ({ ...prev, loading: true }))
         const browserUserData = getUserDataFromBrowser()
         const browserCompanyData = getCompanyDataFromBrowser()
@@ -192,7 +187,6 @@ const AuthProvider = ({ children }: Props) => {
           return null
         }
 
-        console.log(parsePath())
         parsePath() !== null && setRedirectPath(parsePath()!)
         removeUserDataFromBrowser()
         removeCompanyDataFromBrowser()

@@ -1,3 +1,4 @@
+import { FileType } from '../common/file.type'
 import { ItemDetailType } from '../common/item.type'
 
 import { CountryType } from '../sign/personalInfoTypes'
@@ -34,9 +35,19 @@ export type AddJobInfoFormType = {
   source: string | null
   target: string | null
   startedAt?: Date
-  startTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+  startTimezone?: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   dueAt: Date
-  dueTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
+  dueTimezone: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   description?: string
   isShowDescription: boolean
 }
@@ -108,4 +119,79 @@ export type SaveJobPricesParamsType = {
   totalPrice: number
   currency: Currency | null
   detail: ItemDetailType[]
+}
+
+export type JobRequestReviewListType = {
+  id: number
+  jobId: number
+  corporationId: string
+  createdAt: string
+  requestorInfo: {
+    name: string
+  }
+  index: number
+  assigneeId: number
+  assigneeInfo: {
+    email: string
+    name: string
+    userId: number
+  }
+  isCompleted: boolean
+  dueDate: string
+  dueDateTimezone: CountryType
+  runtime: string
+  wordCount: string
+  files: FileType[]
+  noteToAssignee: string
+
+  reviewedFileGroup: Array<{
+    id: number
+    createdAt: string
+    files: FileType[]
+    note: string
+    reviewerInfo: {
+      email: string
+      userId: number
+      name: string
+    }
+  }>
+}
+
+export type JobRequestReviewFormType = {
+  assignee: number
+  desiredDueAt: Date
+  desiredDueTimezone: CountryType
+  runtime: string
+  wordCount: string
+  note: string
+}
+
+export type JobRequestReviewParamsType = {
+  jobId: number
+  assigneeId: number
+  dueDate: Date
+  dueDateTimezone: CountryType
+  runtime: string
+  wordCount: string
+  noteToAssignee: string
+  files: Array<{
+    name: string
+    path: string
+    extension: string
+    size: number
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET' | 'REVIEWED'
+    jobFileId?: number
+    savedType: 'UPLOAD' | 'IMPORT'
+  }>
+  reviewedFileGroup: Array<{
+    id: number
+    createdAt: string
+    files: FileType[]
+    note: string
+    reviewerInfo: {
+      email: string
+      userId: number
+      name: string
+    }
+  }>
 }

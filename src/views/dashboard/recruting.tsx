@@ -10,23 +10,29 @@ type Props = {
 
 const RecruitingStatistic = ({ recruitingData }: Props) => {
   return (
-    <Box sx={{ display: 'flex', width: '100%', gap: '20px' }}>
+    <Box
+      sx={{ display: 'flex', width: '100%', gap: '20px', alignItems: 'center' }}
+    >
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           flex: 1,
           alignItems: 'center',
-          justifyContent: 'space-between',
         }}
       >
         <Typography fontSize={16} fontWeight={600} color='#666CFF'>
           Total recruiting
         </Typography>
-        <Typography fontSize={24} fontWeight={500}>
+        <Typography fontSize={20} fontWeight={500}>
           {recruitingData.total.toLocaleString()}
         </Typography>
       </Box>
-      <Divider flexItem orientation='vertical' />
+      <Divider
+        // flexItem
+        orientation='vertical'
+        sx={{ borderWidth: 0.8, height: 50 }}
+      />
 
       <Box sx={{ display: 'flex', flex: 3.1, gap: '16px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>

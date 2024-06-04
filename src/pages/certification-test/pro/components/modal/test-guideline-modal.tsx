@@ -52,7 +52,7 @@ const TestGuidelineModal = ({ onClose, guideline }: Props) => {
       fileName,
     )
     getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })

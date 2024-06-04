@@ -1,29 +1,28 @@
 import { Icon } from '@iconify/react'
 import {
-  Badge,
   Box,
   Button,
   Card,
   Checkbox,
+  Divider,
   FormControlLabel,
   Grid,
-  IconButton,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import useModal from '@src/hooks/useModal'
-import {
-  FileBox,
-  FileName,
-} from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
-import { JobsFileType, ProJobDeliveryType, ProJobDetailType } from '@src/types/jobs/jobs.type'
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import {
+  JobsFileType,
+  ProJobDeliveryType,
+  ProJobDetailType,
+} from '@src/types/jobs/jobs.type'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import PartialDeliveryModal from './components/modal/partial-delivery-modal'
@@ -41,13 +40,22 @@ import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
-import { useMutation, useQueryClient } from 'react-query'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+} from 'react-query'
 import {
   patchProJobFeedbackCheck,
   postProJobDeliveries,
 } from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+import Image from 'next/image'
+import SubmitModal from './components/modal/submit-modal'
+import { extractFileExtension } from '@src/shared/transformer/file-extension.transformer'
 
 // NOTE : 리딜리버리 코드 필요
 const NOT_FILE_UPLOAD_JOB_STATUS = [
@@ -57,14 +65,22 @@ const NOT_FILE_UPLOAD_JOB_STATUS = [
 type Props = {
   jobInfo: ProJobDetailType
   jobDetailDots: string[]
+  jobDetailRefetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<QueryObserverResult<ProJobDetailType, unknown>>
 }
 
-const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
+const DeliveriesFeedback = ({
+  jobInfo,
+  jobDetailDots,
+  jobDetailRefetch,
+}: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const queryClient = useQueryClient()
   const [withoutFiles, setWithoutFiles] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   const auth = useRecoilValueLoadable(authState)
+  const [expanded, setExpanded] = useState<string | false>(false)
 
   const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
 
@@ -82,12 +98,19 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       }>
     }) => postProJobDeliveries(params),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        if (data.length > 0) {
+          const id = data[0].delivery.id ?? 0
+
+          setExpanded(id.toString())
+        }
+
         refetch()
         setFiles([])
         setNote(null)
         setWithoutFiles(false)
-        queryClient.invalidateQueries(['proJobDetail'])
+        queryClient.invalidateQueries(['proJobDetail', variables.jobId])
+        jobDetailRefetch()
       },
     },
   )
@@ -179,7 +202,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   const fetchFile = (file: JobsFileType) => {
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, file.file).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -228,7 +251,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         .reduce((acc: File[], file: File) => {
           let result = 0
           acc.concat(file).forEach((file: FileType) => (result += file.size))
-          console.log("file size",result,MAXIMUM_FILE_SIZE)
+          console.log('file size', result, MAXIMUM_FILE_SIZE)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
@@ -289,7 +312,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   }
 
   const onSubmit = (deliveryType: 'final' | 'partial') => {
-    closeModal('DeliverToClientModal')
+    console.log(deliveryType)
+
+    // closeModal('DeliverToClientModal')
     if (files.length) {
       setIsFileUploading(true)
       const fileInfo: Array<{
@@ -297,26 +322,28 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         size: number
         type: 'SAMPLE' | 'TARGET' | 'SOURCE'
       }> = []
+
+      const fileType = 'TARGET'
+
       const paths: string[] = files.map(file => {
-        return `project/${jobInfo.id}/${file.name}`
+        return `project/${jobInfo.id}/${fileType.toLowerCase()}/${file.name}`
       })
+
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.ORDER_DELIVERY, url).then(
           res => {
             fileInfo.push({
               name: files[idx].name,
               size: files[idx]?.size,
-
-              type: 'TARGET',
+              type: fileType,
             })
-            return uploadFileToS3(res.url, files[idx])
+            return uploadFileToS3(res, files[idx])
           },
         )
       })
       Promise.all(promiseArr)
         .then(res => {
           setIsFileUploading(false)
-
           updateDeliveries.mutate({
             jobId: jobInfo.id,
             deliveryType: deliveryType,
@@ -345,37 +372,20 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
     }
   }
 
-  const fileList = files.map(file => (
-    <Box key={uuidv4()}>
-      <FileBox>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ marginRight: '8px', display: 'flex' }}>
-            <Icon
-              icon='material-symbols:file-present-outline'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-              fontSize={24}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Tooltip title={file.name}>
-              <FileName variant='body1'>{file.name}</FileName>
-            </Tooltip>
-
-            <Typography variant='caption' lineHeight={'14px'}>
-              {formatFileSize(file.size)}
-            </Typography>
-          </Box>
-        </Box>
-        <IconButton>
-          <Icon
-            icon='mdi:close'
-            fontSize={24}
-            onClick={() => handleRemoveFile(file)}
-          />
-        </IconButton>
-      </FileBox>
-    </Box>
-  ))
+  const onClickSubmit = () => {
+    openModal({
+      type: 'submitModal',
+      children: (
+        <SubmitModal
+          onClick={(deliveryType: 'final' | 'partial') => {
+            closeModal('submitModal')
+            onSubmit(deliveryType)
+          }}
+          onClose={() => closeModal('submitModal')}
+        />
+      ),
+    })
+  }
 
   return (
     <Grid container xs={12} spacing={4}>
@@ -384,7 +394,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       isFileUploading ? (
         <OverlaySpinner />
       ) : null}
-      <Grid item xs={8.75}>
+      <Grid item xs={6}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card
             sx={{
@@ -394,82 +404,199 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               gap: '20px',
             }}
           >
-            <Box sx={{ display: 'flex', gap: '20px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '20px',
+                justifyContent: 'space-between',
+              }}
+            >
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
               >
-                <Typography variant='h6'>Deliveries</Typography>
-                <Typography variant='body2'>
-                  {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                <Typography fontSize={20} fontWeight={500}>
+                  Deliveries ({data?.deliveries.length ?? 0})
+                </Typography>
+                <Typography fontSize={12} fontWeight={400} color='#4C4E6499'>
+                  {formatFileSize(fileSize + deliveryFileSize)}/{' '}
+                  {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {!NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) && (
-                <Box
+              {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+                <FormControlLabel
+                  label='Deliver without files'
                   sx={{
-                    display: 'flex',
                     alignItems: 'start',
-                    gap: '16px',
+                    marginRight: 0,
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: '14px',
+                      marginTop: '4px',
+                      color: 'rgba(76, 78, 100, 0.60)',
+                    },
                   }}
-                >
-                  <div {...getRootProps({ className: 'dropzone' })}>
-                    <Button
-                      variant='contained'
+                  control={
+                    <Checkbox
                       size='small'
-                      sx={{ display: 'flex', gap: '8px', height: '30px' }}
-                      disabled={withoutFiles || jobInfo.status === 601000}
-                    >
-                      <input {...getInputProps()} />
-                      <Icon
-                        fontSize={18}
-                        icon='ic:outline-upload-file'
-                        color='#fff'
-                      />
-                      <Typography fontSize={11} color='#fff' fontWeight={500}>
-                        Upload
-                      </Typography>
-                    </Button>
-                  </div>
-
-                  <FormControlLabel
-                    label='Deliver without files'
-                    sx={{
-                      alignItems: 'start',
-                      '& .MuiFormControlLabel-label': {
-                        fontSize: '14px',
-                        marginTop: '4px',
-                        color: 'rgba(76, 78, 100, 0.60)',
-                      },
-                    }}
-                    control={
-                      <Checkbox
-                        size='small'
-                        checked={withoutFiles}
-                        sx={{ padding: '4px 9px 9px 9px' }}
-                        onChange={handleChange}
-                        name='controlled'
-                        disabled={files.length > 0 || jobInfo.status === 601000}
-                      />
-                    }
-                  />
-                </Box>
+                      checked={withoutFiles}
+                      sx={{ padding: '4px 9px 9px 9px' }}
+                      onChange={handleChange}
+                      name='controlled'
+                      disabled={files.length > 0 || jobInfo.status === 601000}
+                    />
+                  }
+                />
               )}
             </Box>
-            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
-              <>
-                {fileList.length > 0 && (
+            {!NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) &&
+              !withoutFiles && (
+                <div
+                  {...getRootProps({
+                    className: 'dropzone',
+                  })}
+                >
                   <Box
                     sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
                       width: '100%',
-                      gap: '20px',
+                      border: '1px dashed #666CFF',
+                      borderRadius: '10px',
+                      padding: '20px',
                     }}
                   >
-                    {fileList}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'center',
+                        // mb: '12px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        fontWeight={400}
+                        color='#8D8E9A'
+                      >
+                        Drag and drop or{' '}
+                      </Typography>
+                      <Button variant='outlined' size='small'>
+                        <input {...getInputProps()} />
+                        Browse files
+                      </Button>
+                    </Box>
+                    {files.length > 0 && (
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          width: '100%',
+                          gap: '20px',
+                          mt: '20px',
+                        }}
+                      >
+                        {files.map(file => {
+                          return (
+                            <Box key={uuidv4()}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  marginBottom: '8px',
+                                  width: '100%',
+                                  justifyContent: 'space-between',
+                                  borderRadius: '8px',
+                                  padding: '10px 12px',
+                                  border: '1px solid rgba(76, 78, 100, 0.22)',
+                                  background: '#f9f8f9',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      marginRight: '8px',
+                                      display: 'flex',
+                                    }}
+                                  >
+                                    <Image
+                                      src={`/images/icons/file-icons/${extractFileExtension(
+                                        file.name,
+                                      )}.svg`}
+                                      alt=''
+                                      width={32}
+                                      height={32}
+                                    />
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                    }}
+                                  >
+                                    <Tooltip title={file.name}>
+                                      <Typography
+                                        variant='body1'
+                                        fontSize={14}
+                                        fontWeight={600}
+                                        lineHeight={'20px'}
+                                        sx={{
+                                          overflow: 'hidden',
+                                          wordBreak: 'break-all',
+                                          textOverflow: 'ellipsis',
+                                          display: '-webkit-box',
+                                          WebkitLineClamp: 1,
+                                          WebkitBoxOrient: 'vertical',
+                                        }}
+                                      >
+                                        {file.name}
+                                      </Typography>
+                                    </Tooltip>
+
+                                    <Typography
+                                      variant='caption'
+                                      lineHeight={'14px'}
+                                    >
+                                      {formatFileSize(file.size)}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                                <Box
+                                  sx={{ display: 'flex', alignItems: 'center' }}
+                                >
+                                  <Box
+                                    sx={{
+                                      alignItems: 'center',
+                                      display: 'flex',
+                                      color: 'rgba(76, 78, 100, 0.54)',
+                                      cursor: 'pointer',
+                                      padding: '4px',
+                                    }}
+                                    onClick={event => {
+                                      event.stopPropagation()
+                                      handleRemoveFile(file)
+                                    }}
+                                  >
+                                    <Icon icon='mdi:close' fontSize={20} />
+                                  </Box>
+                                </Box>
+                              </Box>
+                            </Box>
+                          )
+                        })}
+                      </Box>
+                    )}
                   </Box>
-                )}
+                </div>
+              )}
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              <>
                 <Box display='flex' flexDirection='column'>
-                  <Typography variant='h6' sx={{ marginBottom: '12px' }}>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={600}
+                    sx={{ marginBottom: '8px' }}
+                  >
                     Notes to LPM
                   </Typography>
                   <TextField
@@ -486,37 +613,85 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                       } else setNote(e.target.value)
                     }}
                   />
-                  <Typography variant='body2' textAlign='right'>
+                  <Typography
+                    fontSize={12}
+                    fontWeight={400}
+                    lineHeight={'25.302px'}
+                    textAlign='right'
+                    color='#888888'
+                  >
                     {note?.length ?? 0}/200
                   </Typography>
                 </Box>
               </>
             )}
-          </Card>
-          {data && data.deliveries.length > 0 ? (
-            <Deliveries
-              delivery={data.deliveries}
-              downloadAllFiles={downloadAllFiles}
-              downloadOneFile={downloadOneFile}
-            />
-          ) : null}
-          {data && data.feedbacks.length > 0 ? (
-            <Card sx={{ padding: '20px' }}>
-              <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                <img src='/images/icons/job-icons/feedback.png' alt='' />
-                <Typography variant='h6'>Feedback</Typography>
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <Button
+                  variant='contained'
+                  sx={{ width: '134px' }}
+                  onClick={onClickSubmit}
+                  disabled={withoutFiles ? false : files.length === 0}
+                >
+                  Submit
+                </Button>
               </Box>
+            )}
+            {/* {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
+              <Divider />
+            )} */}
 
-              <Feedbacks
-                feedbacks={data.feedbacks}
-                checkFeedback={patchFeedbackCheckMutation.mutate}
-              />
-            </Card>
-          ) : null}
+            {data && data.deliveries.length > 0 ? (
+              <>
+                <Divider />
+                <Deliveries
+                  delivery={data.deliveries}
+                  downloadAllFiles={downloadAllFiles}
+                  downloadOneFile={downloadOneFile}
+                  expanded={expanded}
+                  setExpanded={setExpanded}
+                />
+              </>
+            ) : null}
+          </Card>
         </Box>
       </Grid>
-      <Grid item xs={3.25}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Grid item xs={6}>
+        <Card sx={{ padding: '20px' }}>
+          <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            {/* <img src='/images/icons/job-icons/feedback.png' alt='' /> */}
+            <Typography fontSize={20} fontWeight={500}>
+              Feedback
+            </Typography>
+          </Box>
+          {data && data?.feedbacks && data.feedbacks.length > 0 ? (
+            <Feedbacks
+              feedbacks={data.feedbacks}
+              checkFeedback={patchFeedbackCheckMutation.mutate}
+            />
+          ) : (
+            <Box
+              sx={{
+                height: '332px',
+                padding: '20px 0',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>
+                There is no feedback yet
+              </Typography>
+            </Box>
+          )}
+        </Card>
+
+        {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
             {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? (
               <Box
@@ -595,7 +770,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               </Box>
             </Card>
           ) : null}
-        </Box>
+        </Box> */}
       </Grid>
     </Grid>
   )

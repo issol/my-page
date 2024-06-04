@@ -2,7 +2,15 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  Tab,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
@@ -22,8 +30,14 @@ import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { StatusItem } from '@src/types/common/status.type'
+import { JobStatus, StatusItem } from '@src/types/common/status.type'
 import InfoDialogButton from '@src/views/pro/infoDialog'
+import { ProJobStatusChip } from '@src/@core/components/chips/chips'
+import Image from 'next/image'
+import useModal from '@src/hooks/useModal'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
+import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
 
 type MenuType = 'jobInfo' | 'feedback'
 
@@ -41,8 +55,12 @@ const excludedStatuses = [
   60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500, 70600,
 ]
 
+const activeStatus = [60200, 60250, 60300, 60400, 70300]
+const deActiveStatus = [60500, 60600, 60700, 60800, 60900, 601000, 601100]
+
 const ProJobsDetail = () => {
   const router = useRouter()
+  const { openModal, closeModal } = useModal()
 
   const { id, assigned, tab, isNextJob } = router.query
   const nextJob = JSON.parse((isNextJob as string) || 'false')
@@ -98,6 +116,41 @@ const ProJobsDetail = () => {
     router.push(`/jobs?tab=${tab}`)
   }
 
+  const glosubButtonVisible = () => {
+    if (jobDetail) {
+      const statusCheck = excludedStatuses.includes(jobDetail?.status)
+      const fileCheck =
+        jobDetail.files &&
+        jobDetail.files
+          .filter(value => value.type === 'SOURCE')
+          .some(file => {
+            const extension = file.name.split('.').pop()?.toLowerCase()
+            return videoExtensions.includes(extension || '')
+          })
+
+      if (!statusCheck && fileCheck) {
+        return true
+      } else if (jobDetail.status === 60110 || jobDetail.status === 70350) {
+        return false
+      } else {
+        return false
+      }
+    }
+  }
+
+  const glosubButtonStatus = () => {
+    if (jobDetail) {
+      const status = jobDetail.status
+      if (activeStatus.includes(status)) {
+        return true
+      } else if (deActiveStatus.includes(status)) {
+        return false
+      } else {
+        return false
+      }
+    }
+  }
+
   useEffect(() => {
     if (
       jobStatusList &&
@@ -114,7 +167,41 @@ const ProJobsDetail = () => {
     assignmentStatusListLoading,
   ])
 
-  console.log(statusList)
+  const onClickGlosubInfo = () => {
+    openModal({
+      type: 'GlosubInfoModal',
+      isCloseable: true,
+      children: (
+        <CustomModalV2
+          closeButton
+          noButton
+          onClick={() => closeModal('GlosubInfoModal')}
+          onClose={() => closeModal('GlosubInfoModal')}
+          rightButtonText=''
+          vary='info'
+          title='About Glosub'
+          subtitle={
+            <>
+              Glosub is an online subtitling tool where source files are
+              automatically uploaded, allowing users to start working right away
+              and download completed subtitle files.
+              <br />
+              <br />
+              Glosub offers three modes, Transcription, Translation, and QC.
+              Users can choose one depending on what they need to do.
+            </>
+          }
+        />
+      ),
+    })
+  }
+
+  const onClickGlosub = () => {
+    window.open(
+      `${process.env.NEXT_PUBLIC_GLOSUB_DOMAIN ?? 'https://glosub-dev.gloground.com'}/?jobId=${id}&token=${getUserTokenFromBrowser()}&role=PRO`,
+      '_blank',
+    )
+  }
 
   return (
     <Box>
@@ -140,7 +227,18 @@ const ProJobsDetail = () => {
             variant='h5'
             fontWeight={500}
           >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
-          <Box display={proPrevAndNextJob?.nextJob || proPrevAndNextJob?.previousJob ? 'flex' : 'none'} position='relative'>
+          {ProJobStatusChip(
+            statusList?.find(i => i.value === jobDetail?.status)?.label || '',
+            jobDetail?.status as JobStatus,
+          )}
+          <Box
+            display={
+              proPrevAndNextJob?.nextJob || proPrevAndNextJob?.previousJob
+                ? 'flex'
+                : 'none'
+            }
+            position='relative'
+          >
             <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
             <div style={{ position: 'absolute', top: 0, left: 36 }}>
               <InfoDialogButton
@@ -151,6 +249,48 @@ const ProJobsDetail = () => {
             </div>
           </Box>
         </Box>
+        {glosubButtonVisible() ? (
+          <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {!glosubButtonStatus() ? (
+              <Tooltip title='This job is already completed'>
+                <Box>
+                  <Button
+                    variant='outlined'
+                    disabled={!glosubButtonStatus()}
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <Image
+                      src='/images/icons/job-icons/glosub-disable.svg'
+                      alt=''
+                      width={16}
+                      height={16}
+                    />
+                    &nbsp; Open GloSub
+                  </Button>
+                </Box>
+              </Tooltip>
+            ) : (
+              <Button
+                variant='outlined'
+                disabled={!glosubButtonStatus()}
+                sx={{ display: 'flex', alignItems: 'center' }}
+                onClick={onClickGlosub}
+              >
+                <Image
+                  src='/images/icons/job-icons/glosub.svg'
+                  alt=''
+                  width={16}
+                  height={16}
+                />
+                &nbsp; Open GloSub
+              </Button>
+            )}
+
+            <IconButton sx={{ padding: 0 }} onClick={onClickGlosubInfo}>
+              <Icon icon='material-symbols:info-outline' fontSize={20}></Icon>
+            </IconButton>
+          </Box>
+        ) : null}
       </Box>
       {jobDetail && jobPrices && statusList.length > 0 && jobDetailDots && (
         <TabContext value={value}>
@@ -218,6 +358,7 @@ const ProJobsDetail = () => {
               <DeliveriesFeedback
                 jobInfo={jobDetail}
                 jobDetailDots={jobDetailDots}
+                jobDetailRefetch={jobDetailRefetch}
               />
             </Suspense>
           </TabPanel>

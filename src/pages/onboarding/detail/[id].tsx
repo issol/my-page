@@ -887,7 +887,7 @@ function OnboardingDetail() {
   ) => {
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       const previewFile = {
-        url: res.url,
+        url: res,
         fileName: file.fileName,
         fileExtension: file.fileExtension,
       }

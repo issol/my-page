@@ -453,6 +453,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                           item={findItemWithJobId(jobDetails!, jobInfo.id!)}
                           prices={prices}
                           setPriceId={setPriceId}
+                          isNotApplicable={isNotApplicable}
                           setIsNotApplicable={setIsNotApplicable}
                         />
                       )}

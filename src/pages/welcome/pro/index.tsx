@@ -460,7 +460,7 @@ const PersonalInfoPro = () => {
               type: 'pdf',
               // type: 'imported',
             })
-            return uploadFileToS3(res.url, data)
+            return uploadFileToS3(res, data)
           }),
         ]
 
@@ -584,7 +584,7 @@ const PersonalInfoPro = () => {
           S3FileType.RESUME,
           getResumeFilePath(auth.getValue().user?.id as number, file.name),
         ).then(res => {
-          return uploadFileToS3(res.url, file)
+          return uploadFileToS3(res, file)
         })
       })
       Promise.all(promiseArr)

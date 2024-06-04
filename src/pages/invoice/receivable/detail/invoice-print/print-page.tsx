@@ -530,7 +530,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                       variant='subtitle1'
                       sx={{
                         fontWeight: 600,
-                        border: '1px solid',
+
                         width: '75px',
                         color: 'rgba(76, 78, 100, 0.6)',
                         fontSize: '14px',

@@ -276,7 +276,7 @@ export default function AddNewRequest() {
             fileName: files[idx].name,
             fileSize: files[idx]?.size,
           })
-          return uploadFileToS3(res.url, files[idx])
+          return uploadFileToS3(res, files[idx])
         })
       })
       Promise.all(promiseArr)

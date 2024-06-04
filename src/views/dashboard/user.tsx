@@ -14,15 +14,15 @@ const UserStatistic = ({ totalStatistics, onboardingStatistic }: Props) => {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           flex: 1,
           alignItems: 'center',
-          justifyContent: 'space-between',
         }}
       >
         <Typography fontSize={16} fontWeight={600} color='#666CFF'>
           Total Pros
         </Typography>
-        <Typography fontSize={24} fontWeight={500}>
+        <Typography fontSize={20} fontWeight={500}>
           {totalStatistics.totalUser.toLocaleString()}
         </Typography>
       </Box>
@@ -31,14 +31,14 @@ const UserStatistic = ({ totalStatistics, onboardingStatistic }: Props) => {
         sx={{
           display: 'flex',
           flex: 1,
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
         }}
       >
         <Typography fontSize={16} fontWeight={600} color='#64C623'>
           New Pros
         </Typography>
-        <Typography fontSize={24} fontWeight={500}>
+        <Typography fontSize={20} fontWeight={500}>
           {totalStatistics.todayRegisteredUser.toLocaleString()}
         </Typography>
       </Box>

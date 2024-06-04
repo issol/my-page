@@ -441,14 +441,20 @@ const InvoiceInfo = ({
                 data.invoiceDateTimezone,
               )!,
               invoicedTimezone: data.invoiceDateTimezone
-                ? { label: data.invoiceDateTimezone.label, code: data.invoiceDateTimezone.code }
+                ? {
+                    label: data.invoiceDateTimezone.label,
+                    code: data.invoiceDateTimezone.code,
+                  }
                 : null,
               payDueAt: changeTimeZoneOffset(
                 new Date(data.paymentDueDate.date).toISOString(),
                 data.paymentDueDate.timezone,
               )!,
               payDueTimezone: data.paymentDueDate.timezone
-                ? { label: data.paymentDueDate.timezone.label, code: data.paymentDueDate.timezone.code }  
+                ? {
+                    label: data.paymentDueDate.timezone.label,
+                    code: data.paymentDueDate.timezone.code,
+                  }
                 : null,
               invoiceDescription: data.invoiceDescription,
               description: data.invoiceDescription,
@@ -465,7 +471,10 @@ const InvoiceInfo = ({
                     )
                   : null,
               clientConfirmTimezone: data.invoiceConfirmDate?.timezone
-                ? { label: data.invoiceConfirmDate?.timezone.label, code: data.invoiceConfirmDate?.timezone.code }
+                ? {
+                    label: data.invoiceConfirmDate?.timezone.label,
+                    code: data.invoiceConfirmDate?.timezone.code,
+                  }
                 : null,
               taxInvoiceDueAt:
                 data.taxInvoiceDueDate?.date && data.taxInvoiceDueDate?.timezone
@@ -475,7 +484,10 @@ const InvoiceInfo = ({
                     )
                   : null,
               taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone
-                ? { label: data.taxInvoiceDueDate?.timezone.label, code: data.taxInvoiceDueDate?.timezone.code }
+                ? {
+                    label: data.taxInvoiceDueDate?.timezone.label,
+                    code: data.taxInvoiceDueDate?.timezone.code,
+                  }
                 : null,
             }
           : {
@@ -487,7 +499,10 @@ const InvoiceInfo = ({
                     )
                   : null,
               paidDateTimezone: data.paymentDate?.timezone
-                ? { label: data.paymentDate?.timezone.label, code: data.paymentDate?.timezone.code }
+                ? {
+                    label: data.paymentDate?.timezone.label,
+                    code: data.paymentDate?.timezone.code,
+                  }
                 : null,
               taxInvoiceIssuedAt:
                 data.taxInvoiceIssuanceDate?.date &&
@@ -498,8 +513,12 @@ const InvoiceInfo = ({
                       data.taxInvoiceIssuanceDate?.timezone,
                     )!
                   : undefined,
-              taxInvoiceIssuedDateTimezone: data.taxInvoiceIssuanceDate?.timezone
-                ? { label: data.taxInvoiceIssuanceDate?.timezone.label, code: data.taxInvoiceIssuanceDate?.timezone.code }
+              taxInvoiceIssuedDateTimezone: data.taxInvoiceIssuanceDate
+                ?.timezone
+                ? {
+                    label: data.taxInvoiceIssuanceDate?.timezone.label,
+                    code: data.taxInvoiceIssuanceDate?.timezone.code,
+                  }
                 : null,
               salesCheckedAt:
                 data.salesRecognitionDate?.date &&
@@ -511,7 +530,10 @@ const InvoiceInfo = ({
                     )!
                   : undefined,
               salesCheckedDateTimezone: data.salesRecognitionDate?.timezone
-                ? { label: data.salesRecognitionDate?.timezone.label, code: data.salesRecognitionDate?.timezone.code }
+                ? {
+                    label: data.salesRecognitionDate?.timezone.label,
+                    code: data.salesRecognitionDate?.timezone.code,
+                  }
                 : null,
               notes: data.notes,
               salesCategory: data?.salesCategory,
@@ -549,7 +571,7 @@ const InvoiceInfo = ({
 
   function fetchFile(file: DeliveryFileType) {
     getDownloadUrlforCommon(S3FileType.TAX_INVOICE, file.filePath).then(res => {
-      fetch(res.url, { method: 'GET' })
+      fetch(res, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -608,7 +630,7 @@ const InvoiceInfo = ({
           fileExtension: files[idx].type,
           fileSize: files[idx].size,
         })
-        await uploadFileToS3(res.url, files[idx])
+        await uploadFileToS3(res, files[idx])
       } catch (error) {
         onError()
       }

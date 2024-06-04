@@ -198,6 +198,7 @@ export type JobsFileType = {
   updatedAt?: string
   savedAt?: string
   isDownloaded?: boolean
+  downloadAvailable?: boolean
 }
 
 export type ProJobDetailType = {
@@ -230,6 +231,7 @@ export type ProJobDetailType = {
   requestedAt: string
   startedAt: string
   dueAt: string
+  dueTimezone: CountryType
   price: {
     data: ItemDetailType[]
     totalPrice: number

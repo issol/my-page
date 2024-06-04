@@ -153,7 +153,11 @@ export default function RecruitingEdit() {
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: String(i.clientId) })) || [],
+    () =>
+      clientData?.data?.map(i => ({
+        label: i.name,
+        value: String(i.clientId),
+      })) || [],
     [clientData],
   )
 
@@ -179,6 +183,7 @@ export default function RecruitingEdit() {
     createdAt: '',
     status: '',
     client: '',
+    clientId: null,
     jobType: '',
     role: '',
     sourceLanguage: '',
@@ -200,6 +205,7 @@ export default function RecruitingEdit() {
     const values: Array<{ name: any; list?: Array<any> }> = [
       { name: 'status', list: RecruitingStatus },
       { name: 'client', list: clientList },
+      { name: 'clientId' },
       { name: 'role', list: RoleList },
       { name: 'jobType', list: JobList },
       { name: 'sourceLanguage', list: languageList },
@@ -209,7 +215,6 @@ export default function RecruitingEdit() {
       { name: 'dueDateTimezone', list: countries },
       { name: 'jobPostLink' },
     ]
-
     values.forEach(({ name, list = null }) => {
       const value = data[name]
       let itemValue = null
@@ -230,6 +235,10 @@ export default function RecruitingEdit() {
 
       setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
     })
+    const clientValue = clientList.find(
+      list => list.value === String(data['clientId']),
+    ) || { value: '', label: '' }
+    setValue('client', clientValue, { shouldDirty: true, shouldValidate: true })
   }
 
   useEffect(() => {
@@ -269,7 +278,6 @@ export default function RecruitingEdit() {
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema) as Resolver<RecruitingFormType>,
   })
-
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const currDueDate = watch('dueDate')
 
@@ -280,15 +288,16 @@ export default function RecruitingEdit() {
         { id: undefined, code: '', label: '', pinned: false },
         setValueOptions,
       )
-    } else if (currDueDate && !watch('dueDateTimezone')?.label && timezoneList.length > 0) {
+    } else if (
+      currDueDate &&
+      !watch('dueDateTimezone')?.label &&
+      timezoneList.length > 0
+    ) {
       const getUserTimezone = timezoneList.find(
-        (zone) => zone.code === auth.getValue().user?.timezone?.code
+        zone => zone.code === auth.getValue().user?.timezone?.code,
       )
-      setValue(
-        'dueDateTimezone',
-        getUserTimezone,
-        setValueOptions,
-      )
+      setValue('dueDateTimezone', getUserTimezone, setValueOptions)
+      setValue('dueDateTimezone', getUserTimezone, setValueOptions)
     }
   }, [currDueDate])
 
@@ -361,7 +370,7 @@ export default function RecruitingEdit() {
       targetLanguage: data.targetLanguage.value,
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone 
+      dueDateTimezone: data.dueDateTimezone
         ? { label: data.dueDateTimezone.label, code: data.dueDateTimezone.code }
         : '',
       jobPostLink: data.jobPostLink,
@@ -379,22 +388,22 @@ export default function RecruitingEdit() {
   }
 
   const handleTimezonePin = (option: {
-    id: number | undefined;
-    code: string;
-    label: string;
-    pinned: boolean;
+    id: number | undefined
+    code: string
+    label: string
+    pinned: boolean
   }) => {
-    const newOptions = timezoneList.map((opt) =>
-        opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt
-    );
+    const newOptions = timezoneList.map(opt =>
+      opt.label === option.label ? { ...opt, pinned: !opt.pinned } : opt,
+    )
     setTimezoneList(newOptions)
     setTimezonePin(newOptions)
   }
 
   const pinSortedOptions = timezoneList.sort((a, b) => {
-    if (a.pinned === b.pinned) return a.id - b.id; // 핀 상태가 같으면 원래 순서 유지
-    return b.pinned ? 1 : -1; // 핀 상태에 따라 정렬
-  });
+    if (a.pinned === b.pinned) return a.id - b.id // 핀 상태가 같으면 원래 순서 유지
+    return b.pinned ? 1 : -1 // 핀 상태에 따라 정렬
+  })
 
   return (
     <>
@@ -751,17 +760,40 @@ export default function RecruitingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props} key={uuidv4()} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <Typography noWrap sx={{ width: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {timeZoneFormatter(option, timezone.getValue())}
+                                <Box
+                                  component='li'
+                                  {...props}
+                                  key={uuidv4()}
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Typography
+                                    noWrap
+                                    sx={{
+                                      width: '100%',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}
+                                  >
+                                    {timeZoneFormatter(
+                                      option,
+                                      timezone.getValue(),
+                                    )}
                                   </Typography>
                                   <IconButton
-                                    onClick={(event) => {
-                                        event.stopPropagation(); // 드롭다운이 닫히는 것 방지
-                                        handleTimezonePin(option)
+                                    onClick={event => {
+                                      event.stopPropagation() // 드롭다운이 닫히는 것 방지
+                                      handleTimezonePin(option)
                                     }}
-                                    size="small"
-                                    style={{ color: option.pinned ? '#FFAF66' : undefined }} 
+                                    size='small'
+                                    style={{
+                                      color: option.pinned
+                                        ? '#FFAF66'
+                                        : undefined,
+                                    }}
                                   >
                                     <PushPinIcon />
                                   </IconButton>

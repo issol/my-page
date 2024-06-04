@@ -414,7 +414,7 @@ const NDASigned = ({
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight
           pdf.addPage()
-          pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
           heightLeft -= pageHeight
         }
 
@@ -439,7 +439,7 @@ const NDASigned = ({
               type: 'pdf',
               // type: 'imported',
             })
-            return uploadFileToS3(res.url, data)
+            return uploadFileToS3(res, data)
           }),
         ]
 

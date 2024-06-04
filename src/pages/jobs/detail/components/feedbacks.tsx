@@ -28,20 +28,19 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
   return (
     <>
       {feedbacks.length > 0 ? (
-        <>
+        <Box sx={{ mt: '20px' }}>
           {feedbacks.map(value => (
             <Box
               key={uuidv4()}
               sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
-              <Divider />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '10px',
-                    width: '85%',
+                    width: '100%',
                   }}
                 >
                   <Box
@@ -54,9 +53,9 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #26C6F9`,
                         color: '#26C6F9',
                       }}
-                      size='small'
+                      size='medium'
                     />
-                    <Typography variant='body1' fontWeight={500} fontSize={14}>
+                    <Typography variant='body1' fontWeight={600} fontSize={14}>
                       {value.name}
                     </Typography>
                     <Divider orientation='vertical' flexItem variant='middle' />
@@ -77,7 +76,8 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                       ></Badge>
                     )}
                     <Typography
-                      variant='body2'
+                      fontSize={12}
+                      fontWeight={400}
                       color={
                         !value.isChecked ? '#666CFF' : 'rgba(76, 78, 100, 0.60)'
                       }
@@ -90,48 +90,57 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                     </Typography>
                   </Box>
                   <Box>
-                    <Typography variant='body1' fontSize={16} fontWeight={400}>
+                    <Typography variant='body1' fontSize={14} fontWeight={400}>
                       {value.feedback ?? ''}
                     </Typography>
                   </Box>
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    width: '10%',
-                    gap: '10px',
-                    padding: '20px 0',
-                  }}
-                >
-                  <Checkbox
-                    name='size-small'
-                    sx={{ padding: 0, outline: 'none' }}
-                    value={value.isChecked}
-                    checked={value.isChecked}
-                    disabled={value.isChecked}
-                    onClick={() => checkFeedback(value.id)}
-                    checkedIcon={
-                      <Icon
-                        icon='bi:check-circle-fill'
-                        fontSize={40}
-                        color='#72E128'
-                      />
-                    }
-                    icon={<Icon icon='bi:check-circle' fontSize={40} />}
-                  />
-                  <Typography
-                    variant='caption'
-                    textAlign={'center'}
-                    fontSize={12}
+
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
                   >
-                    I’ve checked the feedback.
-                  </Typography>
+                    <Checkbox
+                      name='size-small'
+                      sx={{ padding: 0, outline: 'none' }}
+                      value={value.isChecked}
+                      checked={value.isChecked}
+                      disabled={value.isChecked}
+                      onClick={() => checkFeedback(value.id)}
+                      checkedIcon={
+                        <Icon
+                          icon='bi:check-circle-fill'
+                          fontSize={24}
+                          color='#72E128'
+                        />
+                      }
+                      icon={
+                        <Icon
+                          icon='bi:check-circle'
+                          fontSize={24}
+                          color='#4C4E6461'
+                        />
+                      }
+                    />
+                    {value.isChecked ? null : (
+                      <Typography
+                        fontWeight={400}
+                        fontSize={12}
+                        color='#4C4E6499'
+                      >
+                        Mark as read
+                      </Typography>
+                    )}
+                  </Box>
+                  <Divider />
                 </Box>
               </Box>
             </Box>
           ))}
-        </>
+        </Box>
       ) : null}
     </>
   )

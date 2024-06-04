@@ -4,6 +4,7 @@ export const TADMenu = [
   'Recruiting',
   'Onboarding',
   'Certification Test',
+  'Job List',
   'Company',
   'My page',
 ]
@@ -32,7 +33,7 @@ export const PROMenu = [
 export const CLIENTMenu = [
   'Dashboards',
   'Quotes',
-  'Orders',
+  'Order List',
   'Invoices',
   'Company',
   'Requests',

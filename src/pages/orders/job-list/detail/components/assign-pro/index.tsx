@@ -226,6 +226,8 @@ const AssignPro = ({
   reAssignJobMutation,
   selectedJobUpdatable,
 }: Props) => {
+  console.log(jobAssign, 'Assign Job Pro')
+
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
@@ -946,6 +948,7 @@ const AssignPro = ({
                   jobStatusList || [],
                   selectedUsers,
                   selectedJobUpdatable,
+                  jobInfo.status,
                 )}
                 keepNonExistentRowsSelected
                 getRowId={row => row.userId}
