@@ -227,7 +227,6 @@ const Row = ({
           const matchedCurrentUnit = details?.findIndex(
             currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId,
           )
-          console.log(selectedUnit, 'selectedUnit')
 
           if (matchedCurrentUnit !== -1) {
             // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면
@@ -258,13 +257,19 @@ const Row = ({
                 //     matchedLanguagePair?.priceFactor
                 //   : 0,
               })
+            itemTrigger(`items.${0}.detail`)
+            getTotalPrice()
           } else {
             // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면
             // selectedPrice의 unitPrice를 추가 한다.
             append &&
               append({
                 ...selectedUnit,
-                prices: 0,
+                prices:
+                  (selectedUnit.quantity ?? 0) *
+                  (selectedUnit?.price && matchedLanguagePair?.priceFactor
+                    ? selectedUnit.price * matchedLanguagePair.priceFactor
+                    : 0),
                 currency: selectedPrice.currency!,
                 weighting: selectedUnit.weighting ?? 100,
                 unitPrice:
@@ -272,6 +277,9 @@ const Row = ({
                     ? selectedUnit.price * matchedLanguagePair.priceFactor
                     : 0,
               })
+
+            itemTrigger(`items.${0}.detail`)
+            getTotalPrice()
           }
         })
       }
@@ -376,7 +384,7 @@ const Row = ({
     return true
   }
 
-  console.log(isNotApplicable, 'row not applicable')
+  console.log(details, 'details')
 
   return (
     <Box sx={{ height: '100%' }}>

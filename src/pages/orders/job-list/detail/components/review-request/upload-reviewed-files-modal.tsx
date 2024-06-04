@@ -11,7 +11,6 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { videoExtensions } from '@src/shared/const/upload-file-extention/file-extension'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
 import { useState } from 'react'
@@ -94,7 +93,7 @@ const UploadReviewedFilesModal = ({ onClose, id, jobId }: Props) => {
           fileInfo.push({
             size: files[idx].size,
             name: files[idx].name,
-            path: url,
+            path: paths[idx],
             extension: files[idx].name.split('.').pop()?.toLowerCase() ?? '',
             type: 'REVIEWED',
             // downloadAvailable: files[idx].downloadAvailable ?? false,

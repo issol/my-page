@@ -269,6 +269,11 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
     const parts = file.path?.split('/') || []
     const index = parts.indexOf('project')
     const result = parts.slice(index).join('/')
+
+    console.log('file.path', result, file)
+
+    const url = `project/review-request/${jobId}/${file.name}`
+
     getDownloadUrlforCommon(S3FileType.JOB, result).then((res: any) => {
       fetch(res, { method: 'GET' })
         .then(res => {
@@ -707,7 +712,6 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                         sx={{
                                           display: 'grid',
                                           gridTemplateColumns: 'repeat(2, 1fr)',
-
                                           width: '100%',
                                           gap: '20px',
                                         }}
