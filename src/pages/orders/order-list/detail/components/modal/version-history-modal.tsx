@@ -326,10 +326,10 @@ const VersionHistoryModal = ({
   return (
     <Box
       sx={{
-        maxWidth: '1266px',
+        maxWidth: '95vw',
         width: '100%',
-        maxHeight: '900px',
-        // height: '100%',
+        maxHeight: '80vh',
+        height: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -341,6 +341,8 @@ const VersionHistoryModal = ({
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
+
+          height: '100%',
         }}
       >
         <Box
@@ -409,8 +411,8 @@ const VersionHistoryModal = ({
             value='0'
             sx={{
               height: '100%',
-              maxHeight: '552px',
-              minHeight: '552px',
+              // maxHeight: '552px',
+              // minHeight: '552px',
               overflow: 'scroll',
             }}
           >
@@ -482,8 +484,9 @@ const VersionHistoryModal = ({
             value='1'
             sx={{
               height: '100%',
-              maxHeight: '552px',
-              minHeight: '552px',
+              // maxHeight:''
+              // maxHeight: '552px',
+              // minHeight: '552px',
               overflowY: 'scroll',
               '&::-webkit-scrollbar': {
                 display: 'none',
@@ -503,14 +506,19 @@ const VersionHistoryModal = ({
           </TabPanel>
           <TabPanel
             value='2'
+            sx={{
+              overflow: 'scroll',
+              height: '100%',
+              padding: '0 24px 24px 24px',
+            }}
             // sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
-            <Card
-              sx={{
-                padding: '0 24px 24px 24px',
-                overflow: 'scroll',
-                maxHeight: '552px',
-              }}
+            <Box
+              sx={
+                {
+                  // maxHeight: '552px',
+                }
+              }
             >
               <LanguageAndItem
                 // languagePairs={languagePairs!}
@@ -537,11 +545,15 @@ const VersionHistoryModal = ({
                 appendLanguagePairs={appendLanguagePairs}
                 updateLanguagePairs={updateLanguagePairs}
               />
-            </Card>
+            </Box>
           </TabPanel>
           <TabPanel
             value='3'
-            sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
+            sx={{
+              height: '100%',
+              overflow: 'scroll',
+              // maxHeight: '552px', minHeight: '552px'
+            }}
           >
             <OrderDetailClient
               type='history'
@@ -551,7 +563,11 @@ const VersionHistoryModal = ({
           </TabPanel>
           <TabPanel
             value='4'
-            sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
+            sx={{
+              height: '100%',
+              overflow: 'scroll',
+              //  maxHeight: '552px', minHeight: '552px'
+            }}
           >
             <ProjectTeam
               type='history'
