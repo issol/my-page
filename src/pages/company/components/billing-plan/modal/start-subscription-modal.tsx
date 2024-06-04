@@ -42,6 +42,7 @@ export default function StartSubscriptionModal({ title, planList, userInfo, onSu
   const handleChange = (event: SelectChangeEvent<string>) => {
     setPlanId(event.target.value as string)
   }
+  console.log("userInfo", userInfo)
 
   return (
     <Box
@@ -58,7 +59,7 @@ export default function StartSubscriptionModal({ title, planList, userInfo, onSu
       <StripeScript
         pricingTableId={STRIPE_PRICING_TABLE_ID}
         publishableKey={STRIPE_PUBLIC_APIKEY}
-        clientReferenceId={String(userInfo?.id!)}
+        clientReferenceId={String(userInfo?.companyId!)}
         customerEmail={userInfo?.email!}
       />
       <IconButton
