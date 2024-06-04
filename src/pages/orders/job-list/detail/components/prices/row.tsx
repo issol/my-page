@@ -227,6 +227,7 @@ const Row = ({
           const matchedCurrentUnit = details?.findIndex(
             currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId,
           )
+          console.log(selectedUnit, 'selectedUnit')
 
           if (matchedCurrentUnit !== -1) {
             // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면
@@ -235,14 +236,27 @@ const Row = ({
               details &&
               update(matchedCurrentUnit!, {
                 ...details[matchedCurrentUnit!],
+
                 quantity:
                   getItem()?.items[0]?.detail?.[matchedCurrentUnit!]
                     ?.quantity ?? details[matchedCurrentUnit!].quantity,
                 unitPrice:
-                  selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                    ? (selectedUnit?.weighting / 100) *
-                      matchedLanguagePair?.priceFactor
+                  selectedUnit?.price && matchedLanguagePair?.priceFactor
+                    ? selectedUnit.price * matchedLanguagePair.priceFactor
                     : 0,
+
+                prices:
+                  (getItem()?.items[0]?.detail?.[matchedCurrentUnit!]
+                    ?.quantity ??
+                    details[matchedCurrentUnit!].quantity ??
+                    0) *
+                  (selectedUnit?.price && matchedLanguagePair?.priceFactor
+                    ? selectedUnit.price * matchedLanguagePair.priceFactor
+                    : 0),
+                // selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                //   ? (selectedUnit?.weighting / 100) *
+                //     matchedLanguagePair?.priceFactor
+                //   : 0,
               })
           } else {
             // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면
@@ -254,9 +268,8 @@ const Row = ({
                 currency: selectedPrice.currency!,
                 weighting: selectedUnit.weighting ?? 100,
                 unitPrice:
-                  selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                    ? (selectedUnit?.weighting / 100) *
-                      matchedLanguagePair?.priceFactor
+                  selectedUnit?.price && matchedLanguagePair?.priceFactor
+                    ? selectedUnit.price * matchedLanguagePair.priceFactor
                     : 0,
               })
           }
