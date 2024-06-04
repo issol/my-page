@@ -264,7 +264,12 @@ const Row = ({
             append &&
               append({
                 ...selectedUnit,
-                prices: 0,
+                prices:
+                  selectedUnit.quantity ??
+                  0 *
+                    (selectedUnit?.price && matchedLanguagePair?.priceFactor
+                      ? selectedUnit.price * matchedLanguagePair.priceFactor
+                      : 0),
                 currency: selectedPrice.currency!,
                 weighting: selectedUnit.weighting ?? 100,
                 unitPrice:
