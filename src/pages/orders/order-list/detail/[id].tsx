@@ -244,6 +244,8 @@ const OrderDetail = () => {
 
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
 
+  console.log('isUserInTeamMember', isUserInTeamMember)
+
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
   )
@@ -1618,6 +1620,8 @@ const OrderDetail = () => {
       //   projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
+
+  console.log(isIncludeProjectTeam())
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>

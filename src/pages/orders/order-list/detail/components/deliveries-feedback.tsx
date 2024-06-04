@@ -112,6 +112,8 @@ const DeliveriesFeedback = ({
 
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({})
 
+  console.log(isEditable)
+
   const [addJobFeedbackData, setAddJobFeedbackData] = useState<string | null>(
     '',
   )
@@ -973,11 +975,11 @@ const DeliveriesFeedback = ({
                           </Typography>
                           <Tooltip
                             title={
-                              isEditable &&
-                              currentRole &&
-                              currentRole.name === 'CLIENT'
-                                ? ''
-                                : 'Not authorized'
+                              currentRole && currentRole.name === 'CLIENT'
+                                ? isEditable
+                                  ? ''
+                                  : 'Not authorized'
+                                : ''
                             }
                           >
                             <Box>
@@ -987,7 +989,11 @@ const DeliveriesFeedback = ({
                                 startIcon={<Icon icon='mdi:download' />}
                                 onClick={() => downloadAllFiles(value.files)}
                                 disabled={
-                                  !isEditable && currentRole?.name !== 'CLIENT'
+                                  currentRole && currentRole.name === 'CLIENT'
+                                    ? isEditable
+                                      ? false
+                                      : true
+                                    : false
                                 }
                               >
                                 Download all
@@ -1092,11 +1098,12 @@ const DeliveriesFeedback = ({
                                       >
                                         <Tooltip
                                           title={
-                                            isEditable &&
                                             currentRole &&
                                             currentRole.name === 'CLIENT'
-                                              ? ''
-                                              : 'Not authorized'
+                                              ? isEditable
+                                                ? ''
+                                                : 'Not authorized'
+                                              : ''
                                           }
                                         >
                                           <Box>
@@ -1105,8 +1112,12 @@ const DeliveriesFeedback = ({
                                                 downloadOneFile(file)
                                               }}
                                               disabled={
-                                                !isEditable &&
-                                                currentRole?.name !== 'CLIENT'
+                                                currentRole &&
+                                                currentRole.name === 'CLIENT'
+                                                  ? isEditable
+                                                    ? false
+                                                    : true
+                                                  : false
                                               }
                                               sx={{ padding: 0 }}
                                             >
