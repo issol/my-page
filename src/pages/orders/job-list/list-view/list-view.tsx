@@ -37,6 +37,7 @@ import {
   getUserFilters,
   saveUserFilters,
 } from '@src/shared/filter-storage'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export type FilterType = {
   status?: number[]
@@ -91,6 +92,8 @@ export default function JobListView({
   statusList,
 }: Props) {
   const user = useRecoilValueLoadable(authState)
+  const currentRole = getCurrentRole()
+
   const [skip, setSkip] = useState(0)
   const savedFilter: FilterType | null = getUserFilters(FilterKey.JOB_LIST)
     ? JSON.parse(getUserFilters(FilterKey.JOB_LIST)!)
@@ -253,7 +256,11 @@ export default function JobListView({
                 <Typography variant='h6'>
                   Jobs ({list?.totalCount ?? 0})
                 </Typography>{' '}
-                <Button variant='contained' onClick={onCreateNewJob}>
+                <Button
+                  variant='contained'
+                  onClick={onCreateNewJob}
+                  disabled={currentRole?.name === 'TAD'}
+                >
                   Create new job
                 </Button>
               </Box>
