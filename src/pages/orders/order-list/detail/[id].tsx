@@ -2284,7 +2284,13 @@ const OrderDetail = () => {
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>
               <VersionHistory
-                list={versionHistory!}
+                list={
+                  versionHistory
+                    ? versionHistory
+                        .slice()
+                        .sort((a, b) => b.version - a.version)
+                    : []
+                }
                 listCount={versionHistory?.length!}
                 columns={versionHistoryColumns}
                 page={versionHistoryListPage}
