@@ -62,6 +62,7 @@ type Props = {
 
 const PrintQuotePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
+
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
@@ -364,7 +365,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 >
                   <CustomTableRow>
                     <CustomTableCell sx={{ flex: 0.409 }}>
-                      <Box>{columnName.itemDescription}:</Box>
+                      <Box>{columnName.itemDescription}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'
@@ -378,7 +379,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                     <CustomTableCell
                       sx={{ flex: 0.2434, justifyContent: 'center' }}
                     >
-                      <Box>{columnName.quantity}:</Box>
+                      <Box>{columnName.quantity}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'

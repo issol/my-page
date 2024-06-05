@@ -115,7 +115,9 @@ export default function MakeTable({ rows, currency }: Props) {
                   <td className='table-row-first'>
                     <ul style={{ paddingLeft: '20px' }}>
                       <li>
-                        <h6 className='subtitle2'>{value.initialPriceUnit?.title}</h6>
+                        <h6 className='subtitle2'>
+                          {value.initialPriceUnit?.title}
+                        </h6>
                       </li>
                     </ul>
                   </td>
@@ -130,7 +132,7 @@ export default function MakeTable({ rows, currency }: Props) {
                   <td className='table-row-third'>
                     <div className='flex-start-box'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.unitPrice!, currency || 'USD')}
+                        {formatCurrency(value.prices!, currency || 'USD')}
                       </h6>
                     </div>
                   </td>
