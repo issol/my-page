@@ -93,8 +93,25 @@ const ProPaymentInfo = ({ user }: Props) => {
   }, [isRegister, editMode, editBillingAddress, editTaxInfo])
 
   const onError = () => {
+    console.log("onError")
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
+    })
+  }
+
+  const onTaxUpdateError = () => {
+    // toast.error('Something went wrong. Please try again.', {
+    //   position: 'bottom-left',
+    // })
+    openModal({
+      type: 'TaxUpdateError',
+      children: (
+        <SimpleAlertModal
+          message={`You cannot modify tax information after initial registration. Please contact the TAD Manager to update the tax info.`}
+          onClose={() => closeModal('TaxUpdateError')}
+          vary={'error'}
+        />
+      ),
     })
   }
 
@@ -132,11 +149,9 @@ const ProPaymentInfo = ({ user }: Props) => {
   )
 
   const onBillingMethodSave = (saveData: ProPaymentFormType) => {
-    console.log("onBillingMethodSave", saveData)
     // ** !isRegister인 경우 수정, 아닌 경우 create
     if (!isRegister) {
       const { data, finalData, fileData } = updatePaymentMethod(saveData)
-      console.log("filedata", fileData)
       updateBillingMethodMutation
         .mutateAsync({
           ...data,
@@ -144,8 +159,8 @@ const ProPaymentInfo = ({ user }: Props) => {
         })
         .then(() => {
           if (fileData.length) {
-            const formData = new FormData()
             fileData.forEach(async i => {
+              const formData = new FormData()
               formData.append('file', i.file)
               // await uploadProPaymentFile(i.position, formData)
               updateProPaymentFileMutation.mutate({
@@ -163,7 +178,7 @@ const ProPaymentInfo = ({ user }: Props) => {
   }
 
   const updatePaymentMethod = (data: ProPaymentFormType) => {
-    console.log("updatePaymentMethod")
+    console.log('updatePaymentMethod')
     for (const key in data.correspondentBankInfo) {
       //@ts-ignore
       if (!data.correspondentBankInfo[key]) {
@@ -415,7 +430,7 @@ const ProPaymentInfo = ({ user }: Props) => {
                       .then(() => {
                         invalidatePaymentInfo()
                       })
-                      .catch(() => onError())
+                      .catch(() => onTaxUpdateError())
                   }
                   return
               }
