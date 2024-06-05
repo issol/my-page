@@ -504,11 +504,12 @@ export default function QuotesDetail() {
       setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
         date: new Date(project.quoteDate),
-        timezone: project.quoteDateTimezone && timezoneList.length
-          ? timezoneList.find(
-            (zone) => zone.code === project.quoteDateTimezone.code
-          )!
-          : defaultTimezone,
+        timezone:
+          project.quoteDateTimezone && timezoneList.length
+            ? timezoneList.find(
+                zone => zone.code === project.quoteDateTimezone.code,
+              )!
+            : defaultTimezone,
       })
     }
   }
