@@ -131,7 +131,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
       const res: QuoteDownloadData = {
         quoteId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
-        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+        companyAddress: '2454 Montrose Ave Unit 1, Montrose, CA 91020-1423',
         corporationId: projectInfo?.corporationId ?? '',
         quoteDate: {
           date: projectInfo?.quoteDate ?? '',
