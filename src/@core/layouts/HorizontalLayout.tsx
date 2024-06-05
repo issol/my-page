@@ -40,6 +40,7 @@ const MainContentWrapper = styled(Box)<BoxProps>({
   display: 'flex',
   minHeight: '100vh',
   flexDirection: 'column',
+  paddingBottom: '100px',
 })
 
 const Toolbar = styled(MuiToolbar)<ToolbarProps>(({ theme }) => ({
