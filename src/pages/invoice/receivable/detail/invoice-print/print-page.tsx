@@ -119,7 +119,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
           </Typography>
           <Typography variant='subtitle2'>
             {lang === 'EN'
-              ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
+              ? '2454 Montrose Ave Unit 1, Montrose, CA 91020-1423'
               : '서울특별시 금천구 가산디지털1로 204, 903호 (가산 반도아이비밸리)'}
           </Typography>
         </Box>
