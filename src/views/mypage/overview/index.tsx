@@ -203,7 +203,6 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           mobilePhone: data.mobile,
           telephone: data.phone,
           preferredName: data.preferredName,
-          resume: data.resume?.length ? data.resume.map(file => file.name) : [],
           preferredNamePronunciation: data.preferredNamePronunciation,
           pronounce: data.pronounce,
           specialties: data.specialties?.map(item => item.value),
