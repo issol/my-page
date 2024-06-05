@@ -1094,7 +1094,7 @@ const ReceivableInvoiceDetail = () => {
         invoiceId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
         corporationId: invoiceInfo?.corporationId!,
-        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+        companyAddress: '2454 Montrose Ave Unit 1, Montrose, CA 91020-1423',
         orderCorporationId: invoiceInfo!.linkedOrders
         .sort((a, b) => a.id - b.id)
         .map(
