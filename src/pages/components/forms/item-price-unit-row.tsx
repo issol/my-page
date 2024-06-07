@@ -252,7 +252,6 @@ const Row = ({
 
   const onClickDeletePriceUnit = (idx: number, id: number) => {
     const findItem = options.find(item => item.id === id)
-
     if (findItem) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -262,9 +261,9 @@ const Row = ({
             onClick={() => handleDeletePriceUnit(idx)}
             title={
               <>
-                Are you sure you want to delete this price unit?
+                Are you sure you want to delete this price unit???
                 <Typography variant='body2' fontWeight={700} fontSize={16}>
-                  {options.find(item => item.id === idx)?.title ?? ''}
+                  {findItem.title ?? ''}
                 </Typography>
               </>
             }
