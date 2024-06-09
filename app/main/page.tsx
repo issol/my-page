@@ -5,7 +5,14 @@ import Link from 'next/link'
 
 const Main = () => {
   return (
-    <Box sx={{ padding: '0 50px', width: '100%' }}>
+    <Box
+      sx={{
+        padding: '0 50px',
+        width: '100%',
+        overflowY: 'scroll',
+        height: '100%',
+      }}
+    >
       <Box
         sx={{
           background: '#FFF',
@@ -273,7 +280,8 @@ const Main = () => {
                       fontWeight={500}
                       sx={{ ':hover': { background: '#FFB40033' } }}
                     >
-                      유튜브 영상 번역 서비스 GloHub 서비스 개발 및 고도화
+                      미디어 컨텐츠의 특화된 현지화 서비스 플랫폼 GloHub 서비스
+                      개발 및 고도화
                     </Typography>
                   </Link>
                 </Box>
@@ -291,8 +299,8 @@ const Main = () => {
                 </Box>
               </Box>
               <Typography fontSize={14} color='#767676'>
-                PSD, PSB 등의 웹툰 파일들을 업로드하고 말풍선을 이미지 위에
-                작업하여 번역 작업을 수행할 수 있는 툴
+                번역가, 고객사, 프로젝트 관리, 견적서 및 송장 관리까지 전반적인
+                번역 프로세스를 한 곳에서 진행할 수 있는 종합 서비스 플랫폼
               </Typography>
             </Box>
             <Box sx={{ width: '60%' }}>
