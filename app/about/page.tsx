@@ -1,18 +1,49 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { Element } from 'react-scroll'
+
 const AboutMe = () => {
+  const [enableAnimation, setEnableAnimation] = useState(false)
+
+  useEffect(() => {
+    const about = document.getElementById('about')
+    console.log(about.getBoundingClientRect().top)
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        if (window.innerHeight > about.getBoundingClientRect().top) {
+          setEnableAnimation(true)
+        } else {
+          setEnableAnimation(false)
+        }
+      })
+    }
+  }, [])
+
   return (
     <section id='about' className='section'>
       <div className='container'>
         {/* Heading */}
-        <p className='text-center mb-2 wow fadeInUp'>
+        <p
+          className={`text-center mb-2 ${
+            enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+          }`}
+        >
           <span className='bg-primary text-dark px-2'>About Me</span>
         </p>
-        <h2 className='text-10 fw-600 text-center mb-5 wow fadeInUp'>
+        <h2
+          className={`text-10 fw-600 text-center mb-5 ${
+            enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+          }`}
+        >
           Know Me More
         </h2>
         {/* Heading end*/}
         <div className='row'>
-          <div className='col-lg-8 text-center text-lg-start wow fadeInUp'>
+          <div
+            className={`col-lg-8 text-center text-lg-start ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             <h2 className='text-8 fw-400 mb-3'>
               안녕하세요, 저는&nbsp;
               <span className='fw-700 border-bottom border-3 border-primary'>
@@ -33,41 +64,78 @@ const AboutMe = () => {
             </p>
           </div>
           <div
-            className='col-lg-4 mt-4 mt-lg-0 wow fadeInUp'
-            data-wow-delay='0.2s'
+            className={`col-lg-4 mt-4 mt-lg-0 ${
+              enableAnimation
+                ? 'animate__animated animate__fadeInUp animate__delay-0.2s'
+                : ''
+            } `}
           >
             <div className='featured-box style-4'>
               <div className='featured-box-icon text-25 fw-500 bg-primary rounded-circle'>
-                <span className='wow heartBeat' data-wow-delay='1.3s'>
+                <span
+                  className={`${
+                    enableAnimation
+                      ? 'animate__animated animate__heartBeat animate__delay-1s'
+                      : ''
+                  }`}
+                >
                   3
                 </span>
               </div>
-              <h3 className='text-7 wow rubberBand' data-wow-delay='2s'>
-                Years of <span className='fw-700'>Experiance</span>
+              <h3
+                className={`text-7 ${
+                  enableAnimation
+                    ? 'animate__animated animate__rubberBand animate__delay-2s'
+                    : ''
+                }`}
+              >
+                Years of <span className='fw-700'>Experience</span>
               </h3>
             </div>
           </div>
         </div>
         <div className='row gy-3 mt-4'>
-          <div className='col-6 col-lg-3 wow fadeInUp'>
+          <div
+            className={`col-6 col-lg-3 ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             <p className='text-muted fw-500 mb-0'>Name:</p>
-            <p className='text-4 text-dark fw-600 mb-0'>Callum Smith</p>
+            <p className='text-4 text-dark fw-600 mb-0'>김민규</p>
           </div>
-          <div className='col-6 col-lg-3 wow fadeInUp' data-wow-delay='0.2s'>
+          <div
+            className={`col-6 col-lg-3 ${
+              enableAnimation
+                ? 'animate__animated animate__fadeInUp animate__delay-0.2s'
+                : ''
+            }`}
+          >
             <p className='text-muted fw-500 mb-0'>Email:</p>
             <p className='text-4 fw-600 mb-0'>
-              <a className='link-dark' href='mailto:chat@callum.com'>
-                chat@callum.com
+              <a className='link-dark' href='mailto:isolatorv@gmail.com'>
+                isolatorv@gmail.com
               </a>
             </p>
           </div>
-          <div className='col-6 col-lg-3 wow fadeInUp' data-wow-delay='0.3s'>
+          <div
+            className={`col-6 col-lg-3 ${
+              enableAnimation
+                ? 'animate__animated animate__fadeInUp animate__delay-0.3s'
+                : ''
+            }`}
+          >
             <p className='text-muted fw-500 mb-0'>Date of birth:</p>
-            <p className='text-4 text-dark fw-600 mb-0'>11 November, 1987</p>
+            <p className='text-4 text-dark fw-600 mb-0'>1996년 02월 21일</p>
           </div>
-          <div className='col-6 col-lg-3 wow fadeInUp' data-wow-delay='0.4s'>
+          <div
+            className={`col-6 col-lg-3 ${
+              enableAnimation
+                ? 'animate__animated animate__fadeInUp animate__delay-0.4s'
+                : ''
+            }`}
+          >
             <p className='text-muted fw-500 mb-0'>From:</p>
-            <p className='text-4 text-dark fw-600 mb-0'>Los Angeles, USA.</p>
+            <p className='text-4 text-dark fw-600 mb-0'>서울, 한국</p>
           </div>
         </div>
       </div>

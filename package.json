@@ -12,6 +12,8 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.13",
+    "@types/react-wow": "^1.0.6",
+    "animate.css": "^4.1.1",
     "bootstrap": "^5.2.0",
     "bootstrap-icons": "^1.11.3",
     "next": "14.1.3",

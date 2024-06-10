@@ -14,7 +14,7 @@ const StandardMenuHeader = () => {
     <header id='header' className='sticky-top'>
       {/* Navbar */}
       <nav className='primary-menu navbar navbar-expand-lg text-uppercase navbar-line-under-text fw-600'>
-        <div className='container position-relative'>
+        <div className='container'>
           <div className='col-auto col-lg-2 d-inline-flex ps-lg-0'>
             {/* Logo */}
             <Link
