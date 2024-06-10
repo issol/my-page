@@ -133,6 +133,7 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import axios from 'axios'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -610,6 +611,9 @@ const PersonalInfoPro = () => {
               preferredNamePronunciation: data.preferredNamePronunciation,
               pronounce: data.pronounce,
               specialties: data.specialties?.map(item => item.value),
+              secondaryLanguages: data.secondaryLanguages?.map(
+                item => item.value,
+              ),
               timezone: data.timezone,
               addresses: [
                 {
@@ -1337,71 +1341,72 @@ const PersonalInfoPro = () => {
                       <Typography fontSize={20} fontWeight={500}>
                         Work-related information
                       </Typography>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          mt: '16px',
-                          '.MuiInputBase-root': {
-                            height: '46px',
-                            padding: '0 10px',
-                          },
-                        }}
-                      >
-                        <Typography fontSize={14} fontWeight={600}>
-                          Timezone&nbsp;
-                          <Typography component={'span'} color='#666CFF'>
-                            *
+
+                      <Box sx={{ display: 'flex', gap: '20px', mt: '16px' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            flex: 1,
+                            '.MuiInputBase-root': {
+                              height: '46px',
+                              padding: '0 10px',
+                            },
+                          }}
+                        >
+                          <Typography fontSize={14} fontWeight={600}>
+                            Timezone&nbsp;
+                            <Typography component={'span'} color='#666CFF'>
+                              *
+                            </Typography>
                           </Typography>
-                        </Typography>
-                        <Controller
-                          name='timezone'
-                          control={control}
-                          render={({ field, formState: { isSubmitted } }) => (
-                            <Autocomplete
-                              autoHighlight
-                              fullWidth
-                              {...field}
-                              options={timeZoneList as CountryType[]}
-                              onChange={(e, v) => field.onChange(v)}
-                              disableClearable
-                              renderOption={(props, option) => (
-                                <Box component='li' {...props} key={uuidv4()}>
-                                  {timeZoneFormatter(
+                          <Controller
+                            name='timezone'
+                            control={control}
+                            render={({ field, formState: { isSubmitted } }) => (
+                              <Autocomplete
+                                autoHighlight
+                                fullWidth
+                                {...field}
+                                options={timeZoneList as CountryType[]}
+                                onChange={(e, v) => field.onChange(v)}
+                                disableClearable
+                                renderOption={(props, option) => (
+                                  <Box component='li' {...props} key={uuidv4()}>
+                                    {timeZoneFormatter(
+                                      option,
+                                      timezone.getValue(),
+                                    )}
+                                  </Box>
+                                )}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={
+                                      isSubmitted && Boolean(errors.timezone)
+                                    }
+                                    helperText={
+                                      isSubmitted && Boolean(errors.timezone)
+                                        ? FormErrors.required
+                                        : ''
+                                    }
+                                    inputProps={{
+                                      ...params.inputProps,
+                                    }}
+                                  />
+                                )}
+                                getOptionLabel={option =>
+                                  timeZoneFormatter(
                                     option,
                                     timezone.getValue(),
-                                  )}
-                                </Box>
-                              )}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={
-                                    isSubmitted && Boolean(errors.timezone)
-                                  }
-                                  helperText={
-                                    isSubmitted && Boolean(errors.timezone)
-                                      ? FormErrors.required
-                                      : ''
-                                  }
-                                  inputProps={{
-                                    ...params.inputProps,
-                                  }}
-                                />
-                              )}
-                              getOptionLabel={option =>
-                                timeZoneFormatter(
-                                  option,
-                                  timezone.getValue(),
-                                ) ?? ''
-                              }
-                            />
-                          )}
-                        />
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
+                                  ) ?? ''
+                                }
+                              />
+                            )}
+                          />
+                        </Box>
                         <Box
                           sx={{
                             display: 'flex',
@@ -1455,6 +1460,9 @@ const PersonalInfoPro = () => {
                             )}
                           />
                         </Box>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', gap: '20px', mt: '20px' }}>
                         <Box
                           sx={{
                             display: 'flex',
@@ -1527,6 +1535,88 @@ const PersonalInfoPro = () => {
                               {FormErrors.required}
                             </FormHelperText>
                           )}
+                        </Box>
+                        <Box
+                          className='filterFormAutoComplete'
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            flex: 1,
+
+                            '.MuiInputBase-root': {
+                              padding: '0 12px',
+                            },
+                          }}
+                        >
+                          <Typography fontSize={14} fontWeight={600}>
+                            Secondary languages
+                            <Typography
+                              component={'span'}
+                              color='#666CFF'
+                            ></Typography>
+                          </Typography>
+                          <Controller
+                            name='secondaryLanguages'
+                            control={control}
+                            render={({
+                              field: { value, onChange, onBlur },
+                              formState: { isSubmitted },
+                            }) => (
+                              <Autocomplete
+                                multiple
+                                fullWidth
+                                options={languageList}
+                                onChange={(e, v) => {
+                                  if (v && v.length > 10) {
+                                    openModal({
+                                      type: 'MaximumError',
+                                      children: (
+                                        <CustomModalV2
+                                          title='Maximum number exceeded'
+                                          subtitle='You can select up to 10 languages.'
+                                          soloButton
+                                          rightButtonText='Okay'
+                                          onClick={() => {
+                                            closeModal('MaximumError')
+                                            let result = v
+                                            result.pop()
+
+                                            onChange(result)
+                                          }}
+                                          onClose={() => {
+                                            closeModal('MaximumError')
+                                          }}
+                                          vary='error'
+                                        />
+                                      ),
+                                    })
+                                  } else {
+                                    onChange(v)
+                                  }
+                                }}
+                                getOptionLabel={option => option.label}
+                                isOptionEqualToValue={(option, newValue) => {
+                                  return option.value === newValue.value
+                                }}
+                                disableCloseOnSelect
+                                limitTags={2}
+                                id='source'
+                                renderInput={params => (
+                                  <TextField {...params} autoComplete='off' />
+                                )}
+                                renderOption={(props, option, { selected }) => (
+                                  <li {...props}>
+                                    <Checkbox
+                                      checked={selected}
+                                      sx={{ mr: 2 }}
+                                    />
+                                    {option.label}
+                                  </li>
+                                )}
+                              />
+                            )}
+                          />
                         </Box>
                       </Box>
                       <Box

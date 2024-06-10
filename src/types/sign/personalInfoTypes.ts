@@ -40,6 +40,7 @@ export interface PersonalInfo {
   specialties: Array<{ label: string; value: string }>
   birthday?: Date | null
   address: ClientAddressType<string>
+  secondaryLanguages?: Array<{ label: string; value: string }>
 }
 
 export interface ProPersonalInfo {
@@ -58,6 +59,7 @@ export interface ProPersonalInfo {
   experience: string
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
+  secondaryLanguages?: Array<{ label: string; value: string }>
   birthday?: Date | null
 
   addressType?: AddressType
@@ -90,6 +92,7 @@ export type ProUserInfoType = {
     specialties: Array<string>
     timezone: CountryType
     addresses: Array<ClientAddressType<string>>
+    secondaryLanguages?: Array<string>
   }
 }
 
