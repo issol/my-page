@@ -85,7 +85,11 @@ import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import {
   updateConsumerUserInfo,
+  updateProUserExperience,
+  updateProUserNote,
   updateProUserProfile,
+  updateProUserResume,
+  updateProUserSpecialty,
 } from '@src/apis/user.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -162,8 +166,19 @@ const MyPageOverview = ({
   }
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
+
   const proUserProfileMutation = useMutation({
     mutationFn: updateProUserProfile,
+  })
+  const proUserResumeMutation = useMutation({
+    mutationFn: updateProUserResume,
+  })
+  const proUserNoteMutation = useMutation({ mutationFn: updateProUserNote })
+  const proUserSpecialtyMutation = useMutation({
+    mutationFn: updateProUserSpecialty,
+  })
+  const proUserExperienceMutation = useMutation({
+    mutationFn: updateProUserExperience,
   })
 
   const updateUserInfoMutation = useMutation(
@@ -192,34 +207,28 @@ const MyPageOverview = ({
     },
   )
 
-  const onProfileSave = (data: ProProfileInfo) => {
-    console.log('Profile', data)
-    proUserProfileMutation.mutate(data, {
-      onSuccess: () => {
-        closeModal('saveProfileForm')
-        closeModal('EditProfileModal')
-        invalidateUserInfo()
-      },
+  const updateUserInfoSuccess = () => {
+    const { accessToken } = router.query
+    const accessTokenAsString: string = accessToken as string
+    setAuth.updateUserInfo({
+      userId: auth.getValue().user!.id,
+      email: auth.getValue().user!.email,
+      accessToken: accessTokenAsString,
     })
-  }
-
-  const onResumeSave = (files: Array<string>) => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          resume: files,
-        },
-      },
-      {
-        onSuccess: () => {
-          closeModal('deleteResume')
-        },
-      },
-    )
+    invalidateUserInfo()
   }
 
   const onClickProfileSave = (data: ProProfileInfo) => {
+    const onProfileSave = (data: ProProfileInfo) => {
+      proUserProfileMutation.mutate(data, {
+        onSuccess: () => {
+          closeModal('saveProfileForm')
+          closeModal('EditProfileModal')
+          updateUserInfoSuccess()
+        },
+      })
+    }
+
     openModal({
       type: 'saveProfileForm',
       children: (
@@ -234,20 +243,13 @@ const MyPageOverview = ({
     })
   }
 
-  const onClickSaveNote = () => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          noteFromUser: note || '',
-        },
+  const onResumeSave = (files: Array<string>) => {
+    proUserResumeMutation.mutate(files, {
+      onSuccess: () => {
+        closeModal('deleteResume')
+        updateUserInfoSuccess()
       },
-      {
-        onSuccess: () => {
-          setEditNote(false)
-        },
-      },
-    )
+    })
   }
 
   const onClickCancelNote = () => {
@@ -274,6 +276,15 @@ const MyPageOverview = ({
 
   const onNoteSave = () => {
     setEditNote(false)
+
+    const onClickSaveNote = () => {
+      proUserNoteMutation.mutate(note || '', {
+        onSuccess: () => {
+          setEditNote(false)
+          updateUserInfoSuccess()
+        },
+      })
+    }
 
     openModal({
       type: 'saveNoteForm',
@@ -451,44 +462,45 @@ const MyPageOverview = ({
   ]
 
   /* resume */
-  const downloadAllFile = (
-    file:
-      | {
-          url: string
-          filePath: string
-          fileName: string
-          fileExtension: string
-        }[]
-      | null,
+  const downloadAllFile = async (
+    files: Array<{
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    }> | null,
   ) => {
-    if (file) {
-      file.map(value => {
-        getDownloadUrlforCommon(S3FileType.RESUME, value.filePath).then(res => {
-          const previewFile = {
-            url: res,
-            fileName: value.fileName,
-            fileExtension: value.fileExtension,
-          }
-          fetch(previewFile.url, { method: 'GET' })
-            .then(res => {
-              return res.blob()
-            })
-            .then(blob => {
-              const url = window.URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `${value.fileName}.${value.fileExtension}`
-              document.body.appendChild(a)
-              a.click()
-              setTimeout((_: any) => {
-                window.URL.revokeObjectURL(url)
-              }, 60000)
-              a.remove()
-              // onClose()
-            })
-            .catch(error => onError())
-        })
-      })
+    if (!files) return
+
+    for (const file of files) {
+      try {
+        const downloadUrl = await getDownloadUrlforCommon(
+          S3FileType.RESUME,
+          file.filePath,
+        )
+        const previewFile = {
+          url: downloadUrl,
+          fileName: file.fileName,
+          fileExtension: file.fileExtension,
+        }
+
+        const response = await fetch(previewFile.url, { method: 'GET' })
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${file.fileName}.${file.fileExtension}`
+        document.body.appendChild(a)
+        a.click()
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url)
+        }, 60000)
+        a.remove()
+      } catch (error) {
+        console.error('Download error:', error)
+        onError()
+      }
     }
   }
 
@@ -561,26 +573,12 @@ const MyPageOverview = ({
   }
 
   const onSaveExperience = () => {
-    updateUserInfoMutation.mutate({
-      userId: auth.getValue().user?.id || 0,
-      extraData: {
-        experience: experience,
+    proUserExperienceMutation.mutate(experience || '', {
+      onSuccess: () => {
+        setEditExperience(false)
+        updateUserInfoSuccess()
       },
     })
-    setEditExperience(false)
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          experience: experience || '',
-        },
-      },
-      {
-        onSuccess: () => {
-          setEditExperience(false)
-        },
-      },
-    )
   }
 
   /* Contracts */
@@ -608,13 +606,12 @@ const MyPageOverview = ({
   }
 
   const onSaveSpecialties = () => {
-    updateUserInfoMutation.mutate({
-      userId: auth.getValue().user?.id || 0,
-      extraData: {
-        specialties: specialties,
+    proUserSpecialtyMutation.mutate(specialties, {
+      onSuccess: () => {
+        setEditSpecialties(false)
+        updateUserInfoSuccess()
       },
     })
-    setEditSpecialties(false)
   }
 
   const onError = () => {
@@ -670,23 +667,7 @@ const MyPageOverview = ({
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             </Box>
-            <About
-              userInfo={{
-                email: user.email!,
-                preferredName: userInfo.preferredName ?? '',
-                pronounce: userInfo.pronounce,
-                preferredNamePronunciation:
-                  userInfo.preferredNamePronunciation ?? '',
-                birthday: userInfo.birthday,
-                address:
-                  userInfo.addresses && userInfo.addresses.length > 0
-                    ? userInfo?.addresses[0]
-                    : null,
-                mobilePhone: userInfo.mobilePhone ?? '',
-                telephone: userInfo.telephone ?? '',
-                timezone: userInfo.timezone!,
-              }}
-            />
+            <About userInfo={userInfo} />
           </Card>
 
           {/* Available work days */}

@@ -77,6 +77,27 @@ export const updateProUserProfile = async (profileInfo: ProProfileInfo) => {
   return await axios.patch(`/api/enough/u/pu/update/profile`, profileInfo)
 }
 
+/* pro resume 업데이트 */
+export const updateProUserResume = async (resume: Array<string>) => {
+  return await axios.patch(`/api/enough/u/pu/update/resume`, { resume })
+}
+
+export const updateProUserExperience = async (experience: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/experience`, { experience })
+}
+
+export const updateProUserSpecialty = async (specialties: Array<string>) => {
+  return await axios.patch(`/api/enough/u/pu/update/specialty`, { specialties })
+}
+
+export const updateProUserNote = async (noteFromUser: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/note`, { noteFromUser })
+}
+
+export const updateProUserContract = async (noteFromUser: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/contract`, { noteFromUser })
+}
+
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (
   userInfo: ManagerUserInfoType & { userId: number },

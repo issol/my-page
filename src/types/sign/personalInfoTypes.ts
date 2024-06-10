@@ -150,7 +150,6 @@ export type ManagerInfo = {
  * TODO : 차후 유저 타입 정리 필요
  * @description 새롭게 분리 된 profile API 용 타입
  */
-
 export type ProProfileAddress = {
   name: string | null
   addressType?: 'billing' | 'shipping' | 'additional'
