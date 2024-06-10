@@ -168,7 +168,7 @@ export type ProProfileInfo = {
   pronounce?: string | null
   preferredNamePronunciation: string
   legalNamePronunciation: string
-  timezone: CountryType | null
+  timezone?: CountryType | null
   telephone: string | null
   birthday: string | null
   addresses?: Array<ProProfileAddress>
