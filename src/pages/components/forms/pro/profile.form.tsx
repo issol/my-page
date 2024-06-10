@@ -16,7 +16,6 @@ import { styled } from '@mui/system'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
-import { v4 as uuidv4 } from 'uuid'
 
 // ** Data
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
@@ -51,7 +50,14 @@ const ProProfileForm = ({ control, errors, watch }: Props) => {
         phone: '',
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimeZoneList([
+      {
+        code: '',
+        label: 'Select timezone',
+        phone: '',
+      },
+      ...filteredTimezone,
+    ])
   }, [timezone])
 
   return (
@@ -228,9 +234,14 @@ const ProProfileForm = ({ control, errors, watch }: Props) => {
               onChange={(e, v) => {
                 field.onChange(v)
               }}
+              value={
+                field.value
+                  ? timeZoneList.find(item => item.label === field.value?.label)
+                  : { code: '', label: 'Select timezone', phone: '' }
+              }
               disableClearable
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
+                <Box component='li' {...props} key={option.label}>
                   {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
@@ -246,7 +257,7 @@ const ProProfileForm = ({ control, errors, watch }: Props) => {
                 />
               )}
               isOptionEqualToValue={(option, value) =>
-                option.label === value.label
+                value ? option.label === value.label : false
               }
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''

@@ -148,6 +148,7 @@
     "@types/react-csv": "^1.1.10",
     "@types/react-datepicker": "4.19.5",
     "@types/react-draft-wysiwyg": "1.13.8",
+    "@types/react-html-parser": "^2.0.6",
     "@types/react-infinite-scroller": "^1.2.5",
     "@types/react-pdf": "^7.0.0",
     "@types/react-redux": "7.1.33",
