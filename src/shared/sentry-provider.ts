@@ -53,7 +53,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
   const { data, status } = error.response || { data: null, status: null }
   if (status !== 401) {
     Sentry.withScope((scope: Sentry.Scope) => {
-      scope.setTransactionName(`${status} Error`)
+      scope.setTransactionName(`${status} Error - ${url}`)
 
       Sentry.setContext('API Request Detail', {
         method,
@@ -75,7 +75,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
       scope.setExtra('API Request Detail', error.config)
       scope.setExtra('response', error.response)
       // Sentry.captureException(error)
-      const err: any = new Error(`${error.message}`)
+      const err: any = new Error(`${error.message} - ${url}`)
 
       if (Object.keys(StatusCode).includes(status ? status.toString() : '')) {
         for (const [key, value] of Object.entries(StatusCode)) {
