@@ -79,7 +79,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { languageType } from '../../add-new'
 import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
-import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
@@ -212,7 +212,7 @@ const OrderDetail = () => {
   >([])
 
   useEffect(() => {
-    if (timezoneList.length !== 0) return
+    if (timezoneList?.length !== 0) return
     const zoneList = timezone.getValue()
     const filteredTimezone = zoneList.map((list, idx) => {
       return {
