@@ -35,7 +35,11 @@ export function formatCurrency(
   const currentLocale = locale[currency]
 
   // Ensure decimalPlace is within a reasonable range
-  const validDecimalPlace = decimalPlace !== undefined && decimalPlace >= 0 && decimalPlace <= 20 ? decimalPlace : 0;
+  const validDecimalPlace = decimalPlace !== undefined && decimalPlace >= 0 && decimalPlace <= 20 
+    ? decimalPlace 
+    : (currency === 'USD' || currency === 'SGD')
+      ? 2
+      : 0
 
   // Override decimalPlace for KRW if it is set to an unreasonable value
   const effectiveDecimalPlace = ((currency === 'KRW' || currency === 'JPY') && validDecimalPlace > 2) ? 0 : validDecimalPlace;
