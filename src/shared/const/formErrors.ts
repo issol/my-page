@@ -15,4 +15,5 @@ export const FormErrors = {
   passwordRegexSpecialChar: 'At least one number and special character',
   invalidNumber: 'Invalid number',
   invalidCardNumber: 'Only numbers and special characters are allowed',
+  invalidZipCode: 'Zip code contains invalid characters: (){}[]~\\;:"\'!?&#*+=…`^_|/',
 } as const

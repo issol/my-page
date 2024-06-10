@@ -241,16 +241,18 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
             control={control}
             render={({
               field: { value, onChange, ref },
-              formState: { errors, isSubmitted },
+              formState: { errors },
             }) => (
               <TextField
                 fullWidth
                 autoComplete='off'
                 inputRef={ref}
-                error={Boolean(errors?.zipCode) && isSubmitted}
+                error={Boolean(errors?.zipCode)}
                 helperText={
-                  Boolean(errors?.zipCode) && isSubmitted
-                    ? FormErrors.required
+                  Boolean(errors?.zipCode)
+                    ? errors?.zipCode?.type === 'required'
+                      ? FormErrors.required
+                      : FormErrors.invalidZipCode 
                     : ''
                 }
                 value={value ?? ''}
