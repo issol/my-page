@@ -46,7 +46,7 @@ import { useMutation, useQueryClient } from 'react-query'
 // ** types & schemas
 import { UserDataType } from '@src/context/types'
 import {
-  PersonalInfo,
+  ProProfileInfo,
   ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
@@ -83,25 +83,31 @@ import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { updateConsumerUserInfo } from '@src/apis/user.api'
+import {
+  updateConsumerUserInfo,
+  updateProUserProfile,
+} from '@src/apis/user.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
 import { useRouter } from 'next/router'
-import EditProfileModal from './edit-profile-modal'
+import EditProfileModal from './editProfileModal'
 import dayjs from 'dayjs'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { CertifiedRoleType } from '@src/types/onboarding/details'
 import AddIcon from '@mui/icons-material/Add'
 
-type Props = {
+interface MyPageOverviewProps {
   userInfo: DetailUserType
   user: UserDataType
   certifiedRoleInfo: Array<CertifiedRoleType>
 }
 
-const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
+const MyPageOverview = ({
+  user,
+  userInfo,
+  certifiedRoleInfo,
+}: MyPageOverviewProps) => {
   const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
@@ -114,6 +120,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     queryClient.invalidateQueries({
       queryKey: `myId:${user.userId!}`,
     })
+
   const invalidateOffDay = () =>
     queryClient.invalidateQueries({
       queryKey: `myOffDays:${user.userId!}`,
@@ -143,17 +150,21 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   const roleOffset = rolePage * roleRowsPerPage
 
   const handleChangeRolePage = (direction: string) => {
-    const changedPage =
-      direction === 'prev'
-        ? Math.max(rolePage - 1, 0)
-        : direction === 'next'
-          ? rolePage + 1
-          : 0
+    let newPage = rolePage
 
-    setRolePage(changedPage)
+    if (direction === 'prev') {
+      newPage = Math.max(rolePage - 1, 0)
+    } else if (direction === 'next') {
+      newPage = rolePage + 1
+    }
+
+    setRolePage(newPage)
   }
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
+  const proUserProfileMutation = useMutation({
+    mutationFn: updateProUserProfile,
+  })
 
   const updateUserInfoMutation = useMutation(
     (
@@ -169,7 +180,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     ) => updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        const { userId, email, accessToken } = router.query
+        const { accessToken } = router.query
         const accessTokenAsString: string = accessToken as string
         setAuth.updateUserInfo({
           userId: auth.getValue().user!.id,
@@ -177,46 +188,19 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           accessToken: accessTokenAsString,
         })
         invalidateUserInfo()
-
-        // router.push('/home')
       },
     },
   )
 
-  const onProfileSave = (
-    data: Omit<PersonalInfo, 'address'>,
-    address: ClientAddressType,
-  ) => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        country: data.timezone.label,
-        birthday: data.birthday?.toISOString()!,
-        extraData: {
-          havePreferredName: data.havePreferred,
-          jobInfo: data.jobInfo,
-          middleName: data.middleName,
-          experience: data.experience,
-          legalNamePronunciation: data.legalNamePronunciation,
-          mobilePhone: data.mobile,
-          telephone: data.phone,
-          preferredName: data.preferredName,
-          preferredNamePronunciation: data.preferredNamePronunciation,
-          pronounce: data.pronounce,
-          specialties: data.specialties?.map(item => item.value),
-          timezone: data.timezone,
-          addresses: [address],
-        },
+  const onProfileSave = (data: ProProfileInfo) => {
+    console.log('Profile', data)
+    proUserProfileMutation.mutate(data, {
+      onSuccess: () => {
+        closeModal('saveProfileForm')
+        closeModal('EditProfileModal')
+        invalidateUserInfo()
       },
-      {
-        onSuccess: () => {
-          closeModal('saveProfileForm')
-          closeModal('EditProfileModal')
-        },
-      },
-    )
+    })
   }
 
   const onResumeSave = (files: Array<string>) => {
@@ -235,16 +219,13 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     )
   }
 
-  const onClickProfileSave = (
-    data: Omit<PersonalInfo, 'address'>,
-    address: ClientAddressType,
-  ) => {
+  const onClickProfileSave = (data: ProProfileInfo) => {
     openModal({
       type: 'saveProfileForm',
       children: (
         <CustomModal
           onClose={() => closeModal('saveProfileForm')}
-          onClick={() => onProfileSave(data, address)}
+          onClick={() => onProfileSave(data)}
           title='Are you sure you want to save all changes?'
           rightButtonText='Save'
           vary='successful'
@@ -701,8 +682,8 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                   userInfo.addresses && userInfo.addresses.length > 0
                     ? userInfo?.addresses[0]
                     : null,
-                mobilePhone: user.mobilePhone,
-                telephone: user.telephone ?? '',
+                mobilePhone: userInfo.mobilePhone ?? '',
+                telephone: userInfo.telephone ?? '',
                 timezone: userInfo.timezone!,
               }}
             />
