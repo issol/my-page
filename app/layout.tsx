@@ -22,6 +22,7 @@ import 'animate.css'
 
 import { use, useEffect, useState } from 'react'
 import Script from 'next/script'
+import Resume from './resume/page'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -76,6 +77,7 @@ export default function RootLayout({
             <div id='content' role='main'>
               <Intro />
               <AboutMe />
+              <Resume />
             </div>
           </div>
         </div>

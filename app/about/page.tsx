@@ -100,7 +100,7 @@ const AboutMe = () => {
               enableAnimation ? 'animate__animated animate__fadeInUp' : ''
             }`}
           >
-            <p className='text-muted fw-500 mb-0'>Name:</p>
+            <p className='text-muted fw-500 mb-0'>Name</p>
             <p className='text-4 text-dark fw-600 mb-0'>김민규</p>
           </div>
           <div
@@ -110,7 +110,7 @@ const AboutMe = () => {
                 : ''
             }`}
           >
-            <p className='text-muted fw-500 mb-0'>Email:</p>
+            <p className='text-muted fw-500 mb-0'>Email</p>
             <p className='text-4 fw-600 mb-0'>
               <a className='link-dark' href='mailto:isolatorv@gmail.com'>
                 isolatorv@gmail.com
@@ -124,7 +124,7 @@ const AboutMe = () => {
                 : ''
             }`}
           >
-            <p className='text-muted fw-500 mb-0'>Date of birth:</p>
+            <p className='text-muted fw-500 mb-0'>Date of birth</p>
             <p className='text-4 text-dark fw-600 mb-0'>1996년 02월 21일</p>
           </div>
           <div
@@ -134,7 +134,7 @@ const AboutMe = () => {
                 : ''
             }`}
           >
-            <p className='text-muted fw-500 mb-0'>From:</p>
+            <p className='text-muted fw-500 mb-0'>From</p>
             <p className='text-4 text-dark fw-600 mb-0'>서울, 한국</p>
           </div>
         </div>
