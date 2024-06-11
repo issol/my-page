@@ -57,35 +57,6 @@ export const getGmtTimeEng = (code: string | null | undefined) => {
   }
 }
 
-export const formatGMTTimeZone = (timeZone: string) => {
-  // 주어진 타임존에 맞게 현재 시간 설정
-  const timeInTimeZone = moment().tz(timeZone)
-
-  // GMT 오프셋 계산
-  const offset = timeInTimeZone.utcOffset()
-  const offsetHour = Math.floor(offset / 60)
-  const offsetMinute = Math.abs(offset % 60)
-  const formattedOffset = `(GMT${offsetHour >= 0 ? '+' : ''}${offsetHour}:${offsetMinute < 10 ? '0' : ''}${offsetMinute})`
-
-  const code =
-    timezones.zones[timeZone as keyof typeof timezones.zones].countries[0]
-  const region =
-    timezones.countries[code as keyof typeof timezones.countries]?.name.split(
-      ' ',
-    )[0]
-
-  const formatter = new Intl.DateTimeFormat('en', {
-    timeZone: timeZone,
-    timeZoneName: 'long',
-  })
-
-  const zoneName = formatter
-    .formatToParts(new Date())
-    .find(part => part.type === 'timeZoneName')!.value
-
-  return `${formattedOffset} ${zoneName} - ${timeZone.split('/')[1]?.replace('_', ' ')} ${region}`
-}
-
 // export function getTimezone(value: any) {
 //   if (!value) return ''
 //   const timeZone = moment.tz.guess()
