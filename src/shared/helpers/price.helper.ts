@@ -43,7 +43,6 @@ export function formatCurrency(
 
   // Override decimalPlace for KRW if it is set to an unreasonable value
   const effectiveDecimalPlace = ((currency === 'KRW' || currency === 'JPY') && validDecimalPlace > 2) ? 0 : validDecimalPlace;
-  
   const formatter = new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: currency,
@@ -53,15 +52,22 @@ export function formatCurrency(
 
   let formattedNumber = formatter.format(Number(num));
 
-  // Remove trailing zeros after the decimal point
-  formattedNumber = formattedNumber.replace(/(\.0+|(\.\d*[1-9])0+)$/, '$2');
+  // Remove unnecessary trailing zeros if effectiveDecimalPlace is less than the actual decimal places
+  if (effectiveDecimalPlace > 0) {
+    const regex = new RegExp(`(\\.\\d{${effectiveDecimalPlace}}[1-9]?)0+$`);
+    formattedNumber = formattedNumber.replace(regex, '$1');
+  }
+
+  // Remove trailing decimal point if effectiveDecimalPlace is 0
+  if (effectiveDecimalPlace === 0) {
+    formattedNumber = formattedNumber.replace(/\.0$/, '.');
+  }
 
   const [currencySymbol, value] = [
     formattedNumber.substring(0, 1),
     formattedNumber.substring(1),
   ];
   const result = `${currencySymbol} ${value}`;
-
   return result;
 }
 
