@@ -11,16 +11,19 @@ enum PronounceEnum {
 export const userProfileSchema = yup.object().shape({
   legalNamePronunciation: yup.string().nullable(),
   pronounce: yup.string().nullable(),
-  havePreferred: yup.boolean().required(),
+  havePreferredName: yup.boolean().required(),
   preferredName: yup.string().nullable(),
   preferredNamePronunciation: yup.string().nullable(),
-  mobile: yup.string().nullable(),
-  birthday: yup.date().nullable(),
-  timezone: yup.object().shape({
-    code: yup.string().nullable(),
-    label: yup.string().required(FormErrors.required),
-  }),
-  phone: yup.string().nullable(),
+  mobilePhone: yup.string().nullable(),
+  birthday: yup.string().nullable(),
+  timezone: yup
+    .object()
+    .shape({
+      code: yup.string().nullable(),
+      label: yup.string().required(FormErrors.required),
+    })
+    .nullable(),
+  telephone: yup.string().nullable(),
 })
 
 export const getProfileSchema = (type: 'join' | 'edit') => {

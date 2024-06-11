@@ -38,24 +38,6 @@ const createQueryString = (name: string, value: string) => {
   return params.toString()
 }
 
-const TAB_MENU_OPTIONS = [
-  {
-    label: 'Overview',
-    value: 'overview',
-    icon: <Icon icon='material-symbols:person-outline' />,
-  },
-  {
-    label: 'Payment info',
-    value: 'paymentInfo',
-    icon: <Icon icon='carbon:currency-dollar' />,
-  },
-  {
-    label: 'My account',
-    value: 'myAccount',
-    icon: <Icon icon='material-symbols:security' />,
-  },
-]
-
 const ProMyPage = () => {
   const router = useRouter()
   const tab = router.query.tabs as MenuType
@@ -69,7 +51,6 @@ const ProMyPage = () => {
   const { data: userInfo, isLoading: isUserInfoLoading } = useGetMyOverview(
     Number(auth.getValue().user?.userId!),
   )
-
   const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } =
     useGetCertifiedRole(Number(auth.getValue().user?.userId!))
 
@@ -103,17 +84,13 @@ const ProMyPage = () => {
     e.preventDefault()
   }
 
-  if (
-    auth.state === 'loading' ||
-    isUserInfoLoading ||
-    isCertifiedRoleInfoLoading
-  ) {
-    return <OverlaySpinner />
-  }
-
   return (
     <>
-      {auth.state === 'hasValue' ? (
+      {auth.state === 'loading' ||
+      isUserInfoLoading ||
+      isCertifiedRoleInfoLoading ? (
+        <OverlaySpinner />
+      ) : auth.state === 'hasValue' ? (
         <FormProvider {...pageFormMethod}>
           <Grid container spacing={6}>
             <Grid item xs={12}>
@@ -121,23 +98,36 @@ const ProMyPage = () => {
             </Grid>
             <Grid item xs={12}>
               <TabContext value={currentTab}>
+                {/* TabMenuList */}
                 <TabList
                   onChange={handleChange}
                   aria-label='Pro detail Tab menu'
                   style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
                 >
-                  {TAB_MENU_OPTIONS.map(menu => (
-                    <CustomTap
-                      iconPosition='start'
-                      key={`${menu.value}`}
-                      value={menu.value}
-                      label={menu.label}
-                      icon={menu.icon}
-                      onClick={e => changeTab(e, menu.value)}
-                    />
-                  ))}
+                  <CustomTap
+                    value='overview'
+                    label='Overview'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:person-outline' />}
+                    onClick={e => changeTab(e, 'overview')}
+                  />
+                  <CustomTap
+                    value='paymentInfo'
+                    label='Payment info'
+                    iconPosition='start'
+                    icon={<Icon icon='carbon:currency-dollar' />}
+                    onClick={e => changeTab(e, 'paymentInfo')}
+                  />
+                  <CustomTap
+                    value='myAccount'
+                    label='My account'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:security' />}
+                    onClick={e => changeTab(e, 'myAccount')}
+                  />
                 </TabList>
-                <TabPanel value='overview'>
+                {/* TabContentList */}
+                <TabPanel id='OverviewTab' value='overview'>
                   <Suspense fallback={<FallbackSpinner />}>
                     <MyPageOverview
                       userInfo={userInfo!}
@@ -146,12 +136,12 @@ const ProMyPage = () => {
                     />
                   </Suspense>
                 </TabPanel>
-                <TabPanel value='paymentInfo'>
+                <TabPanel id='PaymentInfoTab' value='paymentInfo'>
                   <Suspense fallback={<FallbackSpinner />}>
                     <ProPaymentInfo user={auth.getValue().user!} />
                   </Suspense>
                 </TabPanel>
-                <TabPanel value='myAccount'>
+                <TabPanel id='MyAccountTa' value='myAccount'>
                   <Suspense fallback={<FallbackSpinner />}>
                     <MyAccount user={auth.getValue().user!} />
                   </Suspense>

@@ -53,6 +53,7 @@ const FileInfo = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = maximumFileSize
+
   const fileSize = useMemo(
     () => fileList.reduce((res, file) => (res += file?.fileSize || 0), 0),
     [fileList],

@@ -47,13 +47,14 @@ export const StatusCode = {
   511: 'Network Authentication Required',
 }
 
-export const ApiErrorHandler = (error: AxiosError, email = '') => {
+export const ApiErrorHandler = (error: AxiosError, email = '', domain = '') => {
   const errorData = error.config?.data
   const { method, url, params, headers } = error?.config || {} // axios의 error객체
   const { data, status } = error.response || { data: null, status: null }
   if (status !== 401) {
     Sentry.withScope((scope: Sentry.Scope) => {
-      scope.setTransactionName(`${status} Error`)
+      // scope.getClient().
+      scope.setTransactionName(`${status} Error - ${domain}`)
 
       Sentry.setContext('API Request Detail', {
         method,
@@ -75,7 +76,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
       scope.setExtra('API Request Detail', error.config)
       scope.setExtra('response', error.response)
       // Sentry.captureException(error)
-      const err: any = new Error(`${error.message}`)
+      const err: any = new Error(`${error.message} - ${domain}`)
 
       if (Object.keys(StatusCode).includes(status ? status.toString() : '')) {
         for (const [key, value] of Object.entries(StatusCode)) {

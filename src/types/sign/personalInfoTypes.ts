@@ -145,3 +145,31 @@ export type ManagerInfo = {
   telephone?: string
   fax?: string
 }
+
+/**
+ * TODO : 차후 유저 타입 정리 필요
+ * @description 새롭게 분리 된 profile API 용 타입
+ */
+export type ProProfileAddress = {
+  name: string | null
+  addressType?: 'billing' | 'shipping' | 'additional'
+  baseAddress?: string | null
+  detailAddress?: string | null
+  city?: string | null
+  state: string | null
+  country: string
+  zipCode: string
+}
+
+export type ProProfileInfo = {
+  mobilePhone: string | null
+  havePreferredName: boolean | null
+  preferredName: string | null
+  pronounce?: string | null
+  preferredNamePronunciation: string
+  legalNamePronunciation: string
+  timezone?: CountryType | null
+  telephone: string | null
+  birthday: string | null
+  addresses?: Array<ProProfileAddress>
+}

@@ -2664,12 +2664,13 @@ const JobDetail = () => {
                               )
                             }}
                           >
-                            <Image
+                            <Icon icon='tabler:progress' fontSize={20} />
+                            {/* <Image
                               src='/images/icons/job-icons/glosub.svg'
                               alt=''
                               width={20}
                               height={20}
-                            />
+                            /> */}
                             &nbsp; View job progress
                           </Button>
                         </Box>
@@ -2719,11 +2720,9 @@ const JobDetail = () => {
                               )
                             }}
                           >
-                            <Image
-                              src='/images/icons/job-icons/glosub.svg'
-                              alt=''
-                              width={20}
-                              height={20}
+                            <Icon
+                              icon='material-symbols:rate-review-outline'
+                              fontSize={20}
                             />
                             &nbsp; Review in GloSub
                           </Button>

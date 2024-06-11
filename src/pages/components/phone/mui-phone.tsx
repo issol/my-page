@@ -6,10 +6,8 @@ import {
   Select,
   TextField,
   Typography,
-  Box,
 } from '@mui/material'
-import Divider from '@mui/material/Divider'
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import {
   CountryIso2,
@@ -18,13 +16,14 @@ import {
   parseCountry,
   usePhoneInput,
 } from 'react-international-phone'
-import axios from 'axios'
 
 export interface MUIPhoneProps extends BaseTextFieldProps {
   value: string
   onChange: (phone: string) => void
   defaultValue?: CountryIso2
+  height?: string
 }
+
 export const CountryIso2Values = {
   af: 'af',
   al: 'al',
@@ -243,6 +242,7 @@ export default function MuiPhone({
   value,
   onChange,
   defaultValue,
+  height = '46px',
   ...restProps
 }: MUIPhoneProps) {
   const { inputValue, handlePhoneValueChange, inputRef, country, setCountry } =
@@ -274,7 +274,7 @@ export default function MuiPhone({
       inputRef={inputRef}
       InputProps={{
         style: {
-          height: '46px',
+          height,
           padding: '0 14px',
         },
         startAdornment: (

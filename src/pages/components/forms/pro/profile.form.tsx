@@ -7,37 +7,31 @@ import {
   FormControlLabel,
   FormHelperText,
   Grid,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
 } from '@mui/material'
-import { CountryType, PersonalInfo } from '@src/types/sign/personalInfoTypes'
-import { Fragment, useEffect, useState } from 'react'
+import { CountryType, ProProfileInfo } from '@src/types/sign/personalInfoTypes'
+import { useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form'
-import { Pronunciation } from 'src/shared/const/pronunciation'
 import { styled } from '@mui/system'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
-import { v4 as uuidv4 } from 'uuid'
 
 // ** Data
-import { countries } from '@src/@fake-db/autocomplete'
-import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 import MuiPhone from '../../phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { Pronunciation } from '@src/shared/const/pronunciation'
 
 type Props = {
-  control: Control<Omit<PersonalInfo, 'address'>, any>
-  errors: FieldErrors<Omit<PersonalInfo, 'address'>>
-  watch: UseFormWatch<Omit<PersonalInfo, 'address'>>
+  control: Control<ProProfileInfo>
+  errors: FieldErrors<ProProfileInfo>
+  watch: UseFormWatch<ProProfileInfo>
 }
-export default function ProProfileForm({ control, errors, watch }: Props) {
+
+const ProProfileForm = ({ control, errors, watch }: Props) => {
   const [timeZoneList, setTimeZoneList] = useState<
     {
       code: string
@@ -56,10 +50,18 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
         phone: '',
       }
     })
-    setTimeZoneList(filteredTimezone)
+    setTimeZoneList([
+      {
+        code: '',
+        label: 'Select timezone',
+        phone: '',
+      },
+      ...filteredTimezone,
+    ])
   }, [timezone])
+
   return (
-    <Fragment>
+    <Grid container spacing={5}>
       <Grid item xs={6}>
         <Controller
           name='legalNamePronunciation'
@@ -86,22 +88,28 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
         <Controller
           name='pronounce'
           control={control}
-          render={({ field: { value, onChange, onBlur } }) => (
-            <FormControl fullWidth>
-              <InputLabel id='Pronounce'>Pronouns</InputLabel>
-              <Select
-                label='Pronounce'
-                value={value}
-                onBlur={onBlur}
-                onChange={onChange}
-              >
-                {Pronunciation.map((item, idx) => (
-                  <MenuItem value={item.value} key={idx}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              options={Pronunciation}
+              getOptionLabel={option => option.label}
+              value={
+                field.value
+                  ? Pronunciation.find(p => p.value === field.value)
+                  : null
+              }
+              onChange={(event: any, newValue) => {
+                field.onChange(newValue?.value || undefined)
+              }}
+              renderInput={params => (
+                <TextField {...params} label='pronounce' />
+              )}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
+            />
           )}
         />
         {errors.pronounce && (
@@ -112,15 +120,24 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
       </Grid>
       <Grid item xs={12}>
         <Controller
-          name='havePreferred'
+          name='havePreferredName'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FormControlLabel
+              sx={{
+                '& .MuiFormControlLabel-label': {
+                  fontSize: 14,
+                },
+              }}
               control={
                 <Checkbox
+                  size='small'
                   value={value || false}
                   onChange={onChange}
                   checked={value || false}
+                  sx={{
+                    padding: '0 20px',
+                  }}
                 />
               }
               label='I have my preferred name'
@@ -128,7 +145,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           )}
         />
       </Grid>
-      {watch('havePreferred') && (
+      {watch('havePreferredName') && (
         <>
           <Grid item xs={6}>
             <FormControl fullWidth>
@@ -214,10 +231,17 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
               fullWidth
               {...field}
               options={timeZoneList as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
+              onChange={(e, v) => {
+                field.onChange(v)
+              }}
+              value={
+                field.value
+                  ? timeZoneList.find(item => item.label === field.value?.label)
+                  : { code: '', label: 'Select timezone', phone: '' }
+              }
               disableClearable
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={uuidv4()}>
+                <Box component='li' {...props} key={option.label}>
                   {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
@@ -232,6 +256,9 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
                   }}
                 />
               )}
+              isOptionEqualToValue={(option, value) =>
+                value ? option.label === value.label : false
+              }
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
@@ -246,46 +273,50 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='phone'
+          name='telephone'
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange, onBlur } }) => (
             <MuiPhone
+              height='auto'
               value={value || ''}
               onChange={onChange}
               label={'Telephone'}
             />
           )}
         />
-        {errors.phone && (
+        {errors.telephone && (
           <FormHelperText sx={{ color: 'error.main' }}>
-            {errors.phone.message}
+            {errors.telephone.message}
           </FormHelperText>
         )}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='mobile'
+          name='mobilePhone'
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange, onBlur } }) => (
             <MuiPhone
+              height='auto'
               value={value || ''}
               onChange={onChange}
               label={'Mobile phone'}
             />
           )}
         />
-        {errors.mobile && (
+        {errors.mobilePhone && (
           <FormHelperText sx={{ color: 'error.main' }}>
-            {errors.mobile.message}
+            {errors.mobilePhone.message}
           </FormHelperText>
         )}
       </Grid>
-    </Fragment>
+    </Grid>
   )
 }
 
 const FullWidthDatePicker = styled(DatePicker)`
   width: 100%;
 `
+
+export default ProProfileForm
