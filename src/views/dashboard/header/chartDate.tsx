@@ -12,7 +12,7 @@ import {
   DashboardForm,
   getDateFormatter,
   SelectedRangeDate,
-} from '@src/pages/dashboards/lpm'
+} from 'src/pages/[companyName]/dashboards/lpm'
 import { styled } from '@mui/system'
 
 const ChartDate = () => {

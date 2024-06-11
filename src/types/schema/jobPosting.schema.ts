@@ -14,7 +14,12 @@ export type JobPostingFormType = {
   yearsOfExperience?: { label: string; value: string }
   openings?: number
   dueDate?: string
-  dueDateTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+  dueDateTimezone?: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
 }
 
 export const jobPostingFormSchema = yup.object().shape({

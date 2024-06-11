@@ -22,7 +22,7 @@ import {
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType } from '@src/context/types'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail from 'src/pages/[companyName]/onboarding/components/list/list-item/legalname-email'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobRequestsProType } from '@src/types/jobs/jobs.type'
 import {
@@ -554,7 +554,7 @@ export const getProJobAssignColumnsForRequest = (
       jobReqId: number | null
     } | null
   },
-  selectedJobUpdatable: boolean
+  selectedJobUpdatable: boolean,
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -719,10 +719,9 @@ export const getProJobAssignColumnsForRequest = (
       sortable: false,
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
-
         return (
           <>
-            {selectedJobUpdatable ?
+            {selectedJobUpdatable ? (
               isAssigned ? (
                 [70300, 70350].includes(row.assignmentStatus) ? (
                   <Box
@@ -919,7 +918,8 @@ export const getProJobAssignColumnsForRequest = (
                     ) : null}
                   </Menu>
                 </Box>
-              ) : null}
+              )
+            ) : null}
             {/* {requestType === 'bulkManualAssign' ? (
               row.assignmentStatus === 70100 && !isAssigned ? (
                 <Button

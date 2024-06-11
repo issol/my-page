@@ -12,7 +12,12 @@ export type RecruitingFormType = {
   targetLanguage: { label: string; value: string }
   openings?: number
   dueDate?: string
-  dueDateTimezone?: { id: number | undefined, label: string; code: string, pinned: boolean }
+  dueDateTimezone?: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   jobPostLink?: string
 }
 

@@ -5,7 +5,7 @@ import {
 } from './../apis/recruiting.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { FilterType } from 'src/pages/recruiting'
+import { FilterType } from 'src/pages/[companyName]/recruiting'
 
 export const useGetRecruitingCount = () => {
   return useQuery(

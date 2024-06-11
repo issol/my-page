@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
-import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'
+import AccountMethodForm from 'src/pages/[companyName]/client/components/forms/payment-method/account-method-form'
 import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'
 import {
   clientPaymentInitialData,
@@ -43,7 +43,7 @@ export default {
             }}
           >
             <code>
-              {`import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'`}
+              {`import AccountMethodForm from 'src/pages/client/components/forms/payment-method/account-method-form'`}
             </code>
             <br />
             <code>

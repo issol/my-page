@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
-import BankTransferForm from '@src/pages/client/components/forms/payment-method/bank-transfer-form'
+import BankTransferForm from 'src/pages/[companyName]/client/components/forms/payment-method/bank-transfer-form'
 import { BankTransferFormType } from '@src/types/payment-info/client/index.type'
 import {
   clientPaymentInitialData,
@@ -43,7 +43,7 @@ export default {
             }}
           >
             <code>
-              {`import BankTransferForm from '@src/pages/client/components/forms/payment-method/bank-transfer-form'`}
+              {`import BankTransferForm from 'src/pages/client/components/forms/payment-method/bank-transfer-form'`}
             </code>
             <br />
             <code>

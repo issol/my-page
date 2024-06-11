@@ -2,11 +2,11 @@ import React, { Dispatch, useRef } from 'react'
 import {
   Calender,
   CustomEvent,
-} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+} from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/calendar'
 import FullCalendar from '@fullcalendar/react'
 import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
-import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import CustomCalenderToolbar from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import Box from '@mui/material/Box'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { ProJobCalendarResult } from '@src/queries/dashnaord.query'

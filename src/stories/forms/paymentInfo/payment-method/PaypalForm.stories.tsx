@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
 import { PayPalFormType } from '@src/types/payment-info/client/index.type'
-import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'
+import PayPalForm from 'src/pages/[companyName]/client/components/forms/payment-method/paypal-form'
 import {
   clientPaymentInitialData,
   getPaymentMethodSchema,
@@ -42,7 +42,7 @@ export default {
             }}
           >
             <code>
-              {`import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'`}
+              {`import PayPalForm from 'src/pages/client/components/forms/payment-method/paypal-form'`}
             </code>
             <br />
             <code>

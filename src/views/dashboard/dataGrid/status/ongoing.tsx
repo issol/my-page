@@ -2,7 +2,7 @@ import React, { Dispatch, ReactElement, Suspense } from 'react'
 import Grid from '@mui/material/Grid'
 import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box, IconButton } from '@mui/material'
-import { toCapitalize } from '@src/pages/dashboards/lpm'
+import { toCapitalize } from 'src/pages/[companyName]/dashboards/lpm'
 import { ViewType } from '@src/types/dashboard'
 import {
   DEFAULT_QUERY_NAME,

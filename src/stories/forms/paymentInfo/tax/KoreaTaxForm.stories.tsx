@@ -4,7 +4,7 @@ import { Divider, Grid } from '@mui/material'
 
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import KoreaTaxForm from '@src/pages/client/components/forms/tax-info/korea-tax-form'
+import KoreaTaxForm from 'src/pages/[companyName]/client/components/forms/tax-info/korea-tax-form'
 import { KoreaTaxFormType } from '@src/types/payment-info/client/index.type'
 import { koreaTaxSchema } from '@src/types/schema/tax-info/korea-tax.schema'
 import { clientTaxInitialData } from '@src/types/schema/tax-info'
@@ -30,7 +30,7 @@ export default {
             }}
           >
             <code>
-              {`import KoreaTaxForm from '@src/pages/client/components/forms/tax-info/korea-tax-form'`}
+              {`import KoreaTaxForm from 'src/pages/client/components/forms/tax-info/korea-tax-form'`}
             </code>
             <br />
             <code>

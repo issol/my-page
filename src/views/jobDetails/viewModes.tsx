@@ -31,7 +31,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Icon } from '@iconify/react'
 import _ from 'lodash'
 import { UseFormGetValues } from 'react-hook-form'
-import { ItemOptionType } from '@src/pages/orders/job-list/details'
+import { ItemOptionType } from 'src/pages/[companyName]/orders/job-list/details'
 
 export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 

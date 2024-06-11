@@ -4,31 +4,40 @@ import Button from '@mui/material/Button'
 import DownloadIcon from '@mui/icons-material/Download'
 import { Box, ListItemIcon, ListItemText, MenuItem } from '@mui/material'
 import toast from 'react-hot-toast'
-import { getAccountOrderDataToCSV, getAccountJobDataToCSV } from '@src/apis/dashboard.api'
+import {
+  getAccountOrderDataToCSV,
+  getAccountJobDataToCSV,
+} from '@src/apis/dashboard.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { set } from 'lodash'
 
 interface CSVDownloadProps {
-  title: string,
-  projectDueDateFrom: string | null,
-  projectDueDateTo: string | null,
+  title: string
+  projectDueDateFrom: string | null
+  projectDueDateTo: string | null
   onClose?: () => void
 }
 
-export const AccountingDownload = ({ 
+export const AccountingDownload = ({
   title,
   projectDueDateFrom,
   projectDueDateTo,
 }: CSVDownloadProps) => {
-  const [ loading, setLoading ] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const downloadAccountingCSV = async (title: string) => {
     if (!projectDueDateFrom || !projectDueDateTo) return
     try {
       setLoading(true)
-      const orderData = await getAccountOrderDataToCSV(projectDueDateFrom, projectDueDateTo)
-      const jobData = await getAccountJobDataToCSV(projectDueDateFrom, projectDueDateTo)
-  
+      const orderData = await getAccountOrderDataToCSV(
+        projectDueDateFrom,
+        projectDueDateTo,
+      )
+      const jobData = await getAccountJobDataToCSV(
+        projectDueDateFrom,
+        projectDueDateTo,
+      )
+
       //Order data 다운로드
       const orderBlob = new Blob([orderData], { type: 'text/csv' })
       const orderUrl = window.URL.createObjectURL(orderBlob)
@@ -54,15 +63,15 @@ export const AccountingDownload = ({
         window.URL.revokeObjectURL(jobUrl)
       }, 60000)
       jobA.remove()
-
-    } catch(err) {
-      console.log("err",err)
+    } catch (err) {
+      console.log('err', err)
       toast.error(
         'Something went wrong while downloading files. Please try again.',
         {
           position: 'bottom-left',
         },
-    )} finally {
+      )
+    } finally {
       setLoading(false)
     }
   }
@@ -76,7 +85,8 @@ export const AccountingDownload = ({
         onClick={() => downloadAccountingCSV(title)}
         disabled={loading || !projectDueDateFrom || !projectDueDateTo}
       >
-        <DownloadIcon sx={{ width: '20px', marginRight: '4px' }} /> Accounting download
+        <DownloadIcon sx={{ width: '20px', marginRight: '4px' }} /> Accounting
+        download
       </Button>
     </Box>
   )

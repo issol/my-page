@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
-import SingaporeTaxForm from '@src/pages/client/components/forms/tax-info/singapore-tax-form'
+import SingaporeTaxForm from 'src/pages/[companyName]/client/components/forms/tax-info/singapore-tax-form'
 import { SingaporeTaxFormType } from '@src/types/payment-info/client/index.type'
 import { singaporeTaxSchema } from '@src/types/schema/tax-info/singapore-tax.schema'
 import { Resolver, useForm } from 'react-hook-form'
@@ -29,7 +29,7 @@ export default {
             }}
           >
             <code>
-              {`import SingaporeTaxForm from '@src/pages/client/components/forms/tax-info/singapore-tax-form'`}
+              {`import SingaporeTaxForm from 'src/pages/client/components/forms/tax-info/singapore-tax-form'`}
             </code>
             <br />
             <code>

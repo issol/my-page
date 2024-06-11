@@ -13,7 +13,7 @@ import { Icon } from '@iconify/react'
 
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import SimpleAlertModal from 'src/pages/[companyName]/client/components/modals/simple-alert-modal'
 
 // ** type & schema
 import { KoreaDomesticTransferSoloType } from '@src/types/payment-info/pro/billing-method.type'

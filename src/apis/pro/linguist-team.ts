@@ -1,5 +1,5 @@
 import axios from '@src/configs/axios'
-import { FilterType } from '@src/pages/pro/linguist-team'
+import { FilterType } from 'src/pages/[companyName]/pro/linguist-team'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   LinguistTeamDetailType,

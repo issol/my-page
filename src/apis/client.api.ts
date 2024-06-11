@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { FilterType } from '@src/pages/client'
+import { FilterType } from 'src/pages/[companyName]/client'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 import {

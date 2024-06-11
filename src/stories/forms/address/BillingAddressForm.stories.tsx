@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
-import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
+import ClientBillingAddressesForm from 'src/pages/[companyName]/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { Resolver, useForm } from 'react-hook-form'
@@ -28,7 +28,7 @@ export default {
             }}
           >
             <code>
-              {`import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'`}
+              {`import ClientBillingAddressesForm from 'src/pages/client/components/forms/client-billing-address'`}
             </code>
             <br />
             <code>

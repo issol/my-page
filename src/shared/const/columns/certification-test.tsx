@@ -2,8 +2,8 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
 import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
-import TestTypeChip from '@src/pages/certification-test/components/list/list-item/test-type-chip'
-import JobTypeRole from '@src/pages/components/job-type-role-chips'
+import TestTypeChip from 'src/pages/[companyName]/certification-test/components/list/list-item/test-type-chip'
+import JobTypeRole from 'src/pages/[companyName]/components/job-type-role-chips'
 
 import { TestMaterialListType } from '@src/types/certification-test/list'
 import { convertTimeToTimezone } from '../../helpers/date.helper'

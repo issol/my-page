@@ -14,7 +14,7 @@ import {
 import { MouseEvent, useState } from 'react'
 import { Icon } from '@iconify/react'
 import Link from 'next/link'
-import GoogleButton from '@src/pages/components/google-button'
+import GoogleButton from 'src/pages/[companyName]/components/google-button'
 import { redirectLinkedInAuth } from '@src/apis/sign.api'
 import { Controller, useForm } from 'react-hook-form'
 import useAuth from '@src/hooks/useAuth'

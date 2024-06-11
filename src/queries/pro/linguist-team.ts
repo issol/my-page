@@ -2,7 +2,7 @@ import {
   getLinguistTeamDetail,
   getLinguistTeamList,
 } from '@src/apis/pro/linguist-team'
-import { FilterType } from '@src/pages/pro/linguist-team'
+import { FilterType } from 'src/pages/[companyName]/pro/linguist-team'
 import { useQuery } from 'react-query'
 
 export const useGetLinguistTeam = (filter: FilterType | null) => {

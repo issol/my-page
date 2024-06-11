@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Grid } from '@mui/material'
-import RegisterClientForm from '@src/pages/components/forms/register-client-form'
+import RegisterClientForm from 'src/pages/[companyName]/components/forms/register-client-form'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 export default {
@@ -32,7 +32,7 @@ export default {
             }}
           >
             <code>
-              {`import RegisterClientForm from '@src/pages/components/forms/register-client-form'`}
+              {`import RegisterClientForm from 'src/pages/components/forms/register-client-form'`}
             </code>
             <br />
             <code>

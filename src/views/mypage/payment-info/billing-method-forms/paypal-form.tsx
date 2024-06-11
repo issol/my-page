@@ -17,8 +17,8 @@ import { Icon } from '@iconify/react'
 
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import SaveModal from '@src/pages/company/components/price/price-units/modal/save-modal'
+import SimpleAlertModal from 'src/pages/[companyName]/client/components/modals/simple-alert-modal'
+import SaveModal from 'src/pages/[companyName]/company/components/price/price-units/modal/save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 
 // ** type & schemas

@@ -5,7 +5,7 @@ import {
 } from '@src/apis/client.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { FilterType } from 'src/pages/client'
+import { FilterType } from 'src/pages/[companyName]/client'
 
 export const useGetClientList = (filter: FilterType | null) => {
   return useQuery(

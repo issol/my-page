@@ -9,12 +9,12 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 
 import { v4 as uuidv4 } from 'uuid'
-import CustomPagination from '@src/pages/components/custom-pagination'
+import CustomPagination from 'src/pages/[companyName]/components/custom-pagination'
 import {
   AppliedRoleType,
   CertifiedRoleType,
 } from '@src/types/onboarding/details'
-import NoList from '@src/pages/components/no-list'
+import NoList from 'src/pages/[companyName]/components/no-list'
 
 type Props = {
   certifiedRoleInfo: Array<CertifiedRoleType>

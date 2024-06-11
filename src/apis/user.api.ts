@@ -18,7 +18,7 @@ import { ContactPersonType } from '@src/types/schema/client-contact-person.schem
 
 export type UserInfoResType = Omit<
   UserDataType,
-  'id' | 'role' | 'permission' | 'company' | 'username'
+  'id' | 'permission' | 'username'
 >
 
 export const getProDetails = async (userId: number) => {

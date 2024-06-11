@@ -146,14 +146,19 @@ export function getCurrentRole(): UserRoleType | null {
 //   return []
 // }
 
-export const setTimezonePin = (timezone: {
-  id: number;
-  code: string;
-  label: string;
-  pinned: boolean;
-}[]) => {
+export const setTimezonePin = (
+  timezone: {
+    id: number
+    code: string
+    label: string
+    pinned: boolean
+  }[],
+) => {
   if (typeof window === 'object') {
-    return localStorage.setItem('timezonePinnedOptions', JSON.stringify(timezone)); 
+    return localStorage.setItem(
+      'timezonePinnedOptions',
+      JSON.stringify(timezone),
+    )
   }
 }
 

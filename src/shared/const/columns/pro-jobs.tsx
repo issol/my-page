@@ -15,9 +15,8 @@ import { useRecoilValueLoadable } from 'recoil'
 import React, { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
 import InfoDialogButton, { InfoDialogProps } from '@src/views/pro/infoDialog'
-import Message from '@src/pages/orders/job-list/components/message-modal'
+import Message from 'src/pages/[companyName]/orders/job-list/components/message-modal'
 // import Message from '@src/views/jobDetails/messageModal'
-
 
 const AwaitingPriorJobProps: InfoDialogProps = {
   title: 'Awaiting prior job',
@@ -29,7 +28,7 @@ const AwaitingPriorJobProps: InfoDialogProps = {
 
 const RedeliveryProps = (
   message: string | undefined,
-  type: string[] | undefined, 
+  type: string[] | undefined,
 ): InfoDialogProps => {
   return {
     title: 'Reason for redelivery',
@@ -45,9 +44,8 @@ const RedeliveryProps = (
         }}
       >
         <Box component='ul' sx={{ listStyle: 'inside' }}>
-          {type && type.map((typeItem, index) => (
-            <li key={index}>{typeItem}</li>
-          ))}
+          {type &&
+            type.map((typeItem, index) => <li key={index}>{typeItem}</li>)}
         </Box>
         <Typography
           variant='h6'
@@ -62,7 +60,7 @@ const RedeliveryProps = (
       </div>
     ),
   }
-};
+}
 
 // const RedeliveryProps: InfoDialogProps = {
 //   title: 'Reason for redelivery',
@@ -106,7 +104,9 @@ export const getProJobColumns = (
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const queryClient = useQueryClient()
 
-  const assignmentStatus = [60100, 70000, 70100, 70200, 70400, 70450, 70500, 70600]
+  const assignmentStatus = [
+    60100, 70000, 70100, 70200, 70400, 70450, 70500, 70600,
+  ]
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
     row: ProJobListType,
@@ -125,8 +125,8 @@ export const getProJobColumns = (
             lastName: auth.getValue().user?.lastName!,
           }}
           messageType={
-            assignmentStatus.includes(row.status)
-              ? 'request' : 'job'}
+            assignmentStatus.includes(row.status) ? 'request' : 'job'
+          }
           sendFrom='PRO'
           status={row.status}
           jobName={row.name}
@@ -140,10 +140,12 @@ export const getProJobColumns = (
     })
   }
 
-  const getJobDateDiff = (jobDueDate: string, useRemainingTime: Boolean, deliveredDate?: string) => {
-    const now = deliveredDate
-      ? dayjs(deliveredDate)
-      : dayjs()
+  const getJobDateDiff = (
+    jobDueDate: string,
+    useRemainingTime: Boolean,
+    deliveredDate?: string,
+  ) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
 
     const dueDate = dayjs(jobDueDate)
 
@@ -287,11 +289,12 @@ export const getProJobColumns = (
 
         if (viewInfoIcon.includes(row.status)) {
           infoProps =
-            row.status === 60250 
-            ? RedeliveryProps(
-              row.redeliveryHistory?.message,
-              row.redeliveryHistory?.deleteReason,
-            ) : AwaitingPriorJobProps
+            row.status === 60250
+              ? RedeliveryProps(
+                  row.redeliveryHistory?.message,
+                  row.redeliveryHistory?.deleteReason,
+                )
+              : AwaitingPriorJobProps
         }
 
         return (
@@ -400,7 +403,6 @@ export const getProJobColumns = (
               <IconButton
                 sx={{ padding: 0 }}
                 onClick={event => onClickMessage(event, row)}
-
               >
                 <Icon icon='mdi:message-text' />
               </IconButton>

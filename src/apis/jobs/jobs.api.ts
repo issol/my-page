@@ -1,14 +1,14 @@
 import axios from '@src/configs/axios'
-import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
+import { JobListFilterType } from 'src/pages/[companyName]/jobs/requested-ongoing-list'
 
 import {
   FilterPostType,
   FilterType,
-} from '@src/pages/orders/job-list/list-view/list-view'
+} from 'src/pages/[companyName]/orders/job-list/list-view/list-view'
 import {
   DetailFilterResponseType,
   DetailFilterType,
-} from '@src/pages/orders/job-list/tracker-view/[id]'
+} from 'src/pages/[companyName]/orders/job-list/tracker-view/[id]'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   CreateJobParamsType,
@@ -204,8 +204,16 @@ export const createJob = async (params: CreateJobParamsType) => {
   await axios.post(`/api/enough/u/job`, { ...params })
 }
 
-export const createWithJobTemplate = async (orderId: number, itemId: number, templateId: number) => {
-  await axios.post(`/api/enough/u/job/generate-by-template`, { orderId, itemId, templateId })
+export const createWithJobTemplate = async (
+  orderId: number,
+  itemId: number,
+  templateId: number,
+) => {
+  await axios.post(`/api/enough/u/job/generate-by-template`, {
+    orderId,
+    itemId,
+    templateId,
+  })
 }
 
 export const autoCreateByItem = async (orderId: number, itemId: number) => {

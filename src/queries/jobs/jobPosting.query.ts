@@ -1,7 +1,7 @@
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { getJobPostingDetail, getJobPostingList } from 'src/apis/jobPosting.api'
-import { FilterType } from 'src/pages/jobPosting'
+import { FilterType } from 'src/pages/[companyName]/jobPosting'
 
 export const useGetJobPostingList = (filter: FilterType | null) => {
   return useQuery(

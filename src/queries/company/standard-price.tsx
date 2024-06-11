@@ -46,7 +46,7 @@ export const useGetProPriceList = (filter: ProPriceListFilterType) => {
 
 export const useGetStandardPrices = (
   page: 'pro' | 'client',
-  filter: ClientPriceListFilterType
+  filter: ClientPriceListFilterType,
 ) => {
   return useQuery<{
     data: Array<StandardPriceListType>

@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast'
 // ** components
 import PersonalInfo from './personal-info'
 import BillingMethod from './billing-method'
-import BillingAddressDetail from '@src/pages/client/components/payment-info/billing-address'
+import BillingAddressDetail from 'src/pages/[companyName]/client/components/payment-info/billing-address'
 
 // ** actions
 import {

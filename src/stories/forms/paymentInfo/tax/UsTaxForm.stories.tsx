@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
-import USTaxForm from '@src/pages/client/components/forms/tax-info/us-tax-form'
+import USTaxForm from 'src/pages/[companyName]/client/components/forms/tax-info/us-tax-form'
 import { USTaxFormType } from '@src/types/payment-info/client/index.type'
 import { usTaxSchema } from '@src/types/schema/tax-info/us-tax.schema'
 import { useForm } from 'react-hook-form'
@@ -29,7 +29,7 @@ export default {
             }}
           >
             <code>
-              {`import USTaxForm from '@src/pages/client/components/forms/tax-info/us-tax-form'`}
+              {`import USTaxForm from 'src/pages/client/components/forms/tax-info/us-tax-form'`}
             </code>
             <br />
             <code>

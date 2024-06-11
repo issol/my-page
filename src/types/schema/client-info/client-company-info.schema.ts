@@ -20,8 +20,8 @@ export const clientCompanyInfoSchema = yup.object().shape({
   websiteLink: yup
     .string()
     .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
-      if (!value) return true;  // Pass validation if value is empty
-      return value.startsWith('http://') || value.startsWith('https://');
+      if (!value) return true // Pass validation if value is empty
+      return value.startsWith('http://') || value.startsWith('https://')
     })
     .url(FormErrors.invalidUrl)
     .nullable(),

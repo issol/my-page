@@ -15,32 +15,37 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector } from '@src/states/permission'
+import { authState } from '@src/states/auth'
+import { getCookie } from 'cookies-next'
 
 const Home = () => {
   const router = useRouter()
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
+
+  const companyName = getCookie('companyName')
   console.log(role, 'role name')
 
   useEffect(() => {
     //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
+
     if (role.name === 'TAD') {
-      router.replace('/dashboards/tad')
+      router.replace(`${companyName}/dashboards/tad`)
       return
     }
 
     if (role.name === 'LPM') {
-      router.replace('/dashboards/lpm')
+      router.replace(`${companyName}/dashboards/lpm`)
       return
     }
 
     if (role.name === 'ACCOUNT_MANAGER') {
-      router.replace('/dashboards/account')
+      router.replace(`${companyName}/dashboards/account`)
       return
     }
 
     if (role.name === 'PRO') {
-      router.replace('/dashboards/pro')
+      router.replace(`${companyName}/dashboards/pro`)
       return
     }
 

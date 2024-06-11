@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
-import { FilterType } from 'src/pages/jobPosting'
+import { FilterType } from 'src/pages/[companyName]/jobPosting'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''

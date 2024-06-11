@@ -10,7 +10,7 @@ import {
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getProJobStatusColor } from '@src/shared/helpers/colors.helper'
-import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
+import CalendarStatusSideBar from 'src/pages/[companyName]/components/sidebar/status-sidebar'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Theme } from '@mui/material/styles'
 import { CalendarEventType } from '@src/types/common/calendar.type'

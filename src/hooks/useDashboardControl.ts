@@ -1,6 +1,9 @@
 import React, { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { DashboardForm, getRangeDateTitle } from '@src/pages/dashboards/lpm'
+import {
+  DashboardForm,
+  getRangeDateTitle,
+} from 'src/pages/[companyName]/dashboards/lpm'
 import useInfoDialog from '@src/hooks/useInfoDialog'
 import dayjs from 'dayjs'
 

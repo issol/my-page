@@ -3,7 +3,7 @@ import { Box, Button, IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { ProAppliedRolesStatusChip } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
-import JobTypeRole from '@src/pages/components/job-type-role-chips'
+import JobTypeRole from 'src/pages/[companyName]/components/job-type-role-chips'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import {
   ProAppliedRolesStatusHistoryType,
@@ -133,8 +133,8 @@ export const getProAppliedRolesColumns = (
                 -
               </Typography>
             ) : row.status === 'Certified' &&
-                row.basicTest === null &&
-                row.skillTest === null ? null : (
+              row.basicTest === null &&
+              row.skillTest === null ? null : (
               <>
                 <Typography
                   // component={'span'}

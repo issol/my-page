@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
 
-import CreditCardForm from '@src/pages/client/components/forms/payment-method/credit-card-form'
+import CreditCardForm from 'src/pages/[companyName]/client/components/forms/payment-method/credit-card-form'
 import { CreditCardFormType } from '@src/types/payment-info/client/index.type'
 import {
   clientPaymentInitialData,
@@ -43,7 +43,7 @@ export default {
             }}
           >
             <code>
-              {`import CreditCardForm from '@src/pages/client/components/forms/payment-method/credit-card-form'`}
+              {`import CreditCardForm from 'src/pages/client/components/forms/payment-method/credit-card-form'`}
             </code>
             <br />
             <code>

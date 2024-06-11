@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
-import { FilterType } from 'src/pages/recruiting'
+import { FilterType } from 'src/pages/[companyName]/recruiting'
 
 export type RecruitingCountType = {
   onGoing: number

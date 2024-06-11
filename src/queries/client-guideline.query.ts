@@ -4,7 +4,7 @@ import {
   getGuidelineDetail,
   getGuidelines,
 } from 'src/apis/client-guideline.api'
-import { FilterType } from 'src/pages/onboarding/client-guideline'
+import { FilterType } from 'src/pages/[companyName]/onboarding/client-guideline'
 
 export const useGetGuideLines = (filter: FilterType) => {
   return useQuery(['get-guideline', filter], () => getGuidelines(filter), {

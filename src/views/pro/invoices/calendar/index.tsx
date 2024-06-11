@@ -9,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 // ** components
 import ReceivableCalendar from './calendar'
 
-import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
+import CalendarStatusSideBar from 'src/pages/[companyName]/components/sidebar/status-sidebar'
 
 // ** Hooks
 import { useSettings } from '@src/@core/hooks/useSettings'
