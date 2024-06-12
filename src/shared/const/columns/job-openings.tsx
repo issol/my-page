@@ -6,10 +6,19 @@ import { getTimezone } from '@src/shared/helpers/timezone.helper'
 import { JobOpeningListType } from '@src/types/pro/pro-job-openings'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { differenceInDays, differenceInHours, format } from 'date-fns'
-import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+
+/** import dayjs and plugin */
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+import duration from 'dayjs/plugin/duration'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(duration)
 
 export const getJobOpeningsColumn = () => {
   const auth = useRecoilValueLoadable(authState)
@@ -17,45 +26,19 @@ export const getJobOpeningsColumn = () => {
   console.log(auth.getValue())
 
   const timezoneList = useRecoilValueLoadable(timezoneSelector)
-  // const calculateRemainingTime = (dueDate: Date, timezone: CountryType) => {
-  //   const now = new Date()
-  //   const diffInHours = differenceInHours(dueDate, now)
-  //   const diffInDays = differenceInDays(dueDate, now)
-
-  //   console.log("calculateRemainingTime",dueDate,diffInHours,diffInDays)
-  //   if (diffInDays >= 3) {
-  //     return `${Math.floor(diffInDays)} days left (${timezoneCode})`
-  //   } else if (diffInDays > 0) {
-  //     return `${Math.floor(diffInDays)} days and ${
-  //       diffInHours % 24
-  //     } hours left (${timezoneCode})`
-  //   } else {
-  //     return (
-  //       <Typography variant='body1' color='#ff4d49'>
-  //         {diffInHours} hours left ({timezoneCode})
-  //       </Typography>
-  //     )
-  //   }
-  // }
-
-  //TODO: day, hour 나오게 수정해야 함
   const calculateTimeLeft = (timeStr: Date, timezone: string) => {
     const timezoneCode =
       timezoneList.state === 'hasValue' && timezone
-        ? timezoneList.contents.find(list => list.timezone === timezone)
-            ?.timezoneCode
+        ? timezoneList.contents.find(list => list.timezone === timezone)?.timezoneCode
         : '-'
 
-    // 'Z'를 제거하고 UTC 시간대로 파싱
-    const futureTime = new Date(timeStr)
+    const targetTime = dayjs(timeStr).tz(timezone)
+    const currentTime = dayjs()
+    const duration = dayjs.duration(targetTime.diff(currentTime))
+    const leftDays = duration.days()
+    const leftHours = duration.hours()
 
-    // 현재 시간 (UTC 기준)
-    const currentTime = new Date()
-
-    const timeLeft = futureTime.getTime() - currentTime.getTime()
-
-    // 남은 시간이 음수이거나 0일 경우
-    if (timeLeft <= 0) {
+    if (leftDays < 1) {
       return (
         <Typography variant='body1' color='#ff4d49'>
           0 hours left ({timezoneCode})
@@ -63,24 +46,11 @@ export const getJobOpeningsColumn = () => {
       )
     }
 
-    // 남은 시간을 일과 시간 단위로 계산
-    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
-    const hoursLeft = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-    )
-
-    // 조건에 맞는 문자열 반환
-    if (daysLeft >= 3) {
-      return `${daysLeft} days left (${timezoneCode})`
-    } else if (daysLeft > 0) {
-      return `${daysLeft} days and ${hoursLeft} hours left (${timezoneCode})`
-    } else {
-      return (
-        <Typography variant='body1' color='#ff4d49'>
-          {hoursLeft} hours left ({timezoneCode})
-        </Typography>
-      )
+    if (leftDays > 2) {
+      return `${leftDays} days left (${timezoneCode})`
     }
+
+    return `${leftDays} days and ${leftHours} hours left (${timezoneCode})`
   }
 
   const columns: GridColumns<JobOpeningListType> = [
@@ -137,9 +107,9 @@ export const getJobOpeningsColumn = () => {
         return (
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
             {row.sourceLanguage &&
-            row.targetLanguage &&
-            row.sourceLanguage !== '' &&
-            row.targetLanguage !== '' ? (
+              row.targetLanguage &&
+              row.sourceLanguage !== '' &&
+              row.targetLanguage !== '' ? (
               <>
                 {row.sourceLanguage.toUpperCase()} &rarr;{' '}
                 {row.targetLanguage.toUpperCase()}
@@ -184,16 +154,8 @@ export const getJobOpeningsColumn = () => {
           <Typography variant='body1'>
             {calculateTimeLeft(
               row.dueAt,
-              // row.dueDateTimezone?.code ?? 'KR',
-              auth.getValue().user
-                ? auth.getValue().user?.timezone!.label!
-                : Intl.DateTimeFormat().resolvedOptions().timeZone,
+              auth.getValue().user?.timezone?.label || Intl.DateTimeFormat().resolvedOptions().timeZone
             )}
-            {/* {calculateRemainingTime(
-              row.dueAt,
-              // row.dueDateTimezone?.code ?? 'KR',
-              auth.getValue().user?.timezone!
-            )} */}
           </Typography>
         )
       },
