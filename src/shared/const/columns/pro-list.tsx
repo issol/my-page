@@ -9,8 +9,8 @@ import {
 import { ClientUserType, UserDataType } from '@src/context/types'
 import LegalNameEmail, {
   LegalName,
-} from '@src/pages/onboarding/components/list/list-item/legalname-email'
-import ListResume from '@src/pages/pro/list/list/list-resume'
+} from 'src/pages/[companyName]/onboarding/components/list/list-item/legalname-email'
+
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   ProFilterType,
@@ -23,10 +23,12 @@ import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import { styled } from '@mui/system'
-import JobTypeRole from '@src/pages/components/job-type-role-chips'
+
 import { FilterKey, saveUserFilters } from '@src/shared/filter-storage'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { GridColDef } from '@mui/x-data-grid-pro'
+import ListResume from 'src/pages/[companyName]/pro/list/list/list-resume'
+import JobTypeRole from 'src/pages/[companyName]/components/job-type-role-chips'
 
 export const getProListColumns = (
   auth: Loadable<{
@@ -187,11 +189,12 @@ export const getProListColumns = (
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        const label = row.status === 'Onboard'
-          ? 'Onboarded'
-          : row.status === 'Off-board'
-            ? 'Offboarded'
-            : row.status  
+        const label =
+          row.status === 'Onboard'
+            ? 'Onboarded'
+            : row.status === 'Off-board'
+              ? 'Offboarded'
+              : row.status
         return <ProStatusChip status={row.status} label={label} />
       },
     },

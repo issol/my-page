@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
 import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
+import CompanyInfoForm from 'src/pages/[companyName]/client/components/forms/company-info-form'
 import {
   CompanyInfoFormType,
   companyInfoDefaultValue,
@@ -36,7 +36,7 @@ export default {
             }}
           >
             <code>
-              {`import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'`}
+              {`import CompanyInfoForm from 'src/pages/client/components/forms/company-info-form'`}
             </code>
             <br />
             <code>

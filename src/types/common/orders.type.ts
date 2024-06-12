@@ -15,9 +15,19 @@ export type OrderProjectInfoFormType = {
   genre?: Array<string>
   revenueFrom: RevenueFormType | null
   orderedAt: Date
-  orderTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
+  orderTimezone: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
   projectDueAt: Date
-  projectDueTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
+  projectDueTimezone: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
 
   tax: number | null
   isTaxable: boolean

@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server'
 import { StatusSquare } from '@src/views/dashboard/dashboardItem'
 import { FourthColors } from '@src/shared/const/dashboard/chart'
 import Box from '@mui/material/Box'
-import { toCapitalize } from '@src/pages/dashboards/lpm'
+import { toCapitalize } from 'src/pages/[companyName]/dashboards/lpm'
 import {
   AccountRatio,
   DEFAULT_QUERY_NAME,

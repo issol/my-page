@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
-import JobTypeRole from '@src/pages/components/job-type-role-chips'
+
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getTimezone } from '@src/shared/helpers/timezone.helper'
 import { JobOpeningListType } from '@src/types/pro/pro-job-openings'
@@ -10,6 +10,7 @@ import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import JobTypeRole from 'src/pages/[companyName]/components/job-type-role-chips'
 
 export const getJobOpeningsColumn = () => {
   const auth = useRecoilValueLoadable(authState)

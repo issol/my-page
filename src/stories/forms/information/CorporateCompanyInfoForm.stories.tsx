@@ -4,7 +4,7 @@ import { Divider, Grid } from '@mui/material'
 import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import CorporateCompanyInfoForm from '@src/pages/client/components/forms/client-info/corporate-company-info-form'
+import CorporateCompanyInfoForm from 'src/pages/[companyName]/client/components/forms/client-info/corporate-company-info-form'
 import { CorporateClientInfoType } from '@src/context/types'
 import {
   corporateClientDefaultValue,
@@ -32,7 +32,7 @@ export default {
             }}
           >
             <code>
-              {`import CorporateCompanyInfoForm from '@src/pages/client/components/forms/client-info/corporate-company-info-form'`}
+              {`import CorporateCompanyInfoForm from 'src/pages/client/components/forms/client-info/corporate-company-info-form'`}
             </code>
             <br />
             <code>

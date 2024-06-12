@@ -7,8 +7,9 @@ import {
   RoleChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import JobTypeRole from '@src/pages/components/job-type-role-chips'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import JobTypeRole from 'src/pages/[companyName]/components/job-type-role-chips'
+import LegalNameEmail from 'src/pages/[companyName]/onboarding/components/list/list-item/legalname-email'
+
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { LinguistTeamListType } from '@src/types/pro/linguist-team'
 import { ProListCellType, ProListType } from '@src/types/pro/list'

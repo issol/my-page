@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
-import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
+import BillingAddress from 'src/pages/[companyName]/client/components/payment-info/billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { Divider, Grid } from '@mui/material'
 
@@ -35,7 +35,7 @@ export default {
             }}
           >
             <code>
-              {`import BillingAddress from '@src/pages/client/components/payment-info/billing-address'`}
+              {`import BillingAddress from 'src/pages/client/components/payment-info/billing-address'`}
             </code>
             <br />
             <code>

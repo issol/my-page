@@ -54,13 +54,13 @@ import { useRouter } from 'next/router'
 import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** components
-import GoogleButton from '../components/google-button'
 
 // ** types
 import { loginResType } from '@src/types/sign/signInTypes'
 import useAuth from '@src/hooks/useAuth'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
+import GoogleButton from '../[companyName]/components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',

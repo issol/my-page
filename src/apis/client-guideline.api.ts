@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
-import { FilterType } from 'src/pages/onboarding/client-guideline'
+import { FilterType } from 'src/pages/[companyName]/onboarding/client-guideline'
 import { FileType } from 'src/types/common/file.type'
 
 export type FilePostType = { name: string; size: number; fileUrl: string }

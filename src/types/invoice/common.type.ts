@@ -16,13 +16,66 @@ export type InvoiceProjectInfoFormType = {
   genre?: Array<string>
   revenueFrom: RevenueFormType
   invoiceDate: Date
-  invoiceDateTimezone: { id: number | undefined, label: string; code: string, pinned: boolean }
-  paymentDueDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  invoiceConfirmDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
-  taxInvoiceDueDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
-  paymentDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } | null }
-  taxInvoiceIssuanceDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  salesRecognitionDate?: { date: string | null; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  invoiceDateTimezone: {
+    id: number | undefined
+    label: string
+    code: string
+    pinned: boolean
+  }
+  paymentDueDate: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  invoiceConfirmDate?: {
+    date: string | null
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    } | null
+  }
+  taxInvoiceDueDate?: {
+    date: string | null
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    } | null
+  }
+  paymentDate?: {
+    date: string | null
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    } | null
+  }
+  taxInvoiceIssuanceDate?: {
+    date: string | null
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  salesRecognitionDate?: {
+    date: string | null
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
   salesCategory?: string
   taxInvoiceIssued: boolean
   setReminder: boolean

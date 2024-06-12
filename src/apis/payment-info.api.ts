@@ -55,10 +55,8 @@ export const getPaymentInfoRequest = async (
 ) => {
   if (!isManagerRequest) {
     return await getUserPaymentInfoWithMasking(id)
-
   } else {
     return await getUserPaymentInfo(id)
-
   }
 }
 
@@ -83,7 +81,6 @@ export const getUserPaymentInfoWithMasking = async (
         positionType: i.positionType,
       })),
     }
-
   } catch (e: any) {
     return null
   }
@@ -127,7 +124,6 @@ export const getUserPaymentInfo = async (
         positionType: i.positionType,
       })),
     }
-
   } catch (e: any) {
     return null
   }
@@ -188,10 +184,10 @@ export const deleteProPaymentFile = async (fileId: number): Promise<void> => {
 
 export const updateProBillingAddressAndTax = async (
   info: ClientAddressType & {
-    taxInfo: string,
-    taxRate: number,
+    taxInfo: string
+    taxRate: number
   },
-  proId: number
+  proId: number,
 ): Promise<void> => {
   await axios.put(`/api/enough/u/pro/${proId}/payment/info`, info)
 }

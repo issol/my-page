@@ -3,7 +3,7 @@ import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import { styled } from '@mui/system'
 import React, { useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashnaord.query'
-import NoList from '@src/pages/components/no-list'
+import NoList from 'src/pages/[companyName]/components/no-list'
 import DashboardForSuspense, {
   DashboardSuspenseProps,
 } from '@src/views/dashboard/suspense'

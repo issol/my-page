@@ -2,10 +2,10 @@ import { FormErrors } from '@src/shared/const/formErrors'
 import * as yup from 'yup'
 
 interface Timezone {
-  id: number | null;
-  code: string | null;
-  label: string | null;
-  pinned: boolean | null;
+  id: number | null
+  code: string | null
+  label: string | null
+  pinned: boolean | null
 }
 
 export const addJobInfoFormSchema = yup.object().shape({

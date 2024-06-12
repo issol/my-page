@@ -12,13 +12,13 @@ import {
   getProJobClientList,
   getProJobList,
 } from '@src/apis/jobs/jobs.api'
-import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
+import { JobListFilterType } from 'src/pages/[companyName]/jobs/requested-ongoing-list'
 
 import {
   FilterPostType,
   FilterType as ListFilterType,
-} from '@src/pages/orders/job-list/list-view/list-view'
-import { DetailFilterResponseType } from '@src/pages/orders/job-list/tracker-view/[id]'
+} from 'src/pages/[companyName]/orders/job-list/list-view/list-view'
+import { DetailFilterResponseType } from 'src/pages/[companyName]/orders/job-list/tracker-view/[id]'
 import { useQuery } from 'react-query'
 
 export const useGetJobsList = (filter: FilterPostType | null) => {

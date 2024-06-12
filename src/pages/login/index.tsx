@@ -47,8 +47,9 @@ import {
 
 // ** values
 import { FormErrors } from '@src/shared/const/formErrors'
-import GoogleButton from '../components/google-button'
+
 import useAuth from '@src/hooks/useAuth'
+import GoogleButton from '../[companyName]/components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',

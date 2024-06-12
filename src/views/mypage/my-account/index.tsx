@@ -12,7 +12,7 @@ import {
   getIsDeletableAccount,
 } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import SimpleAlertModal from 'src/pages/[companyName]/client/components/modals/simple-alert-modal'
 import DeleteAccount from './delete-account'
 import AccountDeleteFailedModal from './account-delete-fail-modal'
 import { useRouter } from 'next/router'

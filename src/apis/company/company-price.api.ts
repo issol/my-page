@@ -21,19 +21,18 @@ export const getClientPriceList = async (
     const response = await axios.get(
       `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
     )
-    const responseData = response.data;
+    const responseData = response.data
 
     if (Array.isArray(responseData)) {
       responseData.forEach((item: StandardPriceListType) => {
         if (item.catInterface && 'memSource' in item.catInterface) {
-          item.catInterface.phrase = item.catInterface.memSource!;
-          delete item.catInterface.memSource;
+          item.catInterface.phrase = item.catInterface.memSource!
+          delete item.catInterface.memSource
         }
-      });
+      })
     }
 
-    return responseData;
-    
+    return responseData
   } catch (e: any) {
     return []
   }
@@ -60,29 +59,29 @@ export const getStandardPrice = async (
   count: number
 }> => {
   try {
-    const response = await axios.get(`/api/enough/u/${page}-price/al?${makeQuery(filter)}`);
+    const response = await axios.get(
+      `/api/enough/u/${page}-price/al?${makeQuery(filter)}`,
+    )
 
-    const responseData = response.data;
+    const responseData = response.data
 
     if (Array.isArray(responseData.data)) {
       responseData.data.forEach((item: StandardPriceListType) => {
         if (item.catInterface && 'memSource' in item.catInterface) {
-          item.catInterface.phrase = item.catInterface.memSource!;
-          delete item.catInterface.memSource;
+          item.catInterface.phrase = item.catInterface.memSource!
+          delete item.catInterface.memSource
         }
-      });
+      })
     }
 
-    return responseData;
+    return responseData
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
 export const getCatInterfaceHeaders = async (toolName: string) => {
-  const filteredToolName = toolName === 'Phrase'
-    ? 'Memsource'
-    : toolName
+  const filteredToolName = toolName === 'Phrase' ? 'Memsource' : toolName
   const { data } = await axios.get(
     `/api/enough/u/cat-tool/interface?toolName=${filteredToolName}`,
   )

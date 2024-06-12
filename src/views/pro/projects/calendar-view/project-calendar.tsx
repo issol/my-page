@@ -11,8 +11,8 @@ import { calendarDefaultOptions } from '@src/shared/const/calender'
 import {
   CalenderProps,
   Calender,
-} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
-import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+} from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import Box from '@mui/material/Box'
 import { Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'

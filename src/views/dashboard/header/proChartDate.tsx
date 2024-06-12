@@ -1,6 +1,9 @@
 import React from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
-import { DashboardForm, getDateFormatter } from '@src/pages/dashboards/lpm'
+import {
+  DashboardForm,
+  getDateFormatter,
+} from 'src/pages/[companyName]/dashboards/lpm'
 import dayjs from 'dayjs'
 import { GridItem } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'

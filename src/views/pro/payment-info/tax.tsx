@@ -167,7 +167,11 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
                   options={TextRatePair}
                   getOptionLabel={option => option.label}
                   renderInput={params => (
-                    <TextField {...params} autoComplete='off' label='Tax info*' />
+                    <TextField
+                      {...params}
+                      autoComplete='off'
+                      label='Tax info*'
+                    />
                   )}
                 />
               </FormControl>

@@ -251,4 +251,3 @@ export const getAccountJobDataToCSV = async (
 
   return data
 }
-

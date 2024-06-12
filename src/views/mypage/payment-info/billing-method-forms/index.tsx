@@ -42,7 +42,7 @@ import TransferWiseForm from './transfer-wise-form'
 import PaypalForm from './paypal-form'
 import CorresPondentBankInfoForm from './correspondent-bank-info-form'
 import BankInfoForm from './bank-info-form'
-import SaveModal from '@src/pages/company/components/price/price-units/modal/save-modal'
+import SaveModal from 'src/pages/[companyName]/company/components/price/price-units/modal/save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 
 // ** react hook form

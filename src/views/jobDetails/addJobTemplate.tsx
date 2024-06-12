@@ -25,10 +25,10 @@ import { useGetServiceType } from '@src/queries/common.query'
 import {
   FilterType,
   initialFilter,
-} from '@src/pages/orders/job-list/job-template'
+} from 'src/pages/[companyName]/orders/job-list/job-template'
 import { DataGrid, GridSelectionModel } from '@mui/x-data-grid'
 import { getAddJobTemplateColumns } from '@src/shared/const/columns/job-template'
-import NoList from '@src/pages/components/no-list'
+import NoList from 'src/pages/[companyName]/components/no-list'
 import { UseMutationResult } from 'react-query'
 import { displayCustomToast } from '@src/shared/utils/toast'
 

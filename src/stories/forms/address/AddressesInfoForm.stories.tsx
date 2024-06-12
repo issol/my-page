@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
 import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
+import ClientAddressesForm from 'src/pages/[companyName]/client/components/forms/addresses-info-form'
 import {
   clientAddressDefaultValue,
   ClientAddressFormType,
@@ -31,7 +31,7 @@ export default {
             }}
           >
             <code>
-              {`import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'`}
+              {`import ClientAddressesForm from 'src/pages/client/components/forms/addresses-info-form'`}
             </code>
             <br />
             <code>

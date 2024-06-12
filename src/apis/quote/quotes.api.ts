@@ -22,7 +22,7 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { updateProjectInfoType } from '@src/pages/quotes/detail/[id]'
+import { updateProjectInfoType } from 'src/pages/[companyName]/quotes/detail/[id]'
 import { getColorQuoteStatusLabelName } from '@src/shared/helpers/colors.helper'
 
 export type MemberListType = Pick<

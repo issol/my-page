@@ -38,24 +38,24 @@ import {
 } from '@src/apis/onboarding.api'
 import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
+import NegativeActionsTestModal from 'src/pages/[companyName]/components/pro-detail-modal/modal/negative-actions-test-modal'
 
-import AppliedRoleModal from '@src/pages/components/pro-detail-modal/dialog/applied-role-modal'
-import TestDetailsModal from '@src/pages/components/pro-detail-modal/dialog/test-details-modal'
+import AppliedRoleModal from 'src/pages/[companyName]/components/pro-detail-modal/dialog/applied-role-modal'
+import TestDetailsModal from 'src/pages/[companyName]/components/pro-detail-modal/dialog/test-details-modal'
 
-import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
-import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
+import FilePreviewDownloadModal from 'src/pages/[companyName]/components/pro-detail-modal/modal/file-preview-download-modal'
+import ReasonModal from 'src/pages/[companyName]/components/pro-detail-modal/modal/reason-modal'
 
-import About from '@src/pages/components/pro-detail-component/about'
-import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
+import About from 'src/pages/[companyName]/components/pro-detail-component/about'
+import AppliedRole from 'src/pages/[companyName]/components/pro-detail-component/applied-role'
 
-import CommentsAboutPro from '@src/pages/components/pro-detail-component/comments-pro'
-import Experience from '@src/pages/components/pro-detail-component/experience'
-import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
-import Resume from '@src/pages/components/pro-detail-component/resume'
-import Specialties from '@src/pages/components/pro-detail-component/specialities'
-import Contracts from '@src/pages/components/pro-detail-component/contracts'
-import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
+import CommentsAboutPro from 'src/pages/[companyName]/components/pro-detail-component/comments-pro'
+import Experience from 'src/pages/[companyName]/components/pro-detail-component/experience'
+import NoteFromPro from 'src/pages/[companyName]/components/pro-detail-component/note-pro'
+import Resume from 'src/pages/[companyName]/components/pro-detail-component/resume'
+import Specialties from 'src/pages/[companyName]/components/pro-detail-component/specialities'
+import Contracts from 'src/pages/[companyName]/components/pro-detail-component/contracts'
+import CertificationTest from 'src/pages/[companyName]/components/pro-detail-component/certification-test'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
   useGetProOverview,

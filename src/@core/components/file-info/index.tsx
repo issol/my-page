@@ -7,8 +7,8 @@ import KeenSliderWrapper from '@src/@core/styles/libs/keen-slider'
 import FileSwiper, {
   FileItemType,
 } from '@src/@core/components/swiper/file-swiper-s3'
-import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import FilePreviewDownloadModal from 'src/pages/[companyName]/components/pro-detail-modal/modal/file-preview-download-modal'
+import SimpleAlertModal from 'src/pages/[companyName]/client/components/modals/simple-alert-modal'
 
 // ** apis
 import { getDownloadUrlforCommon } from '@src/apis/common.api'

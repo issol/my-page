@@ -5,7 +5,7 @@ import { Divider, Grid } from '@mui/material'
 import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import JapanTaxForm from '@src/pages/client/components/forms/tax-info/japan-tax-form'
+import JapanTaxForm from 'src/pages/[companyName]/client/components/forms/tax-info/japan-tax-form'
 import { JapanTaxFormType } from '@src/types/payment-info/client/index.type'
 import { japanTaxSchema } from '@src/types/schema/tax-info/japan-tax.schema'
 
@@ -32,7 +32,7 @@ export default {
             }}
           >
             <code>
-              {`import JapanTaxForm from '@src/pages/client/components/forms/tax-info/japan-tax-form'`}
+              {`import JapanTaxForm from 'src/pages/client/components/forms/tax-info/japan-tax-form'`}
             </code>
             <br />
             <code>

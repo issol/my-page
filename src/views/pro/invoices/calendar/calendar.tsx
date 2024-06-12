@@ -18,8 +18,8 @@ import {
   Calender,
   CalenderProps,
   CustomEvent,
-} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
-import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+} from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from 'src/pages/[companyName]/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import Switch from '@mui/material/Switch'
 
 const ProInvoiceCalendar = (

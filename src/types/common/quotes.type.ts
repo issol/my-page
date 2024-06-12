@@ -19,11 +19,51 @@ export type QuotesProjectInfoFormType = {
   category: string
   serviceType: Array<string>
   genre?: Array<string>
-  quoteDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  projectDueDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  quoteDeadline: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  quoteExpiryDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  estimatedDeliveryDate: { date: string; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteDate: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  projectDueDate: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  quoteDeadline: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  quoteExpiryDate: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  estimatedDeliveryDate: {
+    date: string
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
   showDescription: '1' | '0'
   tax: number | null
   isTaxable: '1' | '0'
@@ -38,11 +78,51 @@ export type QuotesProjectInfoAddNewType = {
   category: string
   serviceType: Array<string>
   genre?: Array<string>
-  quoteDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  projectDueDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  quoteDeadline: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  quoteExpiryDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
-  estimatedDeliveryDate: { date: Date; timezone: { id: number | undefined, label: string; code: string, pinned: boolean } }
+  quoteDate: {
+    date: Date
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  projectDueDate: {
+    date: Date
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  quoteDeadline: {
+    date: Date
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  quoteExpiryDate: {
+    date: Date
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
+  estimatedDeliveryDate: {
+    date: Date
+    timezone: {
+      id: number | undefined
+      label: string
+      code: string
+      pinned: boolean
+    }
+  }
   showDescription: boolean
   tax: number | null
   isTaxable: boolean

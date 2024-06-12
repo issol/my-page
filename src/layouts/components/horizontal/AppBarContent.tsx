@@ -160,7 +160,7 @@ const AppBarContent = (props: Props) => {
                 process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
               ? process.env.NEXT_PUBLIC_DISPLAY_MODE
               : null}
-            <NotificationDropdown settings={settings} />
+          <NotificationDropdown settings={settings} />
           <UserDropdown settings={settings} />
         </Box>
       )}

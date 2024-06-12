@@ -22,7 +22,7 @@ import {
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType } from '@src/context/types'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail from 'src/pages/[companyName]/onboarding/components/list/list-item/legalname-email'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobRequestsProType } from '@src/types/jobs/jobs.type'
 import {

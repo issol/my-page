@@ -18,7 +18,7 @@ import {
 } from '@mui/material'
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import useModal from '@src/hooks/useModal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import SimpleAlertModal from 'src/pages/[companyName]/client/components/modals/simple-alert-modal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { TextRatePair } from '@src/shared/const/tax/tax-info'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'

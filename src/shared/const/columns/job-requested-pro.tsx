@@ -5,7 +5,7 @@ import {
   RequestHistoryStatusChip,
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import LegalNameEmail from 'src/pages/[companyName]/onboarding/components/list/list-item/legalname-email'
 
 type CellType = {
   row: {

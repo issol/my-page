@@ -1,5 +1,5 @@
 import axios from '@src/configs/axios'
-import { updateOrderType } from '@src/pages/orders/order-list/detail/[id]'
+import { updateOrderType } from 'src/pages/[companyName]/orders/order-list/detail/[id]'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import {
   ClientType,

@@ -1,6 +1,6 @@
 import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
-import { toCapitalize } from '@src/pages/dashboards/lpm'
+import { toCapitalize } from 'src/pages/[companyName]/dashboards/lpm'
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
 import React, { Suspense, useState } from 'react'
 import { GridSortModel } from '@mui/x-data-grid'
