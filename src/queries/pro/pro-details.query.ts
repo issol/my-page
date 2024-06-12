@@ -2,6 +2,7 @@ import {
   getProWorkDays,
   getMyOverview,
   getProOverview,
+  getProSecondaryLanguages,
 } from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
@@ -83,6 +84,18 @@ export const useGetProWorkDays = (
   return useQuery(
     [`myOffDays:${userId}`, year, month],
     () => getProWorkDays(userId, year, month),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      useErrorBoundary: true,
+    },
+  )
+}
+
+export const useGetProSecondaryLanguages = (userId: number) => {
+  return useQuery<string[]>(
+    ['proSecondaryLanguages', userId],
+    () => getProSecondaryLanguages(userId),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,

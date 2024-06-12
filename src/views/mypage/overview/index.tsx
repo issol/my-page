@@ -76,7 +76,10 @@ import {
   updateMyOffDays,
   updateWeekends,
 } from '@src/apis/pro/pro-details.api'
-import { useGetProWorkDays } from '@src/queries/pro/pro-details.query'
+import {
+  useGetProSecondaryLanguages,
+  useGetProWorkDays,
+} from '@src/queries/pro/pro-details.query'
 
 // ** value
 import { ExperiencedYears } from '@src/shared/const/experienced-years'
@@ -94,6 +97,7 @@ import dayjs from 'dayjs'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { CertifiedRoleType } from '@src/types/onboarding/details'
 import AddIcon from '@mui/icons-material/Add'
+import SecondaryLanguages from '@src/pages/[companyName]/components/pro-detail-component/secondary-languages'
 
 type Props = {
   userInfo: DetailUserType
@@ -154,6 +158,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
+  const { data: secondaryLanguages } = useGetProSecondaryLanguages(user.userId!)
 
   const updateUserInfoMutation = useMutation(
     (
@@ -658,6 +663,10 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     })
   }
 
+  const onClickEditSecondaryLanguages = () => {
+    // openModal()
+  }
+
   return (
     <Fragment>
       {updateUserInfoMutation.isLoading ||
@@ -906,10 +915,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                 offset={roleOffset}
               />
             </Grid>
-            {/* Contracts */}
-            <Grid item xs={6}>
-              <Contracts userInfo={userInfo!} onClickContracts={onClickFile} />
-            </Grid>
+
             {/* Specialties */}
             <Grid item xs={6}>
               <Card
@@ -959,6 +965,16 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                   </Box>
                 </CardContent>
               </Card>
+            </Grid>
+            <Grid item xs={6}>
+              <SecondaryLanguages
+                secondaryLanguages={secondaryLanguages ?? []}
+                onClickEditSecondaryLanguages={onClickEditSecondaryLanguages}
+              />
+            </Grid>
+            {/* Contracts */}
+            <Grid item xs={6}>
+              <Contracts userInfo={userInfo!} onClickContracts={onClickFile} />
             </Grid>
           </Grid>
         </Grid>

@@ -29,6 +29,21 @@ export const getMyOverview = async (
   return data
 }
 
+export const getProSecondaryLanguages = async (
+  userId: number,
+): Promise<string[]> => {
+  // const { data } = await axios.get<string[]>(`/api/enough/u/pro/${userId}/secondary-languages`)
+  // return data
+
+  const data = [
+    'Chinese (Simplified, China)',
+    'Russian (Russia)',
+    'Arabic (Iraq)',
+  ]
+
+  return data
+}
+
 export const getProWorkDays = async (
   userId: number,
   year: number,
