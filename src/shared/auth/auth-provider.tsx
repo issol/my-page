@@ -29,6 +29,7 @@ import {
   timezoneSelector,
 } from '@src/states/permission'
 import { setAllTimeZoneList } from '../helpers/timezone.helper'
+import { getCookie } from 'cookies-next'
 
 type Props = {
   children: ReactNode
@@ -76,6 +77,7 @@ const AuthProvider = ({ children }: Props) => {
       setPermission(permission.getValue())
       setRoles(roles.getValue())
       const roleNames = roles.getValue().map(item => item.name)
+      const companyName = getCookie('companyName')
 
       const redirectPath = getRedirectPath()
 
@@ -120,6 +122,8 @@ const AuthProvider = ({ children }: Props) => {
             if (redirectPath) {
               router.replace(redirectPath)
               removeRedirectPath()
+            } else {
+              router.replace(`/${companyName}/dashboards/pro`)
             }
             return
           } else {
@@ -145,8 +149,8 @@ const AuthProvider = ({ children }: Props) => {
         router.replace(redirectPath)
         removeRedirectPath()
         // return
-      } else if (router.pathname === '/') {
-        router.push(`/dashboards`)
+      } else if (router.asPath === `/${companyName}/`) {
+        // router.push(`${companyName}/dashboards`)
       }
     }
   }, [auth, roles, permission])
@@ -163,7 +167,15 @@ const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-      router.pathname === '/' && router.replace('/login')
+      const companyName = getCookie('companyName')
+      // console.log(router.pathname, 'init path')
+
+      // if (router.pathname === '/') {
+      //   router.replace('/login')
+      // }
+      // else if (router.asPath === `/${companyName}/`) {
+      //   router.replace(`/${companyName}/login`)
+      // }
 
       const storedToken = getUserTokenFromBrowser()!
 

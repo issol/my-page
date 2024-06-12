@@ -17,6 +17,7 @@ import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { UserDataType } from '@src/context/types'
 import { currentRoleSelector } from '@src/states/permission'
+import { getCookie } from 'cookies-next'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -30,13 +31,14 @@ const AuthGuard = (props: AuthGuardProps) => {
     useRecoilStateLoadable(currentRoleSelector)
   const router = useRouter()
 
+  const companyName = getCookie('companyName')
+
   useEffect(
     () => {
       // ! query가 붙은 경로에 로그인 하지 않은 유저가 접근했을 경우 무한 fallback이 보여지는 문제로 주석처리
       // if (!router.isReady) {
       //   return
       // }
-      console.log(auth.getValue())
 
       if (
         auth.state === 'hasValue' &&
@@ -62,12 +64,19 @@ const AuthGuard = (props: AuthGuardProps) => {
           router.push(parsePath[0])
           setRedirectPath(parsePath[0])
           return
-        }
-        if (router.asPath !== '/') {
-          router.push('/login')
         } else {
-          // router.replace('/login')
+          if (companyName) {
+            router.push(`/${companyName}/login`)
+          } else {
+            router.push('/login')
+          }
         }
+
+        // if (router.asPath !== '/' || router.asPath !== `/${companyName}/`) {
+        //   router.push('/login')
+        // } else {
+        //   // router.replace('/login')
+        // }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,6 +101,7 @@ const AuthGuard = (props: AuthGuardProps) => {
       }
     }
   }, [router.query])
+
   if (
     auth.state === 'loading' ||
     auth.getValue().loading ||

@@ -24,7 +24,6 @@ const Home = () => {
     useRecoilValueLoadable(currentRoleSelector)
 
   const companyName = getCookie('companyName')
-  console.log(role, 'role name')
 
   useEffect(() => {
     //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
