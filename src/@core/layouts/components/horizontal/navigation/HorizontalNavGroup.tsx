@@ -42,6 +42,7 @@ import { hasActiveChild } from '@src/@core/layouts/utils'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector, permissionState } from '@src/states/permission'
+import { authState } from '@src/states/auth'
 
 interface Props {
   item: NavGroup
@@ -96,6 +97,8 @@ const HorizontalNavGroup = (props: Props) => {
   const currentRoleStorage = getCurrentRole()
   const currentRoleState = useRecoilValueLoadable(currentRoleSelector)
   const permission = useRecoilValueLoadable(permissionState)
+
+  const user = useRecoilValueLoadable(authState)
 
   // ** Hooks & Vars
   const theme = useTheme()
@@ -156,7 +159,6 @@ const HorizontalNavGroup = (props: Props) => {
   }
 
   const handleMoveMenu = () => {
-    console.log('DAGTA', item, item?.children)
     const current =
       currentRoleState.state === 'hasValue'
         ? currentRoleState.getValue()
@@ -181,7 +183,10 @@ const HorizontalNavGroup = (props: Props) => {
 
   // NOTE : 기획팀 요청으로 대분류 메뉴 클릭 시 첫번째 메뉴로 이동하도록 수정
   const handleMenuToggleOnClick = (event: SyntheticEvent) => {
-    if (anchorEl) {
+    const isSubscribed = user.getValue().user?.isSubscribed
+    const isSeatAssigned = user.getValue().user?.isSeatAssigned
+    // 구독이 되어있고 좌석이 할당되어있을 때만 메뉴 이동
+    if (anchorEl && isSubscribed && isSeatAssigned) {
       handleGroupClose()
       handleMoveMenu()
     } else {

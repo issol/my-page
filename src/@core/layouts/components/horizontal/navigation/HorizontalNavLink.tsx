@@ -38,6 +38,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 interface Props {
   item: NavLink
@@ -111,6 +112,7 @@ const HorizontalNavLink = (props: Props) => {
           target={item.openInNewTab ? '_blank' : undefined}
           href={item.path === undefined ? '/' : `${item.path}`}
           onClick={e => {
+            console.log("menu item clicked",item)
             if (item.path === undefined) {
               e.preventDefault()
               e.stopPropagation()
@@ -125,6 +127,60 @@ const HorizontalNavLink = (props: Props) => {
                       onClose={() => closeModal('LoginRequiredModal')}
                       onClick={() => closeModal('LoginRequiredModal')}
                       path={item.path}
+                    />
+                  ),
+                })
+              }
+            } else if (
+                user.getValue().user && 
+                user.getValue().user?.roles?.
+                  some(role => role.name === 'LPM' || role.name === 'TAD') &&
+                !["members", "my_account", "company_info"].includes(item.subject!)
+              ) {
+              const isSubscribed = user.getValue().user?.isSubscribed
+              const isSeatAssigned = user.getValue().user?.isSeatAssigned
+
+              if (!isSubscribed) {
+                e.preventDefault()
+                e.stopPropagation()
+                openModal({
+                  type: 'NotSubscribedModal',
+                  children: (
+                    <CustomModalV2
+                      title='No Subscription Available'
+                      subtitle='Your company currently does not have an active subscription. To access all features and ensure uninterrupted use of our services, please subscribe.'
+                      onClose={() => {
+                        closeModal('NotSubscribedModal')
+                      }}
+                      onClick={() => {
+                        closeModal('NotSubscribedModal')
+                        router.push('/company/company-info/?tab=billing')
+                      }}
+                      leftButtonText='Cancel'
+                      rightButtonText='Go to Subscription'
+                      vary='info'
+                      buttonDirection='column-reverse'
+                    />
+                  ),
+                })
+              } else if (isSeatAssigned) {
+                e.preventDefault()
+                e.stopPropagation()
+                openModal({
+                  type: 'NotSeatAssignedModal',
+                  children: (
+                    <CustomModalV2
+                      title='No Seat Available'
+                      subtitle='Please request a seat from your company administrator.'
+                      onClose={() => {
+                        closeModal('NotSeatAssignedModal')
+                      }}
+                      onClick={() => {
+                        closeModal('NotSeatAssignedModal')
+                      }}
+                      soloButton={true}
+                      rightButtonText='Confirm'
+                      vary='successful'
                     />
                   ),
                 })
