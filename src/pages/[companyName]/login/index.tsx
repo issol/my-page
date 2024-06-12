@@ -50,6 +50,8 @@ import { FormErrors } from '@src/shared/const/formErrors'
 
 import useAuth from '@src/hooks/useAuth'
 import GoogleButton from '../components/google-button'
+import { useRouter } from 'next/router'
+import { setCookie } from 'cookies-next'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -99,6 +101,9 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const auth = useAuth()
+  const router = useRouter()
+
+  const companyName = router.query.companyName as string
 
   const {
     control,
@@ -135,6 +140,13 @@ const LoginPage = () => {
       })
     })
   }
+
+  useEffect(() => {
+    if (companyName) {
+      setCookie('companyName', companyName)
+    }
+  }, [companyName])
+
   return (
     <Box className='content-center'>
       <RightWrapper>

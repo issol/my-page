@@ -41,7 +41,7 @@ import {
   permissionSelector,
   permissionState,
 } from '@src/states/permission'
-import { setCookie } from 'cookies-next'
+import { deleteCookie, getCookie, setCookie } from 'cookies-next'
 import SignupNotApprovalModal from 'src/pages/[companyName]/components/modals/confirm-modals/signup-not-approval-modal'
 
 const useAuth = () => {
@@ -118,8 +118,6 @@ const useAuth = () => {
           })
         } else {
           updateUserInfo(response).then(res => {
-            console.log(res)
-
             if (successCallback) {
               successCallback()
             } else {
@@ -177,16 +175,24 @@ const useAuth = () => {
   }
 
   const handleLogout = async () => {
+    const companyName = getCookie('companyName')
+
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
     removeCompanyDataFromBrowser()
     removeAllSessionStorage()
+    deleteCookie('companyName')
 
     setAuth({ user: null, company: undefined, loading: false })
     setCurrentRole(null)
 
     await logout()
-    await router.push('/login')
+
+    if (companyName) {
+      await router.push(`/${companyName}/login`)
+    } else {
+      await router.push('/login')
+    }
   }
 
   const handleRegister = (
