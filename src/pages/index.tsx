@@ -28,6 +28,8 @@ const Home = () => {
   useEffect(() => {
     //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
 
+    console.log('index not subdomain')
+
     if (role.name === 'TAD') {
       router.replace(`${companyName}/dashboards/tad`)
       return
