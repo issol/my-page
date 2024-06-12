@@ -143,7 +143,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (companyName) {
-      setCookie('companyName', companyName)
+      setCookie('companyName', companyName, { secure: true })
     }
   }, [companyName])
 

@@ -54,14 +54,13 @@ import { useRouter } from 'next/router'
 import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** components
-import GoogleButton from '../components/google-button'
 
 // ** types
 import { loginResType } from '@src/types/sign/signInTypes'
 import useAuth from '@src/hooks/useAuth'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
-import { setCookie } from 'cookies-next'
+import GoogleButton from '../[companyName]/components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -160,8 +159,6 @@ const SignUpPage = () => {
   const router = useRouter()
   const { jobId } = router.query
   const { email } = router.query
-
-  const companyName = router.query.companyName as string
 
   const { openModal, closeModal } = useModal()
 
@@ -426,12 +423,6 @@ const SignUpPage = () => {
       verifyEmail.mutate()
     }
   }
-
-  useEffect(() => {
-    if (companyName) {
-      setCookie('companyName', companyName, { secure: true })
-    }
-  }, [companyName])
 
   return (
     <Box className='content-center'>

@@ -126,7 +126,7 @@ const useAuth = () => {
                   res?.roles && res?.roles.length > 0 ? res?.roles[0] : null
 
                 const companyName = res.company ?? null
-                setCookie('companyName', companyName)
+                setCookie('companyName', companyName, { secure: true })
 
                 if (role) {
                   switch (role.name) {
