@@ -163,7 +163,7 @@ const HorizontalNavLink = (props: Props) => {
                     />
                   ),
                 })
-              } else if (isSeatAssigned) {
+              } else if (!isSeatAssigned) {
                 e.preventDefault()
                 e.stopPropagation()
                 openModal({
