@@ -7,6 +7,9 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname.replace(regex, '/')
 
   const companyName = request.cookies.get('companyName')?.value ?? ''
+
+  console.log(path)
+
   const companyNameRegex = new RegExp(`/${companyName}`, 'g')
   // console.log(path.includes(companyName), path, companyName)
 
@@ -19,13 +22,11 @@ export function middleware(request: NextRequest) {
   )
 
   if (
-    /_next\/static|images|locales/.test(path) ||
     path === '/login/' ||
     path === `/${companyName}/login/` ||
     path.includes(companyName) ||
     request.url === newUrl.toString()
   ) {
-    // _next/static, images, locales 경로는 무시
     return NextResponse.next()
   }
 
@@ -45,5 +46,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|locales).*)'],
 }
