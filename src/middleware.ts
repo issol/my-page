@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function middleware(request: NextRequest, response: NextResponse) {
   const regex = /\/\[companyName\]\//g
 
   const path = request.nextUrl.pathname.replace(regex, '/')
@@ -20,6 +20,8 @@ export function middleware(request: NextRequest) {
     `/${companyName}${path.split('/')[1] === companyName ? '' : path}`,
     domain,
   )
+
+  response.headers.set('x-middleware-cache', 'no-cache')
 
   if (
     path === '/login/' ||
