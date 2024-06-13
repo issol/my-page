@@ -53,8 +53,36 @@ export default function Header({ userInfo }: UserInfoCardType) {
               <Typography variant='h5'>
                 {getLegalName({ firstName, middleName, lastName })}
               </Typography>
+              <Typography fontSize={16} fontWeight={400} color='#8D8E9A'>
+                {userInfo?.legalNamePronunciation
+                  ? `(${userInfo?.legalNamePronunciation})`
+                  : '-'}
+              </Typography>
+              <Box display='flex' width='24px' height='24px'>
+                <img
+                  alt=''
+                  aria-hidden
+                  src={
+                    userInfo.isOnboarded && userInfo.isActive
+                      ? `/images/icons/onboarding-icons/icon-pro-onboarding.svg`
+                      : !userInfo.isOnboarded
+                        ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                        : userInfo.isOnboarded && !userInfo.isActive
+                          ? `/images/icons/onboarding-icons/pro-inactive.png`
+                          : ''
+                  }
+                />
+              </Box>
 
-              <Divider orientation='vertical' />
+              <Divider
+                orientation='vertical'
+                flexItem
+                variant='middle'
+                sx={{
+                  color: 'rgba(76, 78, 100, 0.60)',
+                  borderWidth: 1,
+                }}
+              />
               <Typography variant='body2' fontSize={16}>
                 {userInfo.email}
               </Typography>
@@ -65,8 +93,8 @@ export default function Header({ userInfo }: UserInfoCardType) {
               color='rgba(76, 78, 100, 0.6)'
               sx={{ alignSelf: 'flex-start' }}
             >
-              {userInfo?.legalNamePronunciation
-                ? userInfo?.legalNamePronunciation
+              {userInfo?.experience
+                ? `${userInfo?.experience} of experience`
                 : '-'}
             </Typography>
           </Box>

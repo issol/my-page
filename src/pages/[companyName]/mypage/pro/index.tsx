@@ -115,7 +115,7 @@ const ProMyPage = () => {
     <>
       {auth.state === 'hasValue' ? (
         <FormProvider {...pageFormMethod}>
-          <Grid container spacing={6}>
+          <Grid container>
             <Grid item xs={12}>
               <Header userInfo={userInfo!} />
             </Grid>
@@ -137,7 +137,7 @@ const ProMyPage = () => {
                     />
                   ))}
                 </TabList>
-                <TabPanel value='overview'>
+                <TabPanel value='overview' sx={{ paddingTop: '24px' }}>
                   <Suspense fallback={<FallbackSpinner />}>
                     <MyPageOverview
                       userInfo={userInfo!}
@@ -146,12 +146,12 @@ const ProMyPage = () => {
                     />
                   </Suspense>
                 </TabPanel>
-                <TabPanel value='paymentInfo'>
+                <TabPanel value='paymentInfo' sx={{ paddingTop: '24px' }}>
                   <Suspense fallback={<FallbackSpinner />}>
                     <ProPaymentInfo user={auth.getValue().user!} />
                   </Suspense>
                 </TabPanel>
-                <TabPanel value='myAccount'>
+                <TabPanel value='myAccount' sx={{ paddingTop: '24px' }}>
                   <Suspense fallback={<FallbackSpinner />}>
                     <MyAccount user={auth.getValue().user!} />
                   </Suspense>
