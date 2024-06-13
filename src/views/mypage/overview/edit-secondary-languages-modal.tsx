@@ -12,6 +12,7 @@ import useModal from '@src/hooks/useModal'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
+import _ from 'lodash'
 
 type Props = {
   secondaryLanguages: {
@@ -125,15 +126,66 @@ const EditSecondaryLanguagesModal = ({
             gap: '16px',
           }}
         >
-          <Button variant='outlined' onClick={onClose}>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              if (
+                _.isEqual(secondaryLanguages.sort(), selectedLanguages.sort())
+              ) {
+                onClose()
+              } else {
+                openModal({
+                  type: 'DiscardChangesModal',
+                  children: (
+                    <CustomModalV2
+                      title='Discard changes?'
+                      subtitle='The changes will not be updated.'
+                      rightButtonText='Discard'
+                      vary='error'
+                      onClick={() => {
+                        closeModal('DiscardChangesModal')
+                        onClose()
+                      }}
+                      onClose={() => {
+                        closeModal('DiscardChangesModal')
+                      }}
+                    />
+                  ),
+                })
+              }
+            }}
+          >
             Cancel
           </Button>
           <Button
             variant='contained'
             onClick={() => {
-              updateSecondaryLanguages.mutate(
-                selectedLanguages.map(lang => lang.value),
-              )
+              if (
+                _.isEqual(secondaryLanguages.sort(), selectedLanguages.sort())
+              ) {
+                onClose()
+              } else {
+                openModal({
+                  type: 'SaveChangesModal',
+                  children: (
+                    <CustomModalV2
+                      title='Save changes?'
+                      subtitle='The changes will not be updated.'
+                      rightButtonText='Save'
+                      vary='successful'
+                      onClick={() => {
+                        closeModal('SaveChangesModal')
+                        updateSecondaryLanguages.mutate(
+                          selectedLanguages.map(lang => lang.value),
+                        )
+                      }}
+                      onClose={() => {
+                        closeModal('SaveChangesModal')
+                      }}
+                    />
+                  ),
+                })
+              }
             }}
           >
             Save
