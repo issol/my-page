@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest, response: NextResponse) {
+export function middleware(request: NextRequest) {
   const regex = /\/\[companyName\]\//g
 
   const path = request.nextUrl.pathname.replace(regex, '/')
@@ -30,13 +30,15 @@ export function middleware(request: NextRequest, response: NextResponse) {
     return NextResponse.next()
   }
 
+  const response = NextResponse.redirect(
+    new URL(`/${companyName}${path.replace(companyNameRegex, '')}`, domain),
+  )
+
   response.headers.set(
     'X-Nextjs-Redirect',
     `/${companyName}${path.replace(companyNameRegex, '')}`,
   )
-  return NextResponse.redirect(
-    new URL(`/${companyName}${path.replace(companyNameRegex, '')}`, domain),
-  )
+  return response
 
   // if (path.includes(companyName)) {
   //   return NextResponse.redirect(new URL(`/${path}`, domain))
