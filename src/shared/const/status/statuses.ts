@@ -94,10 +94,6 @@ export const ProStatus = [
     label: 'Onboarded',
   },
   {
-    value: 'Netflix Onboard',
-    label: 'Netflix Onboard',
-  },
-  {
     value: 'Off-board',
     label: 'Offboarded',
   },

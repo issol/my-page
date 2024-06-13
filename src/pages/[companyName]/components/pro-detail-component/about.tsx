@@ -66,7 +66,17 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
   }
 
   return (
-    <Card sx={{ padding: '20px' }}>
+    <Card
+      sx={{
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
+      <Typography fontSize={20} fontWeight={500}>
+        Profile
+      </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <Typography variant='body2'>About</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -94,30 +104,36 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
           </Box>
         ) : null}
       </Box>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-        mt='20px'
-      >
+      <Divider />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <Typography variant='body2'>Contacts</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:email-outline' style={{ opacity: '0.7' }} />
           <LabelTitle>Email:</LabelTitle>
           <Label>{userInfo.email || '-'}</Label>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Box sx={{ display: 'flex', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
-          <LabelTitle>Timezone:</LabelTitle>
+          <Box>
+            <LabelTitle>Timezone:</LabelTitle>&nbsp;&nbsp;
+            <Label>
+              {timeZoneFormatter(userInfo.timezone, timezone.getValue()) || '-'}
+            </Label>
+          </Box>
+          {/* <LabelTitle>Timezone:</LabelTitle>
           <Label>
             {timeZoneFormatter(userInfo.timezone, timezone.getValue()) || '-'}
-          </Label>
+          </Label> */}
         </Box>
         {type === 'pro' ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Box sx={{ display: 'flex', gap: '8px' }}>
             <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
-            <LabelTitle>Permanent address:</LabelTitle>
-            <Label>
-              {userInfo?.address ? getAddress([userInfo?.address]) : '-'}
-            </Label>
+            <Box>
+              <LabelTitle>Permanent address:</LabelTitle>&nbsp;&nbsp;
+              <Label>
+                {userInfo?.address ? getAddress([userInfo?.address]) : '-'}
+              </Label>
+            </Box>
           </Box>
         ) : null}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

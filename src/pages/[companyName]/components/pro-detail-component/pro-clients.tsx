@@ -6,7 +6,7 @@ import useModal from '@src/hooks/useModal'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
-  onClickEditClients: () => void
+  onClickEditClients?: () => void
   clients: Array<{ label: string; value: number }>
 }
 
@@ -49,9 +49,11 @@ const PrpClients = ({ onClickEditClients, clients }: Props) => {
           </IconButton>
         </Box>
 
-        <IconButton sx={{ padding: 0 }} onClick={onClickEditClients}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
+        {onClickEditClients ? (
+          <IconButton sx={{ padding: 0 }} onClick={onClickEditClients}>
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        ) : null}
       </Box>
       <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}>
         {clients.length > 0 ? (

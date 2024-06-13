@@ -13,14 +13,17 @@ import CustomPagination from 'src/pages/[companyName]/components/custom-paginati
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from '@src/types/onboarding/details'
-import { useRecoilStateLoadable } from 'recoil'
-import { currentRoleSelector } from '@src/states/permission'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { currentRoleSelector, timezoneSelector } from '@src/states/permission'
 import { Dispatch, MouseEvent, SetStateAction, useMemo, useState } from 'react'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import JobTypeRole from '../job-type-role-chips'
 import JobTypeRoleChips from '../job-type-role-chips/role-chip'
 import Icon from '@src/@core/components/icon'
 import { Menu, MenuItem } from '@mui/material'
+import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { authState } from '@src/states/auth'
 
 interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
@@ -78,6 +81,8 @@ const AppliedRole = ({
   status,
 }: AppliedRoleProps) => {
   const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const [anchorEl, setAnchorEl] = useState<{
     [key: number | string]: HTMLButtonElement | null
@@ -805,17 +810,12 @@ const AppliedRole = ({
     return 'Certified role and test information'
   }, [type])
 
-  const columns: GridColumns<AppliedRoleType> = [
-    {
-      field: 'id',
-      headerName: 'Id',
-      width: 165,
-      hide: true,
-    },
+  const columns: GridColDef[] = [
     {
       field: 'jobType',
       headerName: 'Job Type',
-      width: 165,
+      minWidth: 165,
+      flex: 0.1469,
       disableColumnMenu: true,
       sortable: false,
       hideSortIcons: true,
@@ -832,7 +832,8 @@ const AppliedRole = ({
     {
       field: 'role',
       headerName: 'Role',
-      width: 219,
+      minWidth: 219,
+      flex: 0.195,
       disableColumnMenu: true,
       sortable: false,
       hideSortIcons: true,
@@ -849,7 +850,8 @@ const AppliedRole = ({
     {
       field: 'languagePair',
       headerName: 'Language Pair',
-      width: 153,
+      minWidth: 156,
+      flex: 0.1389,
       disableColumnMenu: true,
       sortable: false,
       hideSortIcons: true,
@@ -870,22 +872,37 @@ const AppliedRole = ({
     {
       field: 'action',
       headerName: 'Action',
-      flex: 1,
+      minWidth: 306,
+      flex: 0.2725,
+      cellClassName: 'action-cell',
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return <Box>{getStatusButton(row)}</Box>
+      },
+    },
+    {
+      field: 'appliedDate',
+      headerName: 'Applied Date',
+      minWidth: 230,
+      flex: 0.2048,
       renderCell: ({ row }: { row: AppliedRoleType }) => {
         return (
-          <Box
-            sx={{
-              width: 270,
-              height: 32,
-              display: 'flex',
-              gap: '16px',
-              alignItems: 'center',
-            }}
-          >
-            <Box>{getStatusButton(row)}</Box>
-            <Box>{getPauseResumeButton(row)}</Box>
-          </Box>
+          <Typography fontSize={14} fontWeight={400}>
+            {convertTimeToTimezone(
+              row.createdAt,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
+          </Typography>
         )
+      },
+    },
+    {
+      field: 'actionResume',
+      headerName: '',
+      minWidth: 47,
+      flex: 0.0419,
+      renderCell: ({ row }: { row: AppliedRoleType }) => {
+        return <Box>{getPauseResumeButton(row)}</Box>
       },
     },
   ]
@@ -1013,20 +1030,33 @@ const AppliedRole = ({
         <Card>
           <Box
             sx={{
-              minHeight: 356,
+              // minHeight: 356,
               height: 356,
               '& .MuiDataGrid-columnHeaderTitle': {
                 textTransform: 'none',
               },
-              '& .MuiDataGrid-footerContainer': {
-                display: 'none',
-              },
+              // '& .MuiDataGrid-footerContainer': {
+              //   display: 'none',
+              // },
               '& .selected': {
                 background: 'rgba(76, 78, 100, 0.12)',
               },
+              '& .action-cell': {
+                padding: '10px 16px 10px 20px !important',
+              },
             }}
           >
-            <DataGrid
+            <DataGridPro
+              rows={userInfo}
+              columns={columns}
+              hideFooter
+              disableRowSelectionOnClick
+              onRowClick={e => handleClickRoleCard(e.row as AppliedRoleType)}
+              getRowClassName={params => {
+                return params.row.id === selectedJobInfo?.id ? 'selected' : ''
+              }}
+            />
+            {/* <DataGrid
               rows={userInfo}
               columns={columns}
               disableSelectionOnClick
@@ -1034,7 +1064,7 @@ const AppliedRole = ({
               getRowClassName={params => {
                 return params.row.id === selectedJobInfo?.id ? 'selected' : ''
               }}
-            />
+            /> */}
           </Box>
         </Card>
       ) : null}

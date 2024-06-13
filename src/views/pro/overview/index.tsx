@@ -79,6 +79,7 @@ import SecondaryLanguages from '@src/pages/[companyName]/components/pro-detail-c
 import EditClientsModal from './edit-clients-modal'
 import { useGetClientList } from '@src/queries/client.query'
 import ProClientsHistory from '@src/pages/[companyName]/components/pro-detail-component/pro-clients-history'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 export const ProDetailOverviews = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -265,50 +266,26 @@ const ProDetailOverview = () => {
   }
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
-    const tad = ['Off-board', 'On-hold Do not assign', 'Do not Contact']
-    const proActive = ['Onboard', 'Netflix Onboard']
-
     const curStatus = event.target.value
 
-    if (currentRole.contents.name === 'TAD' && tad.includes(curStatus)) {
+    if (currentRole.contents.name === 'TAD') {
       openModal({
         type: 'ProStatusChangeModal',
         children: (
-          <CustomModal
-            title={`Are you sure to change this Pro's status as [${curStatus}]?`}
-            rightButtonText='Save'
-            vary='error'
+          <CustomModalV2
+            title='Change status?'
+            subtitle={`Are you sure you want to change this Pro’s status as [${curStatus}]?`}
+            vary='error-report'
             onClick={() => {
               closeModal('ProStatusChangeModal')
               handleChangeProStatus(curStatus)
             }}
             onClose={() => closeModal('ProStatusChangeModal')}
-          />
-        ),
-      })
-    } else if (proActive.includes(curStatus)) {
-      openModal({
-        type: 'ProActiveStatusChangeModal',
-        children: (
-          <CustomModal
-            title={`Are you sure to change this Pro's status as [${curStatus}]?`}
             rightButtonText='Save'
-            vary='successful'
-            onClick={() => {
-              closeModal('ProActiveStatusChangeModal')
-              handleChangeActiveStatus(curStatus)
-            }}
-            onClose={() => closeModal('ProActiveStatusChangeModal')}
           />
         ),
       })
     }
-
-    // setStatus(event.target.value as string)
-    // changeProStatusMutation.mutate({
-    //   userId: Number(id!),
-    //   status: event.target.value,
-    // })
   }
   const handleChangeRolePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -1157,10 +1134,14 @@ const ProDetailOverview = () => {
               <Grid item xs={12}>
                 <Grid container spacing={6}>
                   <Grid item xs={6}>
-                    <ProClients
-                      onClickEditClients={onClickEditClients}
-                      clients={clients ?? []}
-                    />
+                    {currentRole.contents.name === 'TAD' ? (
+                      <ProClients
+                        onClickEditClients={onClickEditClients}
+                        clients={clients ?? []}
+                      />
+                    ) : (
+                      <ProClients clients={clients ?? []} />
+                    )}
                   </Grid>
                   <Grid item xs={6}>
                     <ProClientsHistory
