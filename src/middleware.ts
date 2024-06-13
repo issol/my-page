@@ -21,8 +21,6 @@ export function middleware(request: NextRequest, response: NextResponse) {
     domain,
   )
 
-  response.headers.set('x-middleware-cache', 'no-cache')
-
   if (
     path === '/login/' ||
     path === `/${companyName}/login/` ||
@@ -32,6 +30,10 @@ export function middleware(request: NextRequest, response: NextResponse) {
     return NextResponse.next()
   }
 
+  response.headers.set(
+    'X-Nextjs-Redirect',
+    `/${companyName}${path.replace(companyNameRegex, '')}`,
+  )
   return NextResponse.redirect(
     new URL(`/${companyName}${path.replace(companyNameRegex, '')}`, domain),
   )
