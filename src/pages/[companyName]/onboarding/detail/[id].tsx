@@ -1,4 +1,4 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, Divider, Grid, Typography } from '@mui/material'
 
 import { useRouter } from 'next/router'
 
@@ -63,6 +63,14 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import languageHelper from '@src/shared/helpers/language.helper'
+import ProClients from '../../components/pro-detail-component/pro-clients'
+import ProClientsHistory from '../../components/pro-detail-component/pro-clients-history'
+import SecondaryLanguages from '../../components/pro-detail-component/secondary-languages'
+import {
+  useGetProClients,
+  useGetProSecondaryLanguages,
+} from '@src/queries/pro/pro-details.query'
+import EditClientsModal from '@src/views/pro/overview/edit-clients-modal'
 
 const OnboardingDetails = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -83,6 +91,8 @@ function OnboardingDetail() {
 
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
   const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
+  const { data: secondaryLanguages } = useGetProSecondaryLanguages(Number(id!))
+  const { data: clients } = useGetProClients(Number(id!))
 
   const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
@@ -903,6 +913,19 @@ function OnboardingDetail() {
     })
   }
 
+  const onClickEditClients = () => {
+    openModal({
+      type: 'EditClientsModal',
+      children: (
+        <EditClientsModal
+          clients={clients ?? []}
+          userId={Number(id!)}
+          onClose={() => closeModal('EditClientsModal')}
+        />
+      ),
+    })
+  }
+
   return (
     <Grid container xs={12} spacing={6}>
       {/* <AssignTestModal
@@ -940,7 +963,7 @@ function OnboardingDetail() {
           onCloseModal('role')
         }}
       /> */}
-      {isFetched && !isError ? (
+      {isFetched && !isError && userInfo ? (
         <>
           <Grid item xs={12}>
             <DesignedCard>
@@ -952,41 +975,78 @@ function OnboardingDetail() {
                     <img
                       width={110}
                       height={110}
-                      src={getProfileImg('TAD')}
+                      src={getProfileImg('PRO')}
                       alt=''
                     />
                   </Card>
-                  <Box sx={{ alignSelf: 'self-end' }}>
+
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    alignSelf='self-end'
+                    gap='8px'
+                    flexDirection='column'
+                  >
                     <Box
-                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                      display='flex'
+                      alignItems='center'
+                      alignSelf='self-end'
+                      gap='8px'
+                      height='32px'
                     >
                       <Typography variant='h5'>
-                        {getLegalName(userInfo!)}
+                        {getLegalName({
+                          firstName: userInfo.firstName,
+                          lastName: userInfo.lastName,
+                          middleName: userInfo.middleName,
+                        })}
                       </Typography>
-                      <img
-                        width={32}
-                        height={32}
-                        src={
-                          userInfo!.isOnboarded && userInfo!.isActive
-                            ? `/images/icons/onboarding-icons/pro-active.png`
-                            : !userInfo!.isOnboarded
-                              ? `/images/icons/onboarding-icons/pro-onboarding.svg`
-                              : userInfo!.isOnboarded && !userInfo!.isActive
-                                ? `/images/icons/onboarding-icons/pro-inactive.png`
-                                : ''
-                        }
-                        alt='onboarding'
+                      <Typography
+                        fontSize={16}
+                        fontWeight={400}
+                        color='#8D8E9A'
+                      >
+                        {userInfo?.legalNamePronunciation
+                          ? `(${userInfo?.legalNamePronunciation})`
+                          : '-'}
+                      </Typography>
+                      <Box display='flex' width='24px' height='24px'>
+                        <img
+                          alt=''
+                          aria-hidden
+                          src={
+                            userInfo.isOnboarded && userInfo.isActive
+                              ? `/images/icons/onboarding-icons/icon-pro-onboarding.svg`
+                              : !userInfo.isOnboarded
+                                ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                                : userInfo.isOnboarded && !userInfo.isActive
+                                  ? `/images/icons/onboarding-icons/pro-inactive.png`
+                                  : ''
+                          }
+                        />
+                      </Box>
+
+                      <Divider
+                        orientation='vertical'
+                        flexItem
+                        variant='middle'
+                        sx={{
+                          color: 'rgba(76, 78, 100, 0.60)',
+                          borderWidth: 1,
+                        }}
                       />
+                      <Typography variant='body2' fontSize={16}>
+                        {userInfo.email}
+                      </Typography>
                     </Box>
                     <Typography
-                      sx={{
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: 'rgba(76, 78, 100, 0.6)',
-                      }}
+                      fontSize={16}
+                      fontWeight={600}
+                      color='rgba(76, 78, 100, 0.6)'
+                      sx={{ alignSelf: 'flex-start' }}
                     >
-                      {userInfo!.legalNamePronunciation
-                        ? userInfo!.legalNamePronunciation
+                      {userInfo?.experience
+                        ? `${userInfo?.experience} of experience`
                         : '-'}
                     </Typography>
                   </Box>
@@ -1039,12 +1099,44 @@ function OnboardingDetail() {
                 width: '100%',
               }}
             >
-              <Grid item xs={12} display='flex' gap='24px'>
-                <Grid item xs={6}>
-                  <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Contracts
+                      userInfo={userInfo!}
+                      onClickContracts={onClickFile}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={6}>
-                  <Experience userInfo={userInfo!} />
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <ProClients
+                      onClickEditClients={onClickEditClients}
+                      clients={clients ?? []}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <ProClientsHistory
+                      history={userInfo?.clientHistory ?? []}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <Specialties userInfo={userInfo!} />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <SecondaryLanguages
+                      secondaryLanguages={secondaryLanguages ?? []}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12}>
@@ -1105,17 +1197,6 @@ function OnboardingDetail() {
                   addComment={addComment}
                   ability={ability}
                 />
-              </Grid>
-              <Grid item xs={12} display='flex' gap='24px'>
-                <Grid item xs={6}>
-                  <Contracts
-                    userInfo={userInfo!}
-                    onClickContracts={onClickFile}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <Specialties userInfo={userInfo!} />
-                </Grid>
               </Grid>
             </Box>
           </Grid>
