@@ -15,6 +15,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import _ from 'lodash'
 import { useGetClientList } from '@src/queries/client.query'
 import { updateProClients } from '@src/apis/pro/pro-details.api'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 type Props = {
   clients: Array<{ label: string; value: number }>
@@ -45,6 +46,7 @@ const EditClientsModal = ({ clients, onClose, userId }: Props) => {
     (data: number[]) => updateProClients(userId, data),
     {
       onSuccess: () => {
+        displayCustomToast('Saved successfully', 'success')
         onClose()
         queryClient.invalidateQueries('pro-overview')
         queryClient.invalidateQueries('proClients')

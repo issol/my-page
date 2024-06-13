@@ -13,6 +13,7 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import _ from 'lodash'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 type Props = {
   secondaryLanguages: {
@@ -39,6 +40,7 @@ const EditSecondaryLanguagesModal = ({
     (languages: string[]) => updateProSecondaryLanguages(userId, languages),
     {
       onSuccess: () => {
+        displayCustomToast('Saved successfully', 'success')
         onClose()
         queryClient.invalidateQueries(['proSecondaryLanguages'])
       },
