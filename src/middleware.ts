@@ -8,8 +8,6 @@ export function middleware(request: NextRequest) {
 
   const companyName = request.cookies.get('companyName')?.value ?? ''
 
-  console.log(path)
-
   const companyNameRegex = new RegExp(`/${companyName}`, 'g')
   // console.log(path.includes(companyName), path, companyName)
 
@@ -31,13 +29,16 @@ export function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.redirect(
-    new URL(`/${companyName}${path.replace(companyNameRegex, '')}`, domain),
+    new URL(
+      `/${companyName}${path.replace(companyNameRegex, '')}${request.nextUrl.search}`,
+      domain,
+    ),
   )
 
-  // response.headers.set(
-  //   'X-Nextjs-Redirect',
-  //   `/${companyName}${path.replace(companyNameRegex, '')}`,
-  // )
+  response.headers.set(
+    'X-Nextjs-Redirect',
+    `/${companyName}${path.replace(companyNameRegex, '')}${request.nextUrl.search}`,
+  )
   return response
 
   // if (path.includes(companyName)) {
