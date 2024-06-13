@@ -34,10 +34,10 @@ export function middleware(request: NextRequest) {
     new URL(`/${companyName}${path.replace(companyNameRegex, '')}`, domain),
   )
 
-  response.headers.set(
-    'X-Nextjs-Redirect',
-    `/${companyName}${path.replace(companyNameRegex, '')}`,
-  )
+  // response.headers.set(
+  //   'X-Nextjs-Redirect',
+  //   `/${companyName}${path.replace(companyNameRegex, '')}`,
+  // )
   return response
 
   // if (path.includes(companyName)) {
