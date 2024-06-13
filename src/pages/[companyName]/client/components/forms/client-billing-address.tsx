@@ -170,13 +170,13 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
       </Grid>
       <Grid item xs={6}>
         <Box
+          className='filterFormAutoComplete'
           sx={{
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
             '.MuiInputBase-root': {
-              height: '46px',
-              padding: '0 10px',
+              padding: '0 12px',
             },
           }}
         >
@@ -252,7 +252,7 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
                   Boolean(errors?.zipCode)
                     ? errors?.zipCode?.type === 'required'
                       ? FormErrors.required
-                      : FormErrors.invalidZipCode 
+                      : FormErrors.invalidZipCode
                     : ''
                 }
                 value={value ?? ''}

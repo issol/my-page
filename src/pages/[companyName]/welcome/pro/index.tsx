@@ -525,6 +525,7 @@ const PersonalInfoPro = () => {
   }
 
   const onSubmit = (data: Omit<PersonalInfo, 'address'>) => {
+    console.log(data)
     handleNext()
 
     // if (data.resume?.length) {
@@ -1600,7 +1601,7 @@ const PersonalInfoPro = () => {
                                   return option.value === newValue.value
                                 }}
                                 disableCloseOnSelect
-                                limitTags={2}
+                                limitTags={1}
                                 id='source'
                                 renderInput={params => (
                                   <TextField {...params} autoComplete='off' />

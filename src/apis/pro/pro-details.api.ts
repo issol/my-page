@@ -32,16 +32,20 @@ export const getMyOverview = async (
 export const getProSecondaryLanguages = async (
   userId: number,
 ): Promise<string[]> => {
-  // const { data } = await axios.get<string[]>(`/api/enough/u/pro/${userId}/secondary-languages`)
-  // return data
+  const { data } = await axios.get(
+    `/api/enough/u/pro/${userId}/secondary-languages`,
+  )
 
-  const data = [
-    'Chinese (Simplified, China)',
-    'Russian (Russia)',
-    'Arabic (Iraq)',
-  ]
+  return data.secondaryLanguages ?? []
+}
 
-  return data
+export const updateProSecondaryLanguages = async (
+  userId: number,
+  languages: string[],
+) => {
+  await axios.patch(`/api/enough/u/pro/${userId}/secondary-languages`, {
+    secondaryLanguages: languages,
+  })
 }
 
 export const getProWorkDays = async (

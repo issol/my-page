@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import { Box, Card, Typography, IconButton } from '@mui/material'
+import languageHelper from '@src/shared/helpers/language.helper'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
@@ -24,13 +25,24 @@ const SecondaryLanguages = ({
         </IconButton>
       </Box>
 
-      <Box sx={{ width: '100%', display: 'flex', gap: '4px' }}>
-        {secondaryLanguages.map((value, index) => (
-          <Typography fontSize={16} fontWeight={600} key={uuidv4()}>
-            {value}
-            {index === secondaryLanguages.length - 1 ? '' : ', '}
+      <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}>
+        {secondaryLanguages.length > 0 ? (
+          secondaryLanguages.map((value, index) => (
+            <Typography
+              fontSize={16}
+              fontWeight={600}
+              key={uuidv4()}
+              // component={'span'}
+            >
+              {languageHelper(value)}
+              {index === secondaryLanguages.length - 1 ? '' : ', '}&nbsp;
+            </Typography>
+          ))
+        ) : (
+          <Typography fontSize={16} fontWeight={600}>
+            -
           </Typography>
-        ))}
+        )}
       </Box>
     </Card>
   )

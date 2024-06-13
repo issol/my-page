@@ -98,6 +98,8 @@ import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { CertifiedRoleType } from '@src/types/onboarding/details'
 import AddIcon from '@mui/icons-material/Add'
 import SecondaryLanguages from '@src/pages/[companyName]/components/pro-detail-component/secondary-languages'
+import EditSecondaryLanguagesModal from './edit-secondary-languages-modal'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
   userInfo: DetailUserType
@@ -664,6 +666,21 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onClickEditSecondaryLanguages = () => {
+    openModal({
+      type: 'EditSecondaryLanguages',
+      children: (
+        <EditSecondaryLanguagesModal
+          secondaryLanguages={
+            secondaryLanguages?.map(value => ({
+              value: value,
+              label: languageHelper(value) ?? '',
+            })) ?? []
+          }
+          onClose={() => closeModal('EditSecondaryLanguages')}
+          userId={user.userId!}
+        />
+      ),
+    })
     // openModal()
   }
 
