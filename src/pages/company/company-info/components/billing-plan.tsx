@@ -38,7 +38,6 @@ import 'react-credit-cards/es/styles-compiled.css'
 import { CurrentPlanType, PlanPeriodType } from '@src/types/company/billing-plan'
 import Link from 'next/link'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { useGetPlanList } from '@src/queries/company/billing-plan.query'
 import StartSubscriptionModal from '../../components/billing-plan/modal/start-subscription-modal'
 import { getCustomerPortalLink, getPaymentLink } from '@src/apis/company/billing-plan.api'
 import { toast } from 'react-hot-toast'
@@ -83,8 +82,6 @@ const BillingPlan = ({
   const [hasPlan, setHasPlan] = useState<boolean>(false)
   const [planPeriod, setPlanPeriod] = useState<PlanPeriodType>(defaultPlanPeriod)
 
-  const { data: planList, refetch: planListRefetch } = useGetPlanList()
-
   const onStartSubscription = async (planId: string) => {
     try {
       const subscriptionLink = await getPaymentLink(planId)
@@ -110,7 +107,6 @@ const BillingPlan = ({
       children: (
         <StartSubscriptionModal
           title='Start Subscription'
-          planList={planList!}
           userInfo={auth.user}
           onSubscription={onStartSubscription}
           onClose={() => closeModal('signup-not-approval-modal')}
