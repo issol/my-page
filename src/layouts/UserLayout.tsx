@@ -72,10 +72,17 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   }
 
   const [publicPage, setPublicPage] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isSeatAssigned, setIsSeatAssigned] = useState(false)
 
   useEffect(() => {
     const user = userData.getValue().user
     setPublicPage(!user)
+
+    if(user){
+      setIsSubscribed(user.isSubscribed)
+      setIsSeatAssigned(user.isSeatAssigned)
+    }
   }, [userData])
 
   useEffect(() => {

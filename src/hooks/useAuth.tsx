@@ -127,29 +127,34 @@ const useAuth = () => {
 
                 const companyName = res.company ?? null
                 setCookie('companyName', companyName, { secure: true })
-
-                if (role) {
-                  switch (role.name) {
-                    case 'PRO':
-                      router.replace(`/dashboards/pro`)
-                      break
-                    case 'LPM':
-                      router.replace(`/dashboards/lpm`)
-                      break
-                    case 'TAD':
-                      router.replace(`/dashboards/tad`)
-                      break
-                    case 'ACCOUNT_MANAGER':
-                      router.replace(`/dashboards/account`)
-                      break
-                    case 'CLIENT':
-                      router.replace(`/dashboards/client`)
-                      break
-
-                    default:
-                      router.replace('/')
-                  }
+                if (companyName) {
+                  router.replace(`/${companyName}/`)
+                } else {
+                  router.replace('/')
                 }
+                // router.replace()
+                // if (role) {
+                //   switch (role.name) {
+                //     case 'PRO':
+                //       router.replace(`/dashboards/pro`)
+                //       break
+                //     case 'LPM':
+                //       router.replace(`/dashboards/lpm`)
+                //       break
+                //     case 'TAD':
+                //       router.replace(`/dashboards/tad`)
+                //       break
+                //     case 'ACCOUNT_MANAGER':
+                //       router.replace(`/dashboards/account`)
+                //       break
+                //     case 'CLIENT':
+                //       router.replace(`/dashboards/client`)
+                //       break
+
+                //     default:
+                //       router.replace('/')
+                //   }
+                // }
               }
             }
           })

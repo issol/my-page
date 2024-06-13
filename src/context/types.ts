@@ -66,6 +66,9 @@ export type UserDataType = {
   addresses: ClientAddressType<number>[]
   fromSNS?: null | 'GOOGLE'
   roles?: Array<UserRoleType>
+  companyId?: string
+  isSubscribed: boolean // 구독 여부
+  isSeatAssigned: boolean // 좌석 할당 여부
 }
 
 export type LoginSuccessResponse = {

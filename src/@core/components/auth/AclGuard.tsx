@@ -22,6 +22,7 @@ import BlankLayout from '@src/@core/layouts/BlankLayout'
 import FallbackSpinner from '../spinner'
 import { permissionState } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { getCookie } from 'cookies-next'
 
 interface AclGuardProps {
   children: ReactNode
@@ -32,6 +33,7 @@ interface AclGuardProps {
 const AclGuard = (props: AclGuardProps) => {
   // ** Props
   const { aclAbilities, children, guestGuard } = props
+  const companyName = getCookie('companyName')
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
@@ -95,7 +97,7 @@ const AclGuard = (props: AclGuardProps) => {
       ability === undefined ||
       checkAbility === undefined ? (
         <FallbackSpinner />
-      ) : checkAbility ? (
+      ) : checkAbility || router.asPath === `/${companyName}/` ? (
         <AbilityContext.Provider value={ability}>
           {children}
         </AbilityContext.Provider>

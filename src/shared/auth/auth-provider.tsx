@@ -29,6 +29,7 @@ import {
   timezoneSelector,
 } from '@src/states/permission'
 import { setAllTimeZoneList } from '../helpers/timezone.helper'
+import { getCookie } from 'cookies-next'
 
 type Props = {
   children: ReactNode
@@ -73,9 +74,12 @@ const AuthProvider = ({ children }: Props) => {
       currentRole.state === 'hasValue' &&
       permission.state === 'hasValue'
     ) {
+      console.log('hi')
+
       setPermission(permission.getValue())
       setRoles(roles.getValue())
       const roleNames = roles.getValue().map(item => item.name)
+      const companyName = getCookie('companyName')
 
       const redirectPath = getRedirectPath()
 
@@ -108,6 +112,19 @@ const AuthProvider = ({ children }: Props) => {
             auth.getValue().user?.firstName &&
             auth.getValue().user?.firstName != ''
           ) {
+            if (
+              redirectPath &&
+              redirectPath !== `/${companyName}/` &&
+              redirectPath !== `/${companyName}`
+            ) {
+              router.replace(redirectPath)
+              removeRedirectPath()
+            } else {
+              router.replace(
+                `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
+              )
+              removeRedirectPath()
+            }
             return
           } else {
             router.replace('/welcome/pro')
@@ -117,9 +134,18 @@ const AuthProvider = ({ children }: Props) => {
             auth.getValue().user?.firstName &&
             auth.getValue().user?.firstName != ''
           ) {
-            if (redirectPath) {
+            if (
+              redirectPath &&
+              redirectPath !== `/${companyName}/` &&
+              redirectPath !== `/${companyName}`
+            ) {
               router.replace(redirectPath)
               removeRedirectPath()
+            } else {
+              removeRedirectPath()
+              router.replace(
+                `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
+              )
             }
             return
           } else {
@@ -145,8 +171,10 @@ const AuthProvider = ({ children }: Props) => {
         router.replace(redirectPath)
         removeRedirectPath()
         // return
-      } else if (router.pathname === '/') {
-        router.push(`/dashboards`)
+      } else if (router.asPath === `/${companyName}/`) {
+        console.log('hi')
+
+        // router.push(`${companyName}/dashboards`)
       }
     }
   }, [auth, roles, permission])
@@ -163,7 +191,15 @@ const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-      router.pathname === '/' && router.replace('/login')
+      const companyName = getCookie('companyName')
+      // console.log(router.pathname, 'init path')
+
+      // if (router.pathname === '/') {
+      //   router.replace('/login')
+      // }
+      // else if (router.asPath === `/${companyName}/`) {
+      //   router.replace(`/${companyName}/login`)
+      // }
 
       const storedToken = getUserTokenFromBrowser()!
 
