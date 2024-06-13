@@ -663,6 +663,12 @@ export default function Filters({
                           onFocus={onFocusSearchInput}
                           onBlur={() => setOnFocused(false)}
                           onChange={onChange}
+                          inputProps={{
+                            style: {
+                              height: '46px',
+                              padding: '0 4px',
+                            },
+                          }}
                           type={'text'}
                           endAdornment={
                             <InputAdornment position='end'>
