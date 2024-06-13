@@ -574,7 +574,7 @@ const CertificationTest = ({
                                 }}
                               />
                             )}
-
+                            {/*
                             {skillTest!.status === 'Skill submitted' ? (
                               <Button
                                 variant='contained'
@@ -585,7 +585,9 @@ const CertificationTest = ({
                               >
                                 Assign reviewer
                               </Button>
-                            ) : skillTest!.status === 'Review completed' ? (
+                            ) :  */}
+                            {skillTest!.status === 'Review completed' ||
+                            skillTest!.status === 'Skill submitted' ? (
                               <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Button
                                   variant='outlined'
