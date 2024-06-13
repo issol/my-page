@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   secondaryLanguages: string[]
-  onClickEditSecondaryLanguages: () => void
+  onClickEditSecondaryLanguages?: () => void
 }
 const SecondaryLanguages = ({
   secondaryLanguages,
@@ -20,9 +20,15 @@ const SecondaryLanguages = ({
         paddingBottom='24px'
       >
         <Typography variant='h6'>Secondary languages</Typography>
-        <IconButton onClick={onClickEditSecondaryLanguages}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
+        {onClickEditSecondaryLanguages ? (
+          <IconButton
+            onClick={() => {
+              onClickEditSecondaryLanguages && onClickEditSecondaryLanguages()
+            }}
+          >
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        ) : null}
       </Box>
 
       <Box sx={{ width: '100%', display: 'flex', flexWrap: 'wrap' }}>

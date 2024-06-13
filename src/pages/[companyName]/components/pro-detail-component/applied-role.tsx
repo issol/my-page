@@ -798,10 +798,11 @@ const AppliedRole = ({
   }
 
   const SectionTitle = useMemo(() => {
-    if (type === 'onboarding') return 'Applied Role'
-    if (currentRole.contents.name === 'LPM')
-      return 'Certified role and test information'
-    return "Pro's role and Applied"
+    // if (type === 'onboarding') return 'Applied Role'
+    // if (currentRole.contents.name === 'LPM')
+    //   return 'Certified role and test information'
+    // return "Pro's role and Applied"
+    return 'Certified role and test information'
   }, [type])
 
   const columns: GridColumns<AppliedRoleType> = [

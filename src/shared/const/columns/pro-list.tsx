@@ -304,6 +304,7 @@ export const getProListColumns = (
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
+      cellClassName: 'clients',
       renderHeader: () => <Box>Clients</Box>,
       renderCell: ({ row }: ProListCellType) => {
         return (
@@ -311,35 +312,49 @@ export const getProListColumns = (
             sx={{
               display: 'flex',
               alignItems: 'center',
+              width: '100%',
             }}
           >
-            {!row.clients?.length
-              ? '-'
-              : row.clients?.map(
-                  (item, idx) =>
-                    idx < 2 && (
-                      <Box
-                        key={uuidv4()}
-                        sx={{
-                          display: 'flex',
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            maxWidth: '150px',
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {item.client}{' '}
-                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
+            <Box
+              sx={{
+                // width: 'calc(100% - 37px)',
+                display: 'flex',
+                maxWidth: 'calc(100% - 37px)',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {!row.clients?.length
+                ? '-'
+                : row.clients?.map(
+                    (item, idx) =>
+                      idx < 2 && (
+                        <Box key={uuidv4()}>
+                          <Typography fontSize={14}>
+                            {item.client}
+                            {idx === 0 && row.clients.length > 1 && ','}&nbsp;
+                          </Typography>
                         </Box>
-                      </Box>
-                    ),
-                )}
+                      ),
+                  )}
+            </Box>
+
             {row.clients?.length > 1 ? (
-              <Box>+{row.clients?.length - 1}</Box>
+              <Tooltip
+                title={
+                  row.clients.slice(2).length > 0 ? (
+                    <ul style={{ paddingLeft: '16px' }}>
+                      {row.clients.slice(2).map(value => {
+                        return <li key={uuidv4()}>{value.client}</li>
+                      })}
+                    </ul>
+                  ) : null
+                }
+                placement='bottom-start'
+              >
+                <CountChip>+{row.clients?.length - 2}</CountChip>
+              </Tooltip>
             ) : null}
           </Box>
         )
@@ -463,7 +478,8 @@ export const getProListColumns = (
   return columns
 }
 
-const CountChip = styled('p')`
+const CountChip = styled('div')`
+  min-width: 37px;
   padding: 3px 4px;
   text-align: center;
   width: 40px;

@@ -3,6 +3,7 @@ import {
   getMyOverview,
   getProOverview,
   getProSecondaryLanguages,
+  getProClients,
 } from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
@@ -102,4 +103,18 @@ export const useGetProSecondaryLanguages = (userId: number) => {
       useErrorBoundary: true,
     },
   )
+}
+
+export const useGetProClients = (userId: number) => {
+  return useQuery(['proClients', userId], () => getProClients(userId), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
+    useErrorBoundary: true,
+    select: data => {
+      return data.map((value: { id: number; client: string }) => ({
+        value: value.id,
+        label: value.client,
+      }))
+    },
+  })
 }

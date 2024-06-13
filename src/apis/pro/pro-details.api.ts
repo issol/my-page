@@ -48,6 +48,27 @@ export const updateProSecondaryLanguages = async (
   })
 }
 
+export const getProClients = async (
+  userId: number,
+): Promise<
+  Array<{
+    id: number
+    client: string
+  }>
+> => {
+  const { data } = await axios.get(
+    `/api/enough/u/pro/client-access-of-pro/${userId}`,
+  )
+
+  return data.clients
+}
+
+export const updateProClients = async (userId: number, clients: number[]) => {
+  await axios.put(`/api/enough/u/pro/client-access-of-pro/${userId}`, {
+    clientId: clients,
+  })
+}
+
 export const getProWorkDays = async (
   userId: number,
   year: number,

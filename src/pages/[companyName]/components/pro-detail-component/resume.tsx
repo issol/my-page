@@ -227,7 +227,9 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   }
 
   return (
-    <Card sx={{ padding: '20px 20px 0 20px', height: '100%' }}>
+    <Card
+      sx={{ padding: '20px 20px 0 20px', height: '100%', minHeight: '178px' }}
+    >
       <TypoGraphy
         variant='h6'
         sx={{

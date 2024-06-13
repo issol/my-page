@@ -58,7 +58,9 @@ import Contracts from 'src/pages/[companyName]/components/pro-detail-component/c
 import CertificationTest from 'src/pages/[companyName]/components/pro-detail-component/certification-test'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
+  useGetProClients,
   useGetProOverview,
+  useGetProSecondaryLanguages,
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro/pro-details.api'
@@ -71,6 +73,12 @@ import { currentRoleSelector } from '@src/states/permission'
 
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import languageHelper from '@src/shared/helpers/language.helper'
+import ProClients from '@src/pages/[companyName]/components/pro-detail-component/pro-clients'
+import PrpClientsHistory from '@src/pages/[companyName]/components/pro-detail-component/pro-clients-history'
+import SecondaryLanguages from '@src/pages/[companyName]/components/pro-detail-component/secondary-languages'
+import EditClientsModal from './edit-clients-modal'
+import { useGetClientList } from '@src/queries/client.query'
+import ProClientsHistory from '@src/pages/[companyName]/components/pro-detail-component/pro-clients-history'
 
 export const ProDetailOverviews = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -96,6 +104,8 @@ const ProDetailOverview = () => {
 
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
   const { data: offDays } = useGetProWorkDays(Number(id!), year, month)
+  const { data: secondaryLanguages } = useGetProSecondaryLanguages(Number(id!))
+  const { data: clients } = useGetProClients(Number(id!))
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
@@ -1017,6 +1027,19 @@ const ProDetailOverview = () => {
     })
   }
 
+  const onClickEditClients = () => {
+    openModal({
+      type: 'EditClientsModal',
+      children: (
+        <EditClientsModal
+          clients={clients ?? []}
+          userId={Number(id!)}
+          onClose={() => closeModal('EditClientsModal')}
+        />
+      ),
+    })
+  }
+
   return (
     <Grid container spacing={6}>
       {isFetched && !isError ? (
@@ -1122,7 +1145,40 @@ const ProDetailOverview = () => {
                   <Resume userInfo={userInfo!} onClickResume={onClickFile} />
                 </Grid>
                 <Grid item xs={6}>
+                  <Contracts
+                    userInfo={userInfo!}
+                    onClickContracts={onClickFile}
+                  />
+                </Grid>
+                {/* <Grid item xs={6}>
                   <Experience userInfo={userInfo!} />
+                </Grid> */}
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <ProClients
+                      onClickEditClients={onClickEditClients}
+                      clients={clients ?? []}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <ProClientsHistory
+                      history={userInfo?.clientHistory ?? []}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <Specialties userInfo={userInfo!} />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <SecondaryLanguages
+                      secondaryLanguages={secondaryLanguages ?? []}
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item xs={12}>
@@ -1190,15 +1246,15 @@ const ProDetailOverview = () => {
                 />
               </Grid>
               <Grid item xs={12} display='flex' gap='24px'>
-                <Grid item xs={6}>
+                {/* <Grid item xs={6}>
                   <Contracts
                     userInfo={userInfo!}
                     onClickContracts={onClickFile}
                   />
-                </Grid>
-                <Grid item xs={6}>
+                </Grid> */}
+                {/* <Grid item xs={6}>
                   <Specialties userInfo={userInfo!} />
-                </Grid>
+                </Grid> */}
               </Grid>
             </Box>
           </Grid>

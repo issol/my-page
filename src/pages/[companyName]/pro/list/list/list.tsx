@@ -110,6 +110,9 @@ const ProList = ({
             '& .MuiDataGrid-filler--pinnedLeft': {
               backgroundColor: '#FFF',
             },
+            '& .clients': {
+              padding: '0 4px !important',
+            },
             borderRadius: 'none',
           }}
           slots={{

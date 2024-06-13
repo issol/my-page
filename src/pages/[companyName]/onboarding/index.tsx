@@ -1,4 +1,4 @@
-import { Grid, IconButton, Tooltip, Typography } from '@mui/material'
+import { Grid, IconButton, Tooltip, Typography, styled } from '@mui/material'
 
 import PageHeader from '@src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
@@ -7,6 +7,7 @@ import OnboardingList from './components/list/list'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { MouseEvent } from 'react'
 import { JobList } from '@src/shared/const/job/jobs'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import {
@@ -54,6 +55,10 @@ import _ from 'lodash'
 import { getOnboardingProList } from '@src/apis/onboarding.api'
 
 import { getTimezonePin } from '@src/shared/auth/storage'
+import Tab from '@mui/material/Tab'
+import TabList from '@mui/lab/TabList'
+import TabPanel from '@mui/lab/TabPanel'
+import TabContext from '@mui/lab/TabContext'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -79,6 +84,8 @@ const initialFilter: OnboardingFilterType = {
   order: 'desc',
 }
 
+type MenuType = 'new' | 'onboarded'
+
 export default function Onboarding() {
   const queryClient = useQueryClient()
   const savedFilter: FilterType | null = getUserFilters(
@@ -92,6 +99,7 @@ export default function Onboarding() {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const [rows, setRows] = useState<OnboardingListType[]>([])
+  const [currentTab, setCurrentTab] = useState<MenuType>('new')
 
   const { openModal, closeModal } = useModal()
 
@@ -136,6 +144,10 @@ export default function Onboarding() {
 
     setFilters(initialFilter)
     saveUserFilters(FilterKey.ONBOARDING_LIST, { ...defaultValues })
+  }
+
+  const handleChange = (_: any, value: MenuType) => {
+    setCurrentTab(value)
   }
 
   const onSubmit = (data: FilterType) => {
@@ -646,43 +658,109 @@ export default function Onboarding() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ width: '100%' }}>
-        <Filters
-          onboardingProListCount={totalCount}
-          control={control}
-          handleSubmit={handleSubmit}
-          onSubmit={onSubmit}
-          trigger={trigger}
-          setJobTypeOptions={setJobTypeOptions}
-          setRoleOptions={setRoleOptions}
-          jobTypeOptions={jobTypeOptions}
-          roleOptions={roleOptions}
-          languageList={languageList}
-          timezoneList={timezoneList}
-          setTimezoneList={setTimezoneList}
-          timezone={timezone.getValue()}
-          onClickResetButton={onClickResetButton}
-          handleFilterStateChange={handleFilterStateChange}
-          expanded={expanded}
-        />
-      </Box>
-      <Box sx={{ width: '100%' }}>
-        <OnboardingList
-          onboardingProListCount={totalCount}
-          onboardingProList={rows || []}
-          onboardingListPage={onboardingListPage}
-          setOnboardingListPage={setOnboardingListPage}
-          onboardingListPageSize={onboardingListPageSize}
-          setOnboardingListPageSize={setOnboardingListPageSize}
-          columns={columns}
-          setFilters={setFilters}
-          isLoading={loading}
-          handleRowClick={handleRowClick}
-          setRows={setRows}
-          filters={filters!}
-          setLoading={setLoading}
-        />
-      </Box>
+      <TabContext value={currentTab}>
+        <TabList
+          onChange={handleChange}
+          aria-label='Onboarding list tabs'
+          style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+        >
+          <CustomTab
+            value='new'
+            label='New applicants'
+            iconPosition='start'
+            onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+          />
+          <CustomTab
+            value='onboarded'
+            label='Onboarded Pros'
+            iconPosition='start'
+            onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+          />
+        </TabList>
+
+        <TabPanel value='new' sx={{ paddingTop: '24px' }}>
+          <>
+            <Box sx={{ width: '100%' }}>
+              <Filters
+                onboardingProListCount={totalCount}
+                control={control}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                trigger={trigger}
+                setJobTypeOptions={setJobTypeOptions}
+                setRoleOptions={setRoleOptions}
+                jobTypeOptions={jobTypeOptions}
+                roleOptions={roleOptions}
+                languageList={languageList}
+                timezoneList={timezoneList}
+                setTimezoneList={setTimezoneList}
+                timezone={timezone.getValue()}
+                onClickResetButton={onClickResetButton}
+                handleFilterStateChange={handleFilterStateChange}
+                expanded={expanded}
+              />
+            </Box>
+            <Box sx={{ width: '100%' }}>
+              <OnboardingList
+                onboardingProListCount={totalCount}
+                onboardingProList={rows || []}
+                onboardingListPage={onboardingListPage}
+                setOnboardingListPage={setOnboardingListPage}
+                onboardingListPageSize={onboardingListPageSize}
+                setOnboardingListPageSize={setOnboardingListPageSize}
+                columns={columns}
+                setFilters={setFilters}
+                isLoading={loading}
+                handleRowClick={handleRowClick}
+                setRows={setRows}
+                filters={filters!}
+                setLoading={setLoading}
+              />
+            </Box>
+          </>
+        </TabPanel>
+        <TabPanel value='onboarded' sx={{ paddingTop: '24px' }}>
+          <>
+            <Box sx={{ width: '100%' }}>
+              <Filters
+                onboardingProListCount={totalCount}
+                control={control}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                trigger={trigger}
+                setJobTypeOptions={setJobTypeOptions}
+                setRoleOptions={setRoleOptions}
+                jobTypeOptions={jobTypeOptions}
+                roleOptions={roleOptions}
+                languageList={languageList}
+                timezoneList={timezoneList}
+                setTimezoneList={setTimezoneList}
+                timezone={timezone.getValue()}
+                onClickResetButton={onClickResetButton}
+                handleFilterStateChange={handleFilterStateChange}
+                expanded={expanded}
+              />
+            </Box>
+            <Box sx={{ width: '100%' }}>
+              <OnboardingList
+                onboardingProListCount={totalCount}
+                onboardingProList={rows || []}
+                onboardingListPage={onboardingListPage}
+                setOnboardingListPage={setOnboardingListPage}
+                onboardingListPageSize={onboardingListPageSize}
+                setOnboardingListPageSize={setOnboardingListPageSize}
+                columns={columns}
+                setFilters={setFilters}
+                isLoading={loading}
+                handleRowClick={handleRowClick}
+                setRows={setRows}
+                filters={filters!}
+                setLoading={setLoading}
+              />
+            </Box>
+          </>
+        </TabPanel>
+      </TabContext>
     </Box>
   )
 }
@@ -691,3 +769,8 @@ Onboarding.acl = {
   action: 'read',
   subject: 'onboarding',
 }
+
+const CustomTab = styled(Tab)`
+  text-transform: none;
+  padding: 0 27px;
+`

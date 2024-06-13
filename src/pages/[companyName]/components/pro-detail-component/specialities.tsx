@@ -19,7 +19,7 @@ type Props = {
 
 export default function Specialties({ userInfo }: Props) {
   return (
-    <Card sx={{ padding: '20px', height: '100%' }}>
+    <Card sx={{ padding: '20px', height: '100%', minHeight: '178px' }}>
       <TypoGraphy
         variant='h6'
         sx={{

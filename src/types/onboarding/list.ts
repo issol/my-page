@@ -106,6 +106,10 @@ export type OnboardingUserType = {
   }>
   specialties?: Array<string>
   commentsOnPro?: Array<CommentsOnProType>
+  clientHistory?: Array<{
+    id: number
+    client: string
+  }>
 }
 
 export interface SelectedJobInfoType extends OnboardingJobInfoType {

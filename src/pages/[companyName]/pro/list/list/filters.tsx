@@ -655,7 +655,7 @@ const ProListFilters = ({
                       inputProps={{
                         style: {
                           height: '46px',
-                          padding: '0 14px',
+                          padding: '0 4px',
                         },
                       }}
                       type={'text'}

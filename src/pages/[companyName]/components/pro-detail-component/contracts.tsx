@@ -146,7 +146,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
     prevArrow: <PrevButton />,
   }
   return (
-    <Card sx={{ padding: '20px', height: '167px' }}>
+    <Card sx={{ padding: '20px', minHeight: '178px', height: '100%' }}>
       <TypoGraphy
         variant='h6'
         sx={{
