@@ -1,5 +1,6 @@
 // ** MUI Imports
 import { Theme } from '@mui/material/styles'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const Rating = (theme: Theme) => {
   return {
@@ -8,14 +9,14 @@ const Rating = (theme: Theme) => {
         root: {
           color: theme.palette.warning.main,
           '& svg': {
-            flexShrink: 0
-          }
+            flexShrink: 0,
+          },
         },
         iconEmpty: {
-          color: `rgba(${theme.palette.customColors.main}, 0.22)`
-        }
-      }
-    }
+          color: hexToRGBA(theme.palette.customColors.main, 0.22),
+        },
+      },
+    },
   }
 }
 

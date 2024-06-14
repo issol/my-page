@@ -1,5 +1,6 @@
 // ** MUI Imports
 import { Theme } from '@mui/material/styles'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -32,7 +33,7 @@ const Accordion = (theme: Theme) => {
             },
           }),
           '&.Mui-disabled': {
-            backgroundColor: `rgba(${theme.palette.customColors.main}, 0.12)`,
+            backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.12),
           },
           '&.Mui-expanded': {
             boxShadow: theme.shadows[skin === 'bordered' ? 0 : 3],

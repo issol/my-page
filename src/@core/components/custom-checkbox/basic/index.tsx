@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 
 // ** Type Imports
 import { CustomCheckboxBasicProps } from '@src/@core/components/custom-checkbox/types'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CustomCheckbox = (props: CustomCheckboxBasicProps) => {
   // ** Props
@@ -127,13 +128,12 @@ const CustomCheckbox = (props: CustomCheckboxBasicProps) => {
             alignItems: 'flex-start',
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected.includes(value)
-              ? { borderColor: `${color}.main` }
+              ? { borderColor: theme => theme.palette.customColors.main }
               : {
-                  '&:hover': {
-                    borderColor: theme =>
-                      `rgba(${theme.palette.customColors.main}, 0.25)`,
-                  },
-                }),
+                '&:hover': {
+                  borderColor: theme => hexToRGBA(theme.palette.customColors.main, 0.25)
+                },
+              }),
           }}
         >
           <Checkbox

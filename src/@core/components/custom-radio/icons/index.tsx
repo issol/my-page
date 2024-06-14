@@ -9,6 +9,7 @@ import { CustomRadioIconsProps } from '@src/@core/components/custom-radio/types'
 
 // ** Icon Imports
 import Icon from '@src/@core/components/icon'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CustomRadioIcons = (props: CustomRadioIconsProps) => {
   // ** Props
@@ -41,13 +42,12 @@ const CustomRadioIcons = (props: CustomRadioIconsProps) => {
             flexDirection: 'column',
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected === value
-              ? { borderColor: `${color}.main` }
+              ? { borderColor: theme => theme.palette.customColors.main }
               : {
-                  '&:hover': {
-                    borderColor: theme =>
-                      `rgba(${theme.palette.customColors.main}, 0.25)`,
-                  },
-                }),
+                '&:hover': {
+                  borderColor: theme => hexToRGBA(theme.palette.customColors.main, 0.25)
+                },
+              }),
           }}
         >
           {icon ? <Icon icon={icon} {...iconProps} /> : null}

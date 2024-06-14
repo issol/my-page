@@ -1,5 +1,6 @@
 // ** MUI Imports
 import { Theme } from '@mui/material/styles'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const select = (theme: Theme) => {
   return {
@@ -8,14 +9,14 @@ const select = (theme: Theme) => {
         select: {
           minWidth: '6rem !important',
           '&.MuiTablePagination-select': {
-            minWidth: '1.5rem !important'
+            minWidth: '1.5rem !important',
           },
           '&.Mui-disabled ~ .MuiOutlinedInput-notchedOutline': {
-            borderColor: `rgba(${theme.palette.customColors.main}, 0.22)`
-          }
-        }
-      }
-    }
+            borderColor: hexToRGBA(theme.palette.customColors.main, 0.22),
+          },
+        },
+      },
+    },
   }
 }
 

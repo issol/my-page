@@ -13,6 +13,7 @@ import { Settings } from '@src/@core/context/settingsContext'
 // ** Custom Components Imports
 import Translations from '@src/layouts/components/Translations'
 import CanViewNavSectionTitle from '@src/layouts/components/acl/CanViewNavSectionTitle'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 interface Props {
   navHover: boolean
@@ -51,7 +52,7 @@ const VerticalNavSectionTitle = (props: Props) => {
     if (mode === 'semi-dark') {
       return {
         '&, &:before': {
-          borderColor: `rgba(${theme.palette.customColors.dark}, 0.12)`,
+          borderColor: hexToRGBA(theme.palette.customColors.dark, 0.12),
         },
       }
     } else return {}
@@ -60,7 +61,7 @@ const VerticalNavSectionTitle = (props: Props) => {
   const conditionalColor = () => {
     if (mode === 'semi-dark') {
       return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.38) !important`,
+        color: `${hexToRGBA(theme.palette.customColors.dark, 0.38)} !important`,
       }
     } else {
       return {
@@ -76,9 +77,9 @@ const VerticalNavSectionTitle = (props: Props) => {
         sx={{
           ...(navCollapsed && !navHover
             ? {
-                py: 4.75,
-                px: (collapsedNavWidth - navigationBorderWidth - 22) / 8,
-              }
+              py: 4.75,
+              px: (collapsedNavWidth - navigationBorderWidth - 22) / 8,
+            }
             : { pl: 0 }),
         }}
       >
@@ -92,18 +93,18 @@ const VerticalNavSectionTitle = (props: Props) => {
             ...(navCollapsed && !navHover
               ? { width: 22 }
               : {
-                  width: '100%',
-                  '&:before': {
-                    top: 7,
-                    transform: 'none',
-                    width: theme.spacing(4),
-                  },
-                  '& .MuiDivider-wrapper': {
-                    px: 4,
-                    fontSize: '0.75rem',
-                    letterSpacing: '0.21px',
-                  },
-                }),
+                width: '100%',
+                '&:before': {
+                  top: 7,
+                  transform: 'none',
+                  width: theme.spacing(4),
+                },
+                '& .MuiDivider-wrapper': {
+                  px: 4,
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.21px',
+                },
+              }),
           }}
         >
           {navCollapsed && !navHover ? null : (

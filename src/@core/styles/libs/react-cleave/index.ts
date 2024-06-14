@@ -1,6 +1,7 @@
 // ** MUI Imports
 import { styled } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CleaveWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   '& input': {
@@ -16,18 +17,18 @@ const CleaveWrapper = styled(Box)<BoxProps>(({ theme }) => ({
     backgroundColor: 'transparent',
     color: theme.palette.text.primary,
     fontFamily: theme.typography.body1.fontFamily,
-    borderColor: `rgba(${theme.palette.customColors.main}, 0.22)`,
+    borderColor: hexToRGBA(theme.palette.customColors.main, 0.22),
     transition: theme.transitions.create(['border-color', 'box-shadow']),
     '&:focus, &:focus-visible': {
       outline: 0,
       borderWidth: 2,
       padding: theme.spacing(3.75),
-      borderColor: `${theme.palette.primary.main} !important`
+      borderColor: `${theme.palette.primary.main} !important`,
     },
     '&::-webkit-input-placeholder': {
-      color: theme.palette.text.secondary
-    }
-  }
+      color: theme.palette.text.secondary,
+    },
+  },
 }))
 
 export default CleaveWrapper
