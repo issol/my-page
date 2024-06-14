@@ -9,8 +9,8 @@ export const useGetPaymentLink = (planId: string) => {
   })
 }
 
-export const useGetCustomerPortalLink = () => {
-  return useQuery('plan-list', () => getCustomerPortalLink(), {
+export const useGetCustomerPortalLink = (option: string) => {
+  return useQuery('plan-list', () => getCustomerPortalLink(option), {
     cacheTime: 0, // 캐시를 하지 않도록 설정
     staleTime: 0, // 데이터가 항상 stale 상태가 되도록 설정
     suspense: true,

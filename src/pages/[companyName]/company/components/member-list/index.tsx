@@ -44,6 +44,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { splitPermissionName } from '@src/shared/helpers/role.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { SeatListType } from '@src/types/company/seats'
 
 interface CellType {
   row: MembersType
@@ -71,6 +72,9 @@ type Props = {
   >
   deleteMemberMutation: UseMutationResult<void, unknown, number, unknown>
   hasGeneralPermission: boolean
+  seats: SeatListType | undefined
+  handleAssignSeat: (userId: number) => void
+  handleDeleteSeat: (userId: number) => void
 }
 const MemberList = ({
   membersPage,
@@ -81,6 +85,9 @@ const MemberList = ({
   patchMemberMutation,
   deleteMemberMutation,
   hasGeneralPermission,
+  seats,
+  handleAssignSeat,
+  handleDeleteSeat,
 }: Props) => {
   const isClient = getCurrentRole()?.name === 'CLIENT'
 
@@ -92,20 +99,32 @@ const MemberList = ({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
+  const [remainSeat, setRemainSeat] = useState<number>(0)
+
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
     if (!selectedMember) {
       setSelectedMember(member)
       setAnchorEl(event.currentTarget)
     } else {
+      console.log("handleClick", event, member)
       onClickEditCancel()
     }
   }
 
-  const handleClose = (e?: any) => {
+  const resetAnchor = () => {
     setAnchorEl(null)
+  }
+
+  // anchorEl, selectedMember, editRow를 초기화 합니다.
+  const handleClose = (e?: any) => {
+    console.log("handleClose", e)
+    console.log("anchorEl", anchorEl)
+    setAnchorEl(null)
+    setEditRow(false)
+    setSelectedMember(null)
     // Menu 밖을 클릭해서 Menu가 닫힌 경우 처리, 로직에 의해서 Menu를 닫은 경우는 제외
-    if (e) setSelectedMember(null)
+    // if (e) setSelectedMember(null)
   }
 
   const handleEditCancel = () => {
@@ -162,7 +181,8 @@ const MemberList = ({
       )
     }
 
-    setSelectedMember(null)
+    // setSelectedMember(null)
+    handleClose()
   }
 
   const onClickEditSave = () => {
@@ -179,7 +199,10 @@ const MemberList = ({
           type: 'EditSaveMemberModal',
           children: (
             <EditSaveModal
-              onClose={() => closeModal('EditSaveMemberModal')}
+              onClose={() => {
+                closeModal('EditSaveMemberModal')
+                handleClose()
+              }}
               onClick={handleEditSave}
             />
           ),
@@ -190,16 +213,19 @@ const MemberList = ({
 
   const onClickEditMember = () => {
     setEditRow(true)
-    handleClose()
+    resetAnchor()
   }
 
   const onClickDeleteMember = () => {
-    handleClose()
+    resetAnchor()
     openModal({
       type: 'DeleteMemberModal',
       children: (
         <CustomModal
-          onClose={() => closeModal('DeleteMemberModal')}
+          onClose={() => {
+            closeModal('DeleteMemberModal')
+            handleClose()
+          }}
           onClick={handleDeleteMember}
           title={`Are you sure you want to delete ${getLegalName({
             firstName: selectedMember?.firstName,
@@ -214,38 +240,78 @@ const MemberList = ({
   }
 
   const onClickEditCancel = () => {
-    // if (selectedMember) {
-    //   const obj: MembersType = members.find(
-    //     value => value.id === selectedMember.id,
-    //   )!
-    //   if (selectedMember === obj) {
-    //     setEditRow(false)
-    //     setSelectedMember(null)
-    //     setMembers(memberList)
-    //   } else {
-    //     openModal({
-    //       type: 'EditCancelMemberModal',
-    //       children: (
-    //         <DiscardChangesModal
-    //           onClose={() => closeModal('EditCancelMemberModal')}
-    //           onDiscard={handleEditCancel}
-    //         />
-    //       ),
-    //     })
-    //   }
-    // }
-
     if (selectedMember) {
       openModal({
         type: 'EditCancelMemberModal',
         children: (
           <DiscardChangesModal
-            onClose={() => closeModal('EditCancelMemberModal')}
+            onClose={() => {
+              closeModal('EditCancelMemberModal')
+              handleClose()
+            }}
             onDiscard={handleEditCancel}
           />
         ),
       })
     }
+  }
+
+  const onClickAssignSeat = (userId: number, email: string) => {
+    openModal({
+      type: 'assignSeatModal',
+      children: (
+        <CustomModal
+          vary='info'
+          onClick={() => {
+            closeModal('assignSeatModal')
+            handleAssignSeat(userId)
+            handleClose()
+          }}
+          title={
+            <>
+              Are you sure you want to assign a seat for this account?
+              <Typography variant='body2' fontWeight={600}>
+                {email}
+              </Typography>
+            </>
+          }
+          onClose={() => {
+            closeModal('assignSeatModal')
+            handleClose()
+          }}
+          rightButtonText='Assign'
+        />
+      ),
+    })
+  }
+
+  const onClickDeleteSeat = (userId: number, email: string) => {
+    openModal({
+      type: 'deleteSeatModal',
+      children: (
+        <CustomModal
+          vary='error'
+          onClick={() => {
+            closeModal('deleteSeatModal')
+            handleDeleteSeat(userId)
+            handleClose()
+          }}
+          title={
+            <>
+              Are you sure you want to delete a seat to this account?
+              <Typography variant='body2' fontWeight={600}>
+                {email}
+              </Typography>
+            </>
+          }
+          onClose={() => {
+            closeModal('deleteSeatModal')
+            handleClose()
+          }}
+          rightButtonText='Delete'
+        />
+      ),
+    })
   }
 
   const handleDeleteRole = (
@@ -286,6 +352,20 @@ const MemberList = ({
     )
   }
 
+  const hasSeat = (userId: number) => {
+    return seats?.userIds.includes(userId)
+  }
+
+  useEffect(() => {
+    setMembers(memberList)
+  }, [memberList])
+
+  useEffect(() => {
+    setRemainSeat(
+      seats && seats.seatCount ? seats.seatCount - seats.userIds.length : 0,
+    )
+  }, [seats])
+
   const columns: GridColumns<MembersType> = [
     {
       flex: 0.28,
@@ -309,11 +389,23 @@ const MemberList = ({
                 lineHeight: '24px',
                 letterSpacing: '.15px',
                 color: 'rgba(76, 78, 100, 0.87)',
+                display: 'flex',
+                alignItems: 'center'
               }}
             >
               {`${row.firstName} ${
                 row.middleName ? `(${row.middleName})` : ''
               } ${row.lastName}`}
+              {hasSeat(row.id) && (
+                <Icon 
+                  icon='mdi:account-circle-outline' 
+                  fontSize={16} 
+                  style={{ 
+                    marginLeft: '8px',
+                    color: '#666cff'
+                  }} 
+                />
+              )}
             </Typography>
             <Typography
               noWrap
@@ -457,15 +549,34 @@ const MemberList = ({
 
   const GeneralColumns = columns.filter(column => column.field !== 'action')
 
-  useEffect(() => {
-    setMembers(memberList)
-  }, [memberList])
   return (
     <Card>
-      <CardHeader
+      {/* <CardHeader
         title={`Members (${memberList.length})`}
         sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-      ></CardHeader>
+      ></CardHeader> */}
+    <CardHeader
+      title={`Members (${memberList.length})`}
+      sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+      action={
+        <Typography
+          sx={{
+            fontFamily: 'Inter',
+            fontStyle: 'normal',
+            fontWeight: 600,
+            fontSize: '16px',
+            lineHeight: '24px',
+            letterSpacing: '.15px',
+            color: 'rgba(76, 78, 100, 0.87)',
+            textAlign: 'right'
+          }}
+        >
+          {`All Seats: ${seats?.seatCount ?? 0}`}
+          <br />
+          {`Remains: ${remainSeat}`}
+        </Typography>
+      }
+    />
       <Box
         sx={{
           maxHeight: 610,
@@ -522,6 +633,42 @@ const MemberList = ({
               <Icon icon='mdi:delete-outline' fontSize={16} />
             </ListItemIcon>
             <ListItemText primary='Delete' />
+          </MenuItem>
+          <MenuItem
+            sx={{ gap: 2 }}
+            onClick={() => {
+              selectedMember && onClickAssignSeat(selectedMember.id, selectedMember.email)
+              resetAnchor()
+            }}
+            disabled={Boolean(remainSeat === 0 || (selectedMember && hasSeat(selectedMember?.id)))}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: '16px !important',
+                marginRight: '0 !important',
+              }}
+            >
+              <Icon icon='mdi:account-plus-outline' fontSize={16} />
+            </ListItemIcon>
+            <ListItemText primary='Assign Seat' />
+          </MenuItem>
+          <MenuItem
+            sx={{ gap: 2 }}
+            onClick={() => {
+              selectedMember && onClickDeleteSeat(selectedMember.id, selectedMember.email)
+              resetAnchor()
+            }}
+            disabled={!Boolean(selectedMember && hasSeat(selectedMember?.id))}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: '16px !important',
+                marginRight: '0 !important',
+              }}
+            >
+              <Icon icon='mdi:account-minus-outline' fontSize={16} />
+            </ListItemIcon>
+            <ListItemText primary='Delete Seat' />
           </MenuItem>
         </Menu>
         <DataGrid

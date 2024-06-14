@@ -97,8 +97,8 @@ const BillingPlan = ({
       closeModal('signup-not-approval-modal')
     }
   }
-  const onClickManageSubscription = async () => {
-    const customerPortalLink = await getCustomerPortalLink()
+  const onClickManageSubscription = async (option: string) => {
+    const customerPortalLink = await getCustomerPortalLink(option)
     window.open(customerPortalLink, '_blank');
   }
 
@@ -158,7 +158,7 @@ const BillingPlan = ({
       usedPercentage: usedPercentage.toFixed(3), // 퍼센트를 0~100 사이로 보장하고 소수점 3자리까지
     })
   }
-  console.log("planPeriod", planPeriod)
+
   useEffect(() => {
     const eventSource = new EventSource(`${BASEURL}/api/enough/u/payment/sse?lspId=${auth?.user?.companyId}`);
 
@@ -168,7 +168,7 @@ const BillingPlan = ({
         console.log('EventSource message:', newMessage);
         setCurrentPlan(newMessage); // 새로운 메시지로 상태를 업데이트
         isPlanExpired(newMessage.expiredAt)
-          ? setHasPlan(false)
+          ? setHasPlan(true)
           : setHasPlan(true)
         calculatePeriods(newMessage.startedAt, newMessage.expiredAt)
       } catch (error) {
@@ -237,19 +237,19 @@ const BillingPlan = ({
                 <Button variant='contained' onClick={onClickStartSubscription} disabled={hasPlan}>
                   Start Subscription
                 </Button>
-                <Button variant='outlined' onClick={onClickManageSubscription} disabled={!hasPlan}>
+                <Button variant='outlined' onClick={() => onClickManageSubscription('view')} disabled={!hasPlan}>
                   Manage Subscription
                 </Button>
               </Grid>
             </Grid>
           </CardContent>
         </Card>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end'}}>
           <Link
             href='#'
-            onClick={onClickManageSubscription}
+            onClick={() => onClickManageSubscription('cancel')}
           >
-            <Typography sx={{ fontWeight: 300, fontSize: '0.875rem' }}>Cancel Subscription</Typography>
+            <Typography sx={{ fontWeight: 300, fontSize: '0.875rem', textDecoration: 'none' }}>Cancel Subscription</Typography>
           </Link>
         </Box>
       </Grid>
