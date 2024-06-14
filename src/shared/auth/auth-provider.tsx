@@ -120,9 +120,9 @@ const AuthProvider = ({ children }: Props) => {
               router.replace(redirectPath)
               removeRedirectPath()
             } else {
-              router.replace(
-                `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
-              )
+              // router.replace(
+              //   `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
+              // )
               removeRedirectPath()
             }
             return
@@ -143,9 +143,9 @@ const AuthProvider = ({ children }: Props) => {
               removeRedirectPath()
             } else {
               removeRedirectPath()
-              router.replace(
-                `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
-              )
+              // router.replace(
+              //   `/${companyName}/dashboards/${roleNames[0].toLowerCase()}`,
+              // )
             }
             return
           } else {
