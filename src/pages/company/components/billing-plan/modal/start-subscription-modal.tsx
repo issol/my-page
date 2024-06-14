@@ -31,12 +31,11 @@ const Sub = styled('sub')({
 
 type Props = {
   title: string
-  planList: PlanListType[]
   userInfo: UserDataType | null
   onSubscription: (planId: string) => void
   onClose: () => void
 }
-export default function StartSubscriptionModal({ title, planList, userInfo, onSubscription, onClose }: Props) {
+export default function StartSubscriptionModal({ title, userInfo, onSubscription, onClose }: Props) {
   const [planId, setPlanId] = useState<string>('')
 
   const handleChange = (event: SelectChangeEvent<string>) => {

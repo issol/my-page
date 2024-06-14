@@ -1,13 +1,5 @@
-import { getCustomerPortalLink, getPaymentLink, getPlanList } from '@src/apis/company/billing-plan.api'
+import { getCustomerPortalLink, getPaymentLink } from '@src/apis/company/billing-plan.api'
 import { useQuery } from 'react-query'
-
-export const useGetPlanList = () => {
-  return useQuery('plan-list', () => getPlanList(), {
-    staleTime: 60 * 1000, // 1
-
-    suspense: true,
-  })
-}
 
 export const useGetPaymentLink = (planId: string) => {
   return useQuery('payment-link', () => getPaymentLink(planId), {

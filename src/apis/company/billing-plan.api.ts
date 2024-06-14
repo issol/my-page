@@ -6,12 +6,6 @@ import {
   CompanyInfoType,
 } from '@src/types/company/info'
 
-export const getPlanList = async (): Promise<PlanListType[]> => {
-  const { data } = await axios.get(`/api/enough/u/plan`)
-
-  return data
-}
-
 export const getPaymentLink = async (planId: string) => {
   const { data } = await axios.post(`/api/enough/u/payment`, { planId })
 
