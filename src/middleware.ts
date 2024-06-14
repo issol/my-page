@@ -16,6 +16,7 @@ export function middleware(request: NextRequest) {
   const domain = url.origin
 
   const searchParams = new URLSearchParams(request.nextUrl.search)
+
   if (searchParams.has('companyName')) {
     searchParams.delete('companyName')
   }
@@ -25,7 +26,10 @@ export function middleware(request: NextRequest) {
     domain,
   )
 
-  const pathUrl = new URL(path, domain)
+  const pathUrl = new URL(
+    `${path}${modifiedSearch ? '?' + modifiedSearch : ''}`,
+    domain,
+  )
 
   if (
     path.includes('login') ||
