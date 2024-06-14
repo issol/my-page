@@ -1117,15 +1117,17 @@ const ProDetailOverview = () => {
                 width: '100%',
               }}
             >
-              <Grid item xs={12} display='flex' gap='24px'>
-                <Grid item xs={6}>
-                  <Resume userInfo={userInfo!} onClickResume={onClickFile} />
-                </Grid>
-                <Grid item xs={6}>
-                  <Contracts
-                    userInfo={userInfo!}
-                    onClickContracts={onClickFile}
-                  />
+              <Grid item xs={12}>
+                <Grid container spacing={6}>
+                  <Grid item xs={6}>
+                    <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Contracts
+                      userInfo={userInfo!}
+                      onClickContracts={onClickFile}
+                    />
+                  </Grid>
                 </Grid>
                 {/* <Grid item xs={6}>
                   <Experience userInfo={userInfo!} />

@@ -635,6 +635,32 @@ const AppliedRole = ({
           </Button>
         </Box>
       )
+    } else if (jobInfo.requestStatus === 'Test canceled') {
+      return (
+        <Box
+          sx={{
+            width: 270,
+            height: 32,
+            display: 'flex',
+          }}
+        >
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                border: 'none',
+                color: '#E04440',
+              },
+            }}
+          >
+            Test canceled
+          </Button>
+        </Box>
+      )
     } else {
       return (
         <Box
