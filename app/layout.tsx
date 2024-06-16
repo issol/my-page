@@ -12,8 +12,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
-// import 'slick-carousel/slick/slick.css'
-// import 'slick-carousel/slick/slick-theme.css'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
 
 import './sass/stylesheet.scss'
 import AboutMe from './about/page'
@@ -23,6 +23,9 @@ import 'animate.css'
 import { use, useEffect, useState } from 'react'
 import Script from 'next/script'
 import Resume from './resume/page'
+import Portfolio from './portfolio/page'
+import Contact from './contact/page'
+import Footer from './footer/page'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -68,6 +71,15 @@ export default function RootLayout({
           rel='stylesheet'
           href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css'
         />
+        <link
+          rel='stylesheet'
+          type='text/css'
+          href='vendor/font-awesome/css/all.min.css'
+        />
+        <link
+          rel='stylesheet'
+          href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css'
+        />
       </head>
       <body>
         {/* <Toaster /> */}
@@ -78,6 +90,9 @@ export default function RootLayout({
               <Intro />
               <AboutMe />
               <Resume />
+              <Portfolio />
+              <Contact />
+              <Footer />
             </div>
           </div>
         </div>

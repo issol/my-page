@@ -6,7 +6,7 @@ import { Link } from 'react-scroll'
 import Typewriter from 'typewriter-effect'
 
 const DefaultIntro = () => {
-  const scrollDuration = 1000
+  const scrollDuration = 300
   return (
     <section
       id='home'
@@ -72,9 +72,9 @@ const DefaultIntro = () => {
         style={{ cursor: 'pointer' }}
         to='about'
       >
-        <span className='animate__bounce'>
-          <i className='bi bi-arrow-down-circle'></i>
-        </span>
+        <div className='animate__animated animate__slideInDown animate__infinite'>
+          <i className='fas fa-arrow-down' />
+        </div>
       </Link>
     </section>
   )

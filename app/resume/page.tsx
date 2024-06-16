@@ -70,7 +70,7 @@ const Resume = () => {
   }, [])
 
   return (
-    <section id='resume' className='section'>
+    <section id='resume' className='section bg-light'>
       <div className='container'>
         {/* Heading */}
         <p
@@ -118,7 +118,7 @@ const Resume = () => {
                 : ''
             }`}
           >
-            <div className='d-flex align-items-center mb-4 pb-2 gap-2'>
+            <div className='d-flex align-items-center mb-4 gap-2'>
               <h2 className='text-7 fw-600'>경력</h2>
               <h6 className='text-2 fw-400'>(Last updated : 2024-06-10)</h6>
             </div>
@@ -146,16 +146,19 @@ const Resume = () => {
         >
           My Skills
         </h2>
-        <div className='row'>
+        <div className='d-flex gap-3'>
           {skills.length > 0 &&
             skills.map((skill, index) => (
               <div
-                className={`col-md-1 wow ${
+                className={`${
                   enableAnimation ? 'animate__animated animate__fadeInUp' : ''
                 }`}
                 key={index}
               >
-                <div className='d-flex justify-content-center bg-muted border border-primary rounded-3'>
+                <div
+                  className='d-flex justify-content-center bg-muted border border-primary rounded-3'
+                  style={{ width: '60px', height: '60px', padding: '4px' }}
+                >
                   <Image
                     src={`/${skill.name}`}
                     width='48'
@@ -163,24 +166,6 @@ const Resume = () => {
                     alt='icon'
                   />
                 </div>
-
-                {/* <span className='bg-primary text-dark px-2 rounded'>
-                  {skill.name}
-                </span> */}
-                {/* <p className='fw-500 text-start mb-2'>
-                  {skill.name}{' '}
-                  <span className='float-end'>{skill.percent}%</span>
-                </p>
-                <div className='progress progress-sm mb-4'>
-                  <div
-                    className='progress-bar'
-                    role='progressbar'
-                    style={{ width: skill.percent + '%' }}
-                    aria-valuenow={skill.percent}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  />
-                </div> */}
               </div>
             ))}
         </div>
