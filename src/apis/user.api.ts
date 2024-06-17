@@ -8,11 +8,12 @@ import {
 } from 'src/context/types'
 import {
   ManagerUserInfoType,
+  ProProfileInfo,
   ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
-  ProUserSpecialtiesInfoType,
   ProUserResumeInfoType,
+  ProUserSpecialtiesInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
@@ -52,7 +53,10 @@ export const updateClientUserInfo = async (
   await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
 }
 
-/* pro 프로필 업데이트용 */
+/**
+ * @deprecated
+ * @description pro 프로필 업데이트용
+ */
 export const updateConsumerUserInfo = async (
   userInfo: (
     | ProUserInfoType
@@ -66,6 +70,32 @@ export const updateConsumerUserInfo = async (
   },
 ) => {
   await axios.put(`/api/enough/u/pu/edit`, userInfo)
+}
+
+/* pro profile 업데이트 */
+export const updateProUserProfile = async (profileInfo: ProProfileInfo) => {
+  return await axios.patch(`/api/enough/u/pu/update/profile`, profileInfo)
+}
+
+/* pro resume 업데이트 */
+export const updateProUserResume = async (resume: Array<string>) => {
+  return await axios.patch(`/api/enough/u/pu/update/resume`, { resume })
+}
+
+export const updateProUserExperience = async (experience: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/experience`, { experience })
+}
+
+export const updateProUserSpecialty = async (specialties: Array<string>) => {
+  return await axios.patch(`/api/enough/u/pu/update/specialty`, { specialties })
+}
+
+export const updateProUserNote = async (noteFromUser: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/note`, { noteFromUser })
+}
+
+export const updateProUserContract = async (noteFromUser: string) => {
+  return await axios.patch(`/api/enough/u/pu/update/contract`, { noteFromUser })
 }
 
 /* TAD, LPM 전용 프로필 업데이트 */

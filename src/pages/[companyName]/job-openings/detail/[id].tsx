@@ -20,7 +20,7 @@ import {
   convertTimeToTimezone,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import { formatGMTTimeZone } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { authState } from '@src/states/auth'
 import {
   applyResponseEnum,
@@ -79,8 +79,8 @@ const JobOpeningDetail = () => {
                     Application successfully completed!
                   </Typography>
                   <Typography variant='body1' sx={{ mt: '20px' }}>
-                    We will directly authorize you to proceed with the project
-                    upon reviewing your resume.
+                    We will directly authorize you to proceed with the
+                    project upon reviewing your resume.
                   </Typography>
                 </Box>
               }
@@ -401,7 +401,6 @@ const JobOpeningDetail = () => {
                       size='small'
                     />
                   </Box>
-
                   <Box display='flex' flexDirection='column' gap='8px'>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       Posted date: &nbsp;
@@ -451,7 +450,10 @@ const JobOpeningDetail = () => {
                     {renderTable('', '')}
                     {renderTable(
                       `Vendor's timezone`,
-                      formatGMTTimeZone(data.dueDateTimezone.label),
+                      timeZoneFormatter(
+                        data.dueDateTimezone.label,
+                        timezone.getValue(),
+                      )
                     )}
                   </Grid>
                 </Grid>

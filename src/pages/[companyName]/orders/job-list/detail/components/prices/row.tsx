@@ -227,6 +227,7 @@ const Row = ({
           const matchedCurrentUnit = details?.findIndex(
             currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId,
           )
+          console.log(selectedUnit, 'selectedUnit')
 
           if (matchedCurrentUnit !== -1) {
             // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면

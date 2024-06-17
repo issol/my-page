@@ -202,9 +202,9 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
       },
       '& .react-datepicker__day--keyboard-selected': {
         '&:not(.react-datepicker__day--in-range)': {
-          backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
           '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+            backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
           },
         },
         '&.react-datepicker__day--in-range:not(.react-datepicker__day--range-end)':
@@ -218,19 +218,19 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
       '& .react-datepicker__month-text--keyboard-selected': {
         '&:not(.react-datepicker__month--in-range)': {
           color: theme.palette.text.primary,
-          backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
           '&:hover': {
             color: theme.palette.text.primary,
-            backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+            backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
           },
         },
       },
       '& .react-datepicker__year-text--keyboard-selected': {
         color: theme.palette.text.primary,
-        backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+        backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
         '&:hover': {
           color: theme.palette.text.primary,
-          backgroundColor: `rgba(${theme.palette.customColors.main}, 0.06)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.main, 0.06),
         },
       },
       '& .react-datepicker__day--selected, & .react-datepicker__month--selected, & .react-datepicker__year-text--selected, & .react-datepicker__quarter--selected':

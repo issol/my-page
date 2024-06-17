@@ -1,9 +1,4 @@
 import Card from '@mui/material/Card'
-
-import { styled } from '@mui/system'
-import Divider from '@mui/material/Divider'
-
-import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import { OnboardingUserType } from '@src/types/onboarding/list'
 import TypoGraphy from '@mui/material/Typography'
@@ -12,7 +7,8 @@ type Props = {
   userInfo: OnboardingUserType
 }
 
-export default function Experience({ userInfo }: Props) {
+const Experience = ({ userInfo }: Props) => {
+  console.log('userInfo.experience', userInfo.experience)
   return (
     <Card sx={{ padding: '20px', height: '100%' }}>
       <TypoGraphy
@@ -35,3 +31,5 @@ export default function Experience({ userInfo }: Props) {
     </Card>
   )
 }
+
+export default Experience

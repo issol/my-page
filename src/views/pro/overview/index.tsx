@@ -287,6 +287,7 @@ const ProDetailOverview = () => {
       })
     }
   }
+
   const handleChangeRolePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 
@@ -757,6 +758,7 @@ const ProDetailOverview = () => {
       ),
     })
   }
+
   const onClickAddRole = () => {
     openModal({
       type: 'AssignRoleModal',
@@ -1024,7 +1026,6 @@ const ProDetailOverview = () => {
           <Grid
             item
             xs={12}
-            md={6}
             xl={3.6}
             gap='24px'
             display='flex'
@@ -1108,7 +1109,7 @@ const ProDetailOverview = () => {
             </Grid>
           </Grid>
 
-          <Grid item xl={8.4} md={6} xs={12}>
+          <Grid item xl={8.4} xs={12}>
             <Box
               sx={{
                 display: 'flex',

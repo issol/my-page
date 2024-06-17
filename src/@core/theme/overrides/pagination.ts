@@ -9,29 +9,29 @@ const Pagination = (theme: Theme) => {
     MuiPaginationItem: {
       styleOverrides: {
         outlined: {
-          borderColor: `rgba(${theme.palette.customColors.main}, 0.22)`
+          borderColor: hexToRGBA(theme.palette.customColors.main, 0.22),
         },
         outlinedPrimary: {
           '&.Mui-selected': {
             backgroundColor: hexToRGBA(theme.palette.primary.main, 0.12),
             '&:hover': {
-              backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.24)} !important`
-            }
-          }
+              backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.24)} !important`,
+            },
+          },
         },
         outlinedSecondary: {
           '&.Mui-selected': {
             backgroundColor: hexToRGBA(theme.palette.secondary.main, 0.12),
             '&:hover': {
-              backgroundColor: `${hexToRGBA(theme.palette.secondary.main, 0.24)} !important`
-            }
-          }
+              backgroundColor: `${hexToRGBA(theme.palette.secondary.main, 0.24)} !important`,
+            },
+          },
         },
         rounded: {
-          borderRadius: 8
-        }
-      }
-    }
+          borderRadius: 8,
+        },
+      },
+    },
   }
 }
 

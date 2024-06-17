@@ -46,7 +46,7 @@ import { useMutation, useQueryClient } from 'react-query'
 // ** types & schemas
 import { UserDataType } from '@src/context/types'
 import {
-  PersonalInfo,
+  ProProfileInfo,
   ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
@@ -86,13 +86,19 @@ import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { updateConsumerUserInfo } from '@src/apis/user.api'
+import {
+  updateConsumerUserInfo,
+  updateProUserExperience,
+  updateProUserNote,
+  updateProUserProfile,
+  updateProUserResume,
+  updateProUserSpecialty,
+} from '@src/apis/user.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
 import { useRouter } from 'next/router'
-import EditProfileModal from './edit-profile-modal'
+import EditProfileModal from './editProfileModal'
 import dayjs from 'dayjs'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { CertifiedRoleType } from '@src/types/onboarding/details'
@@ -101,13 +107,17 @@ import SecondaryLanguages from '@src/pages/[companyName]/components/pro-detail-c
 import EditSecondaryLanguagesModal from './edit-secondary-languages-modal'
 import languageHelper from '@src/shared/helpers/language.helper'
 
-type Props = {
+interface MyPageOverviewProps {
   userInfo: DetailUserType
   user: UserDataType
   certifiedRoleInfo: Array<CertifiedRoleType>
 }
 
-const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
+const MyPageOverview = ({
+  user,
+  userInfo,
+  certifiedRoleInfo,
+}: MyPageOverviewProps) => {
   const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
@@ -120,6 +130,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     queryClient.invalidateQueries({
       queryKey: `myId:${user.userId!}`,
     })
+
   const invalidateOffDay = () =>
     queryClient.invalidateQueries({
       queryKey: `myOffDays:${user.userId!}`,
@@ -149,18 +160,33 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   const roleOffset = rolePage * roleRowsPerPage
 
   const handleChangeRolePage = (direction: string) => {
-    const changedPage =
-      direction === 'prev'
-        ? Math.max(rolePage - 1, 0)
-        : direction === 'next'
-          ? rolePage + 1
-          : 0
+    let newPage = rolePage
 
-    setRolePage(changedPage)
+    if (direction === 'prev') {
+      newPage = Math.max(rolePage - 1, 0)
+    } else if (direction === 'next') {
+      newPage = rolePage + 1
+    }
+
+    setRolePage(newPage)
   }
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
   const { data: secondaryLanguages } = useGetProSecondaryLanguages(user.userId!)
+
+  const proUserProfileMutation = useMutation({
+    mutationFn: updateProUserProfile,
+  })
+  const proUserResumeMutation = useMutation({
+    mutationFn: updateProUserResume,
+  })
+  const proUserNoteMutation = useMutation({ mutationFn: updateProUserNote })
+  const proUserSpecialtyMutation = useMutation({
+    mutationFn: updateProUserSpecialty,
+  })
+  const proUserExperienceMutation = useMutation({
+    mutationFn: updateProUserExperience,
+  })
 
   const updateUserInfoMutation = useMutation(
     (
@@ -176,7 +202,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     ) => updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        const { userId, email, accessToken } = router.query
+        const { accessToken } = router.query
         const accessTokenAsString: string = accessToken as string
         setAuth.updateUserInfo({
           userId: auth.getValue().user!.id,
@@ -184,74 +210,38 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           accessToken: accessTokenAsString,
         })
         invalidateUserInfo()
-
-        // router.push('/home')
       },
     },
   )
 
-  const onProfileSave = (
-    data: Omit<PersonalInfo, 'address'>,
-    address: ClientAddressType,
-  ) => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        country: data.timezone.label,
-        birthday: data.birthday?.toISOString()!,
-        extraData: {
-          havePreferredName: data.havePreferred,
-          jobInfo: data.jobInfo,
-          middleName: data.middleName,
-          experience: data.experience,
-          legalNamePronunciation: data.legalNamePronunciation,
-          mobilePhone: data.mobile,
-          telephone: data.phone,
-          preferredName: data.preferredName,
-          preferredNamePronunciation: data.preferredNamePronunciation,
-          pronounce: data.pronounce,
-          specialties: data.specialties?.map(item => item.value),
-          timezone: data.timezone,
-          addresses: [address],
-        },
-      },
-      {
+  const updateUserInfoSuccess = () => {
+    const { accessToken } = router.query
+    const accessTokenAsString: string = accessToken as string
+    setAuth.updateUserInfo({
+      userId: auth.getValue().user!.id,
+      email: auth.getValue().user!.email,
+      accessToken: accessTokenAsString,
+    })
+    invalidateUserInfo()
+  }
+
+  const onClickProfileSave = (data: ProProfileInfo) => {
+    const onProfileSave = (data: ProProfileInfo) => {
+      proUserProfileMutation.mutate(data, {
         onSuccess: () => {
           closeModal('saveProfileForm')
           closeModal('EditProfileModal')
+          updateUserInfoSuccess()
         },
-      },
-    )
-  }
+      })
+    }
 
-  const onResumeSave = (files: Array<string>) => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          resume: files,
-        },
-      },
-      {
-        onSuccess: () => {
-          closeModal('deleteResume')
-        },
-      },
-    )
-  }
-
-  const onClickProfileSave = (
-    data: Omit<PersonalInfo, 'address'>,
-    address: ClientAddressType,
-  ) => {
     openModal({
       type: 'saveProfileForm',
       children: (
         <CustomModal
           onClose={() => closeModal('saveProfileForm')}
-          onClick={() => onProfileSave(data, address)}
+          onClick={() => onProfileSave(data)}
           title='Are you sure you want to save all changes?'
           rightButtonText='Save'
           vary='successful'
@@ -260,20 +250,13 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     })
   }
 
-  const onClickSaveNote = () => {
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          noteFromUser: note || '',
-        },
+  const onResumeSave = (files: Array<string>) => {
+    proUserResumeMutation.mutate(files, {
+      onSuccess: () => {
+        closeModal('deleteResume')
+        updateUserInfoSuccess()
       },
-      {
-        onSuccess: () => {
-          setEditNote(false)
-        },
-      },
-    )
+    })
   }
 
   const onClickCancelNote = () => {
@@ -300,6 +283,15 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
 
   const onNoteSave = () => {
     setEditNote(false)
+
+    const onClickSaveNote = () => {
+      proUserNoteMutation.mutate(note || '', {
+        onSuccess: () => {
+          setEditNote(false)
+          updateUserInfoSuccess()
+        },
+      })
+    }
 
     openModal({
       type: 'saveNoteForm',
@@ -477,44 +469,45 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   ]
 
   /* resume */
-  const downloadAllFile = (
-    file:
-      | {
-          url: string
-          filePath: string
-          fileName: string
-          fileExtension: string
-        }[]
-      | null,
+  const downloadAllFile = async (
+    files: Array<{
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    }> | null,
   ) => {
-    if (file) {
-      file.map(value => {
-        getDownloadUrlforCommon(S3FileType.RESUME, value.filePath).then(res => {
-          const previewFile = {
-            url: res,
-            fileName: value.fileName,
-            fileExtension: value.fileExtension,
-          }
-          fetch(previewFile.url, { method: 'GET' })
-            .then(res => {
-              return res.blob()
-            })
-            .then(blob => {
-              const url = window.URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `${value.fileName}.${value.fileExtension}`
-              document.body.appendChild(a)
-              a.click()
-              setTimeout((_: any) => {
-                window.URL.revokeObjectURL(url)
-              }, 60000)
-              a.remove()
-              // onClose()
-            })
-            .catch(error => onError())
-        })
-      })
+    if (!files) return
+
+    for (const file of files) {
+      try {
+        const downloadUrl = await getDownloadUrlforCommon(
+          S3FileType.RESUME,
+          file.filePath,
+        )
+        const previewFile = {
+          url: downloadUrl,
+          fileName: file.fileName,
+          fileExtension: file.fileExtension,
+        }
+
+        const response = await fetch(previewFile.url, { method: 'GET' })
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${file.fileName}.${file.fileExtension}`
+        document.body.appendChild(a)
+        a.click()
+
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url)
+        }, 60000)
+        a.remove()
+      } catch (error) {
+        console.error('Download error:', error)
+        onError()
+      }
     }
   }
 
@@ -587,26 +580,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onSaveExperience = () => {
-    updateUserInfoMutation.mutate({
-      userId: auth.getValue().user?.id || 0,
-      extraData: {
-        experience: experience,
+    proUserExperienceMutation.mutate(experience || '', {
+      onSuccess: () => {
+        setEditExperience(false)
+        updateUserInfoSuccess()
       },
     })
-    setEditExperience(false)
-    updateUserInfoMutation.mutate(
-      {
-        userId: auth.getValue().user?.id || 0,
-        extraData: {
-          experience: experience || '',
-        },
-      },
-      {
-        onSuccess: () => {
-          setEditExperience(false)
-        },
-      },
-    )
   }
 
   /* Contracts */
@@ -634,13 +613,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onSaveSpecialties = () => {
-    updateUserInfoMutation.mutate({
-      userId: auth.getValue().user?.id || 0,
-      extraData: {
-        specialties: specialties,
+    proUserSpecialtyMutation.mutate(specialties, {
+      onSuccess: () => {
+        setEditSpecialties(false)
+        updateUserInfoSuccess()
       },
     })
-    setEditSpecialties(false)
   }
 
   const onError = () => {
@@ -715,23 +693,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             </Box>
-            <About
-              userInfo={{
-                email: user.email!,
-                preferredName: userInfo.preferredName ?? '',
-                pronounce: userInfo.pronounce,
-                preferredNamePronunciation:
-                  userInfo.preferredNamePronunciation ?? '',
-                birthday: userInfo.birthday,
-                address:
-                  userInfo.addresses && userInfo.addresses.length > 0
-                    ? userInfo?.addresses[0]
-                    : null,
-                mobilePhone: user.mobilePhone,
-                telephone: user.telephone ?? '',
-                timezone: userInfo.timezone!,
-              }}
-            />
+            <About userInfo={userInfo} />
           </Card>
 
           {/* Available work days */}

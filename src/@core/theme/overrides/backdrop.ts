@@ -11,14 +11,14 @@ const Backdrop = (theme: Theme) => {
         root: {
           backgroundColor:
             theme.palette.mode === 'light'
-              ? `rgba(${theme.palette.customColors.main}, 0.5)`
-              : hexToRGBA('#101121', 0.87)
+              ? hexToRGBA(theme.palette.customColors.main, 0.5)
+              : hexToRGBA('#101121', 0.87),
         },
         invisible: {
-          backgroundColor: 'transparent'
-        }
-      }
-    }
+          backgroundColor: 'transparent',
+        },
+      },
+    },
   }
 }
 

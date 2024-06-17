@@ -5,6 +5,7 @@ import Radio from '@mui/material/Radio'
 
 // ** Type Imports
 import { CustomRadioImgProps } from '@src/@core/components/custom-radio/types'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CustomRadioImg = (props: CustomRadioImgProps) => {
   // ** Props
@@ -36,13 +37,12 @@ const CustomRadioImg = (props: CustomRadioImgProps) => {
             justifyContent: 'center',
             border: theme => `2px solid ${theme.palette.divider}`,
             ...(selected === value
-              ? { borderColor: `${color}.main` }
+              ? { borderColor: theme => theme.palette.customColors.main }
               : {
-                  '&:hover': {
-                    borderColor: theme =>
-                      `rgba(${theme.palette.customColors.main}, 0.25)`,
-                  },
-                }),
+                '&:hover': {
+                  borderColor: theme => hexToRGBA(theme.palette.customColors.main, 0.25)
+                },
+              }),
             '& img': {
               width: '100%',
               height: '100%',

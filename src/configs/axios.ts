@@ -118,7 +118,11 @@ instance.interceptors.response.use(
 
       return retryOriginalRequest
     } else {
-      ApiErrorHandler(error, JSON.parse(getUserDataFromBrowser()!)?.email)
+      ApiErrorHandler(
+        error,
+        JSON.parse(getUserDataFromBrowser()!)?.email,
+        window.location.href,
+      )
       // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     }
     return Promise.reject(error)

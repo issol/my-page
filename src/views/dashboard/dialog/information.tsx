@@ -1,6 +1,6 @@
-import React, { Dispatch, ReactElement, useMemo } from 'react'
+import React, { ReactElement, useMemo } from 'react'
 import { Box } from '@mui/system'
-import { Dialog, Button } from '@mui/material'
+import { Dialog } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
@@ -45,7 +45,7 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
   },
   TAD: {
     'Number of Pros': (
-      <ul>
+      <ul style={{ padding: '0 20px', margin: 0 }}>
         <li style={{ textAlign: 'left' }}>
           <b>Onboarded Pros</b> shows the number of Pros who have a certified
           role and finished signing contracts.
@@ -202,6 +202,7 @@ interface InfoDialogProps {
   infoType: InfoKey
   close: () => void
 }
+
 const Information = ({ keyName, open, infoType, close }: InfoDialogProps) => {
   const [title, content] = useMemo(() => {
     const _content1 = INFO_CONTENTS[infoType][keyName]

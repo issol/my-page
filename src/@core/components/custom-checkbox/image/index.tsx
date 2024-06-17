@@ -5,6 +5,7 @@ import Checkbox from '@mui/material/Checkbox'
 
 // ** Type Imports
 import { CustomCheckboxImgProps } from '@src/@core/components/custom-checkbox/types'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CustomCheckboxImg = (props: CustomCheckboxImgProps) => {
   // ** Props
@@ -41,16 +42,15 @@ const CustomCheckboxImg = (props: CustomCheckboxImgProps) => {
               objectFit: 'cover',
             },
             ...(selected.includes(value)
-              ? { borderColor: `${color}.main` }
+              ? { borderColor: theme => theme.palette.customColors.main }
               : {
-                  '&:hover': {
-                    borderColor: theme =>
-                      `rgba(${theme.palette.customColors.main}, 0.25)`,
-                  },
-                  '&:not(:hover)': {
-                    '& .MuiCheckbox-root': { display: 'none' },
-                  },
-                }),
+                '&:hover': {
+                  borderColor: theme => hexToRGBA(theme.palette.customColors.main, 0.25)
+                },
+                '&:not(:hover)': {
+                  '& .MuiCheckbox-root': { display: 'none' },
+                },
+              }),
           }}
         >
           {typeof img === 'string' ? (

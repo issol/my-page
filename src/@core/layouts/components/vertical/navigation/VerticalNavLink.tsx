@@ -30,6 +30,7 @@ import CanViewNavLink from '@src/layouts/components/acl/CanViewNavLink'
 
 // ** Util Import
 import { handleURLQueries } from '@src/@core/layouts/utils'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 interface Props {
   parent?: boolean
@@ -103,7 +104,7 @@ const VerticalNavLink = ({
   const conditionalIconColor = () => {
     if (mode === 'semi-dark') {
       return {
-        color: `rgba(${theme.palette.customColors.dark}, ${parent ? 0.6 : 0.87})`,
+        color: hexToRGBA(theme.palette.customColors.dark, parent ? 0.6 : 0.87),
       }
     } else
       return {
@@ -115,7 +116,7 @@ const VerticalNavLink = ({
     if (mode === 'semi-dark') {
       return {
         '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.05)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.dark, 0.05),
         },
       }
     } else return {}

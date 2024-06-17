@@ -15,6 +15,7 @@ import Icon from '@src/@core/components/icon'
 
 // ** Configs
 import themeConfig from '@src/configs/themeConfig'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 interface Props {
   navHover: boolean
@@ -74,14 +75,14 @@ const VerticalNavHeader = (props: Props) => {
 
   const svgFillSecondary = () => {
     if (mode === 'semi-dark') {
-      return `rgba(${theme.palette.customColors.dark}, 0.6)`
+      return hexToRGBA(theme.palette.customColors.dark, 0.6)
     } else {
       return theme.palette.text.secondary
     }
   }
   const svgFillDisabled = () => {
     if (mode === 'semi-dark') {
-      return `rgba(${theme.palette.customColors.dark}, 0.38)`
+      return hexToRGBA(theme.palette.customColors.dark, 0.38)
     } else {
       return theme.palette.text.disabled
     }

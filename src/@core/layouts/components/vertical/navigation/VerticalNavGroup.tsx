@@ -34,6 +34,7 @@ import VerticalNavItems from './VerticalNavItems'
 import UserIcon from '@src/layouts/components/UserIcon'
 import Translations from '@src/layouts/components/Translations'
 import CanViewNavGroup from '@src/layouts/components/acl/CanViewNavGroup'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 interface Props {
   item: NavGroup
@@ -185,7 +186,7 @@ const VerticalNavGroup = (props: Props) => {
   const conditionalIconColor = () => {
     if (mode === 'semi-dark') {
       return {
-        color: `rgba(${theme.palette.customColors.dark}, ${parent && item.children ? 0.6 : 0.87})`,
+        color: hexToRGBA(theme.palette.customColors.dark, parent && item.children ? 0.6 : 0.87),
       }
     } else
       return {
@@ -196,7 +197,7 @@ const VerticalNavGroup = (props: Props) => {
   const conditionalArrowIconColor = () => {
     if (mode === 'semi-dark') {
       return {
-        color: `rgba(${theme.palette.customColors.dark}, 0.6)`,
+        color: hexToRGBA(theme.palette.customColors.dark, 0.6),
       }
     } else return {}
   }
@@ -205,12 +206,12 @@ const VerticalNavGroup = (props: Props) => {
     if (mode === 'semi-dark') {
       return {
         '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.05)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.dark, 0.05),
         },
         '&.Mui-selected': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.08)`,
+          backgroundColor: hexToRGBA(theme.palette.customColors.dark, 0.08),
           '&:hover': {
-            backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.08)`,
+            backgroundColor: hexToRGBA(theme.palette.customColors.dark, 0.08),
           },
         },
       }

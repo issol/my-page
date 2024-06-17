@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 
 // ** Type Imports
 import { CustomRadioBasicProps } from '@src/@core/components/custom-radio/types'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 const CustomRadioBasic = (props: CustomRadioBasicProps) => {
   // ** Props
@@ -127,13 +128,12 @@ const CustomRadioBasic = (props: CustomRadioBasicProps) => {
             alignItems: 'flex-start',
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected === value
-              ? { borderColor: `${color}.main` }
+              ? { borderColor: theme => theme.palette.customColors.main }
               : {
-                  '&:hover': {
-                    borderColor: theme =>
-                      `rgba(${theme.palette.customColors.main}, 0.25)`,
-                  },
-                }),
+                '&:hover': {
+                  borderColor: theme => hexToRGBA(theme.palette.customColors.main, 0.25)
+                },
+              }),
           }}
         >
           <Radio

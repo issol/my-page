@@ -17,9 +17,9 @@ import { authState } from '@src/states/auth'
 // ** components
 import Header from '@src/views/mypage/components/header'
 import FallbackSpinner from '@src/@core/components/spinner'
-import MyAccount from '../../../../views/mypage/my-account'
-import MyPageOverview from '../../../../views/mypage/overview'
-import ProPaymentInfo from '../../../../views/mypage/payment-info'
+import MyAccount from '../../../views/mypage/my-account'
+import MyPageOverview from '../../../views/mypage/overview'
+import ProPaymentInfo from '../../../views/mypage/payment-info'
 
 // ** apis
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
@@ -38,24 +38,6 @@ const createQueryString = (name: string, value: string) => {
   return params.toString()
 }
 
-const TAB_MENU_OPTIONS = [
-  {
-    label: 'Overview',
-    value: 'overview',
-    icon: <Icon icon='material-symbols:person-outline' />,
-  },
-  {
-    label: 'Payment info',
-    value: 'paymentInfo',
-    icon: <Icon icon='carbon:currency-dollar' />,
-  },
-  {
-    label: 'My account',
-    value: 'myAccount',
-    icon: <Icon icon='material-symbols:security' />,
-  },
-]
-
 const ProMyPage = () => {
   const router = useRouter()
   const tab = router.query.tabs as MenuType
@@ -69,7 +51,6 @@ const ProMyPage = () => {
   const { data: userInfo, isLoading: isUserInfoLoading } = useGetMyOverview(
     Number(auth.getValue().user?.userId!),
   )
-
   const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } =
     useGetCertifiedRole(Number(auth.getValue().user?.userId!))
 
@@ -103,17 +84,13 @@ const ProMyPage = () => {
     e.preventDefault()
   }
 
-  if (
-    auth.state === 'loading' ||
-    isUserInfoLoading ||
-    isCertifiedRoleInfoLoading
-  ) {
-    return <OverlaySpinner />
-  }
-
   return (
     <>
-      {auth.state === 'hasValue' ? (
+      {auth.state === 'loading' ||
+      isUserInfoLoading ||
+      isCertifiedRoleInfoLoading ? (
+        <OverlaySpinner />
+      ) : auth.state === 'hasValue' ? (
         <FormProvider {...pageFormMethod}>
           <Grid container spacing={6}>
             <Grid item xs={12}>
@@ -127,16 +104,27 @@ const ProMyPage = () => {
                   aria-label='Pro detail Tab menu'
                   style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
                 >
-                  {TAB_MENU_OPTIONS.map(menu => (
-                    <CustomTap
-                      iconPosition='start'
-                      key={`${menu.value}`}
-                      value={menu.value}
-                      label={menu.label}
-                      icon={menu.icon}
-                      onClick={e => changeTab(e, menu.value)}
-                    />
-                  ))}
+                  <CustomTap
+                    value='overview'
+                    label='Overview'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:person-outline' />}
+                    onClick={e => changeTab(e, 'overview')}
+                  />
+                  <CustomTap
+                    value='paymentInfo'
+                    label='Payment info'
+                    iconPosition='start'
+                    icon={<Icon icon='carbon:currency-dollar' />}
+                    onClick={e => changeTab(e, 'paymentInfo')}
+                  />
+                  <CustomTap
+                    value='myAccount'
+                    label='My account'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:security' />}
+                    onClick={e => changeTab(e, 'myAccount')}
+                  />
                 </TabList>
                 {/* TabContentList */}
                 <TabPanel id='OverviewTab' value='overview'>
