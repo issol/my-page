@@ -1029,7 +1029,7 @@ const AppliedRole = ({
               labelPlacement='start'
             />
           ) : null}
-          {currentRole.contents.name === 'TAD' && totalCount ? (
+          {totalCount ? (
             <FormControlLabel
               value='hideFailedTest'
               control={
@@ -1056,7 +1056,7 @@ const AppliedRole = ({
               labelPlacement='start'
             />
           ) : null}
-          {type !== 'onboarding' && currentRole.contents.name === 'LPM' ? (
+          {/* {type !== 'onboarding' && currentRole.contents.name === 'LPM' ? (
             <FormControlLabel
               value='hideFailedTest'
               control={
@@ -1082,7 +1082,7 @@ const AppliedRole = ({
               }
               labelPlacement='start'
             />
-          ) : null}
+          ) : null} */}
         </Box>
       </Typography>
       {userInfo && userInfo.length ? (
