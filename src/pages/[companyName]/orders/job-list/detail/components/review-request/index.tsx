@@ -16,7 +16,7 @@ import {
 
 import { CompanyOptionType } from '@src/types/options.type'
 import { JobRequestReviewListType } from '@src/types/orders/job-detail'
-import { useEffect, useRef, useState } from 'react'
+import { LegacyRef, useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
@@ -640,7 +640,9 @@ const ReviewRequest = ({ jobId, lspList, jobInfo }: Props) => {
                                 flexDirection: 'column',
                                 gap: '20px',
                               }}
-                              ref={el => (leftContainer.current[index] = el)}
+                              // ref={(el: LegacyRef<HTMLDivElement> | null) =>
+                              //   (leftContainer.current[index] = el)
+                              // }
                             >
                               {item.files.length > 0 &&
                                 item.files.filter(
