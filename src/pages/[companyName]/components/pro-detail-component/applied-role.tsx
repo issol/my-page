@@ -115,56 +115,7 @@ const AppliedRole = ({
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
 
     if (jobInfo.requestStatus === 'Awaiting assignment') {
-      if (
-        jobInfo.role === 'DTPer' ||
-        jobInfo.role === 'DTP QCer' ||
-        jobInfo.jobType === 'Interpretation'
-      ) {
-        return (
-          <>
-            <Box
-              sx={{
-                width: 270,
-                height: 32,
-                display: 'flex',
-                gap: '16px',
-              }}
-            >
-              <Button
-                variant='outlined'
-                fullWidth
-                sx={{
-                  border: '1px solid rgba(255, 77, 73, 0.5)',
-                  color: '#FF4D49',
-                }}
-                onClick={() => {
-                  onClickRejectOrPause(jobInfo, 'reject')
-                }}
-                disabled={isDisabled()}
-              >
-                Reject
-              </Button>
-              <Button
-                fullWidth
-                variant='contained'
-                onClick={() => {
-                  onClickCertify(jobInfo)
-                }}
-                disabled={isDisabled()}
-              >
-                Certify
-              </Button>
-            </Box>
-          </>
-        )
-      } else if (
-        // no test case 1, jobInfo.requestStatus가 Awaiting assignment일 경우
-        basicTest &&
-        skillTest &&
-        // ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
-        //   (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
-        skillTest!.status === 'No test'
-      ) {
+      if (currentRole.contents.name === 'TAD') {
         if (
           jobInfo.role === 'DTPer' ||
           jobInfo.role === 'DTP QCer' ||
@@ -207,80 +158,157 @@ const AppliedRole = ({
               </Box>
             </>
           )
-        } else {
-          return (
-            <Box
-              sx={{
-                width: 270,
-                height: 32,
-                display: 'flex',
-              }}
-            >
-              <Button
-                fullWidth
-                variant='contained'
-                disabled
+        } else if (
+          // no test case 1, jobInfo.requestStatus가 Awaiting assignment일 경우
+          basicTest &&
+          skillTest &&
+          // ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
+          //   (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
+          skillTest!.status === 'No test'
+        ) {
+          if (
+            jobInfo.role === 'DTPer' ||
+            jobInfo.role === 'DTP QCer' ||
+            jobInfo.jobType === 'Interpretation'
+          ) {
+            return (
+              <>
+                <Box
+                  sx={{
+                    width: 270,
+                    height: 32,
+                    display: 'flex',
+                    gap: '16px',
+                  }}
+                >
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    sx={{
+                      border: '1px solid rgba(255, 77, 73, 0.5)',
+                      color: '#FF4D49',
+                    }}
+                    onClick={() => {
+                      onClickRejectOrPause(jobInfo, 'reject')
+                    }}
+                    disabled={isDisabled()}
+                  >
+                    Reject
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant='contained'
+                    onClick={() => {
+                      onClickCertify(jobInfo)
+                    }}
+                    disabled={isDisabled()}
+                  >
+                    Certify
+                  </Button>
+                </Box>
+              </>
+            )
+          } else {
+            return (
+              <Box
                 sx={{
-                  '&.Mui-disabled': {
-                    background:
-                      'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-                    border: 'none',
-                    color: '#E04440',
-                  },
+                  width: 270,
+                  height: 32,
+                  display: 'flex',
                 }}
               >
-                No certification test created
-              </Button>
-            </Box>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  disabled
+                  sx={{
+                    '&.Mui-disabled': {
+                      background:
+                        'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                      border: 'none',
+                      color: '#E04440',
+                    },
+                  }}
+                >
+                  No certification test created
+                </Button>
+              </Box>
+            )
+          }
+        } else {
+          return (
+            <>
+              <Box
+                sx={{
+                  width: 270,
+                  height: 32,
+                  display: 'flex',
+                  gap: '16px',
+                }}
+              >
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  sx={{
+                    border: '1px solid rgba(255, 77, 73, 0.5)',
+                    color: '#FF4D49',
+                  }}
+                  onClick={() => {
+                    onClickRejectOrPause(jobInfo, 'reject')
+                  }}
+                  disabled={isDisabled()}
+                >
+                  Reject
+                </Button>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  onClick={() => {
+                    onClickTestAssign(jobInfo)
+                    // basicTest!.status === 'No test'
+                    //   ? onClickTestAssign(jobInfo, 'Skill in progress')
+                    //   : onClickTestAssign(jobInfo)
+                  }}
+                  sx={{
+                    '&.Mui-disabled': {
+                      background: '#fff',
+                      color: ' rgba(76, 78, 100, 0.38)',
+                      border: '1px solid #4C4E641F',
+                    },
+                  }}
+                  disabled={isDisabled()}
+                >
+                  Assign test
+                </Button>
+              </Box>
+            </>
           )
         }
       } else {
         return (
-          <>
-            <Box
+          <Box
+            sx={{
+              width: 270,
+              height: 32,
+              display: 'flex',
+            }}
+          >
+            <Button
+              fullWidth
+              variant='contained'
+              disabled
               sx={{
-                width: 270,
-                height: 32,
-                display: 'flex',
-                gap: '16px',
+                '&.Mui-disabled': {
+                  background: 'rgba(76, 78, 100, 0.12)',
+                  border: 'none',
+                  color: 'rgba(76, 78, 100, 0.38)',
+                },
               }}
             >
-              <Button
-                variant='outlined'
-                fullWidth
-                sx={{
-                  border: '1px solid rgba(255, 77, 73, 0.5)',
-                  color: '#FF4D49',
-                }}
-                onClick={() => {
-                  onClickRejectOrPause(jobInfo, 'reject')
-                }}
-                disabled={isDisabled()}
-              >
-                Reject
-              </Button>
-              <Button
-                fullWidth
-                variant='contained'
-                onClick={() => {
-                  onClickTestAssign(jobInfo)
-                  // basicTest!.status === 'No test'
-                  //   ? onClickTestAssign(jobInfo, 'Skill in progress')
-                  //   : onClickTestAssign(jobInfo)
-                }}
-                sx={{
-                  '&.Mui-disabled': {
-                    background: '#fff',
-                    color: ' rgba(76, 78, 100, 0.38)',
-                    border: '1px solid #4C4E641F',
-                  },
-                }}
-                disabled={isDisabled()}
-              >
-                Assign test
-              </Button>
-            </Box>
-          </>
+              {/* {jobInfo.requestStatusOfPro} - Awaiting assignment */}
+              Awaiting TAD's response
+            </Button>
+          </Box>
         )
       }
     } else if (
@@ -959,14 +987,19 @@ const AppliedRole = ({
           }}
         >
           {SectionTitle}
-          <IconButton
-            sx={{
-              padding: 0,
-            }}
-            onClick={onClickAddRole}
-          >
-            <img src='/images/icons/onboarding-icons/add-role.svg' alt='add' />
-          </IconButton>
+          {currentRole.contents.name === 'TAD' ? (
+            <IconButton
+              sx={{
+                padding: 0,
+              }}
+              onClick={onClickAddRole}
+            >
+              <img
+                src='/images/icons/onboarding-icons/add-role.svg'
+                alt='add'
+              />
+            </IconButton>
+          ) : null}
         </Box>
         <Box>
           {type !== 'onboarding' && currentRole.contents.name === 'TAD' ? (

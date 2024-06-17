@@ -27,6 +27,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilStateLoadable } from 'recoil'
 import { currentRoleSelector } from '@src/states/permission'
+import { Icon } from '@iconify/react'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -114,7 +115,22 @@ const CertificationTest = ({
         background: paused ? 'rgba(76, 78, 100, 0.12);' : '#ffffff',
       }}
     >
-      <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
+      {/* <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader> */}
+      <Typography fontSize={20} fontWeight={500}>
+        Certification Test
+      </Typography>
+      {selectedJobInfo?.requestStatus === 'Test canceled' ? (
+        <Typography
+          color='#FF4D49'
+          fontSize={14}
+          sx={{ display: 'flex', alignItems: 'center', gap: '4px', mt: '8px' }}
+        >
+          <Icon icon='mdi:alert-circle-outline' fontSize={20} />
+          This test has been canceled automatically since the Pro has gotten the
+          certified role.
+        </Typography>
+      ) : null}
+
       {selectedJobInfo &&
       basicTest &&
       skillTest &&
@@ -237,7 +253,8 @@ const CertificationTest = ({
                             alignItems: 'center',
                           }}
                         >
-                          {basicTest!.status === 'Awaiting assignment' ? (
+                          {basicTest!.status === 'Awaiting assignment' &&
+                          !isLPMDiasble ? (
                             <>
                               <Button
                                 variant='contained'
@@ -305,7 +322,8 @@ const CertificationTest = ({
                             />
                           )}
 
-                          {basicTest!.status === 'Basic submitted' ? (
+                          {basicTest!.status === 'Basic submitted' &&
+                          !isLPMDiasble ? (
                             <Box sx={{ display: 'flex', gap: 2 }}>
                               <Button
                                 variant='outlined'

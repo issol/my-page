@@ -1,7 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Button, Divider, Grid, Typography } from '@mui/material'
-import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
-import ProProfileForm from '@src/pages/components/forms/pro/profile.form'
+
 import { authState } from '@src/states/auth'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
@@ -13,6 +12,8 @@ import {
   ProProfileAddress,
   ProProfileInfo,
 } from '@src/types/sign/personalInfoTypes'
+import ProProfileForm from '@src/pages/[companyName]/components/forms/pro/profile.form'
+import ClientBillingAddressesForm from '@src/pages/[companyName]/client/components/forms/client-billing-address'
 
 type Props = {
   userInfo: DetailUserType
