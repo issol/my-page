@@ -32,6 +32,8 @@ import { useRecoilValueLoadable } from 'recoil'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { Typography } from '@mui/material'
 import useModal from '@src/hooks/useModal'
+import { useGetSeats } from '@src/queries/company/company-seats.query'
+import { assignSeat, deleteSeat } from '@src/apis/company/company-seats.api'
 
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
@@ -45,6 +47,7 @@ const Members = () => {
   const { data: members, refetch } = useGetMembers(
     ability.can('read', 'members'),
   )
+  const { data: seats, refetch: refetchSeats } = useGetSeats()
 
   const role = useRecoilValueLoadable(roleState)
   const hasGeneralPermission = () => {
@@ -102,6 +105,30 @@ const Members = () => {
     },
   )
 
+  const assignSeatMutation = useMutation(
+    (userId: number) => assignSeat(userId),
+    {
+      onSuccess: data => {
+        refetchSeats()
+      },
+    },
+  )
+
+  const deleteSeatMutation = useMutation(
+    (userId: number) => deleteSeat(userId),
+    {
+      onSuccess: data => {
+        refetchSeats()
+      },
+    },
+  )
+
+  const invalidateMemberQueries = () => {
+    queryClient.invalidateQueries('signup-requests')
+    queryClient.invalidateQueries('members')
+    queryClient.invalidateQueries('seats')
+  }
+
   const handleDeleteRole = (
     role: string,
     user: {
@@ -138,8 +165,7 @@ const Members = () => {
   const undoAction = (user: SignUpRequestsType, reply: string) => {
     undoRequestActionMutation.mutate(user, {
       onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
-        queryClient.invalidateQueries('members')
+        invalidateMemberQueries()
         toast.dismiss()
       },
     })
@@ -148,7 +174,7 @@ const Members = () => {
   const undoDecline = (user: SignUpRequestsType) => {
     undoRequestActionMutation.mutate(user, {
       onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
+        invalidateMemberQueries()
         toast.dismiss()
       },
     })
@@ -159,8 +185,7 @@ const Members = () => {
 
     undoRequestActionMutation.mutate(user, {
       onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
-        queryClient.invalidateQueries('members')
+        invalidateMemberQueries()
         toast.dismiss()
       },
     })
@@ -232,8 +257,7 @@ const Members = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries('signup-requests')
-          queryClient.invalidateQueries('members')
+          invalidateMemberQueries()
         },
       },
     )
@@ -251,8 +275,27 @@ const Members = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries('signup-requests')
-          queryClient.invalidateQueries('members')
+          invalidateMemberQueries()
+        },
+      },
+    )
+  }
+
+  const handleAssignSeat = (userId: number) => {
+    assignSeatMutation.mutate(userId,
+      {
+        onSuccess: () => {
+          invalidateMemberQueries()
+        },
+      },
+    )
+  }
+
+  const handleDeleteSeat = (userId: number) => {
+    deleteSeatMutation.mutate(userId,
+      {
+        onSuccess: () => {
+          invalidateMemberQueries()
         },
       },
     )
@@ -353,6 +396,9 @@ const Members = () => {
           patchMemberMutation={patchMemberMutation}
           deleteMemberMutation={deleteMemberMutation}
           hasGeneralPermission={hasGeneralPermission()}
+          seats={seats}
+          handleAssignSeat={handleAssignSeat}
+          handleDeleteSeat={handleDeleteSeat}
         />
       </Suspense>
     </Box>

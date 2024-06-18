@@ -194,9 +194,9 @@ const useAuth = () => {
     await logout()
 
     if (companyName) {
-      await router.push(`/${companyName}/login`)
+      router.push(`/${companyName}/login`)
     } else {
-      await router.push('/login')
+      router.push('/login')
     }
   }
 

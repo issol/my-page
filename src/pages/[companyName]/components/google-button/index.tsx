@@ -24,6 +24,7 @@ import { jwtDecode } from 'jwt-decode'
 import { toast } from 'react-hot-toast'
 import logger from '@src/@core/utils/logger'
 import useAuth from '@src/hooks/useAuth'
+import { setCookie } from 'cookies-next'
 
 type Props = {
   type: 'signin' | 'signup'
@@ -56,8 +57,18 @@ export default function GoogleButton({ type }: Props) {
             ),
           })
         } else {
-          auth.updateUserInfo(res)
-          router.replace('/')
+          auth.updateUserInfo(res).then(res => {
+            if (res) {
+              const companyName = res.company ?? null
+              setCookie('companyName', companyName, { secure: true })
+              if (companyName) {
+                router.replace(`/${companyName}/`)
+              } else {
+                router.replace('/')
+              }
+            }
+          })
+          // router.replace('/')
         }
       },
       onError: (res: any) => {

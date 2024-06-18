@@ -27,7 +27,6 @@ const Home = () => {
 
   useEffect(() => {
     //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
-    console.log('hi')
 
     if (role.name === 'TAD') {
       router.replace(`${companyName}/dashboards/tad`)
