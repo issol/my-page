@@ -4,8 +4,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 export type TestMaterialPostType = {
   testType: string
   googleFormLink: string
-  source: { label: string; value: string }
-  target: { label: string; value: string }
+  source: Array<{ label: string; value: string }>
+  target: Array<{ label: string; value: string }>
   jobType: { label: string; value: string }
   role: { label: string; value: string }
   file: Array<File>
@@ -23,14 +23,16 @@ export const certificationTestSchema = yup.object().shape({
     )
     .matches(/edit$/, 'Please enter the edit link of the Google form'),
 
-  source: yup
-    .object({
-      label: yup.string().required(FormErrors.required),
-      value: yup.string().required(FormErrors.required),
-    })
-    .when('testType', ([testType], schema) =>
-      testType === 'Basic test' ? yup.object().nullable() : schema,
-    ),
+  source: yup.array().of(
+    yup
+      .object({
+        label: yup.string().required(FormErrors.required),
+        value: yup.string().required(FormErrors.required),
+      })
+      .when('testType', ([testType], schema) =>
+        testType === 'Basic test' ? yup.object().nullable() : schema,
+      ),
+  ),
   jobType: yup
     .object()
     .shape({
@@ -49,10 +51,12 @@ export const certificationTestSchema = yup.object().shape({
     .when('testType', ([testType], schema) =>
       testType === 'Basic test' ? yup.object().nullable() : schema,
     ),
-  target: yup.object().shape({
-    label: yup.string().required(FormErrors.required),
-    value: yup.string().required(FormErrors.required),
-  }),
+  target: yup.array().of(
+    yup.object().shape({
+      label: yup.string().required(FormErrors.required),
+      value: yup.string().required(FormErrors.required),
+    }),
+  ),
 
   // content: yup.string().required(errorMsg.required),
   file: yup.array().nullable(),

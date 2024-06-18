@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Button,
   Card,
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormHelperText,
@@ -105,8 +106,8 @@ import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
   googleFormLink: '',
-  source: { value: '', label: '' },
-  target: { value: '', label: '' },
+  source: [],
+  target: [],
   jobType: { value: '', label: '' },
   role: { value: '', label: '' },
   // content: null,
@@ -220,14 +221,14 @@ const TestMaterialPost = () => {
   })
 
   function resetFormSelection() {
-    reset({
-      source: { label: '', value: '' },
-      target: { label: '', value: '' },
-      googleFormLink: '',
-      testType: 'Basic test',
-      jobType: { label: '', value: '' },
-      role: { label: '', value: '' },
-    })
+    // reset({
+    //   source: { label: '', value: '' },
+    //   target: { label: '', value: '' },
+    //   googleFormLink: '',
+    //   testType: 'Basic test',
+    //   jobType: { label: '', value: '' },
+    //   role: { label: '', value: '' },
+    // })
     setIsDuplicated(false)
     setSelectedTestType('Basic test')
   }
@@ -404,16 +405,20 @@ const TestMaterialPost = () => {
       setValue(
         'source',
         testDetail?.currentVersion.testType === 'basic'
-          ? { value: '', label: '' }
-          : {
-              value: testDetail?.currentVersion.source!,
-              label: languageHelper(testDetail?.currentVersion.source!)!,
-            },
+          ? [{ value: '', label: '' }]
+          : [
+              {
+                value: testDetail?.currentVersion.source!,
+                label: languageHelper(testDetail?.currentVersion.source!)!,
+              },
+            ],
       )
-      setValue('target', {
-        value: testDetail?.currentVersion.target!,
-        label: languageHelper(testDetail?.currentVersion.target!)!,
-      })
+      setValue('target', [
+        {
+          value: testDetail?.currentVersion.target!,
+          label: languageHelper(testDetail?.currentVersion.target!)!,
+        },
+      ])
 
       setValue('googleFormLink', testDetail?.currentVersion.googleFormLink!)
       if (!_.isEmpty(testDetail?.currentVersion?.content)) {
@@ -664,204 +669,199 @@ const TestMaterialPost = () => {
       },
     },
   )
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      // console.log(value)
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => {
+  //     // console.log(value)
 
-      if (value.testType === 'Basic test') {
-        if (value.target && value.target.value !== '') {
-          const filters: BasicTestExistencePayloadType = {
-            company: 'GloZ',
-            targetLanguage: value.target.value!,
-            testType: 'basic',
-          }
-          checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
-        }
-      } else {
-        if (
-          value.source &&
-          value.source.value !== '' &&
-          value.jobType &&
-          value.jobType.value !== '' &&
-          value.role &&
-          value.role.value !== '' &&
-          value.target &&
-          value.target.value !== ''
-        ) {
-          const filters: BasicTestExistencePayloadType = {
-            company: 'GloZ',
-            testType: 'skill',
-            sourceLanguage: value.source.value!,
-            targetLanguage: value.target.value!,
-            jobType: value.jobType.value!,
-            role: value.role.value!,
-          }
-          checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
-        }
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [watch])
+  //     if (value.testType === 'Basic test') {
+  //       if (value.target && value.target.value !== '') {
+  //         const filters: BasicTestExistencePayloadType = {
+  //           company: 'GloZ',
+  //           targetLanguage: value.target.value!,
+  //           testType: 'basic',
+  //         }
+  //         checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
+  //       }
+  //     } else {
+  //       if (
+  //         value.source &&
+  //         value.source.value !== '' &&
+  //         value.jobType &&
+  //         value.jobType.value !== '' &&
+  //         value.role &&
+  //         value.role.value !== '' &&
+  //         value.target &&
+  //         value.target.value !== ''
+  //       ) {
+  //         const filters: BasicTestExistencePayloadType = {
+  //           company: 'GloZ',
+  //           testType: 'skill',
+  //           sourceLanguage: value.source.value!,
+  //           targetLanguage: value.target.value!,
+  //           jobType: value.jobType.value!,
+  //           role: value.role.value!,
+  //         }
+  //         checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
+  //       }
+  //     }
+  //   })
+  //   return () => subscription.unsubscribe()
+  // }, [watch])
 
   const onSubmit = (edit: boolean) => {
-    if (auth.state === 'hasValue') {
-      const data = getValues()
-      //** data to send to server */
-      const formContent = convertToRaw(content.getCurrentContent())
-      const finalValue: TestFormType = {
-        company: 'GloZ',
-        writer: auth.getValue().user?.username!,
-        email: auth.getValue().user?.email!,
-        testPaperFormUrl: data.googleFormLink,
-        source:
-          data.source.value === '' ? data.target.value : data.source.value,
-        target: data.target.value,
-        testType: data.testType === 'Basic test' ? 'basic' : 'skill',
-        jobType: data.jobType.value,
-        role: data.role.value,
-        content: formContent,
-        text: content.getCurrentContent().getPlainText('\u0001'),
-      }
-
-      const patchValue: PatchFormType = {
-        writer: auth.getValue().user?.username!,
-        email: auth.getValue().user?.email!,
-        testPaperFormUrl: data.googleFormLink,
-        content: formContent,
-        text: content.getCurrentContent().getPlainText(`\u0001`),
-      }
-
-      const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
-        []
-      const language =
-        data.testType === 'Basic test'
-          ? `${data.target.value}`
-          : `${data.source.value}-${data.target.value}`
-
-      isFetched
-        ? savedFiles?.map(file => {
-            fileInfo.push({
-              name: file.name,
-              size: file.size,
-              fileKey: getFilePath(
-                [
-                  'testPaper',
-                  data.testType === 'Basic test' ? 'basic' : 'skill',
-                  data.jobType.value,
-                  data.role.value,
-                  language,
-                  `V${testDetail?.currentVersion.version!}`,
-                ],
-                file.name,
-              ),
-            })
-          })
-        : null
-
-      // file upload
-      if (data.file?.length) {
-        const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
-          []
-        const language =
-          data.testType === 'Basic test'
-            ? `${data.target.value}`
-            : `${data.source.value}-${data.target.value}`
-        const paths: string[] = data?.file?.map(file =>
-          getFilePath(
-            [
-              'testPaper',
-              data.testType === 'Basic test' ? 'basic' : 'skill',
-              data.jobType.value,
-              data.role.value,
-              language,
-              isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
-            ],
-            file.name,
-          ),
-        )
-        const promiseArr = paths.map((url, idx) => {
-          return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
-            res => {
-              fileInfo.push({
-                name: data.file[idx].name,
-                size: data.file[idx]?.size,
-                fileKey: url,
-              })
-              return uploadFileToS3(res, data.file[idx])
-            },
-          )
-        })
-        Promise.all(promiseArr)
-          .then(res => {
-            finalValue.files = fileInfo
-            patchValue.files = fileInfo
-
-            isFetched
-              ? patchTestMutation.mutate(patchValue)
-              : postTestMutation.mutate(finalValue)
-          })
-          .catch(err => {
-            isFetched
-              ? patchTestMutation.mutate(patchValue)
-              : postTestMutation.mutate(finalValue)
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            )
-          })
-      } else {
-        patchValue.files = fileInfo
-        isFetched
-          ? patchTestMutation.mutate(patchValue)
-          : postTestMutation.mutate(finalValue)
-      }
-    }
+    // if (auth.state === 'hasValue') {
+    //   const data = getValues()
+    //   //** data to send to server */
+    //   const formContent = convertToRaw(content.getCurrentContent())
+    //   const finalValue: TestFormType = {
+    //     company: 'GloZ',
+    //     writer: auth.getValue().user?.username!,
+    //     email: auth.getValue().user?.email!,
+    //     testPaperFormUrl: data.googleFormLink,
+    //     source:
+    //       data.source.value === '' ? data.target.value : data.source.value,
+    //     target: data.target.value,
+    //     testType: data.testType === 'Basic test' ? 'basic' : 'skill',
+    //     jobType: data.jobType.value,
+    //     role: data.role.value,
+    //     content: formContent,
+    //     text: content.getCurrentContent().getPlainText('\u0001'),
+    //   }
+    //   const patchValue: PatchFormType = {
+    //     writer: auth.getValue().user?.username!,
+    //     email: auth.getValue().user?.email!,
+    //     testPaperFormUrl: data.googleFormLink,
+    //     content: formContent,
+    //     text: content.getCurrentContent().getPlainText(`\u0001`),
+    //   }
+    //   const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+    //     []
+    //   const language =
+    //     data.testType === 'Basic test'
+    //       ? `${data.target.value}`
+    //       : `${data.source.value}-${data.target.value}`
+    //   isFetched
+    //     ? savedFiles?.map(file => {
+    //         fileInfo.push({
+    //           name: file.name,
+    //           size: file.size,
+    //           fileKey: getFilePath(
+    //             [
+    //               'testPaper',
+    //               data.testType === 'Basic test' ? 'basic' : 'skill',
+    //               data.jobType.value,
+    //               data.role.value,
+    //               language,
+    //               `V${testDetail?.currentVersion.version!}`,
+    //             ],
+    //             file.name,
+    //           ),
+    //         })
+    //       })
+    //     : null
+    //   // file upload
+    //   if (data.file?.length) {
+    //     const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+    //       []
+    //     const language =
+    //       data.testType === 'Basic test'
+    //         ? `${data.target.value}`
+    //         : `${data.source.value}-${data.target.value}`
+    //     const paths: string[] = data?.file?.map(file =>
+    //       getFilePath(
+    //         [
+    //           'testPaper',
+    //           data.testType === 'Basic test' ? 'basic' : 'skill',
+    //           data.jobType.value,
+    //           data.role.value,
+    //           language,
+    //           isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
+    //         ],
+    //         file.name,
+    //       ),
+    //     )
+    //     const promiseArr = paths.map((url, idx) => {
+    //       return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
+    //         res => {
+    //           fileInfo.push({
+    //             name: data.file[idx].name,
+    //             size: data.file[idx]?.size,
+    //             fileKey: url,
+    //           })
+    //           return uploadFileToS3(res, data.file[idx])
+    //         },
+    //       )
+    //     })
+    //     Promise.all(promiseArr)
+    //       .then(res => {
+    //         finalValue.files = fileInfo
+    //         patchValue.files = fileInfo
+    //         isFetched
+    //           ? patchTestMutation.mutate(patchValue)
+    //           : postTestMutation.mutate(finalValue)
+    //       })
+    //       .catch(err => {
+    //         isFetched
+    //           ? patchTestMutation.mutate(patchValue)
+    //           : postTestMutation.mutate(finalValue)
+    //         toast.error(
+    //           'Something went wrong while uploading files. Please try again.',
+    //           {
+    //             position: 'bottom-left',
+    //           },
+    //         )
+    //       })
+    //   } else {
+    //     patchValue.files = fileInfo
+    //     isFetched
+    //       ? patchTestMutation.mutate(patchValue)
+    //       : postTestMutation.mutate(finalValue)
+    //   }
+    // }
   }
 
-  useEffect(() => {
-    if (isDuplicated && !isFetched) {
-      openModal({
-        type: 'DuplicatedModal',
-        children: (
-          <CustomModal
-            soloButton
-            title={
-              <>
-                {selectedTestType === 'Basic test' ? (
-                  <Typography variant='body2' fontSize={16}>
-                    <span style={{ fontWeight: 700 }}>
-                      {languageHelper(getValues('target.value'))}&nbsp;
-                    </span>
-                    {selectedTestType.toLowerCase()} has already been created.
-                  </Typography>
-                ) : (
-                  <Typography variant='body2' fontSize={16}>
-                    <span style={{ fontWeight: 700 }}>
-                      {`${getValues('jobType.label')}, ${getValues(
-                        'role.label',
-                      )}, ${getValues('source.value').toUpperCase()}`}
-                      &rarr;{getValues('target.value').toUpperCase()}
-                    </span>
-                    <br />
-                    {selectedTestType.toLowerCase()} has already been created.
-                  </Typography>
-                )}
-              </>
-            }
-            rightButtonText='Okay'
-            vary='error'
-            onClose={() => closeModal('DuplicatedModal')}
-            onClick={() => {
-              closeModal('DuplicatedModal')
-              resetFormSelection()
-            }}
-          />
-        ),
-      })
-    }
-  }, [isDuplicated])
+  // useEffect(() => {
+  //   if (isDuplicated && !isFetched) {
+  //     openModal({
+  //       type: 'DuplicatedModal',
+  //       children: (
+  //         <CustomModal
+  //           soloButton
+  //           title={
+  //             <>
+  //               {selectedTestType === 'Basic test' ? (
+  //                 <Typography variant='body2' fontSize={16}>
+  //                   <span style={{ fontWeight: 700 }}>
+  //                     {languageHelper(getValues('target.value'))}&nbsp;
+  //                   </span>
+  //                   {selectedTestType.toLowerCase()} has already been created.
+  //                 </Typography>
+  //               ) : (
+  //                 <Typography variant='body2' fontSize={16}>
+  //                   <span style={{ fontWeight: 700 }}>
+  //                     {`${getValues('jobType.label')}, ${getValues(
+  //                       'role.label',
+  //                     )}, ${getValues('source.value').toUpperCase()}`}
+  //                     &rarr;{getValues('target.value').toUpperCase()}
+  //                   </span>
+  //                   <br />
+  //                   {selectedTestType.toLowerCase()} has already been created.
+  //                 </Typography>
+  //               )}
+  //             </>
+  //           }
+  //           rightButtonText='Okay'
+  //           vary='error'
+  //           onClose={() => closeModal('DuplicatedModal')}
+  //           onClick={() => {
+  //             closeModal('DuplicatedModal')
+  //             resetFormSelection()
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   }
+  // }, [isDuplicated])
 
   return (
     <>
@@ -899,8 +899,8 @@ const TestMaterialPost = () => {
                               onChange={(event, item) => {
                                 onChange(item)
                                 setSelectedTestType(item)
-                                setValue('source', { label: '', value: '' })
-                                setValue('target', { label: '', value: '' })
+                                setValue('source', [{ label: '', value: '' }])
+                                setValue('target', [{ label: '', value: '' }])
                                 setValue('jobType', { label: '', value: '' })
                                 setValue('role', { label: '', value: '' })
                                 setValue('googleFormLink', '')
@@ -929,10 +929,18 @@ const TestMaterialPost = () => {
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
-                              value={value}
+                              multiple={
+                                watch('target').length > 1 ? false : true
+                              }
+                              value={value || []}
                               onChange={(e, v) => {
-                                if (!v) onChange({ value: '', label: '' })
-                                else onChange(v)
+                                if (v) {
+                                  onChange(v)
+                                } else {
+                                  onChange([])
+                                }
+                                // if (!v) onChange({ value: '', label: '' })
+                                // else onChange(v)
                               }}
                               isOptionEqualToValue={(option, newValue) => {
                                 return option.value === newValue.value
@@ -942,7 +950,13 @@ const TestMaterialPost = () => {
                               }
                               options={uniqueLanguageList}
                               id='source'
-                              getOptionLabel={option => option.label}
+                              getOptionLabel={option => option.label ?? ''}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                  {option.label}
+                                </li>
+                              )}
                               renderInput={params => (
                                 <TextField
                                   {...params}
@@ -960,12 +974,12 @@ const TestMaterialPost = () => {
                             />
                           )}
                         />
-                        {errors.source && (
+                        {/* {errors.source && (
                           <FormHelperText sx={{ color: 'error.main' }}>
                             {errors.source?.label?.message ||
                               errors.source?.value?.message}
                           </FormHelperText>
-                        )}
+                        )} */}
                       </Grid>
 
                       <Grid item xs={6}>
@@ -975,6 +989,7 @@ const TestMaterialPost = () => {
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
+                              multiple
                               // filterSelectedOptions
                               value={value}
                               onChange={(e, v) => {
@@ -1004,12 +1019,12 @@ const TestMaterialPost = () => {
                             />
                           )}
                         />
-                        {errors.target && (
+                        {/* {errors.target && (
                           <FormHelperText sx={{ color: 'error.main' }}>
                             {errors.target?.label?.message ||
                               errors.target?.value?.message}
                           </FormHelperText>
-                        )}
+                        )} */}
                       </Grid>
                       {selectedTestType === 'Skill test' ? (
                         <>
