@@ -141,7 +141,15 @@ const TestMaterialPost = () => {
   } = useGetTestDetail(Number(id), Boolean(edit))
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
-  const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
+  const [isDuplicated, setIsDuplicated] = useState<
+    Array<{
+      source: string | null
+      target: string
+      jobType: string | null
+      role: string | null
+      status: boolean
+    }>
+  >([]) //check if the guideline is already exist
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
@@ -173,6 +181,10 @@ const TestMaterialPost = () => {
   const [selectedTestType, setSelectedTestType] = useState('Basic test')
   const [jobTypeSelected, setJobTypeSelected] = useState(false)
   const [googleFormLink, setGoogleFormLink] = useState('')
+  const [enableMultiSourceLanguage, setEnableMultiSourceLanguage] =
+    useState(true)
+  const [enableMultiTargetLanguage, setEnableMultiTargetLanguage] =
+    useState(true)
 
   const testType = ['Basic test', 'Skill test']
 
@@ -221,15 +233,15 @@ const TestMaterialPost = () => {
   })
 
   function resetFormSelection() {
-    // reset({
-    //   source: { label: '', value: '' },
-    //   target: { label: '', value: '' },
-    //   googleFormLink: '',
-    //   testType: 'Basic test',
-    //   jobType: { label: '', value: '' },
-    //   role: { label: '', value: '' },
-    // })
-    setIsDuplicated(false)
+    reset({
+      source: [],
+      target: [],
+      googleFormLink: '',
+      testType: 'Basic test',
+      jobType: { label: '', value: '' },
+      role: { label: '', value: '' },
+    })
+    setIsDuplicated([])
     setSelectedTestType('Basic test')
   }
 
@@ -669,44 +681,99 @@ const TestMaterialPost = () => {
       },
     },
   )
-  // useEffect(() => {
-  //   const subscription = watch((value, { name, type }) => {
-  //     // console.log(value)
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      // console.log(value)
 
-  //     if (value.testType === 'Basic test') {
-  //       if (value.target && value.target.value !== '') {
-  //         const filters: BasicTestExistencePayloadType = {
-  //           company: 'GloZ',
-  //           targetLanguage: value.target.value!,
-  //           testType: 'basic',
-  //         }
-  //         checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
-  //       }
-  //     } else {
-  //       if (
-  //         value.source &&
-  //         value.source.value !== '' &&
-  //         value.jobType &&
-  //         value.jobType.value !== '' &&
-  //         value.role &&
-  //         value.role.value !== '' &&
-  //         value.target &&
-  //         value.target.value !== ''
-  //       ) {
-  //         const filters: BasicTestExistencePayloadType = {
-  //           company: 'GloZ',
-  //           testType: 'skill',
-  //           sourceLanguage: value.source.value!,
-  //           targetLanguage: value.target.value!,
-  //           jobType: value.jobType.value!,
-  //           role: value.role.value!,
-  //         }
-  //         checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
-  //       }
-  //     }
-  //   })
-  //   return () => subscription.unsubscribe()
-  // }, [watch])
+      if (value.testType === 'Basic test') {
+        if (value.target && value.target.length) {
+          const filters: BasicTestExistencePayloadType[] = value.target.map(
+            value => ({
+              company: 'GloZ',
+              targetLanguage: value?.value!,
+              testType: 'basic',
+            }),
+          )
+
+          filters.map(filter => {
+            checkBasicTestExistence(filter).then(res =>
+              setIsDuplicated(prev => [
+                ...prev,
+                {
+                  source: null,
+                  target: filter.targetLanguage,
+                  jobType: null,
+                  role: null,
+                  status: res,
+                },
+              ]),
+            )
+          })
+        }
+      } else {
+        if (
+          value.source &&
+          value.source.length &&
+          value.jobType &&
+          value.jobType.value !== '' &&
+          value.role &&
+          value.role.value !== '' &&
+          value.target &&
+          value.target.length
+        ) {
+          let filters: BasicTestExistencePayloadType[] = []
+          if (value.source.length > 1 && value.target?.length) {
+            value.source.map(source => {
+              filters.push({
+                company: 'GloZ',
+                testType: 'skill',
+                sourceLanguage: source?.value!,
+                targetLanguage: value?.target?.[0]?.value!,
+                jobType: value.jobType?.value!,
+                role: value.role?.value!,
+              })
+            })
+          } else if (value.target.length > 1 && value.source?.length) {
+            value.target.map(target => {
+              filters.push({
+                company: 'GloZ',
+                testType: 'skill',
+                sourceLanguage: value?.source?.[0]?.value!,
+                targetLanguage: target?.value!,
+                jobType: value.jobType?.value!,
+                role: value.role?.value!,
+              })
+            })
+          }
+          filters.map(filter => {
+            checkBasicTestExistence(filter).then(res =>
+              setIsDuplicated(prev => [
+                ...prev,
+                {
+                  source: filter.sourceLanguage!,
+                  target: filter.targetLanguage,
+                  jobType: filter.jobType!,
+                  role: filter.role!,
+                  status: res,
+                },
+              ]),
+            )
+          })
+
+          // const filters: BasicTestExistencePayloadType = {
+          //   company: 'GloZ',
+          //   testType: 'skill',
+          //   sourceLanguage: value.source.value!,
+          //   targetLanguage: value.target.value!,
+          //   jobType: value.jobType.value!,
+          //   role: value.role.value!,
+          // }
+          // checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
+        }
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   const onSubmit = (edit: boolean) => {
     // if (auth.state === 'hasValue') {
@@ -820,48 +887,73 @@ const TestMaterialPost = () => {
     // }
   }
 
-  // useEffect(() => {
-  //   if (isDuplicated && !isFetched) {
-  //     openModal({
-  //       type: 'DuplicatedModal',
-  //       children: (
-  //         <CustomModal
-  //           soloButton
-  //           title={
-  //             <>
-  //               {selectedTestType === 'Basic test' ? (
-  //                 <Typography variant='body2' fontSize={16}>
-  //                   <span style={{ fontWeight: 700 }}>
-  //                     {languageHelper(getValues('target.value'))}&nbsp;
-  //                   </span>
-  //                   {selectedTestType.toLowerCase()} has already been created.
-  //                 </Typography>
-  //               ) : (
-  //                 <Typography variant='body2' fontSize={16}>
-  //                   <span style={{ fontWeight: 700 }}>
-  //                     {`${getValues('jobType.label')}, ${getValues(
-  //                       'role.label',
-  //                     )}, ${getValues('source.value').toUpperCase()}`}
-  //                     &rarr;{getValues('target.value').toUpperCase()}
-  //                   </span>
-  //                   <br />
-  //                   {selectedTestType.toLowerCase()} has already been created.
-  //                 </Typography>
-  //               )}
-  //             </>
-  //           }
-  //           rightButtonText='Okay'
-  //           vary='error'
-  //           onClose={() => closeModal('DuplicatedModal')}
-  //           onClick={() => {
-  //             closeModal('DuplicatedModal')
-  //             resetFormSelection()
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   }
-  // }, [isDuplicated])
+  useEffect(() => {
+    if (
+      isDuplicated &&
+      isDuplicated.some(value => value.status) &&
+      !isFetched
+    ) {
+      openModal({
+        type: 'DuplicatedModal',
+        children: (
+          <CustomModal
+            soloButton
+            title={
+              <>
+                {selectedTestType === 'Basic test' ? (
+                  <Typography variant='body2' fontSize={16}>
+                    <span style={{ fontWeight: 700 }}>
+                      {isDuplicated
+                        .filter(value => value.status)
+                        .map((item, index) => (
+                          <>
+                            {languageHelper(item.target)}
+                            {index ===
+                            isDuplicated.filter(value => value.status).length -
+                              1
+                              ? ''
+                              : ','}
+                          </>
+                        ))}
+                    </span>
+                    {selectedTestType.toLowerCase()} has already been created.
+                  </Typography>
+                ) : (
+                  <Typography variant='body2' fontSize={16}>
+                    <span style={{ fontWeight: 700 }}>
+                      {isDuplicated
+                        .filter(value => value.status)
+                        .map((item, index) => (
+                          <>
+                            [{item.jobType}, {item.role},{' '}
+                            {item.source?.toUpperCase()} &rarr;{' '}
+                            {item.target.toUpperCase()}]
+                            {index ===
+                            isDuplicated.filter(value => value.status).length -
+                              1
+                              ? ''
+                              : ','}
+                          </>
+                        ))}
+                    </span>
+                    <br />
+                    {selectedTestType.toLowerCase()} has already been created.
+                  </Typography>
+                )}
+              </>
+            }
+            rightButtonText='Okay'
+            vary='error'
+            onClose={() => closeModal('DuplicatedModal')}
+            onClick={() => {
+              closeModal('DuplicatedModal')
+              resetFormSelection()
+            }}
+          />
+        ),
+      })
+    }
+  }, [isDuplicated])
 
   return (
     <>
@@ -899,6 +991,8 @@ const TestMaterialPost = () => {
                               onChange={(event, item) => {
                                 onChange(item)
                                 setSelectedTestType(item)
+                                setEnableMultiSourceLanguage(true)
+                                setEnableMultiTargetLanguage(true)
                                 setValue('source', [])
                                 setValue('target', [])
                                 setValue('jobType', { label: '', value: '' })
@@ -923,57 +1017,107 @@ const TestMaterialPost = () => {
                       </Grid>
 
                       <Grid item xs={6}>
-                        <Controller
-                          control={control}
-                          name='source'
-                          render={({ field: { onChange, value } }) => (
-                            <Autocomplete
-                              fullWidth
-                              multiple={
-                                watch('target').length > 1 ? false : true
-                              }
-                              value={value || []}
-                              onChange={(e, v) => {
-                                if (v) {
-                                  onChange(v)
-                                } else {
-                                  onChange([])
-                                }
-                                // if (!v) onChange({ value: '', label: '' })
-                                // else onChange(v)
-                              }}
-                              isOptionEqualToValue={(option, newValue) => {
-                                return option.value === newValue.value
-                              }}
-                              disabled={
-                                isFetched || selectedTestType === 'Basic test'
-                              }
-                              options={uniqueLanguageList}
-                              id='source'
-                              getOptionLabel={option => option.label ?? ''}
-                              renderOption={(props, option, { selected }) => (
-                                <li {...props}>
-                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
-                                  {option.label}
-                                </li>
-                              )}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={Boolean(errors.source)}
-                                  label={
-                                    isFetched ||
-                                    selectedTestType === 'Basic test'
-                                      ? 'Source'
-                                      : 'Source*'
+                        {enableMultiSourceLanguage ? (
+                          <Controller
+                            control={control}
+                            name='source'
+                            render={({ field: { onChange, value } }) => (
+                              <Autocomplete
+                                fullWidth
+                                multiple
+                                limitTags={1}
+                                disableCloseOnSelect
+                                value={value || []}
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    if (v.length > 1) {
+                                      setEnableMultiTargetLanguage(false)
+                                    } else {
+                                      setEnableMultiTargetLanguage(true)
+                                    }
+                                    onChange(v)
+                                  } else {
+                                    onChange([])
                                   }
-                                  // placeholder='Source*'
-                                />
-                              )}
-                            />
-                          )}
-                        />
+                                }}
+                                isOptionEqualToValue={(option, newValue) => {
+                                  return option.value === newValue.value
+                                }}
+                                disabled={
+                                  isFetched || selectedTestType === 'Basic test'
+                                }
+                                options={uniqueLanguageList}
+                                id='source'
+                                getOptionLabel={option => option.label ?? ''}
+                                renderOption={(props, option, { selected }) => (
+                                  <li {...props}>
+                                    <Checkbox
+                                      checked={selected}
+                                      sx={{ mr: 2 }}
+                                    />
+                                    {option.label}
+                                  </li>
+                                )}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={Boolean(errors.source)}
+                                    label={
+                                      isFetched ||
+                                      selectedTestType === 'Basic test'
+                                        ? 'Source'
+                                        : 'Source*'
+                                    }
+                                    // placeholder='Source*'
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                        ) : (
+                          <Controller
+                            control={control}
+                            name='source'
+                            render={({ field: { onChange, value } }) => (
+                              <Autocomplete
+                                fullWidth
+                                value={value[0] ?? null}
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    onChange([v])
+                                  } else {
+                                    onChange([])
+                                  }
+                                }}
+                                isOptionEqualToValue={(option, newValue) => {
+                                  return option.value === newValue.value
+                                }}
+                                disabled={
+                                  isFetched || selectedTestType === 'Basic test'
+                                }
+                                options={uniqueLanguageList}
+                                id='source'
+                                getOptionLabel={option => option.label ?? ''}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={Boolean(errors.source)}
+                                    label={
+                                      isFetched ||
+                                      selectedTestType === 'Basic test'
+                                        ? 'Source'
+                                        : 'Source*'
+                                    }
+                                    // placeholder='Source*'
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                        )}
+
                         {/* {errors.source && (
                           <FormHelperText sx={{ color: 'error.main' }}>
                             {errors.source?.label?.message ||
@@ -983,52 +1127,96 @@ const TestMaterialPost = () => {
                       </Grid>
 
                       <Grid item xs={6}>
-                        <Controller
-                          control={control}
-                          name='target'
-                          render={({ field: { onChange, value } }) => (
-                            <Autocomplete
-                              fullWidth
-                              multiple
-                              // filterSelectedOptions
-                              value={value}
-                              onChange={(e, v) => {
-                                if (v) {
-                                  onChange(v)
-                                } else {
-                                  onChange([])
-                                }
-                              }}
-                              options={
-                                // getValues().testType === 'Basic test'
-                                //   ? uniqueLanguageList
-                                //   : [...allLanguage, ...uniqueLanguageList]
-                                uniqueLanguageList
-                              }
-                              id='target'
-                              disabled={isFetched}
-                              getOptionLabel={option => option.label}
-                              isOptionEqualToValue={(option, newValue) => {
-                                return option.value === newValue.value
-                              }}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={Boolean(errors.target)}
-                                  label='Target*'
-                                  // placeholder='Target*'
-                                />
-                              )}
-                              renderOption={(props, option, { selected }) => (
-                                <li {...props}>
-                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
-                                  {option.label}
-                                </li>
-                              )}
-                            />
-                          )}
-                        />
+                        {enableMultiTargetLanguage ? (
+                          <Controller
+                            control={control}
+                            name='target'
+                            render={({ field: { onChange, value } }) => (
+                              <Autocomplete
+                                fullWidth
+                                multiple
+                                limitTags={1}
+                                disableCloseOnSelect
+                                // filterSelectedOptions
+                                value={value || []}
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    if (v.length > 1) {
+                                      setEnableMultiSourceLanguage(false)
+                                    } else {
+                                      setEnableMultiSourceLanguage(true)
+                                    }
+                                    onChange(v)
+                                  } else {
+                                    setEnableMultiSourceLanguage(true)
+                                    onChange([])
+                                  }
+                                }}
+                                options={uniqueLanguageList}
+                                id='target'
+                                disabled={isFetched}
+                                getOptionLabel={option => option.label}
+                                isOptionEqualToValue={(option, newValue) => {
+                                  return option.value === newValue.value
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={Boolean(errors.target)}
+                                    label='Target*'
+                                    // placeholder='Target*'
+                                  />
+                                )}
+                                renderOption={(props, option, { selected }) => (
+                                  <li {...props}>
+                                    <Checkbox
+                                      checked={selected}
+                                      sx={{ mr: 2 }}
+                                    />
+                                    {option.label}
+                                  </li>
+                                )}
+                              />
+                            )}
+                          />
+                        ) : (
+                          <Controller
+                            control={control}
+                            name='target'
+                            render={({ field: { onChange, value } }) => (
+                              <Autocomplete
+                                fullWidth
+                                // filterSelectedOptions
+                                value={value[0] ?? null}
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    onChange([v])
+                                  } else {
+                                    onChange([])
+                                  }
+                                }}
+                                options={uniqueLanguageList}
+                                id='target'
+                                disabled={isFetched}
+                                getOptionLabel={option => option.label}
+                                isOptionEqualToValue={(option, newValue) => {
+                                  return option.value === newValue.value
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={Boolean(errors.target)}
+                                    label='Target*'
+                                    // placeholder='Target*'
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                        )}
+
                         {/* {errors.target && (
                           <FormHelperText sx={{ color: 'error.main' }}>
                             {errors.target?.label?.message ||
