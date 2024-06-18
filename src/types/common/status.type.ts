@@ -189,3 +189,9 @@ export type RequestStatusLabel =
   | 'Changed into quote'
   | 'Changed into order'
   | 'Canceled'
+
+export type ProOnboardStatus =
+  | 'Awaiting assignment'
+  | 'Pause'
+  | 'In progress'
+  | 'Failed'

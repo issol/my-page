@@ -1,3 +1,4 @@
+import { ProOnboardStatus } from '../common/status.type'
 import {
   CountryType,
   JobInfoType,
@@ -81,7 +82,9 @@ export type OnboardingUserType = {
   lastName: string
   experience: string
   jobInfo: Array<OnboardingJobInfoType>
+  onboardingStatus: ProOnboardStatus
   isOnboarded: boolean
+  onboardedAt: string | null
   noteFromUser?: string | null
   isActive: boolean
   legalNamePronunciation?: string | null
@@ -179,6 +182,7 @@ export type OnboardingFilterType = {
   experience?: string[]
   testStatus?: string[]
   order?: string
+  listType?: string
 }
 
 export type CheckDuplicateType = {

@@ -50,7 +50,7 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
 import { useRouter } from 'next/router'
 import { v4 as uuidv4 } from 'uuid'
-import { GridColDef } from '@mui/x-data-grid-pro'
+import { GridColDef, GridColumnVisibilityModel } from '@mui/x-data-grid-pro'
 import _ from 'lodash'
 import { getOnboardingProList } from '@src/apis/onboarding.api'
 
@@ -59,6 +59,8 @@ import Tab from '@mui/material/Tab'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
+import CustomChip from '@src/@core/components/mui/chip'
+import { ProOnboardStatusChip } from '@src/@core/components/chips/chips'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -110,6 +112,13 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false)
   const [totalCount, setTotalCount] = useState(0)
 
+  const [columnVisibilityModel, setColumnVisibilityModel] =
+    useState<GridColumnVisibilityModel>({
+      role: currentTab === 'new' ? false : true,
+      enrollment: currentTab === 'new' ? true : false,
+      onboardedDate: currentTab === 'new' ? false : true,
+    })
+
   // const { data: onboardingProList, isLoading } =
   //   useGetOnboardingProList(filters)
 
@@ -147,6 +156,11 @@ export default function Onboarding() {
   }
 
   const handleChange = (_: any, value: MenuType) => {
+    setColumnVisibilityModel({
+      role: value === 'new' ? false : true,
+      enrollment: value === 'new' ? true : false,
+      onboardedDate: value === 'new' ? false : true,
+    })
     setCurrentTab(value)
   }
 
@@ -325,6 +339,23 @@ export default function Onboarding() {
             onClickFile={onClickFile}
           ></ListResume>
         )
+      },
+    },
+    {
+      flex: 0.1135,
+      minWidth: 240,
+      field: 'status',
+      headerName: 'Status',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography fontSize={14} fontWeight={400}>
+          Status
+        </Typography>
+      ),
+      renderCell: ({ row }: OnboardingListCellType) => {
+        return <>{ProOnboardStatusChip(row.onboardingStatus)}</>
       },
     },
     {
@@ -553,6 +584,27 @@ export default function Onboarding() {
         )
       },
     },
+    {
+      flex: 0.1182,
+      field: 'onboardedDate',
+      minWidth: 250,
+      headerName: 'Date onboarded',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Date onboarded</Box>,
+      renderCell: ({ row }: OnboardingListCellType) => {
+        return (
+          <Box>
+            {convertTimeToTimezone(
+              row.onboardedAt,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
+          </Box>
+        )
+      },
+    },
   ]
 
   useEffect(() => {
@@ -562,7 +614,7 @@ export default function Onboarding() {
 
   useEffect(() => {
     let mounted = true
-    if (savedFilter) {
+    if (savedFilter && mounted) {
       const {
         jobType,
         role,
@@ -588,6 +640,7 @@ export default function Onboarding() {
         // take: onboardingListPageSize,
         // skip: onboardingListPageSize * onboardingListPage,
         order: 'desc',
+        listType: currentTab === 'new' ? 'new-applicant' : 'onboarded-pro',
       }
 
       if (JSON.stringify(defaultFilter) !== JSON.stringify(savedFilter)) {
@@ -642,7 +695,6 @@ export default function Onboarding() {
       if (filters) {
         setLoading(true)
         const rows = await getOnboardingProList(filters!)
-        console.log(rows)
 
         if (mounted) {
           setLoading(false)
@@ -715,6 +767,7 @@ export default function Onboarding() {
                 setRows={setRows}
                 filters={filters!}
                 setLoading={setLoading}
+                columnVisibilityModel={columnVisibilityModel}
               />
             </Box>
           </>
@@ -756,6 +809,7 @@ export default function Onboarding() {
                 setRows={setRows}
                 filters={filters!}
                 setLoading={setLoading}
+                columnVisibilityModel={columnVisibilityModel}
               />
             </Box>
           </>

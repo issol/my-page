@@ -16,6 +16,7 @@ import {
   DataGridPro,
   DataGridProProps,
   GridColDef,
+  GridColumnVisibilityModel,
   GridSlots,
   useGridApiRef,
 } from '@mui/x-data-grid-pro'
@@ -37,6 +38,7 @@ type Props = {
   setLoading: Dispatch<SetStateAction<boolean>>
   handleRowClick: (id: number) => void
   setRows: Dispatch<SetStateAction<OnboardingListType[]>>
+  columnVisibilityModel: GridColumnVisibilityModel
 }
 
 export default function OnboardingList({
@@ -53,6 +55,7 @@ export default function OnboardingList({
   handleRowClick,
   setRows,
   setLoading,
+  columnVisibilityModel,
 }: Props) {
   const apiRef = useGridApiRef()
   const router = useRouter()
@@ -128,6 +131,7 @@ export default function OnboardingList({
           initialState={{
             pinnedColumns: { left: ['id', 'name'], right: ['actions'] },
           }}
+          columnVisibilityModel={columnVisibilityModel}
           columns={columns}
           loading={isLoading}
           rows={onboardingProList ?? []}

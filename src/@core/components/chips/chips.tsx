@@ -24,6 +24,7 @@ import {
   JobStatus,
   OrderLabel,
   OrderStatus,
+  ProOnboardStatus,
   QuotesStatusLabel,
   RequestStatus,
   StatusItem,
@@ -660,6 +661,29 @@ export const TestStatusChip = ({ label, status }: TestStatusChipProps) => {
   return (
     <CustomChip
       label={label}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProOnboardStatusChip(status: ProOnboardStatus) {
+  const statusColors: Record<ProOnboardStatus, string> = {
+    'Awaiting assignment': '#666CFF',
+    ['Pause']: '#929292',
+    'In progress': '#72E128',
+    ['Failed']: '#FF4D49',
+  }
+
+  const color = statusColors[status] || ''
+
+  return (
+    <CustomChip
+      label={status}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

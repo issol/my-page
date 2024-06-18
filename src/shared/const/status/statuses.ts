@@ -454,3 +454,22 @@ export const ClientQuoteCalendarStatus = [
     color: '#FF4D49',
   },
 ]
+
+export const ProOnboardStatus = [
+  {
+    value: 'Awaiting assignment',
+    label: 'Awaiting assignment',
+  },
+  {
+    value: 'Pause',
+    label: 'Pause',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Failed',
+    label: 'Failed',
+  },
+]
