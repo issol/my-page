@@ -1,4 +1,10 @@
-import { Card, Divider, Grid, Typography } from '@mui/material'
+import {
+  Card,
+  Divider,
+  Grid,
+  SelectChangeEvent,
+  Typography,
+} from '@mui/material'
 
 import { useRouter } from 'next/router'
 
@@ -34,6 +40,7 @@ import {
   addCommentOnPro,
   addCreateProAppliedRole,
   addCreateProAppliedTest,
+  changeOnboardingProStatus,
   deleteCommentOnPro,
   editCommentOnPro,
   patchAppliedRole,
@@ -71,6 +78,9 @@ import {
   useGetProSecondaryLanguages,
 } from '@src/queries/pro/pro-details.query'
 import EditClientsModal from '@src/views/pro/overview/edit-clients-modal'
+import { ProOnboardStatusType } from '@src/types/common/status.type'
+import { displayCustomToast } from '@src/shared/utils/toast'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const OnboardingDetails = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -236,9 +246,40 @@ function OnboardingDetail() {
     },
   )
 
+  const changeOnboardingProStatusMutation = useMutation(
+    (status: ProOnboardStatusType) =>
+      changeOnboardingProStatus(userInfo?.userId!, status),
+    {
+      onSuccess: (data, variables) => {
+        displayCustomToast('Saved successfully!', 'success')
+        queryClient.invalidateQueries(['onboarding-pro-details'])
+      },
+    },
+  )
+
   useEffect(() => {
     refetch()
   }, [id])
+
+  const onClickChangeStatus = (event: SelectChangeEvent) => {
+    const status = event.target.value as ProOnboardStatusType
+    openModal({
+      type: 'ChangeStatusModal',
+      children: (
+        <CustomModalV2
+          title='Change status?'
+          subtitle={`Are you sure you want to change this Pro’s status as [${status}]?`}
+          rightButtonText='Change'
+          vary='error-report'
+          onClose={() => closeModal('ChangeStatusModal')}
+          onClick={() => {
+            closeModal('ChangeStatusModal')
+            changeOnboardingProStatusMutation.mutate(status)
+          }}
+        />
+      ),
+    })
+  }
   const handleChangeRolePage = (direction: string) => {
     const changedPage =
       direction === 'prev'
@@ -1078,8 +1119,10 @@ function OnboardingDetail() {
                     userInfo?.addresses && userInfo.addresses.length > 0
                       ? userInfo.addresses[0]
                       : null,
+                  onboardingStatus: userInfo?.onboardingStatus,
                 }}
                 type='onboarding'
+                handleChangeStatus={onClickChangeStatus}
               />
             </Grid>
             <Grid item xs={12}>

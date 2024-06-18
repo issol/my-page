@@ -9,6 +9,7 @@ import {
 } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { DetailUserType } from '@src/types/common/detail-user.type'
+import { ProOnboardStatusType } from '@src/types/common/status.type'
 
 export const getOnboardingProList = async (filters: OnboardingFilterType) => {
   const data = await axios.get(
@@ -173,4 +174,13 @@ export const checkDuplicate = async (
   )
 
   return data
+}
+
+export const changeOnboardingProStatus = async (
+  userId: number,
+  status: ProOnboardStatusType,
+) => {
+  await axios.patch(`/api/enough/u/pro/${userId}/onboarding-status`, {
+    status,
+  })
 }

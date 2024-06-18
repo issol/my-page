@@ -190,7 +190,7 @@ export type RequestStatusLabel =
   | 'Changed into order'
   | 'Canceled'
 
-export type ProOnboardStatus =
+export type ProOnboardStatusType =
   | 'Awaiting assignment'
   | 'Pause'
   | 'In progress'

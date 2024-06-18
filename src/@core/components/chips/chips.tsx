@@ -24,7 +24,7 @@ import {
   JobStatus,
   OrderLabel,
   OrderStatus,
-  ProOnboardStatus,
+  ProOnboardStatusType,
   QuotesStatusLabel,
   RequestStatus,
   StatusItem,
@@ -671,8 +671,8 @@ export const TestStatusChip = ({ label, status }: TestStatusChipProps) => {
   )
 }
 
-export function ProOnboardStatusChip(status: ProOnboardStatus) {
-  const statusColors: Record<ProOnboardStatus, string> = {
+export function ProOnboardStatusChip(status: ProOnboardStatusType) {
+  const statusColors: Record<ProOnboardStatusType, string> = {
     'Awaiting assignment': '#666CFF',
     ['Pause']: '#929292',
     'In progress': '#72E128',

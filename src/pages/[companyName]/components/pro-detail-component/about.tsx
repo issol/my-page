@@ -19,7 +19,7 @@ import { v4 as uuidv4 } from 'uuid'
 //** data */
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
-import { ProStatus } from '@src/shared/const/status/statuses'
+import { ProOnboardStatus, ProStatus } from '@src/shared/const/status/statuses'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import {
@@ -31,6 +31,7 @@ import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 import { useEffect, useState } from 'react'
+import { ProOnboardStatusType } from '@src/types/common/status.type'
 
 const Pronounce: Record<string, string> = {
   SHE: 'She/her/hers',
@@ -51,6 +52,7 @@ type Props = {
     birthday?: string
     status?: string
     address: ClientAddressType<number> | null
+    onboardingStatus: ProOnboardStatusType
   }
   type: string
   handleChangeStatus?: (event: SelectChangeEvent) => void
@@ -170,13 +172,26 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
           >
             {type === 'onboarding' ? (
               <FormControl fullWidth>
-                <TextField
-                  disabled
-                  autoComplete='off'
-                  id='about-status-textfield'
+                <InputLabel id='controlled-select-label'>Status</InputLabel>
+                <Select
+                  value={userInfo.onboardingStatus}
+                  defaultValue={userInfo.onboardingStatus}
                   label='Status'
-                  defaultValue={userInfo.status ? userInfo.status : ' '} // 온보딩이 진행중인 경우엔 상태값이 없음, 공백으로 빈칸 처리함
-                />
+                  id='controlled-select'
+                  onChange={handleChangeStatus}
+                  labelId='controlled-select-label'
+                  // disabled={
+                  //   type === 'onboarding' || currentRole?.name === 'LPM'
+                  // }
+                >
+                  {Object.values(ProOnboardStatus).map(value => {
+                    return (
+                      <MenuItem key={uuidv4()} value={value.value}>
+                        {value.label}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
               </FormControl>
             ) : (
               <FormControl fullWidth>
@@ -188,9 +203,9 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
                   id='controlled-select'
                   onChange={handleChangeStatus}
                   labelId='controlled-select-label'
-                  disabled={
-                    type === 'onboarding' || currentRole?.name === 'LPM'
-                  }
+                  // disabled={
+                  //   type === 'onboarding' || currentRole?.name === 'LPM'
+                  // }
                 >
                   {Object.values(ProStatus).map(value => {
                     return (

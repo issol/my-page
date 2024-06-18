@@ -1,4 +1,4 @@
-import { ProOnboardStatus } from '../common/status.type'
+import { ProOnboardStatusType } from '../common/status.type'
 import {
   CountryType,
   JobInfoType,
@@ -82,7 +82,7 @@ export type OnboardingUserType = {
   lastName: string
   experience: string
   jobInfo: Array<OnboardingJobInfoType>
-  onboardingStatus: ProOnboardStatus
+  onboardingStatus: ProOnboardStatusType
   isOnboarded: boolean
   onboardedAt: string | null
   noteFromUser?: string | null
