@@ -899,8 +899,8 @@ const TestMaterialPost = () => {
                               onChange={(event, item) => {
                                 onChange(item)
                                 setSelectedTestType(item)
-                                setValue('source', [{ label: '', value: '' }])
-                                setValue('target', [{ label: '', value: '' }])
+                                setValue('source', [])
+                                setValue('target', [])
                                 setValue('jobType', { label: '', value: '' })
                                 setValue('role', { label: '', value: '' })
                                 setValue('googleFormLink', '')
@@ -993,13 +993,17 @@ const TestMaterialPost = () => {
                               // filterSelectedOptions
                               value={value}
                               onChange={(e, v) => {
-                                if (!v) onChange({ value: '', label: '' })
-                                else onChange(v)
+                                if (v) {
+                                  onChange(v)
+                                } else {
+                                  onChange([])
+                                }
                               }}
                               options={
-                                getValues().testType === 'Basic test'
-                                  ? uniqueLanguageList
-                                  : [...allLanguage, ...uniqueLanguageList]
+                                // getValues().testType === 'Basic test'
+                                //   ? uniqueLanguageList
+                                //   : [...allLanguage, ...uniqueLanguageList]
+                                uniqueLanguageList
                               }
                               id='target'
                               disabled={isFetched}
@@ -1015,6 +1019,12 @@ const TestMaterialPost = () => {
                                   label='Target*'
                                   // placeholder='Target*'
                                 />
+                              )}
+                              renderOption={(props, option, { selected }) => (
+                                <li {...props}>
+                                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                  {option.label}
+                                </li>
                               )}
                             />
                           )}
