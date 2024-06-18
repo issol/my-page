@@ -115,7 +115,10 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
           <Label>{userInfo.email || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', gap: '8px' }}>
-          <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
+          <Box sx={{ width: '24px', height: '24px' }}>
+            <Icon icon='mdi:earth' style={{ opacity: '0.7' }} fontSize={24} />
+          </Box>
+
           <Box>
             <LabelTitle>Timezone:</LabelTitle>&nbsp;&nbsp;
             <Label>
