@@ -215,7 +215,8 @@ export const getProAppliedRolesColumns = (
             row.status === 'Skill failed' ||
             row.status === 'Test assigned' ||
             row.status === 'Role assigned' ||
-            row.status === 'Paused' ? (
+            row.status === 'Paused' ||
+            row.status === 'Test canceled' ? (
               <IconButton
                 onClick={() => {
                   onClickReason(row)

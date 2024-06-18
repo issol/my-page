@@ -120,17 +120,6 @@ const ProCertificationTest = () => {
         />
       ) : (
         <>
-          <Box
-            display='flex'
-            width={'100%'}
-            alignItems='center'
-            justifyContent='space-between'
-            padding='10px 0'
-          >
-            <PageHeader
-              title={<Typography variant='h5'>Certification test</Typography>}
-            />
-          </Box>
           {auth.getValue().user?.isSignToNDA ? null : (
             <Box
               sx={{

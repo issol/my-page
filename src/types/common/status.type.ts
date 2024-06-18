@@ -179,6 +179,7 @@ export type AppliedRolesStatus =
   | 'Contract required'
   | 'Certified'
   | 'Test in preparation'
+  | 'Test canceled'
 
 /* ✅ Request Status */
 
