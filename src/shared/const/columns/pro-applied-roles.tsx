@@ -42,6 +42,7 @@ export const getProAppliedRolesColumns = (
     'Skill failed',
     'Contract required',
     'Certified',
+    'Test canceled',
   ]
 
   const canTestStatus = ['Basic test Ready', 'Skill test Ready']

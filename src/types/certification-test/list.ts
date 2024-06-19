@@ -21,7 +21,6 @@ export type TestMaterialFilterPayloadType = {
 }
 
 export type BasicTestExistencePayloadType = {
-  company: string
   testType: string
   sourceLanguage?: string
   targetLanguage: string

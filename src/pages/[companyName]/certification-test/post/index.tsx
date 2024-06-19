@@ -26,7 +26,7 @@ import Icon from '@src/@core/components/icon'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 // ** React Imports
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -139,6 +139,7 @@ const TestMaterialPost = () => {
     isFetched,
     refetch,
   } = useGetTestDetail(Number(id), Boolean(edit))
+
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState<
@@ -150,6 +151,15 @@ const TestMaterialPost = () => {
       status: boolean
     }>
   >([]) //check if the guideline is already exist
+
+  const [isDuplicatedTest, setIsDuplicatedTest] = useState<{
+    source: string | null
+    target: string
+    jobType: string | null
+    role: string | null
+    status: boolean
+  } | null>(null)
+
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
@@ -161,12 +171,6 @@ const TestMaterialPost = () => {
       label: keyof typeof GloLanguageEnum
     }[]
   >([])
-  const allLanguage = [
-    {
-      value: 'all',
-      label: 'All',
-    },
-  ]
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
@@ -683,32 +687,25 @@ const TestMaterialPost = () => {
   )
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      // console.log(value)
-
       if (value.testType === 'Basic test') {
         if (value.target && value.target.length) {
-          const filters: BasicTestExistencePayloadType[] = value.target.map(
-            value => ({
-              company: 'GloZ',
-              targetLanguage: value?.value!,
-              testType: 'basic',
+          let targetArray = value.target
+          let lastElement = targetArray[targetArray.length - 1]
+
+          const filter: BasicTestExistencePayloadType = {
+            targetLanguage: lastElement?.value!,
+            testType: 'basic',
+          }
+
+          checkBasicTestExistence(filter).then(res =>
+            setIsDuplicatedTest({
+              source: null,
+              target: filter.targetLanguage,
+              jobType: null,
+              role: null,
+              status: res,
             }),
           )
-
-          filters.map(filter => {
-            checkBasicTestExistence(filter).then(res =>
-              setIsDuplicated(prev => [
-                ...prev,
-                {
-                  source: null,
-                  target: filter.targetLanguage,
-                  jobType: null,
-                  role: null,
-                  status: res,
-                },
-              ]),
-            )
-          })
         }
       } else {
         if (
@@ -721,54 +718,29 @@ const TestMaterialPost = () => {
           value.target &&
           value.target.length
         ) {
-          let filters: BasicTestExistencePayloadType[] = []
-          if (value.source.length > 1 && value.target?.length) {
-            value.source.map(source => {
-              filters.push({
-                company: 'GloZ',
-                testType: 'skill',
-                sourceLanguage: source?.value!,
-                targetLanguage: value?.target?.[0]?.value!,
-                jobType: value.jobType?.value!,
-                role: value.role?.value!,
-              })
-            })
-          } else if (value.target.length > 1 && value.source?.length) {
-            value.target.map(target => {
-              filters.push({
-                company: 'GloZ',
-                testType: 'skill',
-                sourceLanguage: value?.source?.[0]?.value!,
-                targetLanguage: target?.value!,
-                jobType: value.jobType?.value!,
-                role: value.role?.value!,
-              })
-            })
-          }
-          filters.map(filter => {
-            checkBasicTestExistence(filter).then(res =>
-              setIsDuplicated(prev => [
-                ...prev,
-                {
-                  source: filter.sourceLanguage!,
-                  target: filter.targetLanguage,
-                  jobType: filter.jobType!,
-                  role: filter.role!,
-                  status: res,
-                },
-              ]),
-            )
-          })
+          let targetArray = value.target
+          let targetLastElement = targetArray[targetArray.length - 1]
 
-          // const filters: BasicTestExistencePayloadType = {
-          //   company: 'GloZ',
-          //   testType: 'skill',
-          //   sourceLanguage: value.source.value!,
-          //   targetLanguage: value.target.value!,
-          //   jobType: value.jobType.value!,
-          //   role: value.role.value!,
-          // }
-          // checkBasicTestExistence(filters).then(res => setIsDuplicated(res))
+          let sourceArray = value.source
+          let sourceLastElement = sourceArray[sourceArray.length - 1]
+
+          const filter: BasicTestExistencePayloadType = {
+            sourceLanguage: sourceLastElement?.value!,
+            targetLanguage: targetLastElement?.value!,
+            jobType: value.jobType.value!,
+            role: value.role.value!,
+            testType: 'skill',
+          }
+
+          checkBasicTestExistence(filter).then(res =>
+            setIsDuplicatedTest({
+              source: filter.sourceLanguage ?? null,
+              target: filter.targetLanguage,
+              jobType: filter.jobType ?? null,
+              role: filter.role ?? null,
+              status: res,
+            }),
+          )
         }
       }
     })
@@ -888,11 +860,7 @@ const TestMaterialPost = () => {
   }
 
   useEffect(() => {
-    if (
-      isDuplicated &&
-      isDuplicated.some(value => value.status) &&
-      !isFetched
-    ) {
+    if (isDuplicatedTest && isDuplicatedTest.status && !isFetched) {
       openModal({
         type: 'DuplicatedModal',
         children: (
@@ -903,38 +871,16 @@ const TestMaterialPost = () => {
                 {selectedTestType === 'Basic test' ? (
                   <Typography variant='body2' fontSize={16}>
                     <span style={{ fontWeight: 700 }}>
-                      {isDuplicated
-                        .filter(value => value.status)
-                        .map((item, index) => (
-                          <>
-                            {languageHelper(item.target)}
-                            {index ===
-                            isDuplicated.filter(value => value.status).length -
-                              1
-                              ? ''
-                              : ','}
-                          </>
-                        ))}
+                      {languageHelper(isDuplicatedTest.target)}&nbsp;
                     </span>
                     {selectedTestType.toLowerCase()} has already been created.
                   </Typography>
                 ) : (
                   <Typography variant='body2' fontSize={16}>
                     <span style={{ fontWeight: 700 }}>
-                      {isDuplicated
-                        .filter(value => value.status)
-                        .map((item, index) => (
-                          <>
-                            [{item.jobType}, {item.role},{' '}
-                            {item.source?.toUpperCase()} &rarr;{' '}
-                            {item.target.toUpperCase()}]
-                            {index ===
-                            isDuplicated.filter(value => value.status).length -
-                              1
-                              ? ''
-                              : ','}
-                          </>
-                        ))}
+                      {isDuplicatedTest.jobType}, {isDuplicatedTest.role}{' '}
+                      {isDuplicatedTest.source?.toUpperCase()} &rarr;{' '}
+                      {isDuplicatedTest.target.toUpperCase()}
                     </span>
                     <br />
                     {selectedTestType.toLowerCase()} has already been created.
@@ -946,6 +892,7 @@ const TestMaterialPost = () => {
             vary='error'
             onClose={() => closeModal('DuplicatedModal')}
             onClick={() => {
+              setIsDuplicatedTest(null)
               closeModal('DuplicatedModal')
               resetFormSelection()
             }}
@@ -953,7 +900,7 @@ const TestMaterialPost = () => {
         ),
       })
     }
-  }, [isDuplicated])
+  }, [isDuplicatedTest])
 
   return (
     <>
@@ -1026,7 +973,9 @@ const TestMaterialPost = () => {
                                 fullWidth
                                 multiple
                                 limitTags={1}
-                                disableCloseOnSelect
+                                disableCloseOnSelect={
+                                  !!isDuplicatedTest && !isDuplicatedTest.status
+                                }
                                 value={value || []}
                                 onChange={(e, v) => {
                                   if (v) {
@@ -1136,7 +1085,9 @@ const TestMaterialPost = () => {
                                 fullWidth
                                 multiple
                                 limitTags={1}
-                                disableCloseOnSelect
+                                disableCloseOnSelect={
+                                  !!isDuplicatedTest && !isDuplicatedTest.status
+                                }
                                 // filterSelectedOptions
                                 value={value || []}
                                 onChange={(e, v) => {
