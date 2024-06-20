@@ -1049,6 +1049,7 @@ const ProDetailOverview = () => {
                     userInfo?.addresses && userInfo.addresses.length > 0
                       ? userInfo.addresses[0]
                       : null,
+                  onboardingStatus: userInfo?.onboardingStatus!,
                 }}
                 type={'pro'}
                 handleChangeStatus={handleChangeStatus}

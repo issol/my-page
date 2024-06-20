@@ -1277,6 +1277,8 @@ export const handlers = [
         fromSNS: false,
         havePreferredName: true,
         company: 'GloZ',
+        onboardedAt: '2022-04-27T14:13:15Z',
+        onboardingStatus: 'Awaiting assignment',
       }
 
       return HttpResponse.json(details, { status: 200 })
@@ -1819,6 +1821,8 @@ export const handlers = [
         fromSNS: false,
         havePreferredName: true,
         company: 'GloZ',
+        onboardedAt: '2022-04-27T14:13:15Z',
+        onboardingStatus: 'Awaiting assignment',
       }
       return HttpResponse.json(details, { status: 200 })
     }

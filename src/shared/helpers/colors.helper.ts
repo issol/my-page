@@ -204,6 +204,7 @@ export const getProAppliedRolesStatusColor = (status: AppliedRolesStatus) => {
     Certified: '#64C623',
     'Skill in progress': '#D18A00',
     'Skill submitted': '#1A6BBA',
+    'Test canceled': '#FF4D49',
   }
 
   return statusColors[status] || ''
