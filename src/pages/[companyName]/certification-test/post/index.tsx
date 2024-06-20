@@ -102,6 +102,7 @@ import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { content } from 'html2canvas/dist/types/css/property-descriptors/content'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -536,9 +537,15 @@ const TestMaterialPost = () => {
 
   const postTestMutation = useMutation((form: TestFormType) => postTest(form), {
     onSuccess: data => {
-      console.log(data)
+      const { createdTest, duplicateTest } = data
+      if (createdTest.length === 0) {
+        displayCustomToast('Something went wrong. Please try again.', 'error')
+      } else if (createdTest.length === 1) {
+        router.replace(`/certification-test/detail/${createdTest[0]}`)
+      } else {
+        router.replace(`/certification-test`)
+      }
 
-      router.replace(`/certification-test/detail/${data.id}`)
       // refetch()
       // queryClient.invalidateQueries('test-material-list')
       // queryClient.invalidateQueries(['test-detail'])

@@ -46,7 +46,9 @@ export type PatchFormType = Omit<
   'company' | 'testType' | 'source' | 'target' | 'jobType' | 'role'
 >
 
-export const postTest = async (form: TestFormType): Promise<{ id: number }> => {
+export const postTest = async (
+  form: TestFormType,
+): Promise<{ duplicateTest: Array<number>; createdTest: Array<number> }> => {
   try {
     const { data } = await axios.post(`/api/enough/cert/test/paper`, form)
     return data
