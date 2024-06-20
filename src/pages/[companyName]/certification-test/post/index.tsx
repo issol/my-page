@@ -193,6 +193,15 @@ const TestMaterialPost = () => {
   const testType = ['Basic test', 'Skill test']
 
   const languageList = getGloLanguage()
+  function formatData(source: string[], target: string[]): string[] {
+    if (source.length > 1) {
+      return source.map(src => `${src} -> ${target[0]}`)
+    } else if (target.length > 1) {
+      return target.map(tgt => `${source[0]} -> ${tgt}`)
+    } else {
+      return [`${source[0]} -> ${target[0]}`]
+    }
+  }
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -748,115 +757,113 @@ const TestMaterialPost = () => {
   }, [watch])
 
   const onSubmit = (edit: boolean) => {
-    // if (auth.state === 'hasValue') {
-    //   const data = getValues()
-    //   //** data to send to server */
-    //   const formContent = convertToRaw(content.getCurrentContent())
-    //   const finalValue: TestFormType = {
-    //     company: 'GloZ',
-    //     writer: auth.getValue().user?.username!,
-    //     email: auth.getValue().user?.email!,
-    //     testPaperFormUrl: data.googleFormLink,
-    //     source:
-    //       data.source.value === '' ? data.target.value : data.source.value,
-    //     target: data.target.value,
-    //     testType: data.testType === 'Basic test' ? 'basic' : 'skill',
-    //     jobType: data.jobType.value,
-    //     role: data.role.value,
-    //     content: formContent,
-    //     text: content.getCurrentContent().getPlainText('\u0001'),
-    //   }
-    //   const patchValue: PatchFormType = {
-    //     writer: auth.getValue().user?.username!,
-    //     email: auth.getValue().user?.email!,
-    //     testPaperFormUrl: data.googleFormLink,
-    //     content: formContent,
-    //     text: content.getCurrentContent().getPlainText(`\u0001`),
-    //   }
-    //   const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
-    //     []
-    //   const language =
-    //     data.testType === 'Basic test'
-    //       ? `${data.target.value}`
-    //       : `${data.source.value}-${data.target.value}`
-    //   isFetched
-    //     ? savedFiles?.map(file => {
-    //         fileInfo.push({
-    //           name: file.name,
-    //           size: file.size,
-    //           fileKey: getFilePath(
-    //             [
-    //               'testPaper',
-    //               data.testType === 'Basic test' ? 'basic' : 'skill',
-    //               data.jobType.value,
-    //               data.role.value,
-    //               language,
-    //               `V${testDetail?.currentVersion.version!}`,
-    //             ],
-    //             file.name,
-    //           ),
-    //         })
-    //       })
-    //     : null
-    //   // file upload
-    //   if (data.file?.length) {
-    //     const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
-    //       []
-    //     const language =
-    //       data.testType === 'Basic test'
-    //         ? `${data.target.value}`
-    //         : `${data.source.value}-${data.target.value}`
-    //     const paths: string[] = data?.file?.map(file =>
-    //       getFilePath(
-    //         [
-    //           'testPaper',
-    //           data.testType === 'Basic test' ? 'basic' : 'skill',
-    //           data.jobType.value,
-    //           data.role.value,
-    //           language,
-    //           isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
-    //         ],
-    //         file.name,
-    //       ),
-    //     )
-    //     const promiseArr = paths.map((url, idx) => {
-    //       return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
-    //         res => {
-    //           fileInfo.push({
-    //             name: data.file[idx].name,
-    //             size: data.file[idx]?.size,
-    //             fileKey: url,
-    //           })
-    //           return uploadFileToS3(res, data.file[idx])
-    //         },
-    //       )
-    //     })
-    //     Promise.all(promiseArr)
-    //       .then(res => {
-    //         finalValue.files = fileInfo
-    //         patchValue.files = fileInfo
-    //         isFetched
-    //           ? patchTestMutation.mutate(patchValue)
-    //           : postTestMutation.mutate(finalValue)
-    //       })
-    //       .catch(err => {
-    //         isFetched
-    //           ? patchTestMutation.mutate(patchValue)
-    //           : postTestMutation.mutate(finalValue)
-    //         toast.error(
-    //           'Something went wrong while uploading files. Please try again.',
-    //           {
-    //             position: 'bottom-left',
-    //           },
-    //         )
-    //       })
-    //   } else {
-    //     patchValue.files = fileInfo
-    //     isFetched
-    //       ? patchTestMutation.mutate(patchValue)
-    //       : postTestMutation.mutate(finalValue)
-    //   }
-    // }
+    if (auth.state === 'hasValue') {
+      const data = getValues()
+      //** data to send to server */
+      const formContent = convertToRaw(content.getCurrentContent())
+      const finalValue: TestFormType = {
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        testPaperFormUrl: data.googleFormLink,
+        source:
+          data.testType === 'Basic test'
+            ? undefined
+            : data.source.map(value => value.value),
+        target: data.target.map(value => value.value),
+        testType: data.testType === 'Basic test' ? 'basic' : 'skill',
+        jobType: data.jobType.value,
+        role: data.role.value,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText('\u0001'),
+      }
+      const patchValue: PatchFormType = {
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        testPaperFormUrl: data.googleFormLink,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText(`\u0001`),
+      }
+      const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+        []
+
+      if (isFetched) {
+        savedFiles?.map(file => {
+          fileInfo.push({
+            name: file.name,
+            size: file.size,
+            fileKey: file.fileKey,
+          })
+        })
+      }
+
+      // file upload
+      if (data.file?.length) {
+        const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+          []
+        const formattedLanguage =
+          data.testType === 'Basic test'
+            ? data.target.map(value => value.value)
+            : formatData(
+                data.source.map(value => value.value),
+                data.target.map(value => value.value),
+              )
+
+        const paths: string[] = formattedLanguage
+          .map(language => {
+            return data.file?.map(file =>
+              getFilePath(
+                [
+                  'testPaper',
+                  data.testType === 'Basic test' ? 'basic' : 'skill',
+                  data.jobType.value,
+                  data.role.value,
+                  language,
+                  isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
+                ],
+                file.name,
+              ),
+            )
+          })
+          .flat()
+
+        const promiseArr = paths.map((url, idx) => {
+          return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
+            res => {
+              fileInfo.push({
+                name: data.file[idx].name,
+                size: data.file[idx]?.size,
+                fileKey: url,
+              })
+              return uploadFileToS3(res, data.file[idx])
+            },
+          )
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            finalValue.files = fileInfo
+            patchValue.files = fileInfo
+            isFetched
+              ? patchTestMutation.mutate(patchValue)
+              : postTestMutation.mutate(finalValue)
+          })
+          .catch(err => {
+            isFetched
+              ? patchTestMutation.mutate(patchValue)
+              : postTestMutation.mutate(finalValue)
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            )
+          })
+      } else {
+        patchValue.files = fileInfo
+        isFetched
+          ? patchTestMutation.mutate(patchValue)
+          : postTestMutation.mutate(finalValue)
+      }
+    }
   }
 
   useEffect(() => {

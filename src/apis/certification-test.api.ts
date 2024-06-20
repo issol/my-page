@@ -28,12 +28,11 @@ export const checkBasicTestExistence = async (
 }
 
 export interface TestFormType {
-  company: string
   writer: string
   email: string
   testType: string
-  source?: string
-  target: string
+  source?: Array<string>
+  target: Array<string>
   jobType?: string
   role?: string
   testPaperFormUrl: string
