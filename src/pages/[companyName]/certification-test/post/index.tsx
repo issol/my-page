@@ -913,8 +913,8 @@ const TestMaterialPost = () => {
           <Typography variant='h6'>Create test</Typography>
 
           <form>
-            <Box sx={{ display: 'flex', gap: 4 }}>
-              <Grid xs={9.55} container>
+            <Grid container spacing={6}>
+              <Grid xs={9.55} item>
                 <Box
                   sx={{
                     display: 'flex',
@@ -1399,7 +1399,7 @@ const TestMaterialPost = () => {
                   </Card>
                 </Box>
               </Grid>
-              <Grid container xs={2.45}>
+              <Grid item xs={2.45}>
                 <Box sx={{ width: '100%' }}>
                   <Card>
                     <Box
@@ -1524,7 +1524,7 @@ const TestMaterialPost = () => {
                   </Card>
                 </Box>
               </Grid>
-            </Box>
+            </Grid>
           </form>
         </Box>
       )}
