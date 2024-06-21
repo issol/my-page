@@ -5,6 +5,7 @@ import ProjectDetailsModal from './projectDetailsModal'
 const Portfolio = () => {
   // init one ref to store the future isotope object
   const isotope = useRef()
+  const [enableAnimation, setEnableAnimation] = useState(false)
   // store the filter keyword in a state
   const [filterKey, setFilterKey] = useState('*')
   const [imagesLoaded, setimagesLoaded] = useState(0)
@@ -15,10 +16,12 @@ const Portfolio = () => {
   const isRtl = htmlElement.getAttribute('dir') === 'rtl'
 
   const filters = {
-    DETAILED: 'Details',
-    MOCKUPS: 'Mockups',
-    YOUTUBE: 'Youtube Videos',
-    VIMEO: 'Vimeo Videos',
+    // DETAILED: 'Details',
+    // MOCKUPS: 'Mockups',
+    // YOUTUBE: 'Youtube Videos',
+    // VIMEO: 'Vimeo Videos',
+    TEAM: 'Team',
+    SINGLE: 'Single',
   }
 
   const types = {
@@ -60,7 +63,7 @@ const Portfolio = () => {
 
       thumbImage: '/images/projects/Enuff-main.png',
 
-      categories: [filters.DETAILED],
+      categories: [filters.TEAM],
     },
     {
       title: 'PSD 파일 번역 지원 서비스 - GloToon',
@@ -80,19 +83,29 @@ const Portfolio = () => {
             name: 'GloToon',
             link: 'https://psd-translation-tool.vercel.app/',
           },
+          {
+            name: 'Blog',
+            link: 'https://issol96.tistory.com/5',
+          },
         ],
       },
 
       thumbImage: '/images/projects/Glotoon.png',
 
-      categories: [filters.DETAILED],
+      categories: [filters.TEAM, filters.SINGLE],
     },
     {
       title: '유튜브 영상 번역을 통한 개인수익 창출 플랫폼 - GloHub',
       type: types.DOCUMENT,
       document: {
-        projectInfo:
-          '번역가들은 유튜브 영상 번역을 통한 개인 수익 창출, 요청자들은 플랫폼 내에서 프로젝트 관리 및 인보이스 관리까지 한 프로세스 관리가 가능한 플랫폼 개발',
+        projectInfo: (
+          <>
+            PRO : 번역가들이 유튜브 영상 번역을 통한 개인 수익 창출, 플랫폼
+            내에서 프로젝트 관리 및 인보이스 관리까지 한 프로세스 관리가 가능한
+            플랫폼 개발
+            <br /> Creator : 번역 작업 요청 및 결제 시스템 구현
+          </>
+        ),
         technologies:
           'Nextjs, React, React query, AWS S3, AWS Media Convert, MUI',
         date: '2021.09 ~ 2022.10',
@@ -120,7 +133,7 @@ const Portfolio = () => {
 
       thumbImage: '/images/projects/GloHub.png',
 
-      categories: [filters.DETAILED],
+      categories: [filters.TEAM],
     },
   ]
 
@@ -165,23 +178,45 @@ const Portfolio = () => {
     }
   }
 
+  useEffect(() => {
+    const portfolio = document.getElementById('portfolio')
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        if (window.innerHeight > portfolio.getBoundingClientRect().top) {
+          setEnableAnimation(true)
+        } else {
+          setEnableAnimation(false)
+        }
+      })
+    }
+  }, [])
+
   return (
     <>
       <section id='portfolio' className={'section'}>
         <div className={'container'}>
           {/* Heading */}
-          <p className='text-center mb-2 wow fadeInUp'>
+          <p
+            className={`text-center mb-2 ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             <span className='bg-primary text-dark px-2'>Portfolio</span>
           </p>
-          <h2 className='text-10 fw-600 text-center mb-5 wow fadeInUp'>
+          <h2
+            className={`text-10 fw-600 text-center mb-5 ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             Some of my most recent projects
           </h2>
           {/* Heading end*/}
           {/* Filter Menu */}
           <ul
-            className={
-              'portfolio-menu nav nav-tabs fw-600 justify-content-start justify-content-md-center border-bottom-0 mb-5 wow fadeInUp'
-            }
+            className={`portfolio-menu nav nav-tabs fw-600 justify-content-start justify-content-md-center border-bottom-0 mb-5 ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
           >
             <li className='nav-item'>
               <button
@@ -205,7 +240,11 @@ const Portfolio = () => {
             ))}
           </ul>
           {/* Filter Menu end */}
-          <div className='portfolio wow fadeInUp'>
+          <div
+            className={`portfolio ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             <div className='row portfolio-filter filter-container g-4'>
               {projectsData.length > 0 &&
                 projectsData.map((project, index) => (

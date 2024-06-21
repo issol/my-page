@@ -51,16 +51,10 @@ const Resume = () => {
 
   useEffect(() => {
     const resume = document.getElementById('resume')
-    const about = document.getElementById('about')
-    console.log(about.getBoundingClientRect())
 
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', () => {
-        if (
-          about.getBoundingClientRect().top +
-            about.getBoundingClientRect().height >
-          resume.getBoundingClientRect().top
-        ) {
+        if (window.innerHeight > resume.getBoundingClientRect().top) {
           setEnableAnimation(true)
         } else {
           setEnableAnimation(false)

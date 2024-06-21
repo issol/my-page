@@ -29,7 +29,7 @@ const DefaultIntro = () => {
                 }}
               />{' '}
             </h2>
-            {/* <p className='text-5'>based in Los Angeles, USA.</p> */}
+
             <Link
               className='btn btn-dark rounded-0 smooth-scroll mt-3'
               smooth='easeInOutQuint'
@@ -54,13 +54,13 @@ const DefaultIntro = () => {
           </div>
           <div className='col-lg-4 text-center align-self-center mb-4 mb-lg-0 order-0 order-lg-1'>
             <div className='bg-light rounded-pill d-inline-block p-3 shadow-lg zoomIn'>
-              {/* <Image
+              <Image
                 className='img-fluid rounded-pill d-block'
                 src='/profile.webp'
                 alt='Profile'
                 width={300}
                 height={300}
-              /> */}
+              />
             </div>
           </div>
         </div>

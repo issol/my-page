@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import React, { useState } from 'react'
 import { Link } from 'react-scroll'
 // import { scrollDuration } from '../../../config/commonConfig'
@@ -13,10 +14,11 @@ const StandardMenuHeader = () => {
   return (
     <header id='header' className='sticky-top'>
       {/* Navbar */}
-      <nav className='primary-menu navbar navbar-expand-lg text-uppercase navbar-line-under-text fw-600'>
+      <nav className='primary-menu navbar navbar-expand-lg text-uppercase navbar-line-under-text fw-600 border-1'>
         <div className='container'>
           <div className='col-auto col-lg-2 d-inline-flex ps-lg-0'>
             {/* Logo */}
+
             <Link
               className='logo'
               title='Callum'
@@ -37,6 +39,7 @@ const StandardMenuHeader = () => {
             >
               <p className='fs-4 fw-600 m-auto text-capitalize'>Issol</p>
             </Link>
+
             {/* Logo End */}
           </div>
           <div className='col col-lg-8 navbar-accordion px-0'>
@@ -103,23 +106,6 @@ const StandardMenuHeader = () => {
                     style={{ cursor: 'pointer' }}
                     activeClass='active'
                     spy
-                    to='services'
-                    onClick={() => {
-                      // e.preventDefault()
-                      setIsNavModalClose(true)
-                    }}
-                  >
-                    Services
-                  </Link>
-                </li>
-                <li className='nav-item'>
-                  <Link
-                    className='nav-link '
-                    smooth='easeInOutQuint'
-                    duration={scrollDuration}
-                    style={{ cursor: 'pointer' }}
-                    activeClass='active'
-                    spy
                     to='resume'
                     onClick={() => {
                       // e.preventDefault()
@@ -146,40 +132,7 @@ const StandardMenuHeader = () => {
                     Portfolio
                   </Link>
                 </li>
-                <li className='nav-item'>
-                  <Link
-                    className='nav-link '
-                    smooth='easeInOutQuint'
-                    duration={scrollDuration}
-                    style={{ cursor: 'pointer' }}
-                    activeClass='active'
-                    spy
-                    to='faq'
-                    onClick={() => {
-                      // e.preventDefault()
-                      setIsNavModalClose(true)
-                    }}
-                  >
-                    FAQ
-                  </Link>
-                </li>
-                <li className='nav-item'>
-                  <Link
-                    className='nav-link '
-                    smooth='easeInOutQuint'
-                    duration={scrollDuration}
-                    style={{ cursor: 'pointer' }}
-                    activeClass='active'
-                    spy
-                    to='testimonial'
-                    onClick={() => {
-                      // e.preventDefault()
-                      setIsNavModalClose(true)
-                    }}
-                  >
-                    Client
-                  </Link>
-                </li>
+
                 <li className='nav-item'>
                   <Link
                     className='nav-link '

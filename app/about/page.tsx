@@ -6,7 +6,6 @@ const AboutMe = () => {
 
   useEffect(() => {
     const about = document.getElementById('about')
-    console.log(about.getBoundingClientRect().top)
 
     if (typeof window !== 'undefined') {
       window.addEventListener('scroll', () => {

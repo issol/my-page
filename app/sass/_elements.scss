@@ -769,14 +769,25 @@ html[dir='rtl'] .nav-tabs {
 .portfolio {
   .portfolio-box {
     position: relative;
+
+    height: 240px;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
     .portfolio-img {
       position: relative;
       overflow: hidden;
+      height: 100%;
+      img {
+        height: 100%;
+        object-fit: contain;
+      }
     }
     .portfolio-overlay {
       text-align: center;
       display: -ms-flexbox !important;
       display: flex !important;
+      height: 100%;
       position: absolute;
       left: 0;
       right: 0;

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import { ToastContainer, toast } from 'react-toastify'
 
@@ -8,16 +8,19 @@ import { Tooltip } from '../components/Tooltip'
 const Contact = () => {
   const form = useRef()
   const [sendingMail, setSendingMail] = useState(false)
+  const [enableAnimation, setEnableAnimation] = useState(false)
 
   const sendEmail = e => {
     e.preventDefault()
     setSendingMail(true)
+    console.log(form.current)
+
     emailjs
       .sendForm(
-        'service_i8Fk3ms',
-        'template_siFcin9',
+        'service_h7erqmb',
+        'template_nbzlnnc',
         form.current,
-        'c9HsFgGF0tFWyVnAL',
+        'sIfnqCxymfeZ2SkHe',
       )
       .then(
         result => {
@@ -32,7 +35,7 @@ const Contact = () => {
             progress: undefined,
             theme: 'light',
           })
-          console.log(result.text)
+
           setSendingMail(false)
         },
         error => {
@@ -46,17 +49,35 @@ const Contact = () => {
             progress: undefined,
             theme: 'light',
           })
-          console.log(error.text)
+
           setSendingMail(false)
         },
       )
   }
 
+  useEffect(() => {
+    const contact = document.getElementById('contact')
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        if (window.innerHeight > contact.getBoundingClientRect().top) {
+          setEnableAnimation(true)
+        } else {
+          setEnableAnimation(false)
+        }
+      })
+    }
+  }, [])
+
   return (
     <section id='contact' className='section bg-primary'>
       <div className='container'>
         <div className='row'>
-          <div className='col-lg-5 text-center text-lg-start wow fadeInUp'>
+          <div
+            className={`col-lg-5 text-center text-lg-start ${
+              enableAnimation ? 'animate__animated animate__fadeInUp' : ''
+            }`}
+          >
             <h2 className='text-10 fw-600 mb-5'>감사합니다!</h2>
             <p className='text-5 mb-5'>
               성장하기 위해 익숙한 것은 되돌아보고, 낯설고 새로운 것에 도전하는
@@ -91,8 +112,11 @@ const Contact = () => {
             </ul>
           </div>
           <div
-            className='col-lg-6 ms-auto mt-5 mt-lg-0 wow fadeInUp'
-            data-wow-delay='0.3s'
+            className={`col-lg-6 ms-auto mt-5 mt-lg-0 ${
+              enableAnimation
+                ? 'animate__animated animate__fadeInUp animate animate__delay-0.3s'
+                : ''
+            }`}
           >
             <h2 className='text-10 fw-600 text-center text-lg-start mb-5'>
               연락 주실 일이 생기신다면?
