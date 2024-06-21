@@ -22,8 +22,8 @@ export type TestMaterialFilterPayloadType = {
 
 export type BasicTestExistencePayloadType = {
   testType: string
-  sourceLanguage?: string
-  targetLanguage: string
+  source?: string[]
+  target: string[]
   jobType?: string
   role?: string
 }

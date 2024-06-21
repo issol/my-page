@@ -20,7 +20,14 @@ export const getTestMaterialList = async (
 
 export const checkBasicTestExistence = async (
   filters: BasicTestExistencePayloadType,
-): Promise<boolean> => {
+): Promise<
+  Array<{
+    source: string
+    target: string
+    jobType: string
+    role: string
+  }>
+> => {
   const data = await axios.get(
     `/api/enough/cert/test/paper/created-check?${makeQuery(filters)}`,
   )
@@ -48,7 +55,10 @@ export type PatchFormType = Omit<
 
 export const postTest = async (
   form: TestFormType,
-): Promise<{ duplicateTest: Array<number>; createdTest: Array<number> }> => {
+): Promise<{
+  duplicateTest: Array<{ testPaperId: number }>
+  createdTest: Array<{ testPaperId: number }>
+}> => {
   try {
     const { data } = await axios.post(`/api/enough/cert/test/paper`, form)
     return data

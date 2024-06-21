@@ -100,9 +100,9 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { content } from 'html2canvas/dist/types/css/property-descriptors/content'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -154,8 +154,8 @@ const TestMaterialPost = () => {
   >([]) //check if the guideline is already exist
 
   const [isDuplicatedTest, setIsDuplicatedTest] = useState<{
-    source: string | null
-    target: string
+    source: string[] | null
+    target: string[]
     jobType: string | null
     role: string | null
     status: boolean
@@ -202,6 +202,62 @@ const TestMaterialPost = () => {
     } else {
       return [`${source[0]} -> ${target[0]}`]
     }
+  }
+  const formatModalData = (source: string[], target: string[]): string[] => {
+    if (source.length > 1) {
+      return source.map(
+        (src, idx) =>
+          `${src.toUpperCase()} \u2192 ${target[0].toUpperCase()}${idx === source.length - 1 ? '' : ', '}`,
+      )
+    } else if (target.length > 1) {
+      return target.map(
+        (tgt, idx) =>
+          `${source[0].toUpperCase()} \u2192 ${tgt.toUpperCase()}${idx === target.length - 1 ? '' : ', '}`,
+      )
+    } else {
+      return [`${source[0].toUpperCase()} \u2192 ${target[0].toUpperCase()}`]
+    }
+  }
+
+  type ResType = {
+    source: string
+    target: string
+    jobType: string
+    role: string
+  }
+
+  function sortRes(res: Array<ResType>) {
+    const initialValue: {
+      source: string[]
+      target: string[]
+      jobType: string | null
+      role: string | null
+    } = {
+      source: [],
+      target: [],
+      jobType: null,
+      role: null,
+    }
+
+    let sortedRes = res.reduce((acc, cur) => {
+      if (!acc.source.includes(cur.source)) {
+        acc.source.push(cur.source)
+      }
+      if (!acc.target.includes(cur.target)) {
+        acc.target.push(cur.target)
+      }
+      acc.jobType = cur.jobType
+      acc.role = cur.role
+      return acc
+    }, initialValue)
+
+    if (sortedRes.source.length > 1) {
+      sortedRes.target = [sortedRes.target[0]]
+    } else if (sortedRes.target.length > 1) {
+      sortedRes.source = [sortedRes.source[0]]
+    }
+
+    return sortedRes
   }
 
   // ** Hooks
@@ -393,6 +449,8 @@ const TestMaterialPost = () => {
     ) as Resolver<TestMaterialPostType>,
   })
 
+  console.log(getValues())
+
   const getValid = () => {
     if (isFetched) {
       return (
@@ -541,7 +599,9 @@ const TestMaterialPost = () => {
       if (createdTest.length === 0) {
         displayCustomToast('Something went wrong. Please try again.', 'error')
       } else if (createdTest.length === 1) {
-        router.replace(`/certification-test/detail/${createdTest[0]}`)
+        router.replace(
+          `/certification-test/detail/${createdTest[0].testPaperId}`,
+        )
       } else {
         router.replace(`/certification-test`)
       }
@@ -701,67 +761,143 @@ const TestMaterialPost = () => {
       },
     },
   )
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (value.testType === 'Basic test') {
-        if (value.target && value.target.length) {
-          let targetArray = value.target
-          let lastElement = targetArray[targetArray.length - 1]
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => {
+  //     console.log(value, 'subscription')
 
-          const filter: BasicTestExistencePayloadType = {
-            targetLanguage: lastElement?.value!,
-            testType: 'basic',
-          }
+  //     if (value.testType === 'Basic test') {
+  //       if (value.target && value.target.length) {
+  //         const targetArray: string[] = value.target.map(value => value?.value!)
 
-          checkBasicTestExistence(filter).then(res =>
+  //         const filter: BasicTestExistencePayloadType = {
+  //           target: targetArray,
+  //           testType: 'basic',
+  //         }
+
+  //         checkBasicTestExistence(filter).then(res => {
+  //           if (res.length > 0) {
+  //             setIsDuplicatedTest({
+  //               source: null,
+  //               target: [res[0].target],
+  //               jobType: null,
+  //               role: null,
+  //               status: true,
+  //             })
+  //           }
+  //         })
+  //       }
+  //     } else {
+  //       if (
+  //         value.source &&
+  //         value.source.length &&
+  //         value.jobType &&
+  //         value.jobType.value !== '' &&
+  //         value.role &&
+  //         value.role.value !== '' &&
+  //         value.target &&
+  //         value.target.length
+  //       ) {
+  //         const targetArray: string[] = value.target.map(value => value?.value!)
+  //         const sourceArray: string[] = value.source.map(value => value?.value!)
+
+  //         const filter: BasicTestExistencePayloadType = {
+  //           source: sourceArray,
+  //           target: targetArray,
+  //           jobType: value.jobType.value!,
+  //           role: value.role.value!,
+  //           testType: 'skill',
+  //         }
+
+  //         checkBasicTestExistence(filter).then(
+  //           res => {
+  //             if (res.length > 0) {
+  //               setIsDuplicatedTest({
+  //                 ...sortRes(res),
+  //                 status: true,
+  //               })
+  //               console.log(sortRes(res))
+  //             }
+  //           },
+  //           // setIsDuplicatedTest({
+  //           //   source: filter.sourceLanguage ?? null,
+  //           //   target: filter.targetLanguage,
+  //           //   jobType: filter.jobType ?? null,
+  //           //   role: filter.role ?? null,
+  //           //   status: res,
+  //           // }),
+  //         )
+  //       }
+  //     }
+  //   })
+  //   return () => subscription.unsubscribe()
+  // }, [watch])
+
+  const handleChangeInputField = () => {
+    const value = getValues()
+    if (value.testType === 'Basic test') {
+      if (value.target && value.target.length) {
+        const targetArray: string[] = value.target.map(value => value?.value!)
+
+        const filter: BasicTestExistencePayloadType = {
+          target: targetArray,
+          testType: 'basic',
+        }
+
+        checkBasicTestExistence(filter).then(res => {
+          if (res.length > 0) {
             setIsDuplicatedTest({
               source: null,
-              target: filter.targetLanguage,
+              target: [res[0].target],
               jobType: null,
               role: null,
-              status: res,
-            }),
-          )
-        }
-      } else {
-        if (
-          value.source &&
-          value.source.length &&
-          value.jobType &&
-          value.jobType.value !== '' &&
-          value.role &&
-          value.role.value !== '' &&
-          value.target &&
-          value.target.length
-        ) {
-          let targetArray = value.target
-          let targetLastElement = targetArray[targetArray.length - 1]
-
-          let sourceArray = value.source
-          let sourceLastElement = sourceArray[sourceArray.length - 1]
-
-          const filter: BasicTestExistencePayloadType = {
-            sourceLanguage: sourceLastElement?.value!,
-            targetLanguage: targetLastElement?.value!,
-            jobType: value.jobType.value!,
-            role: value.role.value!,
-            testType: 'skill',
+              status: true,
+            })
           }
-
-          checkBasicTestExistence(filter).then(res =>
-            setIsDuplicatedTest({
-              source: filter.sourceLanguage ?? null,
-              target: filter.targetLanguage,
-              jobType: filter.jobType ?? null,
-              role: filter.role ?? null,
-              status: res,
-            }),
-          )
-        }
+        })
       }
-    })
-    return () => subscription.unsubscribe()
-  }, [watch])
+    } else {
+      if (
+        value.source &&
+        value.source.length &&
+        value.jobType &&
+        value.jobType.value !== '' &&
+        value.role &&
+        value.role.value !== '' &&
+        value.target &&
+        value.target.length
+      ) {
+        const targetArray: string[] = value.target.map(value => value?.value!)
+        const sourceArray: string[] = value.source.map(value => value?.value!)
+
+        const filter: BasicTestExistencePayloadType = {
+          source: sourceArray,
+          target: targetArray,
+          jobType: value.jobType.value!,
+          role: value.role.value!,
+          testType: 'skill',
+        }
+
+        checkBasicTestExistence(filter).then(
+          res => {
+            if (res.length > 0) {
+              setIsDuplicatedTest({
+                ...sortRes(res),
+                status: true,
+              })
+              console.log(sortRes(res))
+            }
+          },
+          // setIsDuplicatedTest({
+          //   source: filter.sourceLanguage ?? null,
+          //   target: filter.targetLanguage,
+          //   jobType: filter.jobType ?? null,
+          //   role: filter.role ?? null,
+          //   status: res,
+          // }),
+        )
+      }
+    }
+  }
 
   const onSubmit = (edit: boolean) => {
     if (auth.state === 'hasValue') {
@@ -874,42 +1010,99 @@ const TestMaterialPost = () => {
   }
 
   useEffect(() => {
+    console.log(isDuplicatedTest)
+
     if (isDuplicatedTest && isDuplicatedTest.status && !isFetched) {
       openModal({
         type: 'DuplicatedModal',
         children: (
-          <CustomModal
+          <CustomModalV2
+            vary='error-alert'
             soloButton
-            title={
-              <>
-                {selectedTestType === 'Basic test' ? (
-                  <Typography variant='body2' fontSize={16}>
-                    <span style={{ fontWeight: 700 }}>
-                      {languageHelper(isDuplicatedTest.target)}&nbsp;
-                    </span>
-                    {selectedTestType.toLowerCase()} has already been created.
-                  </Typography>
-                ) : (
-                  <Typography variant='body2' fontSize={16}>
-                    <span style={{ fontWeight: 700 }}>
-                      {isDuplicatedTest.jobType}, {isDuplicatedTest.role}{' '}
-                      {isDuplicatedTest.source?.toUpperCase()} &rarr;{' '}
-                      {isDuplicatedTest.target.toUpperCase()}
-                    </span>
-                    <br />
-                    {selectedTestType.toLowerCase()} has already been created.
-                  </Typography>
-                )}
-              </>
-            }
             rightButtonText='Okay'
-            vary='error'
             onClose={() => closeModal('DuplicatedModal')}
             onClick={() => {
               setIsDuplicatedTest(null)
               closeModal('DuplicatedModal')
-              resetFormSelection()
+              const currentSource = getValues('source')
+              const currentTarget = getValues('target')
+              const { source, target } = isDuplicatedTest
+
+              const findSource = source?.map(value => {
+                return uniqueLanguageList.find(
+                  lang => lang.value === value,
+                ) as { value: string; label: string }
+              })
+              const findTarget = target?.map(value => {
+                return uniqueLanguageList.find(
+                  lang => lang.value === value,
+                ) as { value: string; label: string }
+              })
+
+              let newSource = currentSource
+              let newTarget = currentTarget
+
+              if (currentSource.length > 1) {
+                newSource = currentSource.filter(
+                  value => !findSource?.includes(value),
+                )
+              }
+
+              if (currentTarget.length > 1) {
+                newTarget = currentTarget.filter(
+                  value => !findTarget.includes(value),
+                )
+              }
+
+              setValue('source', newSource, {
+                shouldDirty: false,
+                shouldValidate: false,
+              })
+              setValue('target', newTarget, {
+                shouldDirty: false,
+                shouldValidate: false,
+              })
             }}
+            title='Test(s) already exist'
+            subtitle={
+              <>
+                {selectedTestType === 'Basic test' ? (
+                  <Typography variant='body2' fontSize={16}>
+                    <span style={{ fontWeight: 700 }}>
+                      {languageHelper(isDuplicatedTest.target[0])}&nbsp;
+                    </span>
+                    {selectedTestType.toLowerCase()} has already been created.
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant='body2'
+                    fontSize={16}
+                    sx={{
+                      overflow: 'hidden',
+                      wordBreak: 'break-all',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 5,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    <span style={{ fontWeight: 700 }}>
+                      {isDuplicatedTest.jobType}, {isDuplicatedTest.role}{' '}
+                      {/* {isDuplicatedTest.source?.toUpperCase()} &rarr;{' '}
+                          {isDuplicatedTest.target.toUpperCase()} */}
+                    </span>
+                    test for the following language(s) has already been
+                    created:&nbsp;
+                    <span style={{ fontWeight: 700 }}>
+                      {formatModalData(
+                        isDuplicatedTest.source!,
+                        isDuplicatedTest.target,
+                      )}
+                    </span>
+                  </Typography>
+                )}
+              </>
+            }
           />
         ),
       })
@@ -977,7 +1170,15 @@ const TestMaterialPost = () => {
                         />
                       </Grid>
 
-                      <Grid item xs={6}>
+                      <Grid
+                        item
+                        xs={6}
+                        sx={{
+                          '& .MuiAutocomplete-popper': {
+                            zIndex: '1299 !important',
+                          },
+                        }}
+                      >
                         {enableMultiSourceLanguage ? (
                           <Controller
                             control={control}
@@ -987,9 +1188,11 @@ const TestMaterialPost = () => {
                                 fullWidth
                                 multiple
                                 limitTags={1}
-                                disableCloseOnSelect={
-                                  !!isDuplicatedTest && !isDuplicatedTest.status
-                                }
+                                disablePortal
+                                disableCloseOnSelect
+                                // disableCloseOnSelect={
+                                //   !!isDuplicatedTest && !isDuplicatedTest.status
+                                // }
                                 value={value || []}
                                 onChange={(e, v) => {
                                   if (v) {
@@ -999,6 +1202,7 @@ const TestMaterialPost = () => {
                                       setEnableMultiTargetLanguage(true)
                                     }
                                     onChange(v)
+                                    handleChangeInputField()
                                   } else {
                                     onChange([])
                                   }
@@ -1049,6 +1253,7 @@ const TestMaterialPost = () => {
                                 onChange={(e, v) => {
                                   if (v) {
                                     onChange([v])
+                                    handleChangeInputField()
                                   } else {
                                     onChange([])
                                   }
@@ -1089,7 +1294,15 @@ const TestMaterialPost = () => {
                         )} */}
                       </Grid>
 
-                      <Grid item xs={6}>
+                      <Grid
+                        item
+                        xs={6}
+                        sx={{
+                          '& .MuiAutocomplete-popper': {
+                            zIndex: '1299 !important',
+                          },
+                        }}
+                      >
                         {enableMultiTargetLanguage ? (
                           <Controller
                             control={control}
@@ -1097,11 +1310,15 @@ const TestMaterialPost = () => {
                             render={({ field: { onChange, value } }) => (
                               <Autocomplete
                                 fullWidth
+                                disablePortal
                                 multiple
                                 limitTags={1}
-                                disableCloseOnSelect={
-                                  !!isDuplicatedTest && !isDuplicatedTest.status
-                                }
+                                disableCloseOnSelect
+                                // disableCloseOnSelect={
+                                //   isDuplicatedTest === null ||
+                                //   (isDuplicatedTest !== null &&
+                                //     !isDuplicatedTest.status)
+                                // }
                                 // filterSelectedOptions
                                 value={value || []}
                                 onChange={(e, v) => {
@@ -1112,13 +1329,13 @@ const TestMaterialPost = () => {
                                       setEnableMultiSourceLanguage(true)
                                     }
                                     onChange(v)
+                                    handleChangeInputField()
                                   } else {
                                     setEnableMultiSourceLanguage(true)
                                     onChange([])
                                   }
                                 }}
                                 options={uniqueLanguageList}
-                                id='target'
                                 disabled={isFetched}
                                 getOptionLabel={option => option.label}
                                 isOptionEqualToValue={(option, newValue) => {
@@ -1157,6 +1374,7 @@ const TestMaterialPost = () => {
                                 onChange={(e, v) => {
                                   if (v) {
                                     onChange([v])
+                                    handleChangeInputField()
                                   } else {
                                     onChange([])
                                   }
@@ -1191,7 +1409,15 @@ const TestMaterialPost = () => {
                       </Grid>
                       {selectedTestType === 'Skill test' ? (
                         <>
-                          <Grid item xs={6}>
+                          <Grid
+                            item
+                            xs={6}
+                            sx={{
+                              '& .MuiAutocomplete-popper': {
+                                zIndex: '1299 !important',
+                              },
+                            }}
+                          >
                             <Controller
                               control={control}
                               name='jobType'
@@ -1213,6 +1439,7 @@ const TestMaterialPost = () => {
                                       setRoleOptions(res)
                                       setJobTypeSelected(true)
                                       onChange(v)
+                                      handleChangeInputField()
                                     }
                                   }}
                                   isOptionEqualToValue={(option, newValue) => {
@@ -1241,7 +1468,15 @@ const TestMaterialPost = () => {
                               </FormHelperText>
                             )}
                           </Grid>
-                          <Grid item xs={6}>
+                          <Grid
+                            item
+                            xs={6}
+                            sx={{
+                              '& .MuiAutocomplete-popper': {
+                                zIndex: '1299 !important',
+                              },
+                            }}
+                          >
                             <Controller
                               control={control}
                               name='role'
@@ -1252,7 +1487,10 @@ const TestMaterialPost = () => {
                                   value={value}
                                   onChange={(e, v) => {
                                     if (!v) onChange({ value: '', label: '' })
-                                    else onChange(v)
+                                    else {
+                                      onChange(v)
+                                      handleChangeInputField()
+                                    }
                                   }}
                                   options={roleOptions}
                                   disabled={!jobTypeSelected || isFetched}
