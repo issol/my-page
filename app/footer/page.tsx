@@ -1,3 +1,5 @@
+'use client'
+
 const Footer = () => {
   return (
     <footer id='footer' className='section bg-dark text-white'>

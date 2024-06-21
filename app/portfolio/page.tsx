@@ -1,6 +1,13 @@
+'use client'
+
 import React, { useEffect, useRef, useState } from 'react'
 import Isotope from 'isotope-layout'
-import ProjectDetailsModal from './projectDetailsModal'
+
+import dynamic from 'next/dynamic'
+
+const ProjectDetailsModal = dynamic(() => import('./projectDetailsModal'), {
+  ssr: false,
+})
 
 const Portfolio = () => {
   // init one ref to store the future isotope object

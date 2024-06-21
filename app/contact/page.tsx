@@ -1,9 +1,16 @@
+'use client'
+
 import React, { useEffect, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import { ToastContainer, toast } from 'react-toastify'
 
 import 'react-toastify/dist/ReactToastify.css'
-import { Tooltip } from '../components/Tooltip'
+
+import dynamic from 'next/dynamic'
+
+const Tooltip = dynamic(() => import('../components/tooltip'), {
+  ssr: false,
+})
 
 const Contact = () => {
   const form = useRef()
@@ -121,7 +128,7 @@ const Contact = () => {
             <h2 className='text-10 fw-600 text-center text-lg-start mb-5'>
               연락 주실 일이 생기신다면?
             </h2>
-            {/* Contact Form */}
+
             <form
               id='contact-form'
               className='form-border'
@@ -195,7 +202,6 @@ const Contact = () => {
                 <ToastContainer />
               </div>
             </form>
-            {/* Contact Form end */}
           </div>
         </div>
       </div>
