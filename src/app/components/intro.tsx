@@ -19,7 +19,7 @@ const DefaultIntro = () => {
               안녕하세요 저는
             </h1>
             <h2 className='text-20 fw-600 text-uppercase mb-0 ms-n1'>
-              {/* <Typewriter
+              <Typewriter
                 options={{
                   strings: ['프론트엔드 개발자', '김민규 입니다.'],
                   autoStart: true,
@@ -27,7 +27,7 @@ const DefaultIntro = () => {
                   delay: 100,
                   deleteSpeed: 100,
                 }}
-              />{' '} */}
+              />{' '}
             </h2>
 
             <Link
