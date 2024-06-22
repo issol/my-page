@@ -117,7 +117,7 @@ const AboutMe = () => {
               </a>
             </p>
           </div>
-          <div
+          {/* <div
             className={`col-6 col-lg-3 ${
               enableAnimation
                 ? 'animate__animated animate__fadeInUp animate__delay-0.3s'
@@ -126,8 +126,8 @@ const AboutMe = () => {
           >
             <p className='text-muted fw-500 mb-0'>Date of birth</p>
             <p className='text-4 text-dark fw-600 mb-0'>1996년 02월 21일</p>
-          </div>
-          <div
+          </div> */}
+          {/* <div
             className={`col-6 col-lg-3 ${
               enableAnimation
                 ? 'animate__animated animate__fadeInUp animate__delay-0.4s'
@@ -136,7 +136,7 @@ const AboutMe = () => {
           >
             <p className='text-muted fw-500 mb-0'>From</p>
             <p className='text-4 text-dark fw-600 mb-0'>서울, 한국</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
