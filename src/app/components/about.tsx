@@ -8,7 +8,7 @@ const AboutMe = () => {
   useEffect(() => {
     const about = document.getElementById('about')
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && about) {
       window.addEventListener('scroll', () => {
         if (window.innerHeight > about.getBoundingClientRect().top) {
           setEnableAnimation(true)

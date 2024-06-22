@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import dynamic from 'next/dynamic'
 
-const Tooltip = dynamic(() => import('../components/tooltip'), {
+const Tooltip = dynamic(() => import('./tooltip'), {
   ssr: false,
 })
 
@@ -17,7 +17,7 @@ const Contact = () => {
   const [sendingMail, setSendingMail] = useState(false)
   const [enableAnimation, setEnableAnimation] = useState(false)
 
-  const sendEmail = e => {
+  const sendEmail = (e: any) => {
     e.preventDefault()
     setSendingMail(true)
     console.log(form.current)
@@ -26,7 +26,7 @@ const Contact = () => {
       .sendForm(
         'service_h7erqmb',
         'template_nbzlnnc',
-        form.current,
+        form.current!,
         'sIfnqCxymfeZ2SkHe',
       )
       .then(
