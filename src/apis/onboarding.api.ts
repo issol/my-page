@@ -87,7 +87,7 @@ export const addCreateProAppliedRole = async (
 export const addCreateProAppliedTest = async (
   payload: AddRolePayloadType[],
 ) => {
-  await axios.post('/api/enough/cert/request/role', { data: payload })
+  await axios.post('/api/enough/cert/request/grant-role', { data: payload })
   // return Promise.resolve()
 }
 
