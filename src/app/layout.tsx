@@ -1,14 +1,12 @@
-import { Inter } from 'next/font/google'
-
 // import AboutMe from './about/page'
 
 // import 'animate.css'
 import './globals.css'
-import { Suspense, useEffect, useState } from 'react'
 
-import dynamic from 'next/dynamic'
-import Providers from './provider'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
+import Providers from './provider'
 
 // export const dynamic = 'force-dynamic'
 
@@ -82,6 +80,8 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>{children}</Providers>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
